@@ -1,0 +1,49 @@
+<!--
+
+    Copyright 2017 Goldman Sachs.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<dbSystemConfig type="com.gs.obevo.db.api.factory.DbEnvironmentXmlEnricherTest2DbPlatform"
+    autoInitEnabled="false"
+    >
+    <schemas>
+        <schema name="DEPLOY_TRACKER" />
+    </schemas>
+    <environments>
+        <dbEnvironment name="test1" type="DEV" cleanBuildAllowed="true" dbHost="myhost1.me.com"
+            dbPort="1234"
+            dbServer="MYSERVER1">
+        </dbEnvironment>
+        <dbEnvironment name="test2" type="DEV" cleanBuildAllowed="true" dbHost="myhost1.me.com"
+            dbPort="1234"
+            dbServer="MYSERVER1"
+            autoReorgEnabled="false">
+        </dbEnvironment>
+    </environments>
+    <permissions>
+        <permission scheme="TABLE">
+            <grant groups="DACT_RO_BATCH1, DACT_RO_BATCH2, DACT_RO" users="CMDRRODB" privileges="SELECT" />
+            <grant groups="DACT_RO_BATCH1, DACT_RO_BATCH2, DACT_RW" users="CMDRRWDB"
+                privileges="SELECT, INSERT, UPDATE, DELETE, INDEX, REFERENCES" />
+        </permission>
+        <permission scheme="VIEW">
+            <grant groups="DACT_RW_BATCH1, DACT_RW_BATCH2, DACT_RW" users="CMDRRWDB"
+                privileges="SELECT, INSERT, UPDATE, DELETE" />
+        </permission>
+        <permission scheme="PROCEDURE">
+            <grant groups="DACT_RW_BATCH1, DACT_RW_BATCH2" privileges="EXECUTE" />
+        </permission>
+    </permissions>
+</dbSystemConfig>

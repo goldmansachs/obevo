@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright 2017 Goldman Sachs.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<license-lookup xmlns="https://source.jasig.org/schemas/maven-notice-plugin/license-lookup"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://source.jasig.org/schemas/maven-notice-plugin/license-lookup https://source.jasig.org/schemas/maven-notice-plugin/license-lookup/license-lookup-v1.0.xsd">
+    <!-- These artifact licenses could not be resolved by default; needed license entries as defined in
+    https://source.jasig.org/licenses/license-mappings.xml -->
+    <artifact>
+        <groupId>classworlds</groupId>
+        <artifactId>classworlds</artifactId>
+        <license>BSD Style License</license>
+    </artifact>
+    <artifact>
+        <groupId>de.zeigermann.xml</groupId>
+        <artifactId>xml-im-exporter</artifactId>
+        <license>BSD License</license>
+    </artifact>
+    <artifact>
+        <groupId>junit-addons</groupId>
+        <artifactId>junit-addons</artifactId>
+        <license>Apache License, Version 2.0</license>
+    </artifact>
+    <artifact>
+        <groupId>jdom</groupId>
+        <artifactId>jdom</artifactId>
+        <license>Apache style license</license>
+    </artifact>
+    <artifact>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-container-default</artifactId>
+        <license>Apache License, Version 2.0</license>
+    </artifact>
+    <artifact>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-interactivity-api</artifactId>
+        <license>Apache License, Version 2.0</license>
+    </artifact>
+    <artifact>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
+        <license>EPL 1.0</license>
+    </artifact>
+
+    <!-- Overriding name -->
+    <artifact>
+        <groupId>com.typesafe</groupId>
+        <artifactId>config</artifactId>
+        <version type="regex">.*</version>
+        <name>Typesafe Config</name>
+    </artifact>
+
+    <!-- Overriding licenses -->
+    <artifact>
+        <groupId>org.eclipse.collections</groupId>
+        <artifactId>eclipse-collections</artifactId>
+        <version type="regex">.*</version>
+        <license>Eclipse Public License - v 1.0</license>
+    </artifact>
+    <artifact>
+        <groupId>org.eclipse.collections</groupId>
+        <artifactId>eclipse-collections-testutils</artifactId>
+        <version type="regex">.*</version>
+        <license>Eclipse Public License - v 1.0</license>
+    </artifact>
+    <artifact>
+        <groupId>org.eclipse.collections</groupId>
+        <artifactId>eclipse-collections-api</artifactId>
+        <version type="regex">.*</version>
+        <license>Eclipse Public License - v 1.0</license>
+    </artifact>
+    <artifact>
+        <groupId>org.jgrapht</groupId>
+        <artifactId>jgrapht-core</artifactId>
+        <version type="regex">.*</version>
+        <license>Eclipse Public License (EPL) 1.0</license>
+    </artifact>
+    <artifact>
+        <groupId>us.fatehi</groupId>
+        <artifactId>schemacrawler</artifactId>
+        <version type="regex">.*</version>
+        <license>Eclipse Public License - v 1.0</license>
+    </artifact>
+    <artifact>
+        <groupId>us.fatehi</groupId>
+        <artifactId>schemacrawler-hsqldb</artifactId>
+        <version type="regex">.*</version>
+        <license>Eclipse Public License - v 1.0</license>
+    </artifact>
+    <artifact>
+        <groupId>us.fatehi</groupId>
+        <artifactId>schemacrawler-sybaseiq</artifactId>
+        <version type="regex">.*</version>
+        <license>Eclipse Public License - v 1.0</license>
+    </artifact>
+    <artifact>
+        <groupId>us.fatehi</groupId>
+        <artifactId>schemacrawler-postgresql</artifactId>
+        <version type="regex">.*</version>
+        <license>Eclipse Public License - v 1.0</license>
+    </artifact>
+    <artifact>
+        <groupId>us.fatehi</groupId>
+        <artifactId>schemacrawler-oracle</artifactId>
+        <version type="regex">.*</version>
+        <license>Eclipse Public License - v 1.0</license>
+    </artifact>
+    <artifact>
+        <groupId>us.fatehi</groupId>
+        <artifactId>schemacrawler-sqlserver</artifactId>
+        <version versionType="string">14.15.02</version>
+        <license>Eclipse Public License - v 1.0</license>
+    </artifact>
+    <artifact>
+        <groupId>us.fatehi</groupId>
+        <artifactId>schemacrawler-hsqldb</artifactId>
+        <version versionType="string">14.15.02</version>
+        <license>Eclipse Public License - v 1.0</license>
+    </artifact>
+    <artifact>
+        <groupId>us.fatehi</groupId>
+        <artifactId>schemacrawler-db2</artifactId>
+        <version versionType="string">14.15.02</version>
+        <license>Eclipse Public License - v 1.0</license>
+    </artifact>
+</license-lookup>

@@ -1,0 +1,73 @@
+<!--
+
+    Copyright 2017 Goldman Sachs.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<dbSystemConfig type="com.gs.obevo.db.api.factory.DbEnvironmentXmlEnricherTest1DbPlatform"
+    autoReorgEnabled="false"
+    dataDelimiter="!"
+    nullToken="nulTok"
+    sourceDirs="DbEnvironmentXmlEnricher/extradir1,DbEnvironmentXmlEnricher/extradir2,./src/test/resources/DbEnvironmentXmlEnricher/test1,./src/test/resources/DbEnvironmentXmlEnricher/test2">
+    <schemas>
+        <schema name="SCHEMA1">
+            <excludes>
+                <table>tab1</table>
+                <table>tab2</table>
+                <tablePattern>tabPat1</tablePattern>
+                <viewPattern>viewPat1</viewPattern>
+                <viewPattern>viewPat2</viewPattern>
+            </excludes>
+            <duplicateIndexNames>true</duplicateIndexNames>
+        </schema>
+        <schema name="SCHEMA2" />
+        <schema name="SCHEMA3" />
+    </schemas>
+    <groups>
+        <group name="grp1" />
+        <group name="grp2" />
+    </groups>
+    <users>
+        <user name="usr1" />
+        <user name="usr2" password="pass" admin="true" />
+    </users>
+    <environments>
+        <dbEnvironment name="test1" type="DEV" cleanBuildAllowed="true" dbHost="host" dbPort="123" dbServer="dbServ"
+            dbDataSourceName="dbSrc" dbSchemaPrefix="pref" dbSchemaSuffix="suff" defaultUserId="defId"
+            defaultPassword="defPass" persistToFile="true" disableAuditTracking="true" jdbcUrl="url"
+            defaultTablespace="defTab">
+        </dbEnvironment>
+        <dbEnvironment name="test2" cleanBuildAllowed="false" type="UAT">
+        </dbEnvironment>
+        <!-- Duplicate environment name! Should be detected as an exception -->
+        <dbEnvironment name="test2" cleanBuildAllowed="false" type="UAT">
+        </dbEnvironment>
+    </environments>
+    <permissions>
+        <permission scheme="TABLE">
+            <grant groups="DACT_RO_BATCH1, DACT_RO_BATCH2, DACT_RO" users="CMDRRODB" privileges="SELECT" />
+            <grant groups="DACT_RW_BATCH1, DACT_RW_BATCH2, DACT_RW" users="CMDRRWDB"
+                privileges="SELECT, INSERT, UPDATE, DELETE, INDEX, REFERENCES" />
+        </permission>
+        <permission scheme="VIEW">
+            <grant groups="DACT_RW_BATCH1, DACT_RW_BATCH2, DACT_RW" users="CMDRRWDB"
+                privileges="SELECT, INSERT, UPDATE, DELETE" />
+        </permission>
+        <permission scheme="PROCEDURE">
+            <grant groups="DACT_RW_BATCH1, DACT_RW_BATCH2" privileges="EXECUTE" />
+        </permission>
+    </permissions>
+    <auditTableSql><![CDATA[global
+sql]]></auditTableSql>
+</dbSystemConfig>

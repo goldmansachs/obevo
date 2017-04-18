@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+
+    Copyright 2017 Goldman Sachs.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+    <properties>
+        <title>Overview</title>
+    </properties>
+    <body>
+        <subsection name="Preface"></subsection>
+        <p>Before we start, we'd like to mention that one of the keys to this tool is to make your db schema maintenance
+            easy, whether for large or small DBs, for new or existing.
+        </p>
+        <p>Particuarly existing systems - if you haven't managed your DB schemas in source code before, it
+            usually would be painful to get that under source control, and thus DeployAnywhere has functionality to make
+            it as easy as possible (and continually looks to improve)
+        </p>
+        <p>DeployAnywhere was built to handle such cases (and vetted by many existing systems at Goldman Sachs).
+            See here JIRATOREPLACE-DEPLOYANY-753 for an example project (an actual system whose names and contents have
+            been anonymized, while preserving the object types and relationships). In our opinion, the resulting code is
+            rather maintainable (considering the hundreds of db objects!) compared to what may otherwise result if the
+            system was maintained only using incremental update scripts.
+        </p>
+        <subsection name="Overview of how &quot;most database deployment tools&quot; work"></subsection>
+        <p>Some Background - the key fact is that a database is maintained over time with <i>incremental</i>
+             changes
+        </p>
+        <ul>
+            <li>i.e. you cannot redefine a DB table by simply editing the existing definition</li>
+            <li>This is because the only way to perform such changes in SQL is by dropping and re-adding the table, and
+                this is not possible as tables have data in it
+            </li>
+            <li>Instead, you must define ALTER statements on top of the existing tables to make changes</li>
+        </ul>
+        <p>Hence, most DB deployment tools operate in this manner:</p>
+        <ul>
+            <li>Developers define the DB changes (i.e some create/alter command) in source control, with the changes
+                identifiable by a certain convention (one example is to do one change per file, with the<i>name</i> of
+                the change being the file name)
+            </li>
+            <li>The tool is executed against a target database. The changes that get applied are stored in a table in
+                the target database (keyed off the <i>name</i> of the change)
+            </li>
+            <li>Upon subsequent calls to the deployment tool, the tool will use this audit trail to know which changes
+                should get deployed (i.e. &quot;set of changes defined in your code&quot; minus &quot;set of changes in
+                the audit db&quot; = &quot;set of changes to deploy&quot;)
+                <ul>
+                    <li>This implies that once a change is deployed to a DB, that the change should no longer be
+                        modified in source control
+                    </li>
+                    <li>Many db tools will do a check to ensure that this does not happen (i.e. store a hash of the
+                        change in the DB upon deployment, and compare against that hash upon subsequent deployments)
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <p>Alternative considered - tool generates the diffs:</p>
+        <ul>
+            <li>An approach that people may think of (and one that has been explored in the CSW Synchronizer tool) is to
+                just maintain the latest version of the schema in your source, and have the tool figure out the
+                differences
+            </li>
+            <li>This would be ideal, but in practice can be tricky (even with vendor products) and would always need
+                some human intervention. Hence, we cut out this part entirely
+            </li>
+        </ul>
+        <subsection name="Why DeployAnywhere"></subsection>
+        <p>Viewing all DB migrations as incremental changes is simple to implement, but does not lead to a maintainable
+            code base in the long term
+        </p>
+        <ul>
+            <li>Imagine all the change files that will start piling up in your code base</li>
+            <li>And for rerunnable objects like stored procedures or views, it seems redundant to keep the old change
+                files around. (yes, stored procedures are &quot;evil&quot;, but many systems still use them and we need
+                to continue to maintain them)
+            </li>
+            <li>And having to manually define the order of your changes, e.g. for inter-dependent stored procedures.
+                (Imagine if you had to do this for Java, i.e. specifying the compile order of your classes based on
+                their dependencies and relationships)
+            </li>
+        </ul>
+        <p>DeployAnywhere looks to save some of the work around this by:</p>
+        <ul>
+            <li>Encouraging a one-file-for-db-object convention as to make db object maintenance similar to your code
+                (e.g. the one-file-per-class convention in Java)
+            </li>
+            <li>Saving some work to generate alter commands where needed (e.g. for views and stored procedures)</li>
+            <li>Using an algorithm to automatically calculate the change deployment order (both for incremental changes
+                and rerunnable changes)
+            </li>
+            <li>Among other things</li>
+        </ul>
+        <p>The user guide details the features that come with DeployAnywhere</p>
+        <subsection name="How DeployAnywhere Calculates and Applies Changes"></subsection>
+        <p>Read the 'how &quot;most database deployment tools&quot; work' section and then read through the PPT:
+            <a href="files/deployany-changes.pptx">deployany-changes.pptx</a>
+        </p>
+    </body>
+</document>

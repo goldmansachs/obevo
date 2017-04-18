@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+
+    Copyright 2017 Goldman Sachs.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+    <properties>
+        <title>Reverse-Engineering via Aqua Data Studio</title>
+    </properties>
+    <body>
+        <section name="Reverse-Engineering via Aqua Data Studio">
+            <p>You have the option of leveraging Aqua Data Studio to reverse-engineer your DDLs into the formats desired by
+                DeployAnywhere.
+                <ul>
+                    <li>
+                        <font
+                            color="Red">Please upgrade to at least version 12 of ADS especially if you are on Sybase ASE, as there are a number of fixes after the standard 7.0.39 version at GS (e.g. including the LOCK DATAROWS value for tables).
+                        </font>
+                    </li>
+                    <li>For Sybase IQ, enable the Schema Grouping display for easy access, e.g. right-click your Server -> Server Properties -> Advanced Tab -> Object Folder panel -> set Schema Folder Groupig = Yes</li>
+                </ul>
+            </p>
+
+            To do this:
+            <ul>
+                <li>In Aqua, go to Tools -&gt; Schema Script Generator</li>
+                <li>Choose all the objects that you want to include in the schema you want to include</li>
+                <li>Choose the options for reverse-engineering as indicated in the Aqua Data Studio picture below
+                    <ul>
+                        <li><font color="Red"><b><u><i>NOTE #1 - if your Aqua Data Studio is not showing all the options there, you may need to expand your window horizontally and vertically (ADS quirk...). The screenshot below is from 7.0.39</i></u></b></font></li>
+                        <li>NOTE #2 - In Aqua Data Studio >= 8, the &quot;Tables: Script full table (Indexes, Triggers)&quot; seems to be disabled for some people. You can proceed anyway. (note - if you do have the option to choose it, do ensure that it is checked)</li>
+                    </ul>
+                    <br />
+                    <img src="images/reverse-engineer-aqua.jpg" />
+                    <br />
+                </li>
+                <li>Use the DBREVENG command in the binary to rearrange files into the right format
+                    Here is an example - this will reverse-engineer the DB that was generated in the kata steps above. A sample
+                    output from Aqua Data Studio is provided in reveng-example
+                    <source><![CDATA[
+%DEPLOYANY_HOME%\bin\deploy.bat DBREVENG -dbType DB2 -dbSchema YourSchemaName -mode schema -inputDir h:\reveng-example -outputDir h:\reveng-example-output
+
+# note - for dbSchema, specify the DB2 schema, i.e. the ASE-equivalent of "database", i.e. IQ-equivalent of "schema", etc.
+
+# Other optional args:
+-nameCombinePattern "combinePattern" ==> Lets you combine multiple related tables (e.g. MYTABLE and MYTABLE_WRK) into one file for easier management. Specify the pattern like {}_WRK, where {} is the placeholder for your table (akin to the logging in slf4j)
+-preprocessSchemaTokens "true/false" ==> Defaults to true; this will remove any explicit references to the default schema left in your Aqua output. Only set to false if you've already cleaned up those references.
+# Deprecated args::
+-tablespaceToken ==> Will add the string "IN ${schema_TABLESPACE}" at the end of your tables (helpful for DB2). Use the default instead, which simply removes the schema references instead of replacing w/ a token
+]]></source>
+                </li>
+                <li>Regarding the output:
+                    <ul>
+                        <li>This will generate the reverse-engineered output under &lt;outputDir&gt;/final</li>
+                        <li>If preprocessSchemaTokens is true (which it is by default), you will also see an &lt;outputDir&gt;/interim folder that has the output of the schema prefix removals.</li>
+                        <li>You should compare the input to the interim output to ensure that the basic schema removal was done correctly. If it wasn't, you can manually correct the interim folder, and then rerun the reverse-engineering with "-preprocessSchemaTokens false"</li>
+                    </ul>
+                </li>
+                <li>Once you have these files, do the final touches on them as you see fit (e.g. delete junk tables), and
+                    proceed to the next step
+                    <ul>
+                        <li><font color="Red">Note the warning in your output - if you see any directories with a name containing
+                            &quot;-pleaseAnalyze&quot; in the result of the DBREVENG script</font>, then the tool could not figure out what to do w/ those
+                            sql snippets. Either manually figure out where to put them and do so, or if you find too many
+                            such cases, reach out to gs-deployanywhere-core, including a zip file of your reveng contents
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+
+            <p>Note that we explicitly don't include the grants here. This is because you can &amp; should use the global
+                permissioning functionality instead
+            </p>
+
+            <p>Once done, return to the <a href="existing-onboarding-guide.html">Existing Onboarding Guide</a> to continue
+            the onboarding process</p>
+        </section>
+    </body>
+</document>

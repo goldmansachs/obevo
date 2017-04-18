@@ -1,0 +1,928 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2017 Goldman Sachs.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>com.gs.deployanywhere</groupId>
+        <artifactId>deployanywhere</artifactId>
+        <version>local-build-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.goldmansachs.obevo</groupId>
+    <artifactId>obevo-parent</artifactId>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>obevo-dists</module>
+        <module>obevo-utils</module>
+        <module>obevo-bom</module>
+        <module>obevo-dbmetadata-impl</module>
+        <module>obevo-core</module>
+        <module>obevo-db</module>
+        <module>obevo-db-impls</module>
+        <module>obevo-internal-comparer</module>
+        <module>obevo-site</module>
+        <module>obevo-internal-test-client-01</module>
+        <module>obevo-internal-test-client-02</module>
+    </modules>
+
+    <name>Obevo</name>
+    <description>Obevo is a utility to facilitate deployments on stateful and stateless environment types, notably databases.</description>
+    <url>https://github.com/goldmansachs/obevo/</url>
+    <inceptionYear>2017</inceptionYear>
+
+    <organization>
+        <name>Goldman Sachs</name>
+        <url>http://www.goldmansachs.com/</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Shant Stepanian</name>
+            <email>shant.stepanian@gs.com</email>
+            <organization>Goldman Sachs</organization>
+        </developer>
+    </developers>
+
+    <scm>
+        <url>https://github.com/goldmansachs/obevo/</url>
+        <connection>scm:git:https://github.com/goldmansachs/obevo.git</connection>
+        <developerConnection>scm:git:https://github.com/goldmansachs/obevo.git</developerConnection>
+    </scm>
+
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/eclipse/eclipse-collections/issues</url>
+    </issueManagement>
+
+
+<!--
+To be filled in w/ proper values for Obevo
+    <ciManagement>
+        <system>Travis CI</system>
+        <url>https://travis-ci.org/eclipse/eclipse-collections</url>
+    </ciManagement>
+
+    <mailingLists>
+        <mailingList>
+            <name>collections-dev</name>
+            <subscribe>https://dev.eclipse.org/mailman/listinfo/collections-dev</subscribe>
+            <unsubscribe>https://dev.eclipse.org/mailman/listinfo/collections-dev</unsubscribe>
+            <post>collections-dev@eclipse.org</post>
+            <archive>https://dev.eclipse.org/mhonarc/lists/collections-dev</archive>
+        </mailingList>
+    </mailingLists>
+-->
+
+    <properties>
+        <!-- sharing common build files using mechanism described here: http://javasplitter.blogspot.com/2011/08/sharing-configuration-files-from-maven.html -->
+        <build-resources.classifier>build-resources</build-resources.classifier>
+        <build-resources.workdir>${basedir}/target/${build-resources.classifier}</build-resources.workdir>
+
+        <!-- common dependency version properties -->
+        <slf4j.version>1.7.18</slf4j.version>
+        <eclipsecollections.version>7.0.2</eclipsecollections.version>
+        <schemacrawler.version>14.15.02</schemacrawler.version>
+    </properties>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>com.mycila</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>3.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.rat</groupId>
+                    <artifactId>apache-rat-plugin</artifactId>
+                    <version>0.12</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>2.3.2</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.3</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>2.8</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>3.0.0</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>2.5</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>2.19.1</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.19.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.7.2.201409121644</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>2.4</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>2.17</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>2.7</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>2.6</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>2.2</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>2.5</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>1.4.1</version>
+                </plugin>
+<!-- commenting out maven-notice-plugin until we confirm proper strategy going forward around notices
+                <plugin>
+                    <groupId>org.jasig.maven</groupId>
+                    <artifactId>maven-notice-plugin</artifactId>
+                    <version>1.0.7-SNAPSHOT</version>
+                </plugin>
+-->
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>integration-tests</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                        <configuration>
+                            <!-- specifying the alphabetical run order for now to work through the use case of
+                            ASE tests executing before IQ tests as the JDBC4 driver should get loaded first
+                            before JDBC 3 for both those tests to work -->
+                            <runOrder>alphabetical</runOrder>
+                            <argLine>-Xmx1024m -XX:MaxPermSize=256m ${jacoco.agent.it.arg}</argLine>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>pre-integration-test</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <destFile>${sonar.jacoco.itReportPath}</destFile>
+                            <propertyName>jacoco.agent.it.arg</propertyName>
+                            <append>true</append>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-non-duplicate-dependencies</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <banDuplicateClasses>
+                                    <dependencies>
+                                        <dependency>
+                                            <artifactId>commons-beanutils</artifactId>
+                                            <ignoreClasses>
+                                                <ignoreClass>org/apache/commons/collections/*</ignoreClass>
+                                            </ignoreClasses>
+                                        </dependency>
+                                        <dependency>
+                                            <artifactId>commons-collections</artifactId>
+                                            <ignoreClasses>
+                                                <ignoreClass>org/apache/commons/collections/*</ignoreClass>
+                                            </ignoreClasses>
+                                        </dependency>
+                                        <dependency>
+                                            <groupId>com.sybase.jdbcx</groupId>
+                                            <artifactId>jconn3</artifactId>
+                                            <ignoreClasses>
+                                                <ignoreClass>com/sybase/jdbcx/*</ignoreClass>
+                                                <ignoreClass>SybVersion</ignoreClass>
+                                            </ignoreClasses>
+                                        </dependency>
+                                        <dependency>
+                                            <groupId>com.sybase.jdbcx</groupId>
+                                            <artifactId>jconn4</artifactId>
+                                            <ignoreClasses>
+                                                <ignoreClass>com/sybase/jdbcx/*</ignoreClass>
+                                                <ignoreClass>SybVersion</ignoreClass>
+                                            </ignoreClasses>
+                                        </dependency>
+                                    </dependencies>
+                                    <findAllDuplicates>true</findAllDuplicates>
+                                </banDuplicateClasses>
+                                <reactorModuleConvergence />
+                                <requireJavaVersion>
+                                    <version>1.6.0</version>
+                                </requireJavaVersion>
+                                <requireMavenVersion>
+                                    <version>3.3.3</version>
+                                </requireMavenVersion>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!-- Keep dependency convergence as a separate execution so that certain child modules can override it if needed (e.g. maven plugin modules) -->
+                        <id>enforce-dependency-convergence</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <dependencyConvergence />
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>extra-enforcer-rules</artifactId>
+                        <version>1.0-alpha-5</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+            <plugin>
+                <!-- We want to package up license resources in the JARs produced; borrowed from Apache convention (e.g. Apache Curator) -->
+                <artifactId>maven-remote-resources-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                        <configuration>
+                            <resourceBundles>
+                                <resourceBundle>org.apache:apache-jar-resource-bundle:1.4</resourceBundle>
+                            </resourceBundles>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <!-- Using apache-rat-plugin to check that the license files are applied correctly. This is used by
+                 many Apache-licensed projects for validation; hence we use it here. -->
+                <groupId>org.apache.rat</groupId>
+                <artifactId>apache-rat-plugin</artifactId>
+                <configuration>
+                    <addLicenseHeaders>false</addLicenseHeaders>
+                    <copyrightMessage>Copyright 2017 Goldman Sachs.</copyrightMessage>
+                    <excludes>
+                        <!-- Standard project files to exclude -->
+                        <exclude>**/.idea/**</exclude>
+                        <exclude>**/BUILD.md</exclude>
+                        <exclude>**/CHANGELOG.md</exclude>
+                        <exclude>**/CONTRIBUTING.md</exclude>
+                        <exclude>**/CONTRIBUTOR_COVENANT.md</exclude>
+                        <exclude>**/LICENSE.txt</exclude>
+                        <exclude>**/NOTICE.txt</exclude>
+                        <exclude>**/NOTICE.template.txt</exclude>
+                        <exclude>**/README.md</exclude>
+
+                        <!-- Excluding the reverse-engineering files  -->
+                        <exclude>**/test/resources/**/reveng/**</exclude>
+
+                        <!-- Other SP/sql files to exclude that weren't automatically applied by the mycila plugin originally -->
+                        <exclude>**/*.ddl</exclude>
+                        <exclude>**/*.spc</exclude>
+                        <exclude>**/*.csv</exclude>
+
+                        <!-- Excluding CATO files -->
+                        <exclude>**/src/test/resources/csv-file.txt</exclude>
+                        <exclude>**/src/test/resources/testdata1.txt</exclude>
+                        <exclude>**/src/test/resources/testdata2.txt</exclude>
+                        <exclude>**/src/test/resources/testdata3.txt</exclude>
+                        <exclude>**/src/test/resources/testdb.ddl</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>run-rat-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+<!-- Will add this API compatibility check in the future
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>clirr-maven-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <failOnError>false</failOnError>
+                    <logResults>true</logResults>
+                    <includes>
+                        <include>com/gs/obevo/api/**</include>
+                        <include>com/gs/obevo/db/api/**</include>
+                    </includes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+-->
+
+            <plugin>
+                <!-- sharing common build files using mechanism described here: http://javasplitter.blogspot.com/2011/08/sharing-configuration-files-from-maven.html -->
+                <artifactId>maven-assembly-plugin</artifactId>
+                <inherited>false</inherited>  <!-- we only publish the common files in the module root -->
+                <executions>
+                    <execution>
+                        <id>make-build-resources</id>
+                        <phase>validate</phase>  <!-- Should be first step in sharing common build files -->
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/main/assembly/${build-resources.classifier}.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <!-- Keep this plugin defined under plugins (even if no executions below) as a convenience for developers to run utilities like dependency:tree in IntelliJ -->
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-build-resources</id>
+                        <phase>initialize</phase>  <!-- Should be first step in sharing common build files after make-build-resources -->
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.goldmansachs.obevo</groupId>
+                                    <artifactId>obevo-parent</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <classifier>build-resources</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${basedir}/target/build-resources</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                            <includes>**/*</includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+<!-- commenting out maven-notice-plugin until we confirm proper strategy going forward around notices
+            <plugin>
+                <groupId>org.jasig.maven</groupId>
+                <artifactId>maven-notice-plugin</artifactId>
+                <configuration>
+                    <noticeTemplate>${build-resources.workdir}/NOTICE.template.txt</noticeTemplate>
+                    <licenseMapping>
+                        <param>${build-resources.workdir}/license-mappings.xml</param>
+                    </licenseMapping>
+                    <fileName>NOTICE.txt</fileName>
+                    <includeChildDependencies>false</includeChildDependencies>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>check-license</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+-->
+
+            <plugin>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <configLocation>${build-resources.workdir}/checkstyle.xml</configLocation>
+                            <logViolationsToConsole>true</logViolationsToConsole>
+                            <propertyExpansion>import-control.directory=${build-resources.workdir}</propertyExpansion>
+                            <failOnViolation>true</failOnViolation>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>7.6</version>  <!-- Get latest checkstyle version -->
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencyManagement>
+        <dependencies>
+            <!-- Schemacrawler dependencies; note - no h2 or Sybase dependency exists for the latest version -->
+            <dependency>
+                <groupId>us.fatehi</groupId>
+                <artifactId>schemacrawler</artifactId>
+                <version>${schemacrawler.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>us.fatehi</groupId>
+                <artifactId>schemacrawler-db2</artifactId>
+                <version>${schemacrawler.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>us.fatehi</groupId>
+                <artifactId>schemacrawler-oracle</artifactId>
+                <version>${schemacrawler.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>us.fatehi</groupId>
+                <artifactId>schemacrawler-sybaseiq</artifactId>
+                <version>${schemacrawler.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>us.fatehi</groupId>
+                <artifactId>schemacrawler-postgresql</artifactId>
+                <version>${schemacrawler.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.postgresql</groupId>
+                        <artifactId>postgresql</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>us.fatehi</groupId>
+                <artifactId>schemacrawler-sqlserver</artifactId>
+                <version>${schemacrawler.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>us.fatehi</groupId>
+                <artifactId>schemacrawler-hsqldb</artifactId>
+                <version>${schemacrawler.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.1</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>2.6</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-dbcp</groupId>
+                <artifactId>commons-dbcp</artifactId>
+                <version>1.4</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.opencsv</groupId>
+                <artifactId>opencsv</artifactId>
+                <version>2.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.dbunit</groupId>
+                <artifactId>dbunit</artifactId>
+                <version>2.4.9</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.0</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>3.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.collections</groupId>
+                <artifactId>eclipse-collections-api</artifactId>
+                <version>${eclipsecollections.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.collections</groupId>
+                <artifactId>eclipse-collections</artifactId>
+                <version>${eclipsecollections.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.collections</groupId>
+                <artifactId>eclipse-collections-testutils</artifactId>
+                <version>${eclipsecollections.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>1.6.2</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.10</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-configuration</groupId>
+                <artifactId>commons-configuration</artifactId>
+                <version>1.7</version>
+                <exclusions>
+                    <exclusion>
+                        <!-- replaced by slf4j -->
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>commons-dbutils</groupId>
+                <artifactId>commons-dbutils</artifactId>
+                <version>1.6</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-beanutils</groupId>
+                <artifactId>commons-beanutils</artifactId>
+                <version>1.8.3</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-vfs2</artifactId>
+                <version>2.0</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.maven.scm</groupId>
+                        <artifactId>maven-scm-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.maven.scm</groupId>
+                        <artifactId>maven-scm-provider-svnexe</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.freemarker</groupId>
+                <artifactId>freemarker</artifactId>
+                <version>2.3.23</version>  <!-- compatible from 2.3.10 at least to latest version (up to 2.3.23 as of this writing) -->
+            </dependency>
+
+            <!-- slf4j dependencies -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jcl-over-slf4j</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <version>1.2.14</version>
+            </dependency>
+
+            <!-- test dependencies -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.11</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest-core</artifactId>
+                <version>1.3</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest-library</artifactId>
+                <version>1.3</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>junit-addons</groupId>
+                <artifactId>junit-addons</artifactId>
+                <version>1.4</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>xerces</groupId>
+                        <artifactId>xercesImpl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xerces</groupId>
+                        <artifactId>xmlParserAPIs</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>1.8.2</version>
+            </dependency>
+
+
+            <!-- db dependencies -->
+            <dependency>
+                <groupId>org.hsqldb</groupId>
+                <artifactId>hsqldb</artifactId>
+                <version>2.3.2</version>
+            </dependency>
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <!-- tests run w/ versions as early as 1.0.57 up until 1.4.187.
+                 Noted a regression w/ version 1.4.188; that needs some investigation.
+                 (not using maven version ranges due to incompatibilities w/ GS AREA)
+                 -->
+                <version>1.4.187</version>
+            </dependency>
+            <dependency>
+                <!-- including jconn3 driver for those servers having jconnect 6 -->
+                <groupId>com.sybase.jdbcx</groupId>
+                <artifactId>jconn3</artifactId>
+                <version>6.0.EBF16903</version>
+            </dependency>
+            <dependency>
+                <groupId>postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>9.1-901-1.jdbc4</version>
+            </dependency>
+            <dependency>
+                <groupId>com.microsoft.sqlserver</groupId>
+                <artifactId>mssql-jdbc</artifactId>
+                <version>6.1.0.jre8</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.microsoft.azure</groupId>
+                        <artifactId>azure-keyvault</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit-addons</groupId>
+            <artifactId>junit-addons</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-library</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <!-- Use this profile to bulk-apply the lice -->
+            <id>update-license-files</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <!-- Generate the license header in each file.
+                        We can use apache-rat-plugin to apply the license using the settings below to override the main plugin configuration.
+                        However, it isn't as good at applying the license to existing files. For that, we delegate to
+                        mycila's license-maven-plugin
+                        -->
+                        <groupId>org.apache.rat</groupId>
+                        <artifactId>apache-rat-plugin</artifactId>
+                        <configuration>
+                            <addLicenseHeaders>forced</addLicenseHeaders>
+                            <ignoreErrors>true</ignoreErrors>
+                        </configuration>
+                    </plugin>
+
+                    <!-- Generate the NOTICE.txt files -->
+<!-- commenting out maven-notice-plugin until we confirm proper strategy going forward around notices
+                    <plugin>
+                        <groupId>org.jasig.maven</groupId>
+                        <artifactId>maven-notice-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>generate-license</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>generate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+-->
+
+                    <plugin>
+                        <!-- Generate the license header in each file.
+                        The mycila plugin is a bit friendlier to apply the plugin, e.g. it was able to add it to
+                        sql files, where the rat plugin would not. Hence, we include it here for this profile.
+                        We don't use it for the validation itself as 1) it is unnecessarily unfriendly when it comes to
+                        whitespace in comparing the license headers  2) we'd rather use apache-rat-plugin that is used
+                        by more projects -->
+                        <groupId>com.mycila</groupId>
+                        <artifactId>license-maven-plugin</artifactId>
+                        <configuration>
+                            <inlineHeader><![CDATA[Copyright ${project.inceptionYear} Goldman Sachs.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.]]></inlineHeader>
+                            <excludes>
+                                <!-- Standard project files to exclude -->
+                                <exclude>**/.idea/**</exclude>
+                                <exclude>**/CHANGELOG.md</exclude>
+                                <exclude>**/LICENSE.txt</exclude>
+                                <exclude>**/NOTICE.txt</exclude>
+                                <exclude>**/NOTICE.template.txt</exclude>
+                                <exclude>**/README.md</exclude>
+
+                                <!-- Excluding the reverse-engineering files  -->
+                                <exclude>**/test/resources/**/reveng/**</exclude>
+
+                                <!-- Files from other Apache projects that were modified and should keep original Apache license notice -->
+                                <exclude>**/com/gs/obevo/db/apps/reveng/CSVWriter.java</exclude>
+                                <exclude>**/com/gs/obevo/util/VisibleForTesting.java</exclude>
+
+                                <!-- Excluding CATO files -->
+                                <exclude>**/src/test/resources/csv-file.txt</exclude>
+                                <exclude>**/src/test/resources/testdata1.txt</exclude>
+                                <exclude>**/src/test/resources/testdata2.txt</exclude>
+                                <exclude>**/src/test/resources/testdata3.txt</exclude>
+                                <exclude>**/src/test/resources/testdb.ddl</exclude>
+                            </excludes>
+                            <strictCheck>true</strictCheck>
+                            <skipExistingHeaders>false</skipExistingHeaders>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>apply-license</id>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>format</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

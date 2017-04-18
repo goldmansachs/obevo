@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2017 Goldman Sachs.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.cato.com/CatoResources"
+    xmlns:tns="http://www.cato.com/CatoResources" elementFormDefault="qualified">
+
+    <complexType name="DataSourceType">
+        <attribute name="name" type="string"></attribute>
+        <attribute name="id" type="ID"></attribute>
+        <attribute name="sorted" type="boolean"></attribute>
+    </complexType>
+
+    <complexType name="DBDataSourceType">
+        <complexContent>
+            <extension base="tns:DataSourceType">
+                <sequence>
+                    <element name="url" type="string"></element>
+                    <element name="user" type="string"></element>
+                    <element name="password" type="string"></element>
+                    <element name="query" type="string"></element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+    <complexType name="ReconType">
+        <sequence>
+            <element name="DataSource1" type="IDREF"></element>
+            <element name="DataSource2" type="IDREF"></element>
+            <element name="Field" type="tns:ReconField" minOccurs="0" maxOccurs="unbounded"></element>
+        </sequence>
+        <attribute name="name" type="string"></attribute>
+        <attribute name="id" type="ID"></attribute>
+    </complexType>
+
+    <element name="DataSource" type="tns:DataSourceType" abstract="true"></element>
+    <element name="DBDataSource" type="tns:DBDataSourceType"
+        substitutionGroup="tns:DataSource"></element>
+    <element name="TextDataSource" type="tns:TextDataSourceType"
+        substitutionGroup="tns:DataSource"></element>
+
+
+    <element name="CatoResources" type="tns:Resources"></element>
+
+    <complexType name="Resources">
+        <sequence>
+            <element name="Recons" type="tns:Recons"></element>
+            <element name="DataSources" type="tns:DataSources"></element>
+        </sequence>
+    </complexType>
+
+    <complexType name="DataSources">
+        <sequence>
+            <element ref="tns:DataSource" minOccurs="0" maxOccurs="unbounded"></element>
+        </sequence>
+    </complexType>
+
+    <complexType name="Recons">
+        <sequence>
+            <element name="Recon" type="tns:ReconType" minOccurs="0"
+                maxOccurs="unbounded"></element>
+        </sequence>
+    </complexType>
+
+    <complexType name="TextDataSourceType">
+        <complexContent>
+            <extension base="tns:DataSourceType">
+                <sequence>
+                    <element name="File" type="string"></element>
+                    <element name="Delimiter" type="string"></element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+
+    <complexType name="ReconField">
+        <sequence>
+            <element name="Name" type="string"></element>
+        </sequence>
+        <attribute name="isKey" type="boolean"></attribute>
+        <attribute name="isAttribute" type="boolean"></attribute>
+        <attribute name="isExcluded" type="boolean"></attribute>
+    </complexType>
+</schema>

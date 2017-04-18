@@ -1,0 +1,413 @@
+-- This CLP file was created using DB2LOOK Version "xxxxx"
+-- Timestamp: m/dd/yyyy h:mm:ss PM
+-- Database Name: MYSERVER01
+-- Database Manager Version: DB2/LINUXX8664 Version x.x.x
+-- Database Codepage: xxxx
+-- Database Collating Sequence is: xxxx
+
+
+CONNECT TO MYSERVER01 USER myuserdbo~
+
+------------------------------------------------
+-- DDL Statements for Schemas
+------------------------------------------------
+
+
+CREATE SCHEMA "MYSCHEMA01" AUTHORIZATION "MYAUTH01"~
+
+
+---------------------------------
+-- DDL Statements for Sequences
+---------------------------------
+
+
+CREATE OR REPLACE SEQUENCE "MYSCHEMA01"."MYSEQ" AS INTEGER
+	MINVALUE 1 MAXVALUE 2147483647
+	START WITH 1 INCREMENT BY 5
+	CACHE 20 NO CYCLE NO ORDER~
+
+
+
+------------------------------------------------
+-- DDL Statements for Table "MYSCHEMA01"."ARTIFACTEXECUTION"
+------------------------------------------------
+ 
+
+CREATE TABLE "MYSCHEMA01"."ARTIFACTEXECUTION"  (
+		  "ID" BIGINT NOT NULL , 
+		  "STATUS" CHAR(1) NOT NULL , 
+		  "DEPLOYTIME" TIMESTAMP NOT NULL , 
+		  "EXECUTORID" VARCHAR(128) NOT NULL , 
+		  "TOOLVERSION" VARCHAR(32) NOT NULL , 
+		  "INIT_COMMAND" INTEGER NOT NULL , 
+		  "ROLLBACK_COMMAND" INTEGER NOT NULL , 
+		  "REQUESTERID" VARCHAR(128) , 
+		  "REASON" VARCHAR(128) )   
+		 IN "MYTBSPACE_TSP001" ~
+
+
+-- DDL Statements for Primary Key on Table "MYSCHEMA01"."ARTIFACTEXECUTION"
+
+ALTER TABLE "MYSCHEMA01"."ARTIFACTEXECUTION" 
+	ADD CONSTRAINT "DEPL_EXEC_PK" PRIMARY KEY
+		("ID")~
+
+
+
+------------------------------------------------
+-- DDL Statements for Table "MYSCHEMA01"."ARTIFACTEXECUTIONATTR"
+------------------------------------------------
+ 
+
+CREATE TABLE "MYSCHEMA01"."ARTIFACTEXECUTIONATTR"  (
+		  "DEPLOYEXECUTIONID" BIGINT NOT NULL , 
+		  "ATTRNAME" VARCHAR(128) NOT NULL , 
+		  "ATTRVALUE" VARCHAR(128) NOT NULL )   
+		 IN "MYTBSPACE_TSP001" ~
+
+
+
+
+
+
+------------------------------------------------
+-- DDL Statements for Table "MYSCHEMA01"."ARTIFACTDEPLOYMENT"
+------------------------------------------------
+ 
+
+CREATE TABLE "MYSCHEMA01"."ARTIFACTDEPLOYMENT"  (
+		  "ARTFTYPE" VARCHAR(31) NOT NULL , 
+		  "ARTIFACTPATH" VARCHAR(255) NOT NULL , 
+		  "OBJECTNAME" VARCHAR(255) NOT NULL , 
+		  "ACTIVE" INTEGER , 
+		  "CHANGETYPE" VARCHAR(255) , 
+		  "CONTENTHASH" VARCHAR(255) , 
+		  "DBSCHEMA" VARCHAR(255) , 
+		  "DEPLOY_USER_ID" VARCHAR(32) , 
+		  "TIME_INSERTED" TIMESTAMP , 
+		  "TIME_UPDATED" TIMESTAMP , 
+		  "ROLLBACKCONTENT" VARCHAR(2048) , 
+		  "INSERTDEPLOYID" BIGINT , 
+		  "UPDATEDEPLOYID" BIGINT )   
+		 IN "MYTBSPACE_TSP001" ~
+
+
+-- DDL Statements for Primary Key on Table "MYSCHEMA01"."ARTIFACTDEPLOYMENT"
+
+ALTER TABLE "MYSCHEMA01"."ARTIFACTDEPLOYMENT" 
+	ADD CONSTRAINT "ARTDEFPK" PRIMARY KEY
+		("ARTIFACTPATH",
+		 "OBJECTNAME")~
+
+
+
+------------------------------------------------
+-- DDL Statements for Table "MYSCHEMA01"."TABLE_A"
+------------------------------------------------
+ 
+
+CREATE TABLE "MYSCHEMA01"."TABLE_A"  (
+		  "A_ID" INTEGER NOT NULL , 
+		  "B_ID" INTEGER NOT NULL , 
+		  "STRING_FIELD" VARCHAR(30) , 
+		  "TIMESTAMP_FIELD" TIMESTAMP , 
+		  "DEFAULT_FIELD" TIMESTAMP NOT NULL WITH DEFAULT CURRENT TIMESTAMP , 
+		  "C_ID" INTEGER , 
+		  "EXTRA2" INTEGER , 
+		  "EXTRA3" INTEGER , 
+		  "MYNEWCOL" INTEGER )   
+		 IN "MYTBSPACE_TSP001" ~
+
+
+-- DDL Statements for Primary Key on Table "MYSCHEMA01"."TABLE_A"
+
+ALTER TABLE "MYSCHEMA01"."TABLE_A" 
+	ADD CONSTRAINT "PK" PRIMARY KEY
+		("A_ID")~
+
+
+
+-- DDL Statements for Indexes on Table "MYSCHEMA01"."TABLE_A"
+
+CREATE INDEX "MYSCHEMA01"."TABLE_A_IND1" ON "MYSCHEMA01"."TABLE_A" 
+		("C_ID" ASC)
+		
+		COMPRESS NO ALLOW REVERSE SCANS~
+
+------------------------------------------------
+-- DDL Statements for Table "MYSCHEMA01"."TABLE_B"
+------------------------------------------------
+ 
+
+CREATE TABLE "MYSCHEMA01"."TABLE_B"  (
+		  "B_ID" INTEGER NOT NULL , 
+		  "B_FIELD" INTEGER )   
+		 IN "MYTBSPACE_TSP001" ~
+
+
+-- DDL Statements for Primary Key on Table "MYSCHEMA01"."TABLE_B"
+
+ALTER TABLE "MYSCHEMA01"."TABLE_B" 
+	ADD CONSTRAINT "PK" PRIMARY KEY
+		("B_ID")~
+
+
+
+-- DDL Statements for Indexes on Table "MYSCHEMA01"."TABLE_B"
+
+CREATE INDEX "MYSCHEMA01"."TABLE_B_IND1" ON "MYSCHEMA01"."TABLE_B" 
+		("B_FIELD" ASC)
+		
+		COMPRESS NO ALLOW REVERSE SCANS~
+
+------------------------------------------------
+-- DDL Statements for Table "MYSCHEMA01"."TABLE_C"
+------------------------------------------------
+ 
+
+CREATE TABLE "MYSCHEMA01"."TABLE_C"  (
+		  "C_ID" INTEGER NOT NULL , 
+		  "C_VAL" INTEGER )   
+		 IN "MYTBSPACE_TSP001" ~
+
+
+-- DDL Statements for Primary Key on Table "MYSCHEMA01"."TABLE_C"
+
+ALTER TABLE "MYSCHEMA01"."TABLE_C"
+	ADD PRIMARY KEY
+		("C_ID")~
+
+
+
+------------------------------------------------
+-- DDL Statements for Table "MYSCHEMA01"."TABLE_D"
+------------------------------------------------
+ 
+
+CREATE TABLE "MYSCHEMA01"."TABLE_D"  (
+		  "D_ID" BIGINT NOT NULL GENERATED BY DEFAULT AS IDENTITY (  
+		    START WITH +1  
+		    INCREMENT BY +1  
+		    MINVALUE +1  
+		    MAXVALUE +9223372036854775807  
+		    NO CYCLE  
+		    CACHE 20  
+		    NO ORDER ) )   
+		 IN "MYTBSPACE_TSP001" ~
+
+
+-- DDL Statements for Primary Key on Table "MYSCHEMA01"."TABLE_D"
+
+ALTER TABLE "MYSCHEMA01"."TABLE_D"
+	ADD PRIMARY KEY
+		("D_ID")~
+
+
+
+------------------------------------------------
+-- DDL Statements for Table "MYSCHEMA01"."TABLE_SHARDED_3"
+------------------------------------------------
+ 
+
+CREATE TABLE "MYSCHEMA01"."TABLE_SHARDED_3"  (
+		  "FIELD1" INTEGER , 
+		  "FIELD2" INTEGER )   
+		 IN "MYTBSPACE_TSP001" ~
+
+
+
+
+
+
+------------------------------------------------
+-- DDL Statements for Table "MYSCHEMA01"."TABLE_SHARDED_1"
+------------------------------------------------
+ 
+
+CREATE TABLE "MYSCHEMA01"."TABLE_SHARDED_1"  (
+		  "FIELD1" INTEGER , 
+		  "FIELD2" INTEGER )   
+		 IN "MYTBSPACE_TSP001" ~
+
+
+
+
+
+
+------------------------------------------------
+-- DDL Statements for Table "MYSCHEMA01"."TABLE_SHARDED_2"
+------------------------------------------------
+ 
+
+CREATE TABLE "MYSCHEMA01"."TABLE_SHARDED_2"  (
+		  "FIELD1" INTEGER , 
+		  "FIELD2" INTEGER )   
+		 IN "MYTBSPACE_TSP001" ~
+
+
+
+
+
+
+-- DDL Statements for Foreign Keys on Table "MYSCHEMA01"."TABLE_A"
+
+ALTER TABLE "MYSCHEMA01"."TABLE_A" 
+	ADD CONSTRAINT "FK_B" FOREIGN KEY
+		("B_ID")
+	REFERENCES "MYSCHEMA01"."TABLE_B"
+		("B_ID")
+	ON DELETE NO ACTION
+	ON UPDATE NO ACTION
+	ENFORCED
+	ENABLE QUERY OPTIMIZATION~
+
+
+
+
+
+---------------------------------
+-- DDL Statements for User Defined Functions
+---------------------------------
+
+SET CURRENT SCHEMA = "MYSCHEMA01"~
+SET CURRENT PATH = "SYSIBM","SYSFUN","SYSPROC","SYSIBMADM","DACT_DBO_BATCH1","MYSCHEMA01"~
+
+CREATE OR REPLACE FUNCTION FUNC_DEPENDING_ON_VIEW ()
+
+RETURNS integer language SQL NOT deterministic NO EXTERNAL ACTION READS SQL DATA
+
+RETURN SELECT count(*) FROM VIEW3~
+
+SET CURRENT SCHEMA = "MYSCHEMA01"~
+SET CURRENT PATH = "SYSIBM","SYSFUN","SYSPROC","SYSIBMADM","DACT_DBO_BATCH1","MYSCHEMA01"~
+
+CREATE OR REPLACE FUNCTION FUNC_WITH_DEPENDENT_VIEW ()
+
+RETURNS integer language SQL NOT deterministic NO EXTERNAL ACTION READS SQL DATA
+
+RETURN VALUES (1)~
+
+SET CURRENT SCHEMA = "MYSCHEMA01"~
+SET CURRENT PATH = "SYSIBM","SYSFUN","SYSPROC","SYSIBMADM","DACT_DBO_BATCH1","MYSCHEMA01"~
+
+CREATE OR REPLACE FUNCTION MYFUNC (var1 integer)
+
+RETURNS integer language SQL NOT deterministic NO EXTERNAL ACTION READS SQL DATA
+
+RETURN VALUES (1)~
+
+
+----------------------------
+
+-- DDL Statements for Views
+
+----------------------------
+SET CURRENT SCHEMA = "MYSCHEMA01"~
+SET CURRENT PATH = "SYSIBM","SYSFUN","SYSPROC","SYSIBMADM","DACT_DBO_BATCH1","MYSCHEMA01"~
+CREATE OR REPLACE VIEW VIEW2 AS SELECT * FROM TABLE_B
+
+WHERE B_ID <> -1 -- adding this line change here
+~
+
+
+SET CURRENT SCHEMA = "MYSCHEMA01"~
+SET CURRENT PATH = "SYSIBM","SYSFUN","SYSPROC","SYSIBMADM","DACT_DBO_BATCH1","MYSCHEMA01"~
+CREATE OR REPLACE VIEW VIEW3 AS SELECT * FROM VIEW2~
+
+
+SET CURRENT SCHEMA = "MYSCHEMA01"~
+SET CURRENT PATH = "SYSIBM","SYSFUN","SYSPROC","SYSIBMADM","DACT_DBO_BATCH1","MYSCHEMA01"~
+CREATE OR REPLACE VIEW VIEW4 AS SELECT * FROM TABLE_A WHERE A_ID = 4~
+
+
+SET CURRENT SCHEMA = "MYSCHEMA01"~
+SET CURRENT PATH = "SYSIBM","SYSFUN","SYSPROC","SYSIBMADM","DACT_DBO_BATCH1","MYSCHEMA01"~
+CREATE OR REPLACE VIEW VIEW1 AS SELECT * FROM TABLE_A~
+
+
+SET CURRENT SCHEMA = "MYSCHEMA01"~
+SET CURRENT PATH = "SYSIBM","SYSFUN","SYSPROC","SYSIBMADM","DACT_DBO_BATCH1","MYSCHEMA01"~
+-- functions are not supported in the in-memory DB platform translations; hence we limit this to DB2
+
+CREATE OR REPLACE VIEW VIEW_DEPENDING_ON_FUNC AS SELECT FUNC_WITH_DEPENDENT_VIEW() MYVAL FROM TABLE_A~
+
+
+
+
+---------------------------------
+-- DDL Statements for Stored Procedures
+---------------------------------
+
+SET CURRENT SCHEMA = "MYSCHEMA01"~
+SET CURRENT PATH = "SYSIBM","SYSFUN","SYSPROC","SYSIBMADM","DACT_DBO_BATCH1","MYSCHEMA01"~
+
+CREATE OR REPLACE PROCEDURE SP4 ()
+
+LANGUAGE SQL  DYNAMIC RESULT SETS 1 
+
+BEGIN ATOMIC
+
+    DECLARE OPC CURSOR WITH RETURN FOR 
+
+        SELECT * FROM TABLE_A WHERE A_ID = 4;
+
+    OPEN OPC; 
+
+END~
+SET CURRENT SCHEMA = "MYSCHEMA01"~
+SET CURRENT PATH = "SYSIBM","SYSFUN","SYSPROC","SYSIBMADM","DACT_DBO_BATCH1","MYSCHEMA01"~
+
+CREATE OR REPLACE PROCEDURE SP1 ()
+
+LANGUAGE SQL  DYNAMIC RESULT SETS 1 
+
+BEGIN ATOMIC
+
+    DECLARE OPC CURSOR WITH RETURN FOR 
+
+        SELECT * FROM TABLE_A;
+
+    OPEN OPC; 
+
+END~
+SET CURRENT SCHEMA = "MYSCHEMA01"~
+SET CURRENT PATH = "SYSIBM","SYSFUN","SYSPROC","SYSIBMADM","DACT_DBO_BATCH1","MYSCHEMA01"~
+
+CREATE OR REPLACE PROCEDURE SP3 (IN INVAL INT)
+
+/* adding text for SP2 to validate that we can override dependencies */
+
+BEGIN ATOMIC
+
+    insert into TABLE_A (A_ID, B_ID) values (INVAL, 777);
+
+END~
+SET CURRENT SCHEMA = "MYSCHEMA01"~
+SET CURRENT PATH = "SYSIBM","SYSFUN","SYSPROC","SYSIBMADM","DACT_DBO_BATCH1","MYSCHEMA01"~
+
+CREATE OR REPLACE PROCEDURE SP2 (IN INVAL INT)
+
+LANGUAGE SQL  DYNAMIC RESULT SETS 1 
+
+BEGIN ATOMIC
+
+    CALL SP3(INVAL);
+
+END~
+
+-------------------------------
+-- DDL Statements for Triggers
+-------------------------------
+
+SET CURRENT SCHEMA = "MYSCHEMA01"~
+SET CURRENT PATH = "SYSIBM","SYSFUN","SYSPROC","SYSIBMADM","DACT_DBO_BATCH1","MYSCHEMA01"~
+CREATE OR REPLACE TRIGGER TABLE_D_TRIG1 AFTER INSERT ON TABLE_D FOR EACH STATEMENT
+UPDATE TABLE_C SET C_VAL = C_VAL + 1 WHERE C_ID > 0~
+
+
+COMMIT WORK~
+
+CONNECT RESET~
+
+TERMINATE~
+

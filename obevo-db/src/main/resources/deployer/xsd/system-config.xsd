@@ -1,0 +1,211 @@
+<!--
+
+    Copyright 2017 Goldman Sachs.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+﻿﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="deploySystemConfig" xmlns=""
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xs:element name="dbSystemConfig">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="schemas" minOccurs="1" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="schema" type="schema" minOccurs="0" maxOccurs="unbounded" />
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="groups" minOccurs="0" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="group" type="group" minOccurs="0" maxOccurs="unbounded" />
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="users" minOccurs="0" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="user" type="user" minOccurs="0" maxOccurs="unbounded" />
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="environments" minOccurs="1" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="dbEnvironment" minOccurs="1"
+                                maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="includeSchemas" type="xs:string"
+                                            minOccurs="0" msdata:Ordinal="0" />
+                                        <xs:element name="excludeSchemas" type="xs:string"
+                                            minOccurs="0" msdata:Ordinal="1" />
+                                        <xs:element name="schemaOverrides" minOccurs="0"
+                                            maxOccurs="1">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="schemaOverride" minOccurs="0"
+                                                        maxOccurs="unbounded">
+                                                        <xs:complexType>
+                                                            <xs:attribute name="schema" type="xs:string" />
+                                                            <xs:attribute name="overrideValue" type="xs:string" />
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                </xs:sequence>
+                                            </xs:complexType>
+                                        </xs:element>
+                                        <xs:element name="tokens" minOccurs="0" maxOccurs="1">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="token" minOccurs="0"
+                                                        maxOccurs="unbounded">
+                                                        <xs:complexType>
+                                                            <xs:attribute name="key" type="xs:string" />
+                                                            <xs:attribute name="value" type="xs:string" />
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                </xs:sequence>
+                                            </xs:complexType>
+                                        </xs:element>
+                                        <xs:element name="permissions" minOccurs="0" maxOccurs="1" type="permissions" />
+                                    </xs:sequence>
+                                    <xs:attribute name="name" type="xs:string" use="required" />
+                                    <xs:attribute name="type" type="environmentType" />
+                                    <xs:attribute name="cleanBuildAllowed" type="xs:boolean"
+                                        use="required" />
+                                    <xs:attribute name="liveEnvironment" type="xs:boolean"
+                                        default="true" />
+                                    <xs:attribute name="defaultUserId" type="xs:string" />
+                                    <xs:attribute name="defaultPassword" type="xs:string" />
+                                    <xs:attribute name="dbHost" type="xs:string" />
+                                    <xs:attribute name="dbPort" type="xs:integer" />
+                                    <xs:attribute name="dbServer" type="xs:string" />
+                                    <xs:attribute name="dbDataSourceName" type="xs:string" />
+                                    <xs:attribute name="dbSchemaPrefix" type="xs:string" use="optional" />
+                                    <xs:attribute name="dbSchemaSuffix" type="xs:string" />
+                                    <xs:attribute name="driverClass" type="xs:string" use="optional" />
+                                    <xs:attribute name="jdbcUrl" type="xs:string" />
+                                    <xs:attribute name="inMemoryDbType" type="dbType" use="optional" />
+                                    <xs:attribute name="autoReorgEnabled" type="xs:boolean" use="optional" />
+                                    <!-- only for in-memory environments; set this to true if you'd like to persist the DB to a file
+                                    -->
+                                    <xs:attribute name="persistToFile" type="xs:boolean" use="optional"
+                                        default="false" />
+                                    <!-- disabling the audit table is only really meant for in-memory tests for junits -->
+                                    <xs:attribute name="disableAuditTracking" type="xs:boolean" use="optional"
+                                        default="false" />
+                                    <!-- Specify the defaultTablespace particularly for DB2; currently only used for the audit table.
+                                     Would be good to apply this as a default for all tables eventually -->
+                                    <xs:attribute name="defaultTablespace" type="xs:string" use="optional" />
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="permissions" minOccurs="0" maxOccurs="1" type="permissions" />
+            </xs:sequence>
+
+            <xs:attribute name="name" type="xs:string" use="optional" />
+            <!-- would like to retire the name field -->
+            <xs:attribute name="type" type="dbType" use="required" />
+            <xs:attribute name="autoReorgEnabled" type="xs:boolean" use="optional" default="true" />
+            <xs:attribute name="dataDelimiter" type="xs:string" use="optional" default="," />
+            <xs:attribute name="nullToken" type="xs:string" use="optional" default="null" />
+        </xs:complexType>
+    </xs:element>
+    <xs:complexType name="schema">
+        <xs:sequence>
+            <xs:element name="excludes" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="table" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+                        <xs:element name="tablePattern" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+                        <xs:element name="view" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+                        <xs:element name="viewPattern" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+                        <xs:element name="procedure" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+                        <xs:element name="procedurePattern" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="duplicateIndexNames" minOccurs="0" maxOccurs="1" type="xs:boolean" />
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required" />
+    </xs:complexType>
+    <xs:complexType name="permissions">
+        <xs:sequence>
+            <xs:element name="permission" minOccurs="1" maxOccurs="unbounded" type="permission" />
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="permission">
+        <xs:sequence>
+            <xs:element name="grant" type="grant" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attribute name="scheme" type="xs:string" />
+    </xs:complexType>
+    <xs:complexType name="grant">
+        <xs:attribute name="groups" use="optional">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:minLength value="1" />
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="users" use="optional">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:minLength value="1" />
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="privileges" type="xs:string" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="group">
+        <xs:attribute name="name" type="xs:string" use="required" />
+    </xs:complexType>
+    <xs:complexType name="user">
+        <xs:attribute name="name" type="xs:string" use="required" />
+        <xs:attribute name="password" type="xs:string" use="optional" />
+        <xs:attribute name="admin" type="xs:boolean" use="optional" default="false" />
+    </xs:complexType>
+    <xs:simpleType name="environmentType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="DEV" />
+            <xs:enumeration value="SYS_INTEGRATION" />
+            <xs:enumeration value="QA" />
+            <xs:enumeration value="UAT" />
+            <xs:enumeration value="PROD" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="dbType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="SYBASE_IQ" />
+            <xs:enumeration value="SYBASE_ASE" />
+            <xs:enumeration value="DB2" />
+            <xs:enumeration value="HSQL" />
+            <xs:enumeration value="H2" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="NewDataSet" msdata:IsDataSet="true"
+        msdata:UseCurrentLocale="true">
+        <xs:complexType>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element ref="dbSystemConfig" />
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+
+    Copyright 2017 Goldman Sachs.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+    <properties>
+        <title>Environment-Specific Deployments</title>
+    </properties>
+    <body>
+        <macro name="toc">
+            <param name="fromDepth" value="0" />
+            <param name="toDepth" value="1" />
+        </macro>
+        <p>Ideally, the same code will get deployed to all your environments. However, you may have use cases where
+            you need to only deploy some changes to certain environments. This page describes how to handle that with
+            DeployAnywhere.
+        </p>
+        <section name="Tokenization">
+            <p>You can define tokens per environment to tokenize your DB code</p>
+            <source><![CDATA[<!-- In your system-config.xml file -->
+<environments>
+    <dbEnvironment name="qa" cleanBuildAllowed="false" dbDataSourceName="NYQA01">
+        <tokens>
+            <token key="TABLESPACE1" value="QA_TSP_001" />
+            <token key="MY_OTHER_TOKEN" value="qaToken" />
+        </tokens>
+    </dbEnvironment>
+    <dbEnvironment name="prod" cleanBuildAllowed="false" dbDataSourceName="NYPROD01">
+        <tokens>
+            <token key="TABLESPACE1" value="PROD_TSP_001" />
+            <token key="MY_OTHER_TOKEN" value="prodToken" />
+        </tokens>
+    </dbEnvironment>
+</environments>
+]]></source>
+            <p>Then refer to those in your source files</p>
+            <source><![CDATA[//// CHANGE name="mychange"
+create table MYTABLE (
+    FIELD1 int
+) in ${TABLESPACE1}]]></source>
+
+            <p>Note that you can tokenize a //// CHANGE file even after it has been deployed (i.e. accounting for the general
+                rule that a
+            </p>
+
+            <p>You can also define tokens in your permissions section in your system-config.xml (see<a
+                href="permission-management.html">Permission Management</a>)
+                if you need to tokenize that.
+            </p>
+        </section>
+        <section name="The //// METADATA annotation">
+            <p>The //// METADATA annotation line is used to declare special attributes within your object files. We will
+                describe the functionalities that can be enabled with this shortly. But first, let's review the format:
+            </p>
+            <p>This line needs to be the first line of the db object file, and it can go in any of the file types.
+                It can define attributes and toggles, e.g.
+            </p>
+            <source>//// METADATA attr1=&quot;val1&quot; attr2=&quot;val2&quot; toggle1 toggle</source>
+
+            <p>
+                <ul>
+                    <li>Attributes have a name and a value</li>
+                    <li>Toggles represent boolean attributes (the presence of a toggle indicates that the value is true; otherwise, false)</li>
+                </ul>
+            </p>
+        </section>
+
+        <section name="Environment-specific deployments">
+            <p>You need need certain objects/scripts to only run against certain environments. An example
+                is static metadata tables that differ across environments (e.g. some values in qa, some
+                in prod, etc.)
+            </p>
+            <p>As mentioned in the
+                <a href="db-project-structure.html">DB Project Structure</a>
+                section, your file name
+                can allow this, e.g. /data/MYCODES.qa.sql /data/MYCODES.uat.sql /data/MYCODES.prod.sql
+            </p>
+            <p>In addition, you need the &quot;includeEnvs&quot; or &quot;excludeEnvs&quot; attribute
+                under //// METADATA or //// CHANGE
+            </p>
+            <p>This means that it would include/exclude the environments you list out for that attribute. You cannot
+                use both (it would not make sense); just one or the other
+            </p>
+            <p>The list can be comma separated, and you can use the wildcard %</p>
+            <p>Examples:</p>
+            <ul>
+                <li>//// METADATA includeEnvs=prod1,prod2</li>
+                <li>//// METADATA excludeEnvs=dev</li>
+                <li>//// CHANGE name="abc" includeEnvs=qa,uat%</li>
+            </ul>
+        </section>
+        <section name="Platform-specific deployments">
+            <p>[since version 5.x] Similar to environment-specific deployments, changes can be limited based on the platform type. This is
+                utilitized particularly for the in-memory translation use case (i.e. to have certain SQLs executed for
+                the regular platform and others for in-memory)
+            </p>
+
+            <p>Use the includePlatforms/excludePlatforms attributes for this, using the names given for the platforms
+                as keys, e.g.:
+                <ul>
+                    <li>//// METADATA includePlatforms=DB2</li>
+                    <li>//// CHANGE name="abc" excludePlatforms=HSQL</li>
+                </ul>
+            </p>
+        </section>
+        <section name="Common metadata in packages (package-info.txt)">
+            <p>If you want all files in a particular folder to have the same metadata, you can add a package-info.txt
+                file to that folder and add content as needed.
+            </p>
+
+            For example:
+            <p>### /migration/package-info.txt</p>
+            <source>//// METADATA excludeEnvs="db1*"</source>
+
+            <p>A common usecase for this is if you want certain files to only be deployed to certain environments
+                (i.e. you name your QA environments in a particular way, starting w/ qa, and you define static data for
+                qa in such a folder)
+            </p>
+            <p>Note that this is currently
+                <i>NOT</i>
+                RECURSIVE. So if you define this in one folder, it will not trickle to its subchildren
+            </p>
+        </section>
+    </body>
+</document>

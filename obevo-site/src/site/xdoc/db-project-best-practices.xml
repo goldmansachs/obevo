@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+
+    Copyright 2017 Goldman Sachs.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+    <properties>
+        <title>DB Project Best Practices</title>
+    </properties>
+    <body>
+        <macro name="toc">
+            <param name="fromDepth" value="1" />
+            <param name="toDepth" value="3" />
+        </macro>
+
+        <section name="DB Project Best Practices">
+            <h3>Logical schema name should match production or otherwise be environment-agnostic</h3>
+
+            <p>The logical schema name should be representative of your schema across environments. When onboarding an
+                existing schema, this typically means to match it to production (though not always)
+            </p>
+
+            <p>In observing some teams onboarding, we see a habit of naming the logical schema in the &lt;schemas&gt;
+                section in the system-config.xml file as the name of the dev schema that is being deployed to. This is not
+                correct - it is preferred to match it to prod, and then to leverage the dbSchemaPrefix/Suffix or
+                schemaOverrides to map it to the dev schema.
+            </p>
+
+            <p>We will improve the reverse-engineering support in the future to also generate a template system-config.xml
+                file for you as to avoid confusion on this in the future.
+            </p>
+
+            <h3>Table //// CHANGEs should be as fine-grained as reasonable to ease recoverability</h3>
+
+            <p>See the "Transactionality Considerations" section in the
+                <a href="error-handling.html">Error Handling page</a>
+                for
+                details
+            </p>
+
+
+            <h3>Set up a dedicated test schema to run a deploy against in your continuous builds</h3>
+
+            <p>If you commit code, you should have automated tests for it; that applies not just to your application code,
+                but to your database code.
+            </p>
+
+            <p>At minimum, you should be able to validate the correctness of the SQL you deployed. The best way to do this
+                is to simply deploy your schema to an environment! This requires an actual environment to test against, esp.
+                for DBMS platforms whose specific SQL dialects and storage settings cannot be tested against an in-memory double.
+            </p>
+
+
+            <h3>Do not include references to the same schema in your DDLs</h3>
+
+            <p>e.g. If your objects are for schmea MYSCHEMA1, then do not qualify your object references with the schema, e.g.
+                <source><![CDATA[CREATE TABLE MYSCHEMA1.TAB1 (  -- Not OK
+
+CREATE TABLE TAB1 (  -- OK]]></source>
+            </p>
+
+            <p>This is so that you have flexibility in deploying your objects to differently named schemas (whether suffixed
+                differently like MYSCHEMA1_QA or to reuse objects in other projects)
+            </p>
+
+            <p>The reverse-engineering steps should already take care of removing the object qualifiers from the same schema.
+                But if somehow the qualifiers are not removed, then please do so manually.
+            </p>
+
+            <h3>Tokenize references to other schemas in your objects</h3>
+
+            <p>Take a view defined in MYSCHEMA1 that refers to another schema OTHERSCHEMA1, like so:</p>
+
+            <source><![CDATA[CREATE VIEW MYVIEW1 AS SELECT * FROM OTHERSCHEMA1.OTHER_TABLE]]></source>
+
+            <p>Per the point above, we'd like to have flexibility in the schema to deploy to.</p>
+
+            <p>You can define tokens yourself (see the<a
+                href="environment-management.html">tokenization doc</a>), or you
+                can use the built-in tokens for the physical schema name. For example, assuming you've defined the logical schema
+                name as THATSCHEMA in your system-config.xml that maps to the OTHERSCHEMA1 physical schema, use the token as
+                below (&lt;logicalSchema&gt;_physicalSchema)
+            </p>
+
+            <source><![CDATA[CREATE VIEW MYVIEW1 AS SELECT * FROM ${THATSCHEMA_physicalName}.OTHER_TABLE]]></source>
+
+            <h3>Consider leveraging the in-memory DB translation feature for unit testing your DB access code</h3>
+
+            <p>While unit test databases cannot test the exact SQL syntax that you define, they can prove useful for testing
+                your application code that needs to access the DB, e.g. your ORM layer or your data-access code. Hopefully your
+                code is agnostic to the underlying DBMS technology, esp. if you are using an ORM or ANSI SQL.
+            </p>
+
+            <p>To help create an in-memory DB from your DDLs without having to resort to a separate copy just for the
+                in-memory DB, try out the<a href="in-memory-db-testing.html">in-memory DB conversion feature</a>.
+            </p>
+
+            <ul>
+                <li>e.g. if you use Hibernate's schema generation from the POJOs, it would be a better idea to move to
+                    DeployAnywhere's instead
+                </li>
+            </ul>
+        </section>
+    </body>
+</document>

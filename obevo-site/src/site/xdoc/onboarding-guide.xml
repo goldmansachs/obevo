@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+
+    Copyright 2017 Goldman Sachs.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+    <properties>
+        <title>Onboarding Guide - Choosing a Strategy for your System</title>
+    </properties>
+    <body>
+        <macro name="toc">
+            <param name="fromDepth" value="0" />
+            <param name="toDepth" value="1" />
+        </macro>
+        <section name="Onboarding Guide - Choosing a Strategy for your System">
+            <p>Once you've familiarized yourself with DeployAnywhere via the documentation or kata, how do you then apply
+                this to your actual system (i.e. to apply to your dev/qa/prod environments)?
+            </p>
+
+            <p>Keep in mind the end goal of onboarding your schema, which is to be able to:
+                <ol>
+                    <li>Deploy incremental changes to your uat/production environments</li>
+                    <li>Deploy a full schema to a blank environment for testing</li>
+                    <li>Maintain all DB objects in your source code and match all the shards in your
+                        Production environment. By shards, we mean if your production environment has multiple instances,
+                        e.g. a host per region
+                    </li>
+                </ol>
+            </p>
+
+            <p>Depending on the characteristics of your system, you have different routes to take to this end state.</p>
+
+            <p>See the table below for what you should take for your system.</p>
+
+            <table>
+                <tr>
+                    <th>Strategy</th>
+                    <th>Available Features</th>
+                    <th>Applicability to your system</th>
+                </tr>
+                <tr>
+                    <td>
+                        <a href="new-onboarding-guide.html">New Systems</a>
+                    </td>
+                    <td>All</td>
+                    <td>1) If you have not deployed any DB objects to your Production environment, or you can wipe away your
+                        production database and start clean
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a href="existing-onboarding-guide.html">Existing Systems - Single/Matching Shards</a>
+                    </td>
+                    <td>All</td>
+                    <td>1) If you have DB objects already in your Production environment that should not be touched when
+                        onboarding to DeployAnywhere
+                        <br />
+                        2) All your production DB shards match in schema, or are easily reconcilable (* - see below for more)
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a href="existing-diverging-onboarding-guide.html">Existing Systems - Diverging Shards</a>
+                    </td>
+                    <td>All</td>
+                    <td>1) If you have DB objects already in your Production environment that should not be touched when
+                        onboarding to DeployAnywhere
+                        <br />
+                        2) You have multiple production DB shards that do not match easily, but you would like to maintain them as one code-base
+                        and possibly unify them over time. (* - see below for more)
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a href="legacy-onboarding-guide.html">Legacy Systems (not recommended - only exceptional cases)</a>
+                    </td>
+                    <td>#1 - only to deploy to uat/prod environments</td>
+                    <td>1) If you have DB objects already in your Production environment that should not be touched when
+                        onboarding to DeployAnywhere
+                        <br />
+                        2) You have multiple production DB shards that do not match easily
+                        <br />
+                        3) If you have a legacy system about to be retired for which you don't want/need the investment for
+                        the testing features, but need to get by with production deployments until the system is retired.
+                    </td>
+                </tr>
+            </table>
+        </section>
+
+
+        <section name="(*) Guidance on the Matching vs. Diverging Shards condition for Existing Systems">
+            <p>Clarifying the point on matching shards - for DB object maintenance, ideally the following condition should hold:
+                <ul>
+                    <li>
+                        <b>
+                            <i>Each DB object should have the same definition in all production DB shards</i>
+                        </b>
+                    </li>
+                </ul>
+            </p>
+
+            <p>Use cases where this is achieved:
+                <ol>
+                    <li>If you have 1 production shard (trivial)</li>
+                    <li>If you have multiple production shards that have always been maintained in sync, e.g. if you had proper
+                        and design over your database migrations.
+                    </li>
+                </ol>
+            </p>
+
+            <p>However, some systems may not be in this ideal state for various reasons, e.g. a long-lived system that
+                was built and evolved before DB SDLC practices came into vogue, with various functional system enhancements
+                causing the schemas to diverge.
+            </p>
+
+            <p>If this matches your case, you have a few questions to ask:
+                <ol>
+                    <li>Is the same application code modifying all instances? Do you truly care about having a single
+                        canonical copy of DDLs across your production instances?
+                        <ul>
+                            <li>If not, then simply maintain separate for each (i.e. a Single-shard Existing System
+                                Onboarding for each production shard.
+                            </li>
+                        </ul>
+                    </li>
+                    <li>If so, then you should into the<a
+                        href="existing-diverging-onboarding-guide.html">Diverging Shards Onboarding Guide</a>,
+                        which gives you guidance on how to get your diverging shard schemas into source control, then to
+                        evolve/fix the divergent objects over time into a unified model (if you choose to merge them).
+                    </li>
+                    <li>Last-resort - if your system is being retired soon and you want to save the merge work at a cost
+                        of features, then use the
+                        <a href="legacy-onboarding-guide.html">Legacy Onboarding Strategy</a>
+                        <ul>
+                            <li>GS note: this will require a formal exemption process; we will have monitoring in place
+                                to enforce teams to onboard using the preferred strategies above.
+                            </li>
+                        </ul>
+                    </li>
+                </ol>
+            </p>
+        </section>
+
+        <section
+            name="FAQ: Can I onboard only a subset of my existing DB objects initially, and then incrementally onboard more later?">
+            <p>Short Answer: No</p>
+
+            <p>Long Answer: No, because it will:
+                <ul>
+                    <li>Save significant amounts of time long term (and possibly even short term) compared to incremental onboarding</li>
+                    <li>Significantly reduce short-term and long-term risk over your database changes</li>
+                </ul>
+            </p>
+
+            It is our explicit design choice and recommendation (as opposed
+            to a technical limitation).
+
+            <p>We recognize the difficulty of managing an existing production systems and the aversion to change. Some
+                reasons we have heard on wanting to onboard objects incrementally:
+                <ul>
+                    <li>1) Too many objects in production, a lot of effort to onboard them all</li>
+                    <li>2) Many objects that we don't know about or that haven't been touched in a while; why bother with onboarding them</li>
+                    <li>3) Multiple teams deploy to that schema; we want to onboard our changes without impacting them</li>
+                </ul>
+            </p>
+
+            <p>We can address these points:</p>
+
+            <h3>1) Handling large schemas</h3>
+            <p>We have onboarded many
+                <b>
+                    <i>LARGE</i>
+                </b>
+                schemas (i.e. reverse-engineer from production and get a working
+                copy deployed to a test schema
+                <ul>800 tables, 5000 SPs, 200 views in Sybase ASE</ul>
+                <ul>700 tables, 1000 SPs, 80 functions, 200 views in DB2</ul>
+                <ul>200 tables, 100 SPs, 250 user types (!), 1 DEFAULT in Sybase ASE</ul>
+                <ul>... and so on</ul>
+                <ul>... with a lot of complexity (interdependencies among SPs, from functions to tables back to functions, ...)</ul>
+            </p>
+
+            <p>Onboarding each schemas has taken
+                <i>
+                    <u>2 days in the worst-case</u>
+                </i>
+                .
+            </p>
+
+            <p>We've invested a lot in our onboarding tooling to make it easier. In fact, much of the time in this
+                onboarding is really to clean up "invalid objects" , i.e. objects that refer to no-longer-existing objects.
+                If your schema is clean, onboarding is no issue. And we've enhanced our onboarding workflow to make it
+                easier to see and resolve issues.
+            </p>
+
+            <p>Hence, regardless of the difficulty that you expect when onboarding, you can be assured that we have seen
+                many other difficult use cases in the past and that our tooling will be up to the challenge. And if you
+                have a use case that our tool hasn't seen yet, you will have some eager folks ready to improve the tool
+                to solve your issue! (as we have done with many others in the past)
+            </p>
+
+            <h3>2) Cost of not onboarding upfront</h3>
+
+            <p>As mentioned in #1, we make it easy to onboard your objects. But is there any harm in not deploying all
+                objects regardless? Yes, we can name two
+            </p>
+
+            <p>A) You have not changed these objects recently in the past...that doesn't mean they won't change in the future</p>
+
+            <p>B) You many really only care about a single table or SP or view. But you may find that it depends
+                on another view or SP, which means you have to redo the onboarding steps for those objects. And
+                <i>those</i>
+                may depend on yet another view or SP or table, which means you have to redo the onboarding steps...you
+                get the idea.
+            </p>
+
+            <p>It could end up much simpler and less costly to then do the full onboarding.</p>
+
+            <h3>3) Better for all owners of a schema to onboard than a single owner at a time</h3>
+
+            <p>In some older systems, multiple teams may be performing deployments against a single schema or want to
+                maintain their objects separately. It is understandable that one team may want to onboard without affecting
+                the other teams. However, this can lead to some complexities:
+            </p>
+
+            <p>A) As mentioned in #2B, you may not know upfront if your subset of objects is truly independent, or if
+                there is some dependency on another group's objects, or vice versa.
+            </p>
+
+            <p>B) Having visibility on all changes going into a schema would reduce risks for all teams. Would teams not
+                worry about any migrations from other teams that would potentially affect their own? Onboarding all the
+                objects in that schema would at least make it easier to keep tabs on what other teams are doing.
+            </p>
+
+            <p>That said - teams still would have options on keeping their DDLs separate if they choose (even if the
+                deployment is ultimately done from a single source). See the FAQ for more information
+            </p>
+
+            <h3>Summary - go with onboarding a full schema</h3>
+            <p>No tooling is perfect, especially for cleaning up tough situations like long-lived schemas. But given our
+                experience with this in the past and our investment into the onboarding tooling, we strongly feel the
+                full schema onboarding is the way to go. Feel free to give us feedback if you have any difficulties
+                onboarding your use case.
+            </p>
+        </section>
+    </body>
+</document>

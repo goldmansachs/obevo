@@ -1,0 +1,62 @@
+Obevo
+Copyright 2017 Goldman Sachs
+Licensed under Apache 2.0 license
+The Licensor does not indemnify the Licensee against infringement of any third party patent including, but not limited to, United States Patents 5,937,402 and 6,101,502.
+
+See the target/maven-shared-archive-resources/META-INF/DEPENDENCIES for links to the license texts.
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+Each module in this project has a NOTICE.txt file denoting the module's own dependencies.
+
+This product depends on (links to) the following software:
+  Apache Commons Codec under Apache License, Version 2.0
+  Apache Commons DbUtils under The Apache Software License, Version 2.0
+  Command Line Interface Parser for Java under The Apache Software License, Version 2.0
+  Commons BeanUtils under The Apache Software License, Version 2.0
+  Commons Collections under The Apache Software License, Version 2.0
+  Commons Configuration under The Apache Software License, Version 2.0
+  Commons DBCP under The Apache Software License, Version 2.0
+  Commons Digester under The Apache Software License, Version 2.0
+  Commons IO under The Apache Software License, Version 2.0
+  Commons Lang under The Apache Software License, Version 2.0
+  Commons Pool under The Apache Software License, Version 2.0
+  Commons VFS Core under The Apache Software License, Version 2.0
+  Eclipse Collections API under Eclipse Public License - v 1.0
+  Eclipse Collections Main Library under Eclipse Public License - v 1.0
+  FreeMarker under Apache License, Version 2.0
+  h2 under EPL 1.0
+  HyperSQL Database under HSQLDB License, a BSD open source license
+  JCL 1.1.1 implemented over SLF4J under MIT License
+  JGraphT - Core under Eclipse Public License (EPL) 1.0
+  Joda time under Apache 2
+  Log4j under The Apache Software License, Version 2.0
+  Microsoft JDBC Driver for SQL Server under MIT License
+  obevo-core under The Apache License, Version 2.0
+  obevo-db under The Apache License, Version 2.0
+  obevo-db-client-alldbs under The Apache License, Version 2.0
+  obevo-db-db2 under The Apache License, Version 2.0
+  obevo-db-h2 under The Apache License, Version 2.0
+  obevo-db-hsql under The Apache License, Version 2.0
+  obevo-db-mssql under The Apache License, Version 2.0
+  obevo-db-oracle under The Apache License, Version 2.0
+  obevo-db-postgresql under The Apache License, Version 2.0
+  obevo-db-sybase-ase under The Apache License, Version 2.0
+  obevo-db-sybase-iq under The Apache License, Version 2.0
+  obevo-dbmetadata-impl under The Apache License, Version 2.0
+  obevo-internal-comparer under The Apache License, Version 2.0
+  obevo-reladomo-util under The Apache License, Version 2.0
+  opencsv under Apache 2
+  PostgreSQL JDBC Driver under BSD License
+  SchemaCrawler under Eclipse Public License - v 1.0
+  SchemaCrawler for HyperSQL under Eclipse Public License - v 1.0
+  SchemaCrawler for IBM DB2 under Eclipse Public License - v 1.0
+  SchemaCrawler for Microsoft SQL Server under Eclipse Public License - v 1.0
+  SchemaCrawler for Oracle under Eclipse Public License - v 1.0
+  SchemaCrawler for PostgreSQL under Eclipse Public License - v 1.0
+  SchemaCrawler for Sybase IQ under Eclipse Public License - v 1.0
+  SLF4J API Module under MIT License
+  SLF4J LOG4J-12 Binding under MIT License
+  Typesafe Config under Apache License, Version 2.0
+

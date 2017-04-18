@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+
+    Copyright 2017 Goldman Sachs.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+    <properties>
+        <title>Command-line API</title>
+    </properties>
+    <body>
+        <p>
+        The command line format is generally as follows:
+        <source>$DEPLOYANY_PATH/bin/deploy.sh &lt;COMMAND&gt; -arg1 arg -arg2 arg etc</source>
+        where &lt;COMMAND&gt; is one of the following:
+        </p>
+
+        <macro name="toc">
+            <param name="fromDepth" value="0" />
+            <param name="toDepth" value="1" />
+        </macro>
+
+        <section name="DEPLOY">
+            <p>This is the main command for DeployAnywhere that will deploy your source changes to your target environment.
+            It will  1) read your source changes  2) read the changes already deployed in the audit table  3) calculate
+            the difference  4) deploy the changes</p>
+
+            <p>Arguments:</p>
+
+            -sourcePath &lt;arg&gt;
+            <ul>
+                <li>The path to your DB source path (i.e. the directory where your system config file resides, or the direct path to the system config file itself</li>
+                <li>Required</li>
+            </ul>
+
+            -action &lt;arg&gt;
+            <ul>
+                <li>2 possible arguments:
+                    <ul>
+                        <li>clean - wipes away all objects from the schemas defined in your config. Useful for dev and test environments</li>
+                        <li>deploy - does a standard deploy</li>
+                    </ul>
+                </li>
+                <li>You can specify as a comma-separated list if you want to do multiple commands</li>
+                <li>Optional - defaults to deploy</li>
+            </ul>
+
+            -env &lt;arg&gt;
+            <ul>
+                <li>The environment name/s defined in your config that you want to deploy. You can specify a comma-separated list or a wildcard via * or % (i.e. dev0*, %prod)</li>
+                <li>Optional if the config at your source path only defines 1 environment, then that is chosen. Otherwise, this is required.</li>
+            </ul>
+
+            Credentials: -deployUserId &lt;arg&gt;, -password &lt;arg&gt;, -useKerberosAuth
+            <ul>
+                <li>Either provide deployUserId + password, or deployUserId + useKerberos if you kinit beforehand and the platform supports it</li>
+                <li>Optional: if not provided at command line or from config, you will be prompted</li>
+            </ul>
+
+            -noPrompt
+            <ul>
+                <li>Defines if the deployment will proceed without any user interaction or prompting</li>
+                <li>Optional - defaults to false (i.e. users are prompted by default)</li>
+            </ul>
+        </section>
+        <section name="PREVIEW">
+            <p>PREVIEW is a read-only mode command that will show the user the changes that expect to be deployed (i.e.
+                the first 3 steps mentioned in the DEPLOY command), but it will not actually deploy the changes.</p>
+            <p>This is a convenience for teams that just want to see the changes that will get deployed using a read-only db id</p>
+
+            Same args as DEPLOY are used, except for -action
+        </section>
+        <section name="INIT">
+            <p>The INIT command is used when onboarding an existing system to DeployAnywhere to mark your initial schema as "already deployed" in the system.</p>
+
+            <p>See the <a href="onboarding-guide.html">Onboarding Guide</a> for details.</p>
+
+            <p>Essentially, this will execute a DEPLOY command, just without executing your source code to the DB - it will just update the deploy audit table.</p>
+        </section>
+        <section name="Reverse Engineering Commands">
+            <p>These commands are used when you need to onboard an existing system to DeployAnywhere.</p>
+
+            <p>They would extract the DB schema from your existing data and put it into the DeployAnywhere file format.</p>
+
+            <p>See the <a href="onboarding-guide.html">Onboarding Guide</a> for details.</p>
+        </section>
+    </body>
+</document>

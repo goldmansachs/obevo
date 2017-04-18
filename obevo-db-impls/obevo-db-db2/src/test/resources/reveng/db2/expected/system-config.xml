@@ -1,0 +1,46 @@
+<dbSystemConfig type="DB2">
+    <schemas>
+        <schema name="RPTSNAP" />
+        <schema name="SCHEMA2" />
+    </schemas>
+    <environments>
+        <!-- Your production database that you reverse-engineered from; do NOT deploy to this environment for your testing!
+        DELETE THIS COMMENT AFTER FINISHING ONBOARDING -->
+        <dbEnvironment name="prod"
+            dbHost="myProdHost.me.com" dbPort="9876" dbServer="myProdServer (if applicable)">
+        </dbEnvironment>
+
+        <!-- Please work with this environment instead for your onboarding testing
+        DELETE THIS COMMENT AFTER FINISHING ONBOARDING -->
+        <dbEnvironment name="dev1" cleanBuildAllowed="true"
+            dbHost="myDevHost.me.com" dbPort="1234" dbServer="myServer (if applicable)">
+
+            <!-- To specify a different physical schema, either:
+            1) Use the dbSchemaPrefix or dbSchemaSuffix attributes in the <dbEnvironment> element, e.g.
+                        <dbEnvironment dbSchemaSuffix="_dev" ...>
+            will result in the physical schema being:
+                RPTSNAP ==> RPTSNAP_dev
+                SCHEMA2 ==> SCHEMA2_dev
+
+            2) Use the schemaOverrides element below to define the physical schema name directly
+
+            <schemaOverrides>
+                <schemaOverride schema="RPTSNAP" overrideValue="yourRPTSNAPInDev"/>
+                <schemaOverride schema="SCHEMA2" overrideValue="yourSCHEMA2InDev"/>
+            </schemaOverrides>
+
+            DELETE THIS COMMENT AFTER FINISHING ONBOARDING -->
+
+
+            <!-- Define tokens here if you so choose
+
+            <tokens>
+                <token key="key" value="val"/>
+                <token key="key2" value="val2"/>
+            </tokens>
+
+            DELETE THIS COMMENT AFTER FINISHING ONBOARDING -->
+
+        </dbEnvironment>
+    </environments>
+</dbSystemConfig>
