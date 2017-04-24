@@ -28,9 +28,7 @@
                 DeployAnywhere.
                 <ul>
                     <li>
-                        <font
-                            color="Red">Please upgrade to at least version 12 of ADS especially if you are on Sybase ASE, as there are a number of fixes after the standard 7.0.39 version at GS (e.g. including the LOCK DATAROWS value for tables).
-                        </font>
+                        <font color="Red">Obevo has been tested against version 12 of ADS</font>
                     </li>
                     <li>For Sybase IQ, enable the Schema Grouping display for easy access, e.g. right-click your Server -> Server Properties -> Advanced Tab -> Object Folder panel -> set Schema Folder Groupig = Yes</li>
                 </ul>
@@ -77,7 +75,7 @@
                         <li><font color="Red">Note the warning in your output - if you see any directories with a name containing
                             &quot;-pleaseAnalyze&quot; in the result of the DBREVENG script</font>, then the tool could not figure out what to do w/ those
                             sql snippets. Either manually figure out where to put them and do so, or if you find too many
-                            such cases, reach out to gs-deployanywhere-core, including a zip file of your reveng contents
+                            such cases, reach out to the product team via Github, including a zip file of your reveng contents
                         </li>
                     </ul>
                 </li>

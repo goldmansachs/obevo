@@ -748,7 +748,7 @@
                                 <li>Bulk changes to the schema could require changes to multiple files (e.g. note how the single V2_addIndexes.sql change in the migration-based model is now represented in two files)</li>
                                 <ul>
                                     <li>However, note that the same consideration would apply for Java classes files regardless</li>
-                                    <li>In addition, some concerns on applying bulk changes like permissions is mollified by the support that tools like DeployAnywhere and GSS Deploy have to define grants in a central config file (i.e. no need to write grant statements for each table)</li>
+                                    <li>In addition, some concerns on applying bulk changes like permissions is mollified by the support that Obevo has to define grants in a central config file (i.e. no need to write grant statements for each table)</li>
                                 </ul>
                                 <li>Cannot see in one file the changes that would be done for a particular version</li>
                                 <ul>

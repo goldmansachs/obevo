@@ -83,7 +83,7 @@ Connection arguments - specify either -dbHost and -dbPort for Sybase or -dbHost 
                         <li><font color="Red">Note the warning in your output - if you see any directories with a name containing
                             &quot;-pleaseAnalyze&quot; in the result of the DBREVENG script</font>, then the tool could not figure out what to do w/ those
                             sql snippets. Either manually figure out where to put them and do so, or if you find too many
-                            such cases, reach out to gs-deployanywhere-core, including a zip file of your reveng contents
+                            such cases, reach out to the product team via Github, including a zip file of your reveng contents
                         </li>
                     </ul>
                 </p>

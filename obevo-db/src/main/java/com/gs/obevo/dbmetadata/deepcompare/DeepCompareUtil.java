@@ -153,8 +153,6 @@ public class DeepCompareUtil {
                         }
                     });
 
-            // This "sometimes" causes a bug if we omit the "toList" part here - we should report this to GSCollections
-            // team
             this.classCompareInfoMap.putAll(clazz, realizedClassCompareInfos.toList());
         }
         return this.classCompareInfoMap.get(clazz);

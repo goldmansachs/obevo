@@ -32,6 +32,7 @@ import com.gs.obevo.dbmetadata.api.DaTable;
 import com.gs.obevo.dbmetadata.api.DaUserType;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
 import com.gs.obevo.dbmetadata.api.RuleBinding;
+import com.gs.obevo.util.VisibleForTesting;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.Validate;
 import org.eclipse.collections.api.block.function.Function;
@@ -62,8 +63,9 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
     }
 
     /**
-     * For external users (once we refactor this out)
+     * Currently exposed for some unit tests; eventually plan to refactor this away.
      */
+    @VisibleForTesting
     public DbMetadataManagerImpl(DbMetadataDialect dbMetadataDialect, DataSource ds) {
         this.dbMetadataDialect = dbMetadataDialect;
         this.ds = ds;
@@ -190,12 +192,9 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
     private SchemaInfoLevel toInfoLevel(DaSchemaInfoLevel schemaInfoLevel) {
         SchemaInfoLevel otherInfoLevel = new SchemaInfoLevel();
 
-        // basics
-        // otherInfoLevel.setRetrieveSchemaCrawlerInfo(true);  // removed from schemacrawler 9.6; need to verify
         otherInfoLevel.setRetrieveDatabaseInfo(true);
-        // TODO check w/ schemacrawler team on if this can be added back due to issues w/ Sybase ASE
-        //otherInfoLevel.setRetrieveJdbcDriverInfo(false);  // Setting this to false as we don't need it, and there seems to be some bug in allowing this w/ GS JNDIJDBC
-        otherInfoLevel.setRetrieveAdditionalJdbcDriverInfo(false);  // Setting this to false as we don't need it, and there seems to be some bug in allowing this w/ GS JNDIJDBC
+        //otherInfoLevel.setRetrieveJdbcDriverInfo(false);  // would prefer to add this back due to issues w/ Sybase ASE; requires followup w/ SchemaCrawler team
+        otherInfoLevel.setRetrieveAdditionalJdbcDriverInfo(false);  // unneeded for our use cases and causes some problems w/ some JDBC drivers
         otherInfoLevel.setRetrieveColumnDataTypes(true);  // todo was standard before - parameterize this?
 
         // tables

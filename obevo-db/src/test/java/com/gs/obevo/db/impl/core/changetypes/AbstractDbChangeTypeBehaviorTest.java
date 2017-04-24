@@ -17,8 +17,6 @@ package com.gs.obevo.db.impl.core.changetypes;
 
 /**
  * Test methods in DbChangeIncrementalCommand.
- * 
- * Created by fostto on 04/12/15.
  */
 public class AbstractDbChangeTypeBehaviorTest {
     

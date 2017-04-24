@@ -768,7 +768,6 @@ To be filled in w/ proper values for Obevo
                 <artifactId>h2</artifactId>
                 <!-- tests run w/ versions as early as 1.0.57 up until 1.4.187.
                  Noted a regression w/ version 1.4.188; that needs some investigation.
-                 (not using maven version ranges due to incompatibilities w/ GS AREA)
                  -->
                 <version>1.4.187</version>
             </dependency>

@@ -58,12 +58,10 @@ public class Db2lookReveng extends AbstractDdlReveng {
 
     @Override
     protected void printInstructions(AquaRevengArgs args) {
-        System.out.println("1) Login to your DB2 command line environment by running the following command:");
+        System.out.println("1) Login to your DB2 command line environment by running the following command (assuming you have the DB2 command line client installed):");
         System.out.println("    db2cmd");
         System.out.println("");
         System.out.println("That should result in a new command line window in Windows.");
-        System.out.println("");
-        System.out.println("*** If that path is not found, then install the 'DB2 Client' from GS AppStore*** ");
         System.out.println("");
         System.out.println("");
         System.out.println("2) Run the following command to generate the DDL file:");

@@ -224,7 +224,7 @@ kata-files\initDb.bat]]></source>
                 truly
                 verify that the DDLs from Hibernate/Mithra tie to your alters!
                 <ul>
-                    <li>We do have a utility available to do this for Hibernate - email gs-deployanywhere-core for more
+                    <li>We do have a utility available to do this for Hibernate - please contact the product team via Github for more
                         info (haven't had the chance to put up this documentation yet)
                     </li>
                 </ul>

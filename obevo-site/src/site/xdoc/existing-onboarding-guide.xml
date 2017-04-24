@@ -108,7 +108,7 @@
                 <ul>
                     <li>This option uses the tools provided by the vendors</li>
                     <li>This will be the preferred option in the future</li>
-                    <li>Today, the feature is in pilot. Reach out to gs-deployanywhere-core if you would like to try this
+                    <li>Today, the feature is in pilot. Reach out to the product team via Github if you would like to try this
                         out (particularly if you have a lot of DBMS's to reverse engineer, as this methodology is more
                         automatable than the Aqua Data Studio method
                     </li>

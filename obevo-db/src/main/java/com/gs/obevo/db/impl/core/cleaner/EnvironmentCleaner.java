@@ -15,9 +15,6 @@
  */
 package com.gs.obevo.db.impl.core.cleaner;
 
-/**
- * Created by kusuka on 11/13/2015.
- */
 public interface EnvironmentCleaner {
     void cleanEnvironment(boolean noPrompt);
 }

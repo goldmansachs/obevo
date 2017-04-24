@@ -146,11 +146,6 @@
                     <li>Last-resort - if your system is being retired soon and you want to save the merge work at a cost
                         of features, then use the
                         <a href="legacy-onboarding-guide.html">Legacy Onboarding Strategy</a>
-                        <ul>
-                            <li>GS note: this will require a formal exemption process; we will have monitoring in place
-                                to enforce teams to onboard using the preferred strategies above.
-                            </li>
-                        </ul>
                     </li>
                 </ol>
             </p>

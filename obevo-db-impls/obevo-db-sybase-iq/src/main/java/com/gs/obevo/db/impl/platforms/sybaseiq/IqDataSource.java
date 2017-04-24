@@ -32,9 +32,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * With the way we use IQ in GS without the DBO password, but instead logging in as the schema user id,
- * we do not have a "set schema" command in SQL. Instead, we must create a separate datasource for each schema (using
- * that schema's login) and switch it in this method, transparent from clients
+ * Datasource to allow modifications of schemas in IQ using the schema user ID, instead of a dbo account. Some
+ * installations of IQ in enterprises prefer not to use a dbo account, but to login as the schema user to execute
+ * deployments. With this methodology, we create a separate datasource for each schema (using that schema's login) and
+ * switch it in the setCurrentSchema method, transparent from clients
  */
 public class IqDataSource implements DataSource {
     private static final Logger LOG = LoggerFactory.getLogger(IqSqlExecutor.class);

@@ -139,11 +139,6 @@
                     <td>Maven archetype to create DeployAnywhere projects.</td>
                 </tr>
                 <tr>
-                    <td>deployanywhere-autosys</td>
-                    <td>deployanywhere-autosys</td>
-                    <td>Wrapper around GS Jiller that we implement here to give similar command-line deploy semantics. Not related to the DB modules - may eventually be forked to a separate product</td>
-                </tr>
-                <tr>
                     <td>deployanywhere-site</td>
                     <td>deployanywhere-doc</td>
                     <td>The documentaiton bundle</td>
