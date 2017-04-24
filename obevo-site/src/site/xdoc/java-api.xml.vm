@@ -47,10 +47,6 @@
                     <td>Java client utilities for DBMS-platforms that sit on top of the platform modules</td>
                 </tr>
                 <tr>
-                    <td>deployanywhere-autosys</td>
-                    <td>Autosys-platform implementation (may soon move out of this product, as it does not really apply for the deployanywhere-core algorithm</td>
-                </tr>
-                <tr>
                     <td>deployanywhere-build-apis</td>
                     <td>API endpoints for clients to access DeployAnywhere from their builds</td>
                 </tr>

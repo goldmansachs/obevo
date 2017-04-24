@@ -37,10 +37,6 @@ value here accordingly. The full log is written to file and created programmatic
         <level value="INFO" />
     </logger>
 
-    <logger name="com.gs.imd.am.autosys">
-        <level value="INFO" />
-    </logger>
-
     <root>
         <priority value="INFO" />
         <appender-ref ref="console" />

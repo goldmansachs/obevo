@@ -57,7 +57,6 @@ public class Main {
 
     public enum DeployCommand {
         DEPLOY,
-        AUTOSYSDEPLOY,
         DBREVENG,
         NEWREVENG,
         DBREVENGMERGE,
@@ -65,7 +64,6 @@ public class Main {
         MITHRAREVENG,
         INIT,
         PREVIEW,
-        AUTOSYSREVENG,
         DBDATACOMPARE,
         ;
     }

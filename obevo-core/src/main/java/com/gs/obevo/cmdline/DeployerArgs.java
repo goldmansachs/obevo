@@ -45,7 +45,6 @@ public class DeployerArgs {
     private boolean performInitOnly = false;
     private boolean preview = false;
     private boolean rollback = false;
-    private boolean persistJilJobLoadOrder = false;
     private boolean onboardingMode;
     private String changeCriteria;
     private String[] changesets;
@@ -245,15 +244,6 @@ public class DeployerArgs {
         this.preview = preview;
     }
 
-    public boolean isPersistJilJobLoadOrder() {
-        return this.persistJilJobLoadOrder;
-    }
-
-    @Argument(value = "persistJilJobLoadOrder", required = false, description = "Will persist the job load order defined in the jils")
-    public void setPersistJilJobLoadOrder(boolean persistJilJobLoadOrder) {
-        this.persistJilJobLoadOrder = persistJilJobLoadOrder;
-    }
-
     public boolean isRollback() {
         return this.rollback;
     }
@@ -307,8 +297,7 @@ public class DeployerArgs {
         if (deployUserId != null)
             builder.append("deployUserId=").append(deployUserId).append(", ");
         builder.append("performInitOnly=").append(performInitOnly).append(", preview=").append(preview)
-                .append(", rollback=").append(rollback).append(", persistJilJobLoadOrder=")
-                .append(persistJilJobLoadOrder).append(", ");
+                .append(", rollback=").append(rollback).append(", ");
         builder.append("]");
         return builder.toString();
     }
