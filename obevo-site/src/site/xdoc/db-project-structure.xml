@@ -50,7 +50,7 @@
                                 </ul>
                             </li>
                             <li>
-                                <font color="red">NOTE for Sybase ASE users: The "schema" term in DeployAnywhere is
+                                <font color="red">NOTE for Sybase ASE users: The "schema" term in Obevo is
                                     equivalent to the Sybase ASE "database". The ASE schema concept is not used; the default is
                                     assumed.
                                 </font>
@@ -130,7 +130,7 @@
 </dbSystemConfig>]]></source>
             </subsection>
             <subsection name="Advanced Environment Management">
-                <p>You can do more advanced environment management with DeployAnywhere, including tokenization, permission
+                <p>You can do more advanced environment management with Obevo, including tokenization, permission
                     management, and environment-specific deployments.
                 </p>
 
@@ -217,7 +217,7 @@ data/NET_TYPE.csv]]></source>
 
                 <p>Now we discuss the specific content rules for each of the object types</p>
 
-                <p>Stored procedures, views, and data are very easy to define in DeployAnywhere; but given that tables
+                <p>Stored procedures, views, and data are very easy to define in Obevo; but given that tables
                     are focal
                     point of databases, we will start there
                 </p>
@@ -321,7 +321,7 @@ GO
             </subsection>
 
             <subsection name="Renaming tables">
-                <p>You have a couple options on renaming tables in DeployAnywhere</p>
+                <p>You have a couple options on renaming tables in Obevo</p>
                 <h4>Option 1: Create the new table and migrate the data over</h4>
                 <p>The migration SQL should be in a /migration change (described in the sections below), so that the
                     object files remain clean
@@ -354,7 +354,7 @@ SELECT Field1, Field2 FROM OrigTable
 GO]]></source>
                 <h4>Option 2: Use the rename command provided by the DBMS</h4>
 
-                <p>As of this version, doing this in DeployAnywhere is a bit clunky, as you won't be able to delete
+                <p>As of this version, doing this in Obevo is a bit clunky, as you won't be able to delete
                     the old file, and the new file would not have the DDL defined. Suggestions to work around this for now:
                     <ul>
                         <li>If you need this for in-memory testing, use the workarounds for manually defining a
@@ -406,11 +406,11 @@ GO]]></source>
                     grants
                     if you've defined the global permissions)
                 </li>
-                <li>To edit the SP/view/..., edit the file. DeployAnywhere will do the drop/add for you (along w/
+                <li>To edit the SP/view/..., edit the file. Obevo will do the drop/add for you (along w/
                     re-adding
                     the grants if you've defined the global permissions)
                 </li>
-                <li>To drop the SP/view/..., delete the file. DeployAnywhere will do the drop for you</li>
+                <li>To drop the SP/view/..., delete the file. Obevo will do the drop for you</li>
             </ul>
             <p>Do not define the &quot;DROP PROCEDURE/VIEW/...&quot; statement in your file. The tool does it for you
             </p>
@@ -421,11 +421,11 @@ GO]]></source>
                     same file
                 </p>
 
-                <p>DeployAnywhere will take care of dropping each of the instances as needed</p>
+                <p>Obevo will take care of dropping each of the instances as needed</p>
             </subsection>
         </section>
         <section name="DB Object Deployment Order">
-            <p>A key tenet of DeployAnywhere is to not require excessive overhead on developers to define the order of
+            <p>A key tenet of Obevo is to not require excessive overhead on developers to define the order of
                 db changes for
                 <i>
                     <u>every single change</u>
@@ -435,7 +435,7 @@ GO]]></source>
                 compilation order of classes within a module.
             </p>
 
-            <p>DeployAnywhere takes care of this by:
+            <p>Obevo takes care of this by:
                 <ol>
                     <li>Inferring dependency order across objects by inspecting the text</li>
                     <li>Allowing users to explicitly define a dependency order if needed to override the default behavior</li>
@@ -462,9 +462,9 @@ GO]]></source>
 
                 <p>The value is a comma-separated string that points to the dependencies of that change:
                     <ul>
-                        <li>dependencies: overrides the value inferred by DeployAnywhere entirely w/ what the user provides</li>
-                        <li>includeDependencies: adds the given dependencies to the value inferred by DeployAnywhere</li>
-                        <li>excludeDependencies: removes the given dependencies from the value inferred by DeployAnywhere</li>
+                        <li>dependencies: overrides the value inferred by Obevo entirely w/ what the user provides</li>
+                        <li>includeDependencies: adds the given dependencies to the value inferred by Obevo</li>
+                        <li>excludeDependencies: removes the given dependencies from the value inferred by Obevo</li>
                     </ul>
                 </p>
 
@@ -517,7 +517,7 @@ GO]]></source>
         <section name="Managing Static Data / Code Tables">
             <p>Many systems store tables just for static/code data, not necessarily dynamic data.</p>
 
-            <p>For these cases, DeployAnywhere supports maintaining these as rerunnable files, such that if you wanted
+            <p>For these cases, Obevo supports maintaining these as rerunnable files, such that if you wanted
                 to
                 add/modify/delete a row, you can just edit the file content in place, instead of having to specifically
                 code
@@ -535,7 +535,7 @@ GO]]></source>
             <subsection name="Methodology 1) File-per-table (the common use case)">
 
                 <p>Here, we define a file per code table (i.e. the same paradigm that we use for the other objects in
-                    deployanywhere, like tables/sps/views/etc.)
+                    obevo, like tables/sps/views/etc.)
                 </p>
 
                 <p>e.g. say we want to maintain static data for 3 tables, VIEW<i>DEF, VIEW</i>COLUMN, COLUMNDEF; the
@@ -591,7 +591,7 @@ GO]]></source>
                     the first row as the column names, and you are set
                 </p>
 
-                <p>If a change is done on the table, DeployAnywhere will only deploy the incremental change (it will
+                <p>If a change is done on the table, Obevo will only deploy the incremental change (it will
                     compare the full dataset in the db table vs. the file and apply the appropriate insert/update/delete)
                 </p>
 
@@ -637,14 +637,14 @@ c,d,22]]></source>
                         order (TableA, then TableB, then TableC)
                     </li>
                 </ul>
-                <p>Lucky for you, DeployAnywhere takes care of this!</p>
+                <p>Lucky for you, Obevo takes care of this!</p>
                 <ul>
-                    <li>DeployAnywhere knows how your tables are related to each other via FK (assuming you've defined
+                    <li>Obevo knows how your tables are related to each other via FK (assuming you've defined
                         those
                         foreign keys in your table DDLs in the first place), and thus can manage the dependency order
                         accordingly on the CSV side
                     </li>
-                    <li>Simply edit the CSV files as you need to, and DeployAnywhere takes care of the rest</li>
+                    <li>Simply edit the CSV files as you need to, and Obevo takes care of the rest</li>
                 </ul>
             </subsection>
             <subsection name="Methodology 2) File-per-staticDataGroup (i.e. common static data across a set of tables)">
@@ -791,8 +791,8 @@ GO]]></source>
                     </b>
                     . This is because we don't want/need migrations lying around in the
                 code, as they are one-time activities. Deleting the entries will <i>UNMANAGE</i> them from
-                DeployAnywhere, akin to the <i>UNMANAGE</i>/delete operation with static data tables. i.e. if the
-                migration file is deleted, the entry is removed from the audit table, and DeployAnywhere leaves the
+                Obevo, akin to the <i>UNMANAGE</i>/delete operation with static data tables. i.e. if the
+                migration file is deleted, the entry is removed from the audit table, and Obevo leaves the
                 table untouched otherwise.
                 </p>
             </subsection>

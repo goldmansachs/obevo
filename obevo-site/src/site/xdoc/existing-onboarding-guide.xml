@@ -30,12 +30,12 @@
 
         <section name="Full Onboarding Guide for Existing Systems">
 
-            <p>This page outlines how to fully onboard an existing system to DeployAnywhere</p>
+            <p>This page outlines how to fully onboard an existing system to Obevo</p>
 
             <p>At a high-level, the steps are:
                 <ol>
                     <li>Reverse-engineer your schema from production to set as your source code</li>
-                    <li>Initialize your production and (optionally) UAT environments with DeployAnywhere</li>
+                    <li>Initialize your production and (optionally) UAT environments with Obevo</li>
                     <li>Do the recommended final steps mentioned in the
                         <a href="new-onboarding-guide.html">Full Onboarding Guide for New Systems</a>
                     </li>
@@ -50,7 +50,7 @@
                 </u>
                 of the following criteria:
             <ul>
-                <li>Be in the file-per-object format that DeployAnywhere desires</li>
+                <li>Be in the file-per-object format that Obevo desires</li>
                 <li>Be in sync with the actual schema in production</li>
             </ul>
 
@@ -86,7 +86,7 @@
             It is heavily suggested that that you dedicate a schema just for running the DB scripts. This will have
             multiple uses:
             <ul>
-                <li>As a sandbox for you defining your DeployAnywhere project</li>
+                <li>As a sandbox for you defining your Obevo project</li>
                 <li>For comparing your deployed db against different environments to verify your DB scripts (or the state of your other environments)</li>
                 <li>For your continuous builds going forward (i.e. verifying your db scripts are fine as developers change it going forward)</li>
             </ul>
@@ -194,7 +194,7 @@
         </p>
         <p>Please perform a successful deployment before proceeding to the next step</p>
         <source>%DEPLOYANY_HOME%\bin\deploy.bat DEPLOY -sourcePath src/main/database -env test -onboardingMode</source>
-            <p>In DeployAnywhere, we strove to make the reverse-engineering as smooth as possible, so hopefully it will
+            <p>In Obevo, we strove to make the reverse-engineering as smooth as possible, so hopefully it will
             be successful on the first try. But for various reasons, it may not. Hence, you should iteratively deploy,
             review the logs, fix problems, and redeploy until all issues are fixed.
         </p>
@@ -257,7 +257,7 @@
                         account<i>master</i>dev vs. accountmaster)
                     </li>
                     <li>see that the dependent object exists in prod but not dev. In that case, look to get that schema
-                        cleaned up (potentially via DeployAnywhere? You can do that as a separate project)
+                        cleaned up (potentially via Obevo? You can do that as a separate project)
                     </li>
                 </ul>
             </li>
@@ -311,17 +311,17 @@ GO]]></source>
             </li>
         </ul>
         <p>If you run into any other kinds of problems that you cannot seem to debug, feel free to reach out to the
-            DeployAnywhere team
+            Obevo team
         </p>
             </subsection>
         </section>
         <section name="7) Marking your files as 'already deployed' in production">
         <p>Once you've gotten your DDLs into a good shape (i.e. doing the reverse engineering, deploying your code
             against the blank schema, then comparing that deployed schema against prod via Aqua to verify correctness),
-            then essentially, you can assume that your prod db have been deployed via deployanywhere
+            then essentially, you can assume that your prod db have been deployed via obevo
         </p>
         <p>But - the audit table does not exist yet in production. You will have to seed it w/ the audit trail such that
-            DeployAnywhere can deploy any new changes going forward
+            Obevo can deploy any new changes going forward
         </p>
         <p>To do this, run the INIT command</p>
         <source>%DEPLOYANY_HOME%\bin\deploy.bat INIT -sourcePath src/main/database</source>
@@ -342,11 +342,11 @@ GO]]></source>
             <subsection name="Apply this to your other environments">
                 <h4>UATs</h4>
         <p>You likely will have a number of dev/qa/uat environments already up and running. We'd need to onboard these
-            to DeployAnywhere too, and it is possible that these environments are not in sync with production (hence,
+            to Obevo too, and it is possible that these environments are not in sync with production (hence,
             they are out of sync with the db scripts you just created)
         </p>
         <p>You have 2 options to work around this:</p>
-        <p>1) Wipe away the UAT environment and recreate (whether via devsync or via DeployAnywhere -cleanFirst
+        <p>1) Wipe away the UAT environment and recreate (whether via devsync or via Obevo -cleanFirst
             invocation)
         </p>
         <p>This is the easy option if you don't have any ongoing UATs or can easily start over</p>
@@ -358,7 +358,7 @@ GO]]></source>
             needed
         </p>
         <p>To compare the schemas, use the Aqua Data Studio schema comparison tool or the schema comparison tool
-            provided by DeployAnywhere (will document this soon)
+            provided by Obevo (will document this soon)
         </p>
         <p>To compare the static data, see the following subsection...</p>
                 <h4>Comparing the Data across different databases</h4>
@@ -371,7 +371,7 @@ GO]]></source>
             in Excel files (a summary report defining the overall differences, plus detailed reports for cases where
             content exists in either side of a comparison, but there are differences)
         </p>
-        <source>j:\cc\deployanywhere\bin\deploy.bat DBDATACOMPARE -configFile H:\mydir\costarRepoComparisonConfig.properties -outputDir H:\mycomparisons\</source>
+        <source>j:\cc\obevo\bin\deploy.bat DBDATACOMPARE -configFile H:\mydir\costarRepoComparisonConfig.properties -outputDir H:\mycomparisons\</source>
         <p>Config File Example: <a href="files/dbComparisonConfigExample.properties">dbComparisonConfigExample.properties</a></p>
         <p>Format:</p>
         <ul>
@@ -408,7 +408,7 @@ GO]]></source>
                 </li>
                 <li>Removing unused views/sps
                     <ul>
-                        <li>In this case, I &quot;would&quot; keep these in your DeployAnywhere codebase, as after your init
+                        <li>In this case, I &quot;would&quot; keep these in your Obevo codebase, as after your init
                             command, you can then delete these in a controlled manner. (I'm less worried about the risk of
                             dropping stored procedures, as you can easily add them back)
                         </li>

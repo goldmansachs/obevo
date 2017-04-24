@@ -52,10 +52,10 @@
 
         <section name="Adding a new DBMS implementation">
             <h4>1. Create and setup a blank DB schema to run your tests against</h4>
-            <p>DeployAnywhere will run tests against actual DBMSs that have schemas dedicated to DeployAnywhere.</p>
+            <p>Obevo will run tests against actual DBMSs that have schemas dedicated to Obevo.</p>
             <p>Get a schema to facilitate your testing</p>
-            <h4>2. Create a new module deployanywhere-db-&lt;dbmsName&gt;</h4>
-            <p>You can use deployanywhere-db-db2 or deployanywhere-db-postgresql as examples</p>
+            <h4>2. Create a new module obevo-db-&lt;dbmsName&gt;</h4>
+            <p>You can use obevo-db-db2 or obevo-db-postgresql as examples</p>
             <h4>3. Implement the classes required to do a basic incremental deployment for simple objects like tables
             </h4>
             <p>These classes revolve around setting up the JDBC parameters and such:</p>

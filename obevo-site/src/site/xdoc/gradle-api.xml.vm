@@ -27,8 +27,8 @@
         1.Add java plugin:
             <source>apply plugin: 'java'</source>
 
-        2. Add dependency on deployanywhere-dist:
-            <source>dependencies { ... testCompile '${project.parent.groupId}:deployanywhere-dist:${project.version}' }</source>
+        2. Add dependency on obevo-dist:
+            <source>dependencies { ... testCompile '${project.parent.groupId}:obevo-dist:${project.version}' }</source>
 
         3. Create a new task:
             <source><![CDATA[task(testDatabaseDeploy, dependsOn:'classes', type:JavaExec, description:'Test database deployment') {

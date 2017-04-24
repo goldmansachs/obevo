@@ -28,7 +28,7 @@
             <param name="toDepth" value="1" />
         </macro>
         <section name="Onboarding Guide - Choosing a Strategy for your System">
-            <p>Once you've familiarized yourself with DeployAnywhere via the documentation or kata, how do you then apply
+            <p>Once you've familiarized yourself with Obevo via the documentation or kata, how do you then apply
                 this to your actual system (i.e. to apply to your dev/qa/prod environments)?
             </p>
 
@@ -68,7 +68,7 @@
                     </td>
                     <td>All</td>
                     <td>1) If you have DB objects already in your Production environment that should not be touched when
-                        onboarding to DeployAnywhere
+                        onboarding to Obevo
                         <br />
                         2) All your production DB shards match in schema, or are easily reconcilable (* - see below for more)
                     </td>
@@ -79,7 +79,7 @@
                     </td>
                     <td>All</td>
                     <td>1) If you have DB objects already in your Production environment that should not be touched when
-                        onboarding to DeployAnywhere
+                        onboarding to Obevo
                         <br />
                         2) You have multiple production DB shards that do not match easily, but you would like to maintain them as one code-base
                         and possibly unify them over time. (* - see below for more)
@@ -91,7 +91,7 @@
                     </td>
                     <td>#1 - only to deploy to uat/prod environments</td>
                     <td>1) If you have DB objects already in your Production environment that should not be touched when
-                        onboarding to DeployAnywhere
+                        onboarding to Obevo
                         <br />
                         2) You have multiple production DB shards that do not match easily
                         <br />

@@ -48,9 +48,9 @@
                 such features in practice, or you need to have a finer control over the table change anyway).
             </p>
             <p>But still, this is an overall positive - you will get the initial version of your table ddl, and the
-                baselined version. DeployAnywhere has a plugin for Hibernate to generate the table DDLs from a
+                baselined version. Obevo has a plugin for Hibernate to generate the table DDLs from a
                 Hibernate
-                configuration and to output it to the format that DeployAnywhere expects (and leaving room for the
+                configuration and to output it to the format that Obevo expects (and leaving room for the
                 third
                 piece to create subsequent alters, which we'll go through in the next section).
             </p>
@@ -58,7 +58,7 @@
         <section name="Hibernate Integration">
             <subsection name="High Level Steps to Execute">
                 <ol style="list-style-type: decimal">
-                    <li>You will leverage the deployanywhere-db-hibernate jar and maven plugin to call out to the
+                    <li>You will leverage the obevo-db-hibernate jar and maven plugin to call out to the
                         Hibernate DDL generation code
                     </li>
                     <li>You would have to provide your Hibernate configuration to the maven plugin (expressed via the
@@ -69,13 +69,13 @@
             <subsection name="Example">
                 <p>1) Add this dependency to your pom:</p>
                 <source><![CDATA[<dependency>
-    <groupId>com.gs.deployanywhere</groupId>
-    <artifactId>deployanywhere-db-hibernate</artifactId>
+    <groupId>com.goldmansachs.obevo</groupId>
+    <artifactId>obevo-db-hibernate</artifactId>
     <version>${project.version}</version>
 </dependency>
 <dependency>
-    <groupId>com.gs.deployanywhere</groupId>
-    <artifactId>deployanywhere-db-sybase-ase</artifactId>  <!-- or whatever your implementation is -->
+    <groupId>com.goldmansachs.obevo</groupId>
+    <artifactId>obevo-db-sybase-ase</artifactId>  <!-- or whatever your implementation is -->
     <version>${project.version}</version>
 </dependency>]]></source>
                 <p>2) Create a class that implements the HibernateSchemaGenFactory interface. All that interface does is
@@ -111,9 +111,9 @@
                     class that you just created as the &lt;schemaGenFactoryClass&gt; argument
                 </p>
                 <source><![CDATA[<plugin>
-    <groupId>com.gs.deployanywhere</groupId>
-    <artifactId>deployanywhere-maven-plugin</artifactId>
-    <version>${deployanywhere.version}</version>
+    <groupId>com.goldmansachs.obevo</groupId>
+    <artifactId>obevo-maven-plugin</artifactId>
+    <version>${obevo.version}</version>
     <executions>
         <execution>
             <id>generate-ddls</id>
@@ -175,7 +175,7 @@ H:\yourInputDir\APP_INFO_DEPLOYMENT_SERVER.idx
 H:\yourInputDir\APPLICATION_USER_ROLE.ddl
 H:\yourInputDir\APPLICATION_USER_ROLE.idx]]></source>
 
-                <p><b>Step 2:</b> Run the DeployAnywhere reverse-engineering command to get those files into the DeployAnywhere format:</p>
+                <p><b>Step 2:</b> Run the Obevo reverse-engineering command to get those files into the Obevo format:</p>
 
                 <p>Via Command Line:</p>
                 <source>%DEPLOYANY_HOME%\bin\deploy.bat MITHRAREVENG -dbType DB2 -inputDir h:\reveng-example -outputDir h:\reveng-example-output [-dontGenerateBaseline] [-dbSchema yourSchemaName]</source>
@@ -183,7 +183,7 @@ H:\yourInputDir\APPLICATION_USER_ROLE.idx]]></source>
                 <ul>
                     <li>dbType: (Required) The DBMS type that the DDLs were generated for; use one of the following values - DB2, SYBASE_ASE, SYBASE_IQ, POSTGRESQL, H2, HSQL</li>
                     <li>inputDir: (Required) The directory that contains the Mithra DDLs</li>
-                    <li>outputDir: (Required) The directory to write the DeployAnywhere DDLs. The format would look like below.
+                    <li>outputDir: (Required) The directory to write the Obevo DDLs. The format would look like below.
                         <source><![CDATA[H:\yourOutputDir\yourSchema\table\APP_INFO_DEPLOYMENT_SERVER.sql
 H:\yourOutputDir\yourSchema\table\APPLICATION_USER_ROLE.sql
 H:\yourOutputDir\yourSchema\table\baseline\APP_INFO_DEPLOYMENT_SERVER.baseline.sql
@@ -199,8 +199,8 @@ H:\yourOutputDir\yourSchema\table\baseline\APPLICATION_USER_ROLE.baseline.sql]]>
                     <ul>
                         <li>Add this to Maven
 <source><![CDATA[<dependency>
-    <groupId>com.gs.deployanywhere</groupId>
-    <artifactId>deployanywhere-mithra-util</artifactId>
+    <groupId>com.goldmansachs.obevo</groupId>
+    <artifactId>obevo-mithra-util</artifactId>
     <version>${project.version}</version>
 </dependency>]]></source>
                         </li>
@@ -214,7 +214,7 @@ mithraSchemaConverter.convertMithraDdlsToDaFormat(platform, new File("./src/test
             </subsection>
             <subsection name="Generating DDLs directly from Mithra API">
                 In the future, we would like to support generating the Mithra DDLs directly from an API (as opposed to
-                having to generate the DDLs first in the Mithra format and then reverse-engineering to the DeployAnywhere
+                having to generate the DDLs first in the Mithra format and then reverse-engineering to the Obevo
                 format). This is not yet available.
             </subsection>
         </section>

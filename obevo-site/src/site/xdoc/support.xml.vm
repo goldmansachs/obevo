@@ -26,7 +26,7 @@
         </section>
 
         <section name="Supported DBMSs and major versions">
-            <p>DeployAnywhere runs its integration tests against live DBMS environments. We aim to run as many tests as
+            <p>Obevo runs its integration tests against live DBMS environments. We aim to run as many tests as
             possible against a public cloud provider such that all developers can easily run tests and receive immediate
             feedback.</p>
             <p>Some DBMS types and versions are not available in the public cloud, so those tests are run in locales

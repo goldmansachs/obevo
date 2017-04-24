@@ -25,7 +25,7 @@
     <body>
         <section name="Reverse-Engineering via Aqua Data Studio">
             <p>You have the option of leveraging Aqua Data Studio to reverse-engineer your DDLs into the formats desired by
-                DeployAnywhere.
+                Obevo.
                 <ul>
                     <li>
                         <font color="Red">Obevo has been tested against version 12 of ADS</font>

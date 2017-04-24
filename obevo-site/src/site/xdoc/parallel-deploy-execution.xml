@@ -24,7 +24,7 @@
     </properties>
     <body>
         <section name="Parallel Deploy Execution">
-            <p>By default, DeployAnywhere will execute changes in a deterministic sorted order and in a single-thread.
+            <p>By default, Obevo will execute changes in a deterministic sorted order and in a single-thread.
                 This is to ensure that the deploy execution is done in the same deterministic way across environments.
                 If it were multi-threaded, then we cannot control the deploy order among the different threads.
             </p>

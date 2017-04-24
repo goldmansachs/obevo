@@ -136,7 +136,7 @@
                         you would for an application code change). This is the preferred approach
                     </li>
                     <li>Or you may feel you can't wait for the build to go through. In that case, you can just call
-                        DeployAnywhere locally against your checked-out code. (It is just Java after all; it can execute
+                        Obevo locally against your checked-out code. (It is just Java after all; it can execute
                         anywhere. But ensure that your code is committed)
                         <ul>
                             <li>However, from an SDLC perspective, this is not recommended. Please try to abide by your
@@ -154,7 +154,7 @@
                     can resort
                     to this mode of rollback if you choose (likely, your DBAs should be taking backups of your DB
                     anyway). As
-                    the DeployAnywhere audit table is also physically on your target DB, the state of the audit table
+                    the Obevo audit table is also physically on your target DB, the state of the audit table
                     will also
                     get rolled back to where it should be.
                 </p>
@@ -166,7 +166,7 @@
                 </p>
             </subsection>
             <subsection name="Paradigm 4: Traditional rollback, i.e. preparing rollback scripts alongside your release">
-                DeployAnywhere supports rollback by simply allowing developers to point to their old DB package and
+                Obevo supports rollback by simply allowing developers to point to their old DB package and
                 re-deploy w/ the \-rollback flag attached
 
                 For example:
@@ -185,7 +185,7 @@ $DEPLOYANY_HOME/bin/deploy.bat DEPLOY -env prod -sourcePath /home/myuser/mypacka
                 <ul>
                     <li>For stateless objects (i.e. everything except &quot;table&quot; changes): nothing extra is
                         needed.
-                        DeployAnywhere simply detects the objects in the old location and applies those (doing the
+                        Obevo simply detects the objects in the old location and applies those (doing the
                         appropriate
                         drops and adds as necessary)
                     </li>
@@ -193,7 +193,7 @@ $DEPLOYANY_HOME/bin/deploy.bat DEPLOY -env prod -sourcePath /home/myuser/mypacka
                         <ul>
                             <li>If you don't want to add a rollback script for a particular //// CHANGE, nothing extra
                                 is
-                                needed. DeployAnywhere will simply let the change remain.
+                                needed. Obevo will simply let the change remain.
                             </li>
                             <li>If you do want a rollback script for a particular //// CHANGE, add a // ROLLBACK
                                 subsection to

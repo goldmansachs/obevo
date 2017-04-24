@@ -29,7 +29,7 @@
         </macro>
         <section name="Using the baseline comparison feature to validate that your CHANGEs match your baseline">
             <p>If you provide a file w/ ends with .baseline.&lt;extension&gt;, this counts as the baseline file.
-                This is only used when you run DeployAnywhere in validateBaseline mode.
+                This is only used when you run Obevo in validateBaseline mode.
                 the maven plugin in validateBaseline mode (see the pom example below)
             </p>
             <p>Two ways to run this:</p>
@@ -41,9 +41,9 @@
             </subsection>
             <subsection name="2) Maven plugin">
                 <source><![CDATA[<plugin>
-    <groupId>com.gs.deployanywhere</groupId>
-    <artifactId>deployanywhere-maven-plugin</artifactId>
-    <version>${deployanywhere.version}</version>
+    <groupId>com.goldmansachs.obevo</groupId>
+    <artifactId>obevo-maven-plugin</artifactId>
+    <version>${obevo.version}</version>
     <executions>
         <execution>
             <id>test-db-module</id>

@@ -24,7 +24,7 @@
     </properties>
     <body>
         <section name="Multiple Schema Management Overview">
-            <p>DeployAnywhere's configuration lets you define multiple logical schemas in a single system-config.xml
+            <p>Obevo's configuration lets you define multiple logical schemas in a single system-config.xml
                 file. And you are free to define as many system-config.xml files or logical schemas as you want to for your
                 application.
             </p>
@@ -61,7 +61,7 @@
             </p>
 
             <h3>Schemas are deployed to in the same release cycle</h3>
-            <p>Currently, the smallest unit of work for DeployAnywhere is the dbEnvrionment. Hence, each logical schema
+            <p>Currently, the smallest unit of work for Obevo is the dbEnvrionment. Hence, each logical schema
                 would get deployed for such environments.
             </p>
 
@@ -120,11 +120,11 @@
 
             <p>That said - teams may still want to keep the files maintained in separate modules. If you choose this
                 route, then at build-time, the various modules need to have their DDLs combined in one place so that
-                DeployAnywhere can execute the deployment.
+                Obevo can execute the deployment.
             </p>
 
             <p>It is up to teams to decide how to merge across different modules. Ultimately, this depends on the build
-                and dependency mechanisms that your team uses, and DeployAnywhere is agnostic of the build system teams
+                and dependency mechanisms that your team uses, and Obevo is agnostic of the build system teams
                 choose to use.
             </p>
         </section>
@@ -134,7 +134,7 @@
                 logical schemas for their objects.
             </p>
 
-            <p>Those logical schemas can still map to the same physical schema - DeployAnywhere is able to segregate the
+            <p>Those logical schemas can still map to the same physical schema - Obevo is able to segregate the
                 different logical schemas defined in a physical schema.
             </p>
 

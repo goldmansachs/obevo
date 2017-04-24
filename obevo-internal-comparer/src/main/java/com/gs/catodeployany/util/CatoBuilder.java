@@ -75,7 +75,7 @@ public class CatoBuilder {
             // TODO Make DataSourceConfig implement CatoDataSource?
             // CatoUtil.compare(name, config.getDataSource1(), config.getDataSource2(),config.getKeyFields() ,
             // config.getExcludedFields());
-            throw new UnsupportedOperationException("Need to implement this section; though this may be unused in DeployAnywhere codebase");
+            throw new UnsupportedOperationException("Need to implement this section; though this may be unused in Obevo codebase");
         }
 
         return comparison;

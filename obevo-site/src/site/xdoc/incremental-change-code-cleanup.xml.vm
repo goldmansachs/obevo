@@ -25,13 +25,13 @@
             <param name="fromDepth" value="0" />
             <param name="toDepth" value="1" />
         </macro>
-        <p>The key DeployAnywhere rule for handling incremental object types (e.g. tables with //// CHANGE) is to never
+        <p>The key Obevo rule for handling incremental object types (e.g. tables with //// CHANGE) is to never
             modify/delete an already deployed change. There are exceptional cases where you may want to do this for
             the purposes of code cleanup. This page describes how to do those cleanups.
         </p>
         <section name="Rebaselining CHANGE entries in your table files">
             <subsection name="Use Case Details">
-                <p>For table files and changes - as DeployAnywhere requires that all new changes are additions to the
+                <p>For table files and changes - as Obevo requires that all new changes are additions to the
                     file, this
                     file may end up being pretty long (see the section below (to be written) on the justifications for
                     this).
@@ -143,7 +143,7 @@ GO]]></source>
             <subsection name="Potential Improvements on the existing approach">
                 <p>Now that you have done this - great, now you have a much smaller baselined file! But I can see a
                     couple
-                    things non-ideal - the first is something that will be fixed in DeployAnywhere in the future, and
+                    things non-ideal - the first is something that will be fixed in Obevo in the future, and
                     the other
                     is something that is resolvable in a different way
                 </p>
@@ -171,7 +171,7 @@ GO]]></source>
                 <p>The next section goes through this</p>
             </subsection>
         </section>
-        <section name="How to update your DeployAnywhere db file if you have to do a manual SQL change without a release (not that you should try this)">
+        <section name="How to update your Obevo db file if you have to do a manual SQL change without a release (not that you should try this)">
             <p>don't do it often! there are alternatives to doing it manually</p>
             <p>section to be written</p>
         </section>

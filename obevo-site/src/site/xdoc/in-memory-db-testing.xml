@@ -28,7 +28,7 @@
             <param name="toDepth" value="1" />
         </macro>
         <section name="In-memory DBs for unit testing">
-            <p>DeployAnywhere can create an in-memory db from your existing SQLs, thus guaranteeing that the same
+            <p>Obevo can create an in-memory db from your existing SQLs, thus guaranteeing that the same
             DDLs you use to deploy to prod are the same ones for your testing</p>
 
             Some translation happens to ensure that your prod SQLs work against an in-mem environment (notably to
@@ -83,19 +83,19 @@
 
                 You can just include this in maven to get access to the utility:
                 <source><![CDATA[<properties>
-    <deployanywhere.version>4.1.0</deployanywhere.version>
+    <obevo.version>${project.version}</obevo.version>
 </properties>
 ...
 <dependencies>
     <dependency>
-        <groupId>com.gs.deployanywhere</groupId>
-        <artifactId>deployanywhere-db-unittest</artifactId>
-        <version>${deployanywhere.version}</version>
+        <groupId>com.goldmansachs.obevo</groupId>
+        <artifactId>obevo-db-unittest</artifactId>
+        <version>${obevo.version}</version>
     </dependency>
     <dependency>
-        <groupId>com.gs.deployanywhere</groupId>
-        <artifactId>deployanywhere-db-hsql</artifactId>  <!-- or deployanywhere-db-h2 -->
-        <version>${deployanywhere.version}</version>
+        <groupId>com.goldmansachs.obevo</groupId>
+        <artifactId>obevo-db-hsql</artifactId>  <!-- or obevo-db-h2 -->
+        <version>${obevo.version}</version>
     </dependency>
 </dependencies>
 ]]></source>

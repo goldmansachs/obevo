@@ -25,11 +25,11 @@
     <body>
         <section name="Reverse-Engineering via DBMS-Provided Tools">
             <subsection name="Overview">
-                <p>DeployAnywhere will integrate w/ DBMS-provided tooling for reverse-engineering. We prefer this route over
+                <p>Obevo will integrate w/ DBMS-provided tooling for reverse-engineering. We prefer this route over
                     using external tools as the DBMS vendors are more likely to keep up-to-date on their own DDL generation
                     tooling.</p>
 
-                <p>The following tools are currently supported. DeployAnywhere will wrap the calls for you, but here are the links anyway for your reference
+                <p>The following tools are currently supported. Obevo will wrap the calls for you, but here are the links anyway for your reference
                     <table>
                         <tr>
                             <th>DBMS</th>
@@ -48,9 +48,9 @@
 
                 <p>The tooling generally works as follows:
                     <ol>
-                        <li>Execute the DeployAnywhere command to generate the DBMS-specific commands to reverse-engineer the DDLs to a particular format</li>
+                        <li>Execute the Obevo command to generate the DBMS-specific commands to reverse-engineer the DDLs to a particular format</li>
                         <li>Execute those DBMS-specific commands to generate the DDL output file</li>
-                        <li>Re-execute the DeployAnywhere command w/ the DDL output file as an additional argument</li>
+                        <li>Re-execute the Obevo command w/ the DDL output file as an additional argument</li>
                     </ol>
                 </p>
             </subsection>
@@ -71,7 +71,7 @@ Connection arguments - specify either -dbHost and -dbPort for Sybase or -dbHost 
 
                 <p>Step 2: execute the commands that are prompted for you in the instructions from the Step 1 output.</p>
 
-                <p>Step 3: execute your step 1 command again, but add the -inputPath &lt;yourFilePath&gt; argument to do the conversion to the deployanywhere format</p>
+                <p>Step 3: execute your step 1 command again, but add the -inputPath &lt;yourFilePath&gt; argument to do the conversion to the obevo format</p>
                 <p>Regarding the output:
                     <ul>
                         <li>This will generate the reverse-engineered output under &lt;outputDir&gt;/final</li>

@@ -22,41 +22,41 @@
     </properties>
     <body>
         <section name="Module Overview">
-            <p>Before diving into the Java code, first let's describe the modules in DeployAnywhere.</p>
+            <p>Before diving into the Java code, first let's describe the modules in Obevo.</p>
 
             <p>NOTE for the review week of Feb 22 - I have not created this module group structure in maven yet</p>
 
-            <p>First, describe the high-level module groupings (the first-level of directories in the DeployAnywhere codebase):</p>
+            <p>First, describe the high-level module groupings (the first-level of directories in the Obevo codebase):</p>
             <table>
                 <tr>
                     <th>Module Group</th>
                     <th>Description</th>
                 </tr>
                 <tr>
-                    <td>deployanywhere-core</td>
-                    <td>The core DeployAnywhere algorithm framework, as described in the
+                    <td>obevo-core</td>
+                    <td>The core Obevo algorithm framework, as described in the
                         <a href="design-walkthrough.html">Design Walkthrough</a>
                     </td>
                 </tr>
                 <tr>
-                    <td>deployanywhere-db-platforms</td>
-                    <td>DBMS-platform implementations of DeployAnywhere</td>
+                    <td>obevo-db-platforms</td>
+                    <td>DBMS-platform implementations of Obevo</td>
                 </tr>
                 <tr>
-                    <td>deployanywhere-db-utils</td>
+                    <td>obevo-db-utils</td>
                     <td>Java client utilities for DBMS-platforms that sit on top of the platform modules</td>
                 </tr>
                 <tr>
-                    <td>deployanywhere-build-apis</td>
-                    <td>API endpoints for clients to access DeployAnywhere from their builds</td>
+                    <td>obevo-build-apis</td>
+                    <td>API endpoints for clients to access Obevo from their builds</td>
                 </tr>
                 <tr>
-                    <td>deployanywhere-doc</td>
-                    <td>Documentation and DeployAnywhere-internal modules</td>
+                    <td>obevo-doc</td>
+                    <td>Documentation and Obevo-internal modules</td>
                 </tr>
             </table>
 
-            <p>And now the modules themselves (the first-level of directories in the DeployAnywhere codebase):</p>
+            <p>And now the modules themselves (the first-level of directories in the Obevo codebase):</p>
 
             <table>
                 <tr>
@@ -65,19 +65,19 @@
                     <th>Description</th>
                 </tr>
                 <tr>
-                    <td>deployanywhere-core</td>
+                    <td>obevo-core</td>
                     <td>core</td>
-                    <td>Core module for implementing the DeployAnywhere incremental-deployment algorithm</td>
+                    <td>Core module for implementing the Obevo incremental-deployment algorithm</td>
                 </tr>
                 <tr>
-                    <td>deployanywhere-db</td>
+                    <td>obevo-db</td>
                     <td>db-platforms</td>
                     <td>The base implementation of the core DA algorithm for DBMS platforms</td>
                 </tr>
                 <tr>
-                    <td>deployanywhere-db-* (db2, h2, hsql, postgresql, sybase-ase, sybase-iq)</td>
+                    <td>obevo-db-* (db2, h2, hsql, postgresql, sybase-ase, sybase-iq)</td>
                     <td>db-platforms</td>
-                    <td>The DBMS-specific implementations. These implement a few interfaces defined in deployanywhere-db</td>
+                    <td>The DBMS-specific implementations. These implement a few interfaces defined in obevo-db</td>
                 </tr>
                 <tr>
                     <td>obevo-schemacrawler</td>
@@ -85,68 +85,68 @@
                     <td>Wrapper code around the schemacrawler library (i.e. handling a couple tweaks around how to call the library)</td>
                 </tr>
                 <tr>
-                    <td>deployanywhere-catotemp</td>
+                    <td>obevo-catotemp</td>
                     <td>db-platforms</td>
                     <td>Copy of the CATO library; hoping to retire this once the main CATO library takes in some changes</td>
                 </tr>
                 <tr>
-                    <td>deployanywhere-sql-parser</td>
+                    <td>obevo-sql-parser</td>
                     <td>db-platforms</td>
                     <td>SQL parsing/translation code to help w/ the unit test db translations</td>
                 </tr>
                 <tr>
-                    <td>deployanywhere-db-client-alldbs</td>
+                    <td>obevo-db-client-alldbs</td>
                     <td>db-platforms</td>
                     <td>maven dependency grouping as a convenience to retrieve all DBMS implementations</td>
                 </tr>
                 <tr>
-                    <td>deployanywhere-db-scenario-tests</td>
+                    <td>obevo-db-scenario-tests</td>
                     <td>db-platforms</td>
                     <td>Scenario tests (not for client usage)</td>
                 </tr>
                 <tr>
-                    <td>deployanywhere-db-unittest</td>
-                    <td>deployanywhere-db-utils</td>
+                    <td>obevo-db-unittest</td>
+                    <td>obevo-db-utils</td>
                     <td>Utilities to facilitate creating unit test dbs and loading data via DB Unit</td>
                 </tr>
                 <tr>
-                    <td>deployanywhere-hibernate</td>
-                    <td>deployanywhere-db-utils</td>
+                    <td>obevo-hibernate</td>
+                    <td>obevo-db-utils</td>
                     <td>Utility to generate DDLs from Hibernate</td>
                 </tr>
                 <tr>
-                    <td>deployanywhere-mithra-util</td>
-                    <td>deployanywhere-db-utils</td>
-                    <td>Utility to generate DDLs from Mithra</td>
+                    <td>obevo-reladomo-util</td>
+                    <td>obevo-db-utils</td>
+                    <td>Utility to generate DDLs from Reladomo</td>
                 </tr>
                 <tr>
-                    <td>deployanywhere-dist</td>
-                    <td>deployanywhere-build-apis</td>
+                    <td>obevo-dist</td>
+                    <td>obevo-build-apis</td>
                     <td>binary assembly distribution</td>
                 </tr>
                 <tr>
-                    <td>deployanywhere-maven-plugin</td>
-                    <td>deployanywhere-build-apis</td>
+                    <td>obevo-maven-plugin</td>
+                    <td>obevo-build-apis</td>
                     <td>Maven plugin</td>
                 </tr>
                 <tr>
-                    <td>deployanywhere-maven-cbk-archetype</td>
-                    <td>deployanywhere-build-apis</td>
-                    <td>Maven archetype to create DeployAnywhere projects.</td>
+                    <td>obevo-maven-cbk-archetype</td>
+                    <td>obevo-build-apis</td>
+                    <td>Maven archetype to create Obevo projects.</td>
                 </tr>
                 <tr>
-                    <td>deployanywhere-site</td>
-                    <td>deployanywhere-doc</td>
-                    <td>The documentaiton bundle</td>
+                    <td>obevo-site</td>
+                    <td>obevo-doc</td>
+                    <td>The documentation bundle</td>
                 </tr>
                 <tr>
-                    <td>deployanywhere-internal-infra</td>
-                    <td>deployanywhere-doc</td>
+                    <td>obevo-internal-infra</td>
+                    <td>obevo-doc</td>
                     <td>The infrastructure to serve up the documentation</td>
                 </tr>
                 <tr>
-                    <td>deployanywhere-examples</td>
-                    <td>deployanywhere-doc</td>
+                    <td>obevo-examples</td>
+                    <td>obevo-doc</td>
                     <td>Examples + kata</td>
                 </tr>
             </table>
@@ -154,14 +154,14 @@
         <section name="Modules relevant for Java API Users">
             <p>As an API client, you'll only need to depend on the following:</p>
             <ul>
-                <li>The core module for the platform type you are interested in (e.g. deployanywhere-db for DBMS platforms)</li>
-                <li>The specific platform module that you are working on, e.g. one of the deployanywhere-db *impl* modules or deployanywhere-db-client-alldbs to access all impls</li>
-                <li>Optionally, any of the Java utility modules, e.g. in the deployanywhere-db-utils module group</li>
+                <li>The core module for the platform type you are interested in (e.g. obevo-db for DBMS platforms)</li>
+                <li>The specific platform module that you are working on, e.g. one of the obevo-db *impl* modules or obevo-db-client-alldbs to access all impls</li>
+                <li>Optionally, any of the Java utility modules, e.g. in the obevo-db-utils module group</li>
                 <li>You should not access the other modules via Java</li>
             </ul>
         </section>
         <section name="Java Package Overview">
-            <p>com.gs.obevo is the main package under which all is kept - this is in the deployanywhere-core
+            <p>com.gs.obevo is the main package under which all is kept - this is in the obevo-core
                 module that has the code focusing on the change calculation algorithm.
             </p>
 
@@ -173,7 +173,7 @@
                     <td>api</td>
                     <td>The public API entrypoint for executing deployments; good place to start to explore the API. Typically has the following subpackages:
                         <ul>
-                            <li>factory: Convenience factory classes to access the main DeployAnywhere classes</li>
+                            <li>factory: Convenience factory classes to access the main Obevo classes</li>
                             <li>appdata: The domain model classes corresponding to the code and data that clients would provide</li>
                             <li>platform: The core classes/interfaces that will operate on the user data to carry out deployments.</li>
                         </ul>
@@ -185,7 +185,7 @@
                 </tr>
                 <tr>
                     <td>apps</td>
-                    <td>DeployAnywhere utilities built off the deploy api besides the basic deploy. Should only rely on the api/model packages, and not impl</td>
+                    <td>Obevo utilities built off the deploy api besides the basic deploy. Should only rely on the api/model packages, and not impl</td>
                 </tr>
             </table>
 
@@ -216,27 +216,27 @@
             <p>Maven Example 1 - Conventional way
                 <source><![CDATA[
 <dependency>
-    <groupId>com.gs.deployanywhere</groupId>
-    <artifactId>deployanywhere-db</artifactId>
+    <groupId>com.goldmansachs.obevo</groupId>
+    <artifactId>obevo-db</artifactId>
     <version>${project.version}</version>
 </dependency>
 <dependency>
-    <groupId>com.gs.deployanywhere</groupId>
-    <artifactId>deployanywhere-db-hsql</artifactId>  <!-- replace db-hsql w/ whatever platform you are trying to deploy to -->
+    <groupId>com.goldmansachs.obevo</groupId>
+    <artifactId>obevo-db-hsql</artifactId>  <!-- replace db-hsql w/ whatever platform you are trying to deploy to -->
     <version>${project.version}</version>
 </dependency>
 ]]></source>
             </p>
 
-            <p>Maven Example 2 - Use the DeployAnywhere BOM to manage your dependency versions in one place (see the
+            <p>Maven Example 2 - Use the Obevo BOM to manage your dependency versions in one place (see the
                 <a href="https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html">Maven doc on BOMs</a>for more information)
 
                 <source><![CDATA[<!-- First define the BOM in your dependencyManagement section -->
 <dependencyManagement>
     <dependencies>
         <dependency>
-            <groupId>com.gs.deployanywhere</groupId>
-            <artifactId>deployanywhere-db</artifactId>
+            <groupId>com.goldmansachs.obevo</groupId>
+            <artifactId>obevo-db</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
@@ -245,12 +245,12 @@
 <!-- Then define your dependencies in the modules that need them; no need to specify the version numbers here -->
 <dependencies>
     <dependency>
-        <groupId>com.gs.deployanywhere</groupId>
-        <artifactId>deployanywhere-db</artifactId>
+        <groupId>com.goldmansachs.obevo</groupId>
+        <artifactId>obevo-db</artifactId>
     </dependency>
     <dependency>
-        <groupId>com.gs.deployanywhere</groupId>
-        <artifactId>deployanywhere-db-hsql</artifactId>  <!-- replace db-hsql w/ whatever platform you are trying to deploy to -->
+        <groupId>com.goldmansachs.obevo</groupId>
+        <artifactId>obevo-db-hsql</artifactId>  <!-- replace db-hsql w/ whatever platform you are trying to deploy to -->
     </dependency>
 </dependencies>]]></source>
             </p>

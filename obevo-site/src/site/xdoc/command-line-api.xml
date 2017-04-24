@@ -35,7 +35,7 @@
         </macro>
 
         <section name="DEPLOY">
-            <p>This is the main command for DeployAnywhere that will deploy your source changes to your target environment.
+            <p>This is the main command for Obevo that will deploy your source changes to your target environment.
             It will  1) read your source changes  2) read the changes already deployed in the audit table  3) calculate
             the difference  4) deploy the changes</p>
 
@@ -85,16 +85,16 @@
             Same args as DEPLOY are used, except for -action
         </section>
         <section name="INIT">
-            <p>The INIT command is used when onboarding an existing system to DeployAnywhere to mark your initial schema as "already deployed" in the system.</p>
+            <p>The INIT command is used when onboarding an existing system to Obevo to mark your initial schema as "already deployed" in the system.</p>
 
             <p>See the <a href="onboarding-guide.html">Onboarding Guide</a> for details.</p>
 
             <p>Essentially, this will execute a DEPLOY command, just without executing your source code to the DB - it will just update the deploy audit table.</p>
         </section>
         <section name="Reverse Engineering Commands">
-            <p>These commands are used when you need to onboard an existing system to DeployAnywhere.</p>
+            <p>These commands are used when you need to onboard an existing system to Obevo.</p>
 
-            <p>They would extract the DB schema from your existing data and put it into the DeployAnywhere file format.</p>
+            <p>They would extract the DB schema from your existing data and put it into the Obevo file format.</p>
 
             <p>See the <a href="onboarding-guide.html">Onboarding Guide</a> for details.</p>
         </section>

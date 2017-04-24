@@ -20,11 +20,11 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
     <properties>
-        <title>DeployAnywhere</title>
+        <title>Obevo</title>
     </properties>
     <body>
         <section name="Welcome">
-        Welcome to the DeployAnywhere Home Page. This tool and most of this wiki focuses on Database Deployment
+        Welcome to the Obevo Home Page. This tool and most of this wiki focuses on Database Deployment
         </section>
         <section name="Feature List">
             <ul>
@@ -32,7 +32,7 @@
                     <ul>
                         <li>1 file per object - just as you would with Java files</li>
                         <li>Edit stored procedures, views, and static data files in place (if you have them) - just as you would with Java files</li>
-                        <li>No need to specify the order in which to deploy your files - DeployAnywhere figures it out for you (a la a Java compiler compiling classes)</li>
+                        <li>No need to specify the order in which to deploy your files - Obevo figures it out for you (a la a Java compiler compiling classes)</li>
                     </ul>
                 </li>
 

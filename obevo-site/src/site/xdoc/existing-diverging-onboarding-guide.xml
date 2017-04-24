@@ -54,7 +54,7 @@
                         only works for tables; won't work for views, stored procedures, and so on
                         <ul>
                             <li>If you choose not to merge before onboarding, then proceed w/ the next steps. You can later
-                                on do the alters in DeployAnywhere itself to merge the schemas over time in a controlled fashion.
+                                on do the alters in Obevo itself to merge the schemas over time in a controlled fashion.
                             </li>
                             <li>If you choose to merge before onboarding, then apply the changes to production and rerun the
                                 reverse engineering steps from the top

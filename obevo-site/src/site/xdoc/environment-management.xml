@@ -29,7 +29,7 @@
         </macro>
         <p>Ideally, the same code will get deployed to all your environments. However, you may have use cases where
             you need to only deploy some changes to certain environments. This page describes how to handle that with
-            DeployAnywhere.
+            Obevo.
         </p>
         <section name="Tokenization">
             <p>You can define tokens per environment to tokenize your DB code</p>

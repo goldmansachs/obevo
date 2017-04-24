@@ -49,7 +49,7 @@
             <p>High-level approach to resolve this:</p>
             <ul>
                 <li>Certainly, it would be nice if these schema definitions were consolidated before onboarding to
-                    DeployAnywhere.
+                    Obevo.
                     <ul>
                         <li>In practical terms, it may be very time-consuming to do so, and a lack of appetite to do so given
                             the number of cleanups
@@ -63,12 +63,12 @@
                             table
                         </li>
                         <li>over time, the team can slowly look to consolidate the tables by applying the changes to the
-                            schema using deployanywhere
+                            schema using obevo
                         </li>
                     </ol>
                 </li>
                 <li>Once that merged view is created, teams can analyze the diffs and choose whether to leave them
-                    maintained separately, or to try to clean up the db. DeployAnywhere provides help to generate the diff
+                    maintained separately, or to try to clean up the db. Obevo provides help to generate the diff
                     SQLs if you choose
                 </li>
             </ul>
@@ -152,7 +152,7 @@ fx.inputDir=h:\mydboutput\fx
                     color="red">PLEASE NOTE: This feature is an Alpha-quality version (i.e. early Incubation, not tried
                     out by other teams). No work imminently planned on this, but we can look more into this if there is demand.
                     Any brave souls who would like to try this out, please reach out to the
-                    <a href="support.html">DeployAnywhere team</a>
+                    <a href="support.html">Obevo team</a>
                     first to coordinate.
                 </font>
             </p>
@@ -172,7 +172,7 @@ fx.inputDir=h:\mydboutput\fx
             <subsection name="For Tables">
                 The tricky bit is for tables, as they are not stateless and require alters to get them in line.
 
-                What DeployAnywhere can assist you with is generating SQLs to create a &quot;merged view&quot; of the
+                What Obevo can assist you with is generating SQLs to create a &quot;merged view&quot; of the
                 tables. This merged view is based on some heuristics, e.g.
                 <ul>
                     <li>If columns are missing in some instances but not others, add them</li>
@@ -231,9 +231,9 @@ instance3.physicalSchema=INST3]]></source>
                 <p>The tool will just generate the SQLs and put them into a file format; it will not actually execute them.
                     Hence, you are free to modify the SQLs as you choose. Worst-case, you can just use this for your analysis.
                 </p>
-                <p>To execute it, do it manually. Yes, this is not automated and unlike DeployAnywhere! This is because this
+                <p>To execute it, do it manually. Yes, this is not automated and unlike Obevo! This is because this
                     feature is still early (call it an &quot;alpha version&quot; and cleanup is tricky; we can add support for
-                    this in DeployAnywhere eventually to execute these cleanups, but for now, let's do this manually so that
+                    this in Obevo eventually to execute these cleanups, but for now, let's do this manually so that
                     teams don't actually execute alters that they don't want to.
                 </p>
                 <p>Assuming you choose to proceed w/ the cleanups: execute them in UAT and re-compare the schemas (e.g. using

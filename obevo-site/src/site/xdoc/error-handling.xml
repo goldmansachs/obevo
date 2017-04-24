@@ -25,7 +25,7 @@
     <body>
         <p>What do you do when you get a failure during your DB Deployment?</p>
 
-        <p>First, let's understand how DeployAnywhere behaves when exceptions occur. Then, let's discuss the problem
+        <p>First, let's understand how Obevo behaves when exceptions occur. Then, let's discuss the problem
             resolution options.
         </p>
 
@@ -36,9 +36,9 @@
             <param name="toDepth" value="2" />
         </macro>
 
-        <section name="DeployAnywhere Error Handling Behavior">
+        <section name="Obevo Error Handling Behavior">
             <subsection name="Best-effort execution">
-                <p>For each deployment activity, DeployAnywhere executes a set of changes. If a change is deployed
+                <p>For each deployment activity, Obevo executes a set of changes. If a change is deployed
                     successfully, then that status is marked in the DeployLog so that following deployments do not try to
                     execute the same change.
                 </p>
@@ -48,7 +48,7 @@
                         <li>Version 1 of the DB package has changes C1, C2, C3 - assume all pertain to the same object.
                             The deployment succeeds and marks all those as deployed in the log.
                         </li>
-                        <li>If we try another deployment, DeployAnywhere will detect no changes, as C1, C2, C3 are
+                        <li>If we try another deployment, Obevo will detect no changes, as C1, C2, C3 are
                             already marked in the DeployLog
                         </li>
                         <li>Version 2 comes along w/ changes C1, C2, C3, C4, C5, C6, C7 - assume all pertain to the same
@@ -57,7 +57,7 @@
                         <li>Let's say C4 succeeds and then C5 fails. In that case, C4 will be in the DeployLog, C5 will
                             not be, and C6 and C7 will not be (we will not even attempt to do C6 or C7)
                         </li>
-                        <li>When re-deploying V2, DeployAnywhere will see that C1 - C4 are already deployed, so it picks
+                        <li>When re-deploying V2, Obevo will see that C1 - C4 are already deployed, so it picks
                             up where it left off (C5, C6, C7)
                         </li>
                     </ul>
@@ -66,7 +66,7 @@
                 <p>We made special mention in that example that all those changes were in the same object. What if they
                     were changes in different DB objects?
                     <ul>
-                        <li>DeployAnywhere will do a best effort to deploy all objects even if unrelated objects are
+                        <li>Obevo will do a best effort to deploy all objects even if unrelated objects are
                             failed
                         </li>
                         <li>However, if a change fails for a particular object, then no other changes for that object
@@ -85,7 +85,7 @@
                             as it belonged to the same ObjectA as C5. However, C7 belongs to a different object, and so
                             we do try to deploy that. Let's assume it succeeds.
                         </li>
-                        <li>When re-deploying V2, DeployAnywhere will see that C1, C2, C3, C4,
+                        <li>When re-deploying V2, Obevo will see that C1, C2, C3, C4,
                             <b>and C7</b>
                             are already
                             deployed, so it picks up what is remaining (C5, C6)
@@ -103,8 +103,8 @@
                 <p>The above examples assume that each change C1, C2, ... can be executed atomically. It would be a
                     problem if they weren't. e.g.
                     <ul>
-                        <li>DeployAnywhere only knows about the whole of each change</li>
-                        <li>If C1 was executed partially, DeployAnywhere will try to execute the change from the beginning</li>
+                        <li>Obevo only knows about the whole of each change</li>
+                        <li>If C1 was executed partially, Obevo will try to execute the change from the beginning</li>
                         <li>Depending on how the change is written, its execution could end up failing</li>
                     </ul>
                 </p>
@@ -140,7 +140,7 @@ GO
                 </p>
 
                 <p>Understandably, the finer-grained the changes are, the more clutter that would exist in your code.
-                    This is the trade-off that you should think about. With DeployAnywhere, we strove to make it as
+                    This is the trade-off that you should think about. With Obevo, we strove to make it as
                     easy as possible to split it up without too much clutter. (e.g. at least you can split this changes
                     within the same file using some text syntax, instead of having to keep them in separate files as
                     other DB Deployment tools may have you do)
@@ -148,7 +148,7 @@ GO
             </subsection>
         </section>
         <section name="Error-handling during deployment">
-            <p>Now that we understand how DeployAnywhere behaves when encountering errors, here is guidance on how you
+            <p>Now that we understand how Obevo behaves when encountering errors, here is guidance on how you
                 should handle errors as a user
             </p>
 

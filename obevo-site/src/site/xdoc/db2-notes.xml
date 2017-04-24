@@ -28,13 +28,13 @@
             <param name="toDepth" value="1" />
         </macro>
         <section name="DB2 Reorg Detection and Support">
-            DeployAnywhere supports the handling of reorgs in 2 places:
+            Obevo supports the handling of reorgs in 2 places:
 
             <ol>
-                <li>If any SQL is executed and returns the DB2 reorg-pending error (-668), DeployAnywhere will detect
+                <li>If any SQL is executed and returns the DB2 reorg-pending error (-668), Obevo will detect
                     this and automatically fire off the reorg statement (you can disable the automatic firing of the reorg in
                     system-config.xml; see section below)</li>
-                <li>At the end of a deployment, DeployAnywhere will check if any tables are pending reorg using the query
+                <li>At the end of a deployment, Obevo will check if any tables are pending reorg using the query
                     below, and if any are detected, it will show the results to you and fire the reorg (unless you've
                     disabled the automatic firing of the reorg, in which case you'll just see the list of affected tables)</li>
             </ol>
@@ -48,7 +48,7 @@ TABSCHEMA IN ('schema1','schema2') AND REORG_PENDING = 'Y']]></source>
         </section>
         <section name="DB2 Invalid Object Detection and Recompilation">
             <p>Existing objects can become invalid if a dependent object is modified in certain ways; DB2 terms these as
-            invalid objects. DeployAnywhere can detect if <a href="http://www.ibm.com/support/knowledgecenter/SSEPGG_9.7.0/com.ibm.db2.luw.sql.ref.doc/doc/r0054588.html">such objects exist after your deployment</a>
+            invalid objects. Obevo can detect if <a href="http://www.ibm.com/support/knowledgecenter/SSEPGG_9.7.0/com.ibm.db2.luw.sql.ref.doc/doc/r0054588.html">such objects exist after your deployment</a>
             and <a href="http://www.ibm.com/support/knowledgecenter/SSEPGG_9.7.0/com.ibm.db2.luw.sql.rtn.doc/doc/r0053626.html">recompile them if possible</a>.</p>
 
             <p>This behavioral is configurable - see section below</p>

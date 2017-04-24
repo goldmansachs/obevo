@@ -9,7 +9,7 @@ Obevo is a database deployment tool that handles enterprise scale and complexity
 * Organized maintenance of all your DB-object files (tables, stored procedures, views, static data)
 ** 1 file per object - just as you would with Java files
 ** Edit stored procedures, views, and static data files in place (if you have them) - just as you would with Java files
-** No need to specify the order in which to deploy your files - DeployAnywhere figures it out for you (a la a Java compiler compiling classes)
+** No need to specify the order in which to deploy your files - Obevo figures it out for you (a la a Java compiler compiling classes)
 * Variety of DBMSs supported to DB2, Sybase ASE, Sybase IQ
 ** Is extensible to non-RDBMSs
 * In-memory DB support - convert your scripts to an in-memory database for unit testing support

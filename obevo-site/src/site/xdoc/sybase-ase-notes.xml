@@ -45,18 +45,18 @@
                     </a>
                 </p>
                 <p>Hence, if you deployed stored procedures via isql, and then try to re-deploy via isql or
-                    DeployAnywhere in
+                    Obevo in
                     its default setting, you will get an error, as the SP will have double-quotes
                 </p>
                 <p>
                     <b>The Solution</b>
                 </p>
                 <p>If you specify the metadata annotation //// METADATA DISABLE_QUOTED_IDENTIFIERS, then
-                    DeployAnywhere will turn off the quotedidentifier option so that the double-quotes will be treated
+                    Obevo will turn off the quotedidentifier option so that the double-quotes will be treated
                     as
                     strings. It will then turn it back on for subsequent deployments
                 </p>
-                <p>Note that the DeployAnywhere reverse-engineering step mentioned earlier will automatically add this
+                <p>Note that the Obevo reverse-engineering step mentioned earlier will automatically add this
                     annotation if it sees a double-quote in the text. (Though there is a chance that it is actually
                     intended as
                     an identifier, the likely case is that it was intended as a string. You should try to recall if the
@@ -89,7 +89,7 @@ drop #mytemp]]></source>
             </subsection>
         </section>
         <section name="Interesting/unhelpful error messages when dealing w/ Sybase - see the FAQ">
-            <p>Compared to the other DBMS types supported by DeployAnywhere, Sybase has a lot of interesting error and error
+            <p>Compared to the other DBMS types supported by Obevo, Sybase has a lot of interesting error and error
                 messages (or lack of helpful error messages).
             </p>
 

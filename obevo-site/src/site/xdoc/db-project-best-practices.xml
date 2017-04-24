@@ -112,7 +112,7 @@ CREATE TABLE TAB1 (  -- OK]]></source>
 
             <ul>
                 <li>e.g. if you use Hibernate's schema generation from the POJOs, it would be a better idea to move to
-                    DeployAnywhere's instead
+                    Obevo's instead
                 </li>
             </ul>
         </section>

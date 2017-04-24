@@ -27,8 +27,8 @@
             <param name="fromDepth" value="0" />
             <param name="toDepth" value="1" />
         </macro>
-        <section name="DeployAnywhere Problem Statement - A Compiler for Stateful and Stateless Code Classes">
-            <p>Design goal of DeployAnywhere - to give idempotent deploy semantics onto a platform target that does not
+        <section name="Obevo Problem Statement - A Compiler for Stateful and Stateless Code Classes">
+            <p>Design goal of Obevo - to give idempotent deploy semantics onto a platform target that does not
                 have it by default, the keys problem to solve being:
                 <ol>
                     <li>There is no existing mechanism to take a full binary of code and deploy it to upgrade an environment</li>
@@ -60,7 +60,7 @@
 
 
             <p>Noting point #2, each object type (stateful vs. stateless) have different ways to maintain them, and a
-                tool should ideally be able to handle them both. This is the premise and value-add of DeployAnywhere.
+                tool should ideally be able to handle them both. This is the premise and value-add of Obevo.
             </p>
 
             <p>Boiling down the core problem and design - it actually does not involve SQL or DB constructs at all.
@@ -124,7 +124,7 @@
                 <tr>
                     <td>Deploy Tool</td>
                     <td>The mechanism that applies a built binary to an Environment</td>
-                    <td>A SQL command-line interface, or a deploy tool like DeployAnywhere</td>
+                    <td>A SQL command-line interface, or a deploy tool like Obevo</td>
                     <td>General install scripts, FTP, whatever your firm uses</td>
                 </tr>
                 <tr>
@@ -501,7 +501,7 @@
             </p>
 
             We present 2 alternatives - the first is what most DB tools support that works best with stateful objects,
-            and the second is what DeployAnywhere uses to work with both stateful and stateless changes.
+            and the second is what Obevo uses to work with both stateful and stateless changes.
 
 
             <table border="1" height="1541.9969971179962"
@@ -515,7 +515,7 @@
                             <strong>File per migration (used by most other tools)</strong>
                         </th>
                         <th>
-                            <strong>File per DB object (used by DeployAnywhere)</strong>
+                            <strong>File per DB object (used by Obevo)</strong>
                         </th>
                     </tr>
                     <tr>
@@ -761,7 +761,7 @@
             </table>
         </section>
         <section name="Sorting Changes in the file-per-object format">
-            <p>The file-per-object format that DeployAnywhere chose has many benefits, but it adds some complexity in the tool's
+            <p>The file-per-object format that Obevo chose has many benefits, but it adds some complexity in the tool's
                 implementation, namely: how to define the order of the changes?
             </p>
 

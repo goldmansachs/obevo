@@ -25,7 +25,7 @@
             In terms of the maven plugin - it basically looks like the following.
             <source><![CDATA[<plugin>
 	<groupId>${project.parent.groupId}</groupId>
-	<artifactId>deployanywhere-maven-plugin</artifactId>
+	<artifactId>obevo-maven-plugin</artifactId>
 	<version>${project.version}</version>
 	<executions>
 		<execution>

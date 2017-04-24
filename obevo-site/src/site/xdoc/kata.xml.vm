@@ -34,8 +34,8 @@
                 <li>DEPLOYANYHOME for the location of the binary that you unzipped</li>
                 <li>KATAHOME for the location of the kata project that you checked out</li>
             </ul>
-            <source><![CDATA[SET DEPLOYANY_HOME=H:\deployanywhere
-SET KATA_HOME=H:\deployanywhere-checkout\database-kata]]></source>
+            <source><![CDATA[SET DEPLOYANY_HOME=H:\obevo
+SET KATA_HOME=H:\obevo-checkout\database-kata]]></source>
 
             <p>The scripts will be run at %DEPLOYANYHOME%bin</p>
             <h4>Setup the example database files</h4>
@@ -63,7 +63,7 @@ kata-files\kata-step1.bat]]></source>
                 so
                 that you can get this setup quickly without any external dependencies
 
-                (NOTE TO DEPLOYANYWHERE USERS BEFORE 2014-12-06 - this previously used to be an H2 database, but that
+                (NOTE TO obevo USERS BEFORE 2014-12-06 - this previously used to be an H2 database, but that
                 did
                 not support concurrent users, which made the kata a bit annoying. We've now switched to HSQL)
 
@@ -86,7 +86,7 @@ kata-files\initDb.bat]]></source>
                 <ul>
                     <li>Choose &quot;Generic - JDBC&quot; as the type</li>
                     <li>User/password is deployer/deploypass</li>
-                    <li>URL is jdbc:hsqldb:hsql://localhost:9092/deployanywherekata</li>
+                    <li>URL is jdbc:hsqldb:hsql://localhost:9092/obevokata</li>
                     <li>Driver is org.hsqldb.jdbc.JDBCDriver</li>
                     <li>For the Driver Location, choose the hsqldb-2.3.2 jar from the kata folder</li>
                 </ul>
@@ -154,7 +154,7 @@ kata-files\initDb.bat]]></source>
                 <source><![CDATA[kata-files\kata-step2.bat
 %DEPLOYANY_HOME%\bin\deploy.bat DEPLOY -sourcePath src/main/database -env test]]></source>
 
-                These changes feature a couple of the more advanced features of DeployAnywhere (you may not need to use
+                These changes feature a couple of the more advanced features of Obevo (you may not need to use
                 these much, but they are good to know about). More on these below
 
                 Now try one more set of changes
@@ -190,7 +190,7 @@ kata-files\initDb.bat]]></source>
                     <li>Can we do this?</li>
                 </ul>
 
-                In DeployAnywhere, we give this a shot! To do this:
+                In Obevo, we give this a shot! To do this:
                 <li>Add a *.baseline.sql file for each table object file that you maintain
                     <ul>
                         <li>
@@ -234,7 +234,7 @@ kata-files\initDb.bat]]></source>
                 command
                 on TABLE_B to get it in line with the baseline)
 
-                <source>[ERROR] ObjectCompareBreak{object=DEPLOYANYWHEREKATA.DEMO_SCHEMA.TABLE_B.NEW_COLUMN1,
+                <source>[ERROR] ObjectCompareBreak{object=obevoKATA.DEMO_SCHEMA.TABLE_B.NEW_COLUMN1,
                     clazz=interface schemacrawler.schema.Column, objectCompareBreakSide=RIGHT}
                 </source>
 

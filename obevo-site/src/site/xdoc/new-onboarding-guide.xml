@@ -28,7 +28,7 @@
         <p>If you are able to choose this path for onboarding,
             <b>
                 <i>you are in luck - it is the easiest path and you get to
-                    use all the features of DeployAnywhere!
+                    use all the features of Obevo!
                 </i>
             </b>
         </p>
@@ -37,7 +37,7 @@
             <ol>
                 <li>Add your production environment details to your system-config.xml file</li>
                 <li>Define your DB objects in your source code</li>
-                <li>Go through to your regular build/package/deploy process and execute the deploy w/ the DeployAnywhere API</li>
+                <li>Go through to your regular build/package/deploy process and execute the deploy w/ the Obevo API</li>
             </ol>
         </p>
 
@@ -63,7 +63,7 @@
         <h3>Clean up any existing non-production environments</h3>
 
         <p>If your production environment is going to have a fresh start, your non-production environments should too.
-            If you had any UAT or Dev environments that had tables not deployed using DeployAnywhere, seek to clean
+            If you had any UAT or Dev environments that had tables not deployed using Obevo, seek to clean
             those out so that subsequent activity on those environments can safely match what you expect out of your code.
         </p>
 

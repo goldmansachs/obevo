@@ -49,7 +49,7 @@
             <p>We stress that this is not the ideal case; preferably, all DDL changes can be done in one shot, and even
                 if some changes take longer, if you can find downtime on a weekend you can do the full release then.
                 However, as practicality dictates that some teams will need to do a phased approach as described above, we
-                will provide this functionality in DeployAnywhere.
+                will provide this functionality in Obevo.
             </p>
         </section>
         <section name="Declaring Changesets in your code">
