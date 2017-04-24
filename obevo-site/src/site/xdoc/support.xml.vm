@@ -29,10 +29,10 @@
             <p>DeployAnywhere runs its integration tests against live DBMS environments. We aim to run as many tests as
             possible against a public cloud provider such that all developers can easily run tests and receive immediate
             feedback.</p>
-            <p>Some DBMS types and versions are not available in the public cloud, so those tests are run inside
-            Goldman Sachs. The test feedback loop in that case will be manual - the code would have to be pulled within
-            the Goldman Sachs environment for tests to run there. If a failure is noted, a core contributor will contact
-            the developer who made the relevant change.</p>
+            <p>Some DBMS types and versions are not available in the public cloud, so those tests are run in locales
+                where the software exists. The test feedback loop in that case will be manual - the code would have to
+                be pulled within those environments for tests to run there. If a failure is noted, a core contributor
+                will contact the developer who made the relevant change.</p>
             <p>Our code is structured to make it easy for clients to set up their own test suites in-house, in case you
             have other environment types and versions that are not listed here. We will post more info on this soon -
             if you would like to leverage this now, please reach out to the development team</p>
