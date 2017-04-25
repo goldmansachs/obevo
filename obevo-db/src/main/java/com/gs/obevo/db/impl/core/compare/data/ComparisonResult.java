@@ -15,7 +15,7 @@
  */
 package com.gs.obevo.db.impl.core.compare.data;
 
-import com.gs.catodeployany.compare.CatoComparison;
+import com.gs.obevocomparer.compare.CatoComparison;
 
 class ComparisonResult {
     private final ComparisonCommand comparisonCommand;

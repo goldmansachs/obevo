@@ -17,10 +17,10 @@ package com.gs.obevo.db.impl.core.compare.data;
 
 import java.io.File;
 
-import com.gs.catodeployany.compare.CatoComparison;
-import com.gs.catodeployany.input.db.QueryDataSource;
-import com.gs.catodeployany.output.html.HTMLComparisonWriter;
-import com.gs.catodeployany.util.CatoBaseUtil;
+import com.gs.obevocomparer.compare.CatoComparison;
+import com.gs.obevocomparer.input.db.QueryDataSource;
+import com.gs.obevocomparer.output.html.HTMLComparisonWriter;
+import com.gs.obevocomparer.util.CatoBaseUtil;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.dbmetadata.api.DaColumn;
 import com.gs.obevo.dbmetadata.api.DaIndex;
