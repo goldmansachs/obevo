@@ -55,7 +55,7 @@ public class CredentialReader {
         if (credential.getUsername() != null && credential.isAuthenticationMethodProvided()) {
             return credential;
         } else if (System.getProperty("os.name").toLowerCase().contains("linux")) {
-            // if linux, don't run dialog, gs deploy will prompt the user
+            // if linux, don't run dialog, but prompt the user via console
             return this.getCredentialFromConsole(credential);
         } else {
             return this.getCredentialFromDialog(credential);

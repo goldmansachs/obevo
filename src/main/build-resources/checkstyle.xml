@@ -239,7 +239,7 @@
 
             <module name="AvoidStaticImport">
                 <property name="excludes"
-                    value="org.junit.Assert.*,org.hamcrest.CoreMatchers.*,org.hamcrest.Matchers.*,com.gs.collections.impl.test.Verify.*,com.gs.collections.impl.factory.Iterables.*,com.gs.collections.test.IterableTestCase.*" />
+                    value="org.junit.Assert.*,org.hamcrest.CoreMatchers.*,org.hamcrest.Matchers.*" />
             </module>
 
             <module name="MissingDeprecated" />
