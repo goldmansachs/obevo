@@ -122,7 +122,7 @@
             </goals>
             <phase>generate-test-sources</phase>
             <configuration>
-                <schemaGenFactoryClass>com.gs.dot.settle.hibernate.CostarHibernateSchemaGenerator</schemaGenFactoryClass>
+                <schemaGenFactoryClass>com.myapp.ExampleSchemaGenFactory</schemaGenFactoryClass>
             </configuration>
         </execution>
     </executions>
@@ -200,21 +200,21 @@ H:\yourOutputDir\yourSchema\table\baseline\APPLICATION_USER_ROLE.baseline.sql]]>
                         <li>Add this to Maven
 <source><![CDATA[<dependency>
     <groupId>com.goldmansachs.obevo</groupId>
-    <artifactId>obevo-mithra-util</artifactId>
+    <artifactId>obevo-reladomo-util</artifactId>
     <version>${project.version}</version>
 </dependency>]]></source>
                         </li>
                         <li>Run this code:
-                            <source><![CDATA[MithraSchemaConverter mithraSchemaConverter = new MithraSchemaConverter();
-mithraSchemaConverter.convertMithraDdlsToDaFormat(platform, new File("./src/test/resources/reveng/input"), outputFolder, "yourSchema", true);]]></source>
+                            <source><![CDATA[ReladomoSchemaConverter mithraSchemaConverter = new ReladomoSchemaConverter();
+reladomoSchemaConverter.convertReladomoDdlsToDaFormat(platform, new File("./src/test/resources/reveng/input"), outputFolder, "yourSchema", true);]]></source>
                         </li>
                     </ul>
                 </p>
 
             </subsection>
-            <subsection name="Generating DDLs directly from Mithra API">
-                In the future, we would like to support generating the Mithra DDLs directly from an API (as opposed to
-                having to generate the DDLs first in the Mithra format and then reverse-engineering to the Obevo
+            <subsection name="Generating DDLs directly from Reladomo API">
+                In the future, we would like to support generating the Reladomo DDLs directly from an API (as opposed to
+                having to generate the DDLs first in the Reladomo format and then reverse-engineering to the Obevo
                 format). This is not yet available.
             </subsection>
         </section>

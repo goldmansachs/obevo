@@ -26,11 +26,6 @@ import org.apache.commons.lang.SystemUtils;
 public class ConsoleInputReader implements UserInputReader {
     private final Scanner userInputReader = new Scanner(System.in);
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.gs.openzone.inputreader.ConsoleReader#readLine()
-     */
     @Override
     public String readLine(String promptMessage) {
         if (this.isWindows()) {
@@ -40,11 +35,6 @@ public class ConsoleInputReader implements UserInputReader {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.gs.openzone.inputreader.ConsoleReader#readPassword()
-     */
     @Override
     public String readPassword(String promptMessage) {
         if (isWindows()) {
