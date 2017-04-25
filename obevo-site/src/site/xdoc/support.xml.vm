@@ -37,20 +37,15 @@
             have other environment types and versions that are not listed here. We will post more info on this soon -
             if you would like to leverage this now, please reach out to the development team</p>
             <table>
-                <tr>
-                    <th>Vendor</th><th>Version</th><th>Test Locale</th>
-                </tr>
-                <tr><td>Sybase/SAP ASE</td><td>15.5</td><td>Goldman Sachs</td></tr>
-                <tr><td>Sybase/SAP ASE</td><td>15.7</td><td>Goldman Sachs</td></tr>
-                <tr><td>DB2</td><td>9.7</td><td>Goldman Sachs</td></tr>
-                <tr><td>DB2</td><td>10.5</td><td>Goldman Sachs</td></tr>
-                <tr><td>H2</td><td>1.4.187</td><td>Local Project (in-memory DB)</td></tr>
-                <tr><td>HSQLDB</td><td>2.3.2</td><td>Local Project (in-memory DB)</td></tr>
-                <tr><td>MS SQL Server</td><td>2012 - 11.0.6248.0</td><td>Goldman Sachs, (soon) public cloud</td></tr>
-                <tr><td>Oracle</td><td>11.2.0.3.0</td><td>Goldman Sachs, (soon) public cloud</td></tr>
-                <tr><td>PostgreSQL</td><td>9.2</td><td>Goldman Sachs, (soon) public cloud</td></tr>
-                <tr><td>Sybase/SAP IQ</td><td>15.4</td><td>Goldman Sachs</td></tr>
-                <tr><td>Sybase/SAP IQ</td><td>16</td><td>Goldman Sachs</td></tr>
+                <tr><th>Vendor</th><th>Test Locale</th></tr>
+                <tr><td>Sybase/SAP ASE</td><td>non-public</td></tr>
+                <tr><td>DB2</td><td>non-public</td></tr>
+                <tr><td>H2</td><td>Local Project (in-memory DB)</td></tr>
+                <tr><td>HSQLDB</td><td>Local Project (in-memory DB)</td></tr>
+                <tr><td>MS SQL Server</td><td>(soon) public cloud</td></tr>
+                <tr><td>Oracle</td><td>(soon) public cloud</td></tr>
+                <tr><td>PostgreSQL</td><td>(soon) public cloud</td></tr>
+                <tr><td>Sybase/SAP IQ</td><td>non-public</td></tr>
             </table>
         </section>
     </body>
