@@ -28,7 +28,7 @@ import org.eclipse.collections.impl.map.mutable.ConcurrentHashMap;
 public class HsqlJdbcDataSourceFactory extends JdbcDataSourceFactory {
     private static final String HSQL_FILE_PLACEHOLDER = ".zzz";
 
-    // related to DEPLOYANY-201 - want to reuse the same DB file for consistency if we go w/ the same environment
+    // We'd like to reuse the same DB file for consistency if we go w/ the same environment
     private static final ConcurrentMutableMap<String, String> dbNameToFileUrlMap = new ConcurrentHashMap<String, String>();
 
     @Override

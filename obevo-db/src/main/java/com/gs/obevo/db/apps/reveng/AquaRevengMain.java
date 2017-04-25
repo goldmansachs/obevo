@@ -167,8 +167,6 @@ public class AquaRevengMain {
                 .withKeyValue(ChangeType.RULE_STR, Pattern.compile("(?i)create\\s+rule\\s+(\\w+)", Pattern.DOTALL))
                 .withKeyValue(ChangeType.USERTYPE_STR, Pattern.compile("(?i)^\\s*sp_addtype\\s+", Pattern.DOTALL))
                 .withKeyValue(ChangeType.INDEX_STR, Pattern.compile("(?i)create\\s+(?:unique\\s+)?(?:\\w+\\s+)?index\\s+\\w+\\s+on\\s+(\\w+)", Pattern.DOTALL))
-                // TODO Put this back upon taking up DEPLOYANY-707 - the code may still need some fixes
-//                .withKeyValue(ChangeType.TRIGGER_STR, Pattern.compile("(?i).*create.*trigger\\s+(\\w+).*\\s+on\\s+(\\w+)", Pattern.DOTALL))
         ;
 
         MutableMap<ChangeType, Pattern> patternMap = Maps.mutable.<ChangeType, Pattern>with();
@@ -288,8 +286,6 @@ public class AquaRevengMain {
             PartitionMutableList<String> splitStatements = statements.partition(StringPredicates
                     .contains("FOREIGN KEY"));
             MutableList<String> fkStatements = splitStatements.getSelected();
-            // TODO Put this back upon taking up DEPLOYANY-384 - the code may still need some fixes
-//            final Pattern triggerPattern = patternMap.get(ChangeType.TRIGGER);
             final Pattern triggerPattern = Pattern.compile("(?i).*create.*trigger\\s+(\\w+)\r?\n.*", Pattern.DOTALL);
             splitStatements = splitStatements.getRejected().partition(new Predicate<String>() {
                 @Override
@@ -363,7 +359,6 @@ public class AquaRevengMain {
                     , "index_" + fileObjectName.replace(originalObjectName, objectName)
                     , "INDEX", 100));
 //        } else if (objType == ChangeType.TRIGGER) {
-//            // TODO Put this back upon taking up DEPLOYANY-384 - the code may still need some fixes
 //
 //            RevEngDestination newDest = new RevEngDestination(dest.getSchema(), ChangeType.TABLE,
 //                    dest.getObjectName(), dest.isDuplicate());

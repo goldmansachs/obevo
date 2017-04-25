@@ -133,7 +133,7 @@ public abstract class AbstractDbChangeTypeBehavior implements DbChangeTypeBehavi
                     }
                 } catch (RuntimeException exc) {
                     if (dropForRecreate) {
-                        // TODO See DEPLOYANY-174 - we should detect if the object exists first before trying to drop it and ignoring exceptions if unsuccessful.
+                        // TODO See GITHUB#4 - we should detect if the object exists first before trying to drop it and ignoring exceptions if unsuccessful.
                         LOG.debug("Change type {} for Object {} is being deployed anew as this sql did not execute: {}", change.getChangeType(), change.getObjectName(), dropSql);
                     } else {
                         throw exc;

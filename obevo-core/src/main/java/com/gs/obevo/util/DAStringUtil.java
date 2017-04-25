@@ -54,7 +54,7 @@ public class DAStringUtil {
     /**
      * See {@link this#normalizeWhiteSpaceFromString(String)}. This is the "old" version of that method, with a slightly
      * harder-to-read implementation. I want to switch to {@link this#normalizeWhiteSpaceFromString(String)} as it is
-     * a more standard implementation and thus easier to vet. Will replace this in DEPLOYANY-414
+     * a more standard implementation and thus easier to vet.
      */
     public static String normalizeWhiteSpaceFromStringOld(String content) {
         if (content == null) {

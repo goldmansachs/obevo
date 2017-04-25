@@ -20,7 +20,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 
 /**
  * TODO Should eventually replace this class w/ {@link WhitespaceAgnosticDbChangeHashStrategy}. Though we need a way to
- * replace the persisted hashes in the DB. See DEPLOYANY-414 for doing that.
+ * replace the persisted hashes in the DB.
  */
 public class OldWhitespaceAgnosticDbChangeHashStrategy implements DbChangeHashStrategy {
     @Override

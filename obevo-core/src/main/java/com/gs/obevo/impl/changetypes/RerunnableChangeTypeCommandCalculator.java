@@ -132,13 +132,12 @@ public class RerunnableChangeTypeCommandCalculator implements ChangeTypeCommandC
     }
 
     /**
-     * allow for use cases as mentioned in DEPLOYANY-110 to redeploy changes that require recompiling
+     * allow for use cases to redeploy changes that require recompiling
      * e.g. to add db objects to the change list to facilitate cases where it depends on another SP that is
      * changing, and so the dependent SP needs to get re-created also
      */
     private MutableSet<Change> getObjectChangesRequiringRecompilation(ChangeType changeType, RerunnableObjectInfo rerunnableObjectInfo, RichIterable<Change> fromSourceList) {
-        // do not log errors here when creating the graph as we know that we don't have the full graph
-        // Worth cleaning this up - see DEPLOYANY-488
+        // do not log errors as info or above here when creating the graph as we know that we don't have the full graph
         LOG.debug("START BLOCK: Ignore any 'Invalid change found?' errors in this block of code");
         DirectedGraph<Change, DefaultEdge> graph = enricher.createDependencyGraph(fromSourceList.select(Predicates.attributeEqual(Change.TO_CHANGE_TYPE, changeType)), false);
         LOG.debug("END BLOCK: Ignore any 'Invalid change found?' errors in this block of code");

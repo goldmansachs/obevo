@@ -29,7 +29,6 @@ public class ChangeIncremental extends Change {
      * The {@link this#drop}, {@link this#keepIncrementalOrder}, and {@link this#manuallyCodedDrop} fields are related
      * to help determine the deployment order, specifically around whether drops should be done in the reverse normal
      * order or if they should be executed in the explicit order they were coded in.
-     * We will refactor this as part of DEPLOYANY-392.
      */
     private boolean drop;
     /**

@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 public class H2JdbcDataSourceFactory extends JdbcDataSourceFactory {
     private static final Logger LOG = LoggerFactory.getLogger(H2JdbcDataSourceFactory.class);
 
-    // related to DEPLOYANY-201 - want to reuse the same DB file for consistency if we go w/ the same environment
+    // We'd like to reuse the same DB file for consistency if we go w/ the same environment
     private static final ConcurrentMutableMap<String, String> dbNameToFileUrlMap = new ConcurrentHashMap<String, String>();
 
     @Override

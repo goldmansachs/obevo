@@ -144,10 +144,6 @@
                 for more info). Thus, we highly discourage this
                 route, but it is technically possible to implement.
             </p>
-
-            <p>Note - concurrent deploys of many logical schemas to the same physical schema is not yet supported -
-                see JIRATOREPLACE-DEPLOYANY-615 to track when this will be worked on. But you are able to deploy these schemas in serial.
-            </p>
         </section>
     </body>
 </document>

@@ -38,7 +38,7 @@ public class OracleAquaRevengTest {
         args.setOutputPath(outputDir);
         new OracleAquaReveng().reveng(args);
 
-        // TODO need to add Oracle reverse engineering examples - see DEPLOYANY-675
+        // TODO need to add Oracle reverse engineering examples
         DirectoryAssert.assertDirectoriesEqual(new File("./src/test/resources/reveng/oracle/aqua/expected"), outputDir);
     }
 }

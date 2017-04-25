@@ -66,7 +66,7 @@ public class InitFunctionalityTest {
                 .setupEnvInfra().cleanEnvironment()
                 .deploy();
 
-        // TODO DEPLOYANY-506 the SystemOutRule doesn't work w/ Maven, as no system output is captured
+        // TODO the SystemOutRule doesn't work w/ Maven, as no system output is captured
         // Leave this commented-code in; I REALLY would like to get this to work!
 
 //        systemOutRule.enableLog();

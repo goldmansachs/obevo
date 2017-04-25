@@ -45,9 +45,7 @@ public class TextDependencyExtractorImpl implements TextDependencyExtractor {
             // note - only check for nulls here; we may set dependencies to blank explicitly in the overrides
             if (change.getDependencies() == null && change.getObjectKey().getChangeType().isEnrichableForDependenciesInText()) {
                 // we use getContentForDependencyCalculation() instead of just getContent() due to the staticData
-                // objects needing to have its dependency calculated differently. Should clean this up as part of
-                // DEPLOYANY-291
-
+                // objects needing to have its dependency calculated differently.
 
                 // TODO go via objectNames and physicalSchema+objectName combo
                 MutableSet<String> dependencies = calculateDependencies(change.getObjectKey().toString(), change.getContentForDependencyCalculation(), objectNames)

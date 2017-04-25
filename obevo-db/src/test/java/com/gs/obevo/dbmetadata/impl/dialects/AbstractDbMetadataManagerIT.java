@@ -268,7 +268,7 @@ public abstract class AbstractDbMetadataManagerIT {
             assertEquals(routineName, routine.getName());
             assertEquals(getSchemaName(), routine.getSchema().getName());
             assertEquals(DaRoutineType.procedure, routine.getRoutineType());
-            // TODO Fix in DEPLOYANY-561 - this is not yet supported properly
+            // TODO Fix in GITHUB#7 - this is not yet supported properly
 //            assertThat(routine.getDefinition(), equalToIgnoringWhiteSpace(get_SP_WITH_OVERLOAD_3()));
             assertThat(routine.getSpecificName(), not(isEmptyString()));
         }

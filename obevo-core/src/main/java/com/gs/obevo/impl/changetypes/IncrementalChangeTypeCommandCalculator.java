@@ -126,7 +126,6 @@ public class IncrementalChangeTypeCommandCalculator implements ChangeTypeCommand
                             if (incrementalSource.isDrop()) {
                                 // don't order this as a drop explicitly - put it in the right order
                                 if (!incrementalSource.isManuallyCodedDrop()) {
-                                    // TODO As part of DEPLOYANY-391: let's not have this "createDropObject" here; instead, treat as a regular createDeployCommand that we populate the change for.
                                     changeset.add(changeCommandFactory.createRemove(incrementalSource).withDrop(!incrementalSource.isKeepIncrementalOrder()));
                                 } else {
                                     changeset.add(changeCommandFactory.createDeployCommand(incrementalSource).withDrop(true));

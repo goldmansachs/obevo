@@ -32,10 +32,6 @@ public class EnvironmentLocator<T extends Environment> {
         this.envEnricher = envEnricher;
     }
 
-    /**
-     * This version reading from the cache is here to help w/ performance for unit tests (e.g. avoid excessive calls
-     * to read from the file system; see DEPLOYANY-201
-     */
     public DeploySystem<T> readSystem(String sourcePathStr) {
         for (FileRetrievalMode fileRetrievalMode : FileRetrievalMode.values()) {
             FileObject sourcePath;

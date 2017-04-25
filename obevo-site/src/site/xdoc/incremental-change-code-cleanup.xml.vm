@@ -141,19 +141,8 @@ ALTER TABLE TABLE_A ADD FOREIGN KEY (B_ID) REFERENCES TABLE_B(B_ID)
 GO]]></source>
             </subsection>
             <subsection name="Potential Improvements on the existing approach">
-                <p>Now that you have done this - great, now you have a much smaller baselined file! But I can see a
-                    couple
-                    things non-ideal - the first is something that will be fixed in Obevo in the future, and
-                    the other
-                    is something that is resolvable in a different way
-                </p>
-                <p>First, the one that will be fixed later - the fact that foreign keys need to be kept in a separate
-                    change. It
-                    would be nice if the tool can figure out the order of table deployments involving foreign keys (much
-                    like it
-                    can with stored procedures). This is a JIRA for the future - to be tracked here: DEPLOYANY-271
-                </p>
-                <p>Now, for the issue that is tool agnostic - so, how did you come up with that rebaselined sql?</p>
+                <p>Now that you have done this - great, now you have a much smaller baselined file!</p>
+                <p>However, one issue we'd like to improve in this process: how did you come up with that rebaselined sql?</p>
                 <ul>
                     <li>Did you re-query it from the database, or figure it out yourself?</li>
                     <li>How do you truly know that your rebaselined SQL matches the CHANGEs that you used to deploy this

@@ -70,7 +70,6 @@ public abstract class AbstractDbChangeFileParser implements DbChangeFileParser {
             validateAttributes(doc, file);
             return PrimitiveTuples.pair(doc, false);
         } catch (RuntimeException newExc) {
-            // We can remove backwardsCompatibleMode when working on DEPLOYANY-622
             if (backwardsCompatibleMode) {
                 try {
                     TextMarkupDocument doc = new TextMarkupDocumentReaderOld().parseString(fileContent, packageMetadata);

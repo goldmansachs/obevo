@@ -244,8 +244,7 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
 
     /**
      * We have this setter kludge here for the static data dependency calculation (where we derive it based on the
-     * information in the associated table file, but the two objects are currently separated). This should be looked
-     * into as of DEPLOYANY-291
+     * information in the associated table file, but the two objects are currently separated).
      */
     private String contentForDependencyCalculation;
 
@@ -398,8 +397,7 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
         /**
          * This is here for backwards-compatibility w/ systems that were doing the hashing prior to making all the
          * hashing agnostic of the white-space (before, we only had the table changes be white-space agnostic).
-         * We need the various CONTENT_HASH_STRATEGIES to account for past versions of the algorithm. Ideally, we can
-         * consolidate on one - see DEPLOYANY-414 if you want to try to clean it up.
+         * We need the various CONTENT_HASH_STRATEGIES to account for past versions of the algorithm.
          */
         return this.CONTENT_HASH_STRATEGIES.flatCollect(new Function<DbChangeHashStrategy, Iterable<String>>() {
             @Override

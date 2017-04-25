@@ -136,8 +136,7 @@ public class DbDirectoryChangesetReader implements DbChangeReader {
                     MutableCollection<Change> staticDataChanges = schemaChanges.select(Predicates.attributeEqual(Change.TO_CHANGE_TYPE_NAME, ChangeType.STATICDATA_STR));
 
                     // now enrich the staticData objects w/ the information from the tables to facilitate the
-                    // deployment order calculation. We'd like to make this coding a bit cleaner - see DEPLOYANY-291
-                    // for when this would get addressed
+                    // deployment order calculation.
                     for (Change staticDataChange : staticDataChanges) {
                         MutableCollection<Change> relatedTableChanges = tableChangeMap.get(staticDataChange.getDbObjectKey());
                         MutableCollection<Change> foreignKeys = relatedTableChanges.select(
@@ -236,7 +235,6 @@ public class DbDirectoryChangesetReader implements DbChangeReader {
     }
 
     private ImmutableList<FileObject> findFiles(FileObject dir, FileFilter fileFilter) {
-        // TODO replace the WildcardFileFilter here w/ checks for specific extensions - see DEPLOYANY-393
         BasicFileSelector positiveSelector = new BasicFileSelector(
                 and(
                         fileFilter,

@@ -124,7 +124,7 @@ public class UnitTestDbBuilder {
 
     /**
      * Specify this to restrict the tables deployed to just the ones provided. If not specified, all tables will be deployed.
-     * @deprecated Specify these fields to remove in the {@link DbDeployerAppContext#deploy(MainDeployerArgs)} arguments itself. Remove as part of DEPLOYANY-507
+     * @deprecated Specify these fields to remove in the {@link DbDeployerAppContext#deploy(MainDeployerArgs)} arguments itself.
      */
     @Deprecated
     public UnitTestDbBuilder setTables(Set<String> tables) {
@@ -134,7 +134,7 @@ public class UnitTestDbBuilder {
 
     /**
      * Specify this to restrict the views deployed to just the ones provided. If not specified, all views will be deployed.
-     * @deprecated Specify these fields to remove in the {@link DbDeployerAppContext#deploy(MainDeployerArgs)} arguments itself. Remove as part of DEPLOYANY-507
+     * @deprecated Specify these fields to remove in the {@link DbDeployerAppContext#deploy(MainDeployerArgs)} arguments itself.
      */
     @Deprecated
     public UnitTestDbBuilder setViews(Set<String> views) {

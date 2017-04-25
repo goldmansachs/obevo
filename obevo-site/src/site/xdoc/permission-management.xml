@@ -116,7 +116,7 @@ GRANT SELECT ON ViewA TO GROUP RW_GROUP
                 that grant on existing objects; it would only apply on newly created or modified objects going forward.
             </p>
 
-            <p>(having &lt;permissions&gt; changes applied on existing objects will be a future enhancement JIRA-TO-REPLACE-DEPLOYANY-156)</p>
+            <p>(having &lt;permissions&gt; changes applied on existing objects will be a future enhancement (see GITHUB#3))</p>
         </section>
     </body>
 </document>

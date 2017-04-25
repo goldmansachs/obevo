@@ -61,9 +61,9 @@ public class Db2PostDeployAction implements PostDeployAction<DbEnvironment> {
         stmtExecutor.executeWithinContext(env.getPhysicalSchemas().getFirst(), new Procedure<Connection>() {
             @Override
             public void value(Connection conn) {
-                // TODO refactor these into separate components that can be chained together (i.e. DEPLOYANY-128)
+                // TODO refactor these into separate components that can be chained together (GITHUB#5)
 
-                // TODO measure how long each of these takes: DEPLOYANY-697
+                // TODO measure how long each of these takes: GITHUB#6
                 if (env.isInvalidObjectCheckEnabled()) {
                     checkForInvalidObjects(conn, env.getPhysicalSchemas());
                 } else {

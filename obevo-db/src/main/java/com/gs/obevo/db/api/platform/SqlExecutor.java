@@ -58,9 +58,10 @@ public interface SqlExecutor {
     <T> T executeWithinContext(PhysicalSchema schema, ThrowingFunction<Connection, T> callable);
 
     /**
-     * This will be cleaned up by DEPLOYANY-391
+     * Unused operation.
      * @param command
      * @param metaDataMgr
+     * @deprecated Do not use
      */
     @Deprecated
     void performExtraCleanOperation(final ExecuteChangeCommand command, final DbMetadataManager metaDataMgr);

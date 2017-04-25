@@ -37,7 +37,7 @@ import org.eclipse.collections.api.list.ImmutableList;
  * tables/views read in.
  *
  * Most methods will just delegate to the incoming DbDeployerAppContext; a few are explicitly defined.
- * @deprecated Should be removed once clients move off setTables and setViews in UnitTestDbBuilder - see DEPLOYANY-507
+ * @deprecated Should be removed once clients move off setTables and setViews in UnitTestDbBuilder
  */
 @Deprecated
 class UnitTestDbDeployerAppContext implements DbDeployerAppContext {

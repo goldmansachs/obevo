@@ -394,7 +394,7 @@ GO]]></source>
             </subsection>
             <subsection name="Cleanup old/unmaintained objects as you see fit">
             <ul>
-                <li>Note - we ultimately are planning on a utility JIRATOREPLACE-DEPLOYANY-98 to cleanup any objects that are in the environment and not in the source code. Till then, you can try the following manual cleanup options.
+                <li>Note - we ultimately are planning on a utility GITHUB#1 to cleanup any objects that are in the environment and not in the source code. Till then, you can try the following manual cleanup options.
                 </li>
                 <li>Removing backup tables from production (e.g. Transaction<i>bkup, Transaction</i>20130101)
                     <ul>

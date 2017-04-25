@@ -34,7 +34,6 @@ public class DbChangeTypeImpl extends ChangeTypeImpl implements DbChangeType {
     /**
      * In the grant pattern "GRANT [permission] ON [objectType] [objectName] TO [grantTargetType] [grantTargetName]",
      * returns the [objectType] to use. May differ depending on the dialect.
-     * Remember to take a look at this alongside DEPLOYANY-391.
      */
     @Override
     public String getGrantObjectQualifier() {
