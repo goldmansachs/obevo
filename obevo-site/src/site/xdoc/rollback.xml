@@ -171,13 +171,13 @@
 
                 For example:
                 <source><![CDATA[# do the deployment of version 1
-$DEPLOYANY_HOME/bin/deploy.bat DEPLOY -env prod -sourcePath /home/myuser/mypackage/1.0.0/db
+$OBEVO_HOME/bin/deploy.bat DEPLOY -env prod -sourcePath /home/myuser/mypackage/1.0.0/db
 
 # do the deployment of version 2 (which contains rollback scripts if needed)
-$DEPLOYANY_HOME/bin/deploy.bat DEPLOY -env prod -sourcePath /home/myuser/mypackage/2.0.0/db
+$OBEVO_HOME/bin/deploy.bat DEPLOY -env prod -sourcePath /home/myuser/mypackage/2.0.0/db
 
 # let's say that goes bad; we'll rollback to version 1 by deploying it w/ the -rollback tag
-$DEPLOYANY_HOME/bin/deploy.bat DEPLOY -env prod -sourcePath /home/myuser/mypackage/1.0.0/db
+$OBEVO_HOME/bin/deploy.bat DEPLOY -env prod -sourcePath /home/myuser/mypackage/1.0.0/db
 -rollback]]></source>
 
                 <p>In the example above, the changes in version 2 need to include the rollback scripts.</p>

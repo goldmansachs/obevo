@@ -93,7 +93,7 @@
                     </ul>
                 </li>
             </ul>
-            <source><![CDATA[%DEPLOYANY_HOME%\bin\deploy.bat DBREVENGMERGE -outputDir h:\merged-output -dbMergeConfigFile h:\myDbMergeConfig.txt]]></source>
+            <source><![CDATA[%OBEVO_HOME%\bin\deploy.bat DBREVENGMERGE -outputDir h:\merged-output -dbMergeConfigFile h:\myDbMergeConfig.txt]]></source>
             <p>h:\myDbMergeConfig.txt contents:</p>
             <source><![CDATA[# First, list out all the instances
 instances=instance1,instance2,instance3
@@ -109,7 +109,7 @@ instance3.inputDir=h:\instance3dboutput]]></source>
             <ul>
                 <li>Note that we expect the input directories to be the parent of the schema folders, not the parent of the
                     db object folders
-                    <source><![CDATA[%DEPLOYANY_HOME%\bin\deploy.bat DBREVENGMERGE -outputDir h:\merged-output -inputDirEntries h:\mergeConfig.txt]]></source>
+                    <source><![CDATA[%OBEVO_HOME%\bin\deploy.bat DBREVENGMERGE -outputDir h:\merged-output -inputDirEntries h:\mergeConfig.txt]]></source>
                 </li>
             </ul>
             <p>h:\mergeConfig.txt contents:</p>
@@ -189,7 +189,7 @@ fx.inputDir=h:\mydboutput\fx
 
                 1) Deploy the schemas that you've reverse-engineered to separate instances in your dev environment
                 2) Run the following command: (command looks mostly the same as above, except it is DBREVENG*TABLE*MERGE):
-                <source><![CDATA[%DEPLOYANY_HOME%\bin\deploy.bat DBREVENGTABLEMERGE -outputDir h:\merged-output -dbMergeConfigFile h:\myDbMergeConfig.txt]]></source>
+                <source><![CDATA[%OBEVO_HOME%\bin\deploy.bat DBREVENGTABLEMERGE -outputDir h:\merged-output -dbMergeConfigFile h:\myDbMergeConfig.txt]]></source>
                 <p>h:myDbMergeConfig.txt contents (this has more stuff too, now includes the db information):</p>
                 <source><![CDATA[instances=instance1,instance2,instance3
 # Then for each instance, define the inputDir where your reverse-engineered files from the previous step are

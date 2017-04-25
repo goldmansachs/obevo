@@ -31,13 +31,13 @@
             <h4>Setup the environment variables for the kata</h4>
             <p>You can set these variables for your convenience:</p>
             <ul>
-                <li>DEPLOYANYHOME for the location of the binary that you unzipped</li>
-                <li>KATAHOME for the location of the kata project that you checked out</li>
+                <li>OBEVO_HOME for the location of the binary that you unzipped</li>
+                <li>KATA_HOME for the location of the kata project that you checked out</li>
             </ul>
-            <source><![CDATA[SET DEPLOYANY_HOME=H:\obevo
+            <source><![CDATA[SET OBEVO_HOME=H:\obevo
 SET KATA_HOME=H:\obevo-checkout\database-kata]]></source>
 
-            <p>The scripts will be run at %DEPLOYANYHOME%bin</p>
+            <p>The scripts will be run at %OBEVO_HOME%bin</p>
             <h4>Setup the example database files</h4>
             <p>First, get the files setup. This step would simulate you creating a database w/ tables, views, data,
                 etc.
@@ -69,16 +69,16 @@ kata-files\kata-step1.bat]]></source>
 
 
                 Step 1: start the HSQLDB server. This will open up the server on port 9092
-                <source><![CDATA[cd %KATAHOME%
+                <source><![CDATA[cd %KATA_HOME%
 kata-files\startDb.bat]]></source>
 
                 Step 2: setup the environment (e.g. schemas, users). This will also create a user with id=deployer and
                 password=deploypass for you to use
-                <source><![CDATA[cd %KATAHOME%
+                <source><![CDATA[cd %KATA_HOME%
 kata-files\initDb.bat]]></source>
 
                 In case you need to stop the DB:
-                <source><![CDATA[cd %KATAHOME% kata-files\shutdownDb.bat]]></source>
+                <source><![CDATA[cd %KATA_HOME% kata-files\shutdownDb.bat]]></source>
 
                 <h3>Viewing the DB:</h3>
                 To view the DB state, you can use Aqua Data Studio (see the example screenshot below):
@@ -115,7 +115,7 @@ kata-files\initDb.bat]]></source>
                     </li>
                 </ul>
 
-                <source><![CDATA[%DEPLOYANY_HOME%\bin\deploy.bat DEPLOY -sourcePath src/main/database -env test]]></source>
+                <source><![CDATA[%OBEVO_HOME%\bin\deploy.bat DEPLOY -sourcePath src/main/database -env test]]></source>
                 Enter &quot;deployer&quot; as the user id (without the quotes), and &quot;deploypass&quot; as the
                 password
                 <ul>
@@ -131,7 +131,7 @@ kata-files\initDb.bat]]></source>
                 Note that the deployment command is the same as before - that's the point\! Reduce the work on your
                 developers and deployers; let the tool figure out the diff
 
-                <source><![CDATA[%DEPLOYANY_HOME%\bin\deploy.bat DEPLOY -sourcePath src/main/database -env test]]></source>
+                <source><![CDATA[%OBEVO_HOME%\bin\deploy.bat DEPLOY -sourcePath src/main/database -env test]]></source>
 
                 Fyi, here are some other command line arguments that may be of use (these are all optional):
                 <ul>
@@ -152,14 +152,14 @@ kata-files\initDb.bat]]></source>
 
                 Do a deployment again - same command as before
                 <source><![CDATA[kata-files\kata-step2.bat
-%DEPLOYANY_HOME%\bin\deploy.bat DEPLOY -sourcePath src/main/database -env test]]></source>
+%OBEVO_HOME%\bin\deploy.bat DEPLOY -sourcePath src/main/database -env test]]></source>
 
                 These changes feature a couple of the more advanced features of Obevo (you may not need to use
                 these much, but they are good to know about). More on these below
 
                 Now try one more set of changes
                 <source><![CDATA[kata-files\kata-step3.bat
-%DEPLOYANY_HOME%\bin\deploy.bat DEPLOY -sourcePath src/main/database -env test]]></source>
+%OBEVO_HOME%\bin\deploy.bat DEPLOY -sourcePath src/main/database -env test]]></source>
 
                 In step 3, you may notice a couple extra files that have the .baseline. word in them. The next section
                 describes what this does

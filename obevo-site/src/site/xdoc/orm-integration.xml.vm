@@ -178,7 +178,7 @@ H:\yourInputDir\APPLICATION_USER_ROLE.idx]]></source>
                 <p><b>Step 2:</b> Run the Obevo reverse-engineering command to get those files into the Obevo format:</p>
 
                 <p>Via Command Line:</p>
-                <source>%DEPLOYANY_HOME%\bin\deploy.bat MITHRAREVENG -dbType DB2 -inputDir h:\reveng-example -outputDir h:\reveng-example-output [-dontGenerateBaseline] [-dbSchema yourSchemaName]</source>
+                <source>%OBEVO_HOME%\bin\deploy.bat MITHRAREVENG -dbType DB2 -inputDir h:\reveng-example -outputDir h:\reveng-example-output [-dontGenerateBaseline] [-dbSchema yourSchemaName]</source>
                 Argument
                 <ul>
                     <li>dbType: (Required) The DBMS type that the DDLs were generated for; use one of the following values - DB2, SYBASE_ASE, SYBASE_IQ, POSTGRESQL, H2, HSQL</li>

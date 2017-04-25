@@ -16,7 +16,7 @@ Obevo is a database deployment tool that handles enterprise scale and complexity
 * Easy onboarding - get your production schema checked in and deployed to other environments in under 2 hours
 * Runnable from Java, command-line, or maven
 * Easy integration into your SDLC and deployment - package and deploy alongside your Java code and run a simple command like this:
-* $DEPLOYANY_HOME/bin/deploy.sh -dir /home/myuser/myproject/latest-version/db -env prod
+* $OBEVO_HOME/bin/deploy.sh -dir /home/myuser/myproject/latest-version/db -env prod
 * Extra features like cleaning and rebuilding existing schemas and detecting/firing reorgs
 
 ## Sample Project

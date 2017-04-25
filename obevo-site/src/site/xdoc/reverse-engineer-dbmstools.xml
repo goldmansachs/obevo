@@ -58,7 +58,7 @@
             <subsection name="Execution Steps">
                 <p>Step 1: execute the NEWREVENG command with your arguments
                     <source><![CDATA[
-%DEPLOYANY_HOME%\bin\deploy.bat NEWREVENG -dbType DB2 -dbSchema YourSchemaName -mode schema -outputPath h:\reveng-example-output -dbHost yourhost.me.com -dbPort 1234 -dbServer MYDB01
+%OBEVO_HOME%\bin\deploy.bat NEWREVENG -dbType DB2 -dbSchema YourSchemaName -mode schema -outputPath h:\reveng-example-output -dbHost yourhost.me.com -dbPort 1234 -dbServer MYDB01
 
 Detailing the arguments:
 -dbType: required, specify SYBASE_ASE or DB2

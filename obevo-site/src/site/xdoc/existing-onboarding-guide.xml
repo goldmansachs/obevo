@@ -135,7 +135,7 @@
         <section name="5) (optional) Import your static data as CSV or inserts">
             <h1>How To Generate the CSV Files</h1>
             <source><![CDATA[## required args:
-    %DEPLOYANY_HOME%\bin\deploy.bat DBREVENG -mode data -inputDir %s -outputDir %s -dbType %s -dbHost %s -dbPort %d -dbSchema %s -username %s -password %s
+    %OBEVO_HOME%\bin\deploy.bat DBREVENG -mode data -inputDir %s -outputDir %s -dbType %s -dbHost %s -dbPort %d -dbSchema %s -username %s -password %s
 
 ## optional args:
 # 1) you can add this for DB2
@@ -193,7 +193,7 @@
             The point of the deployment is so we can verify that the scripts are valid.
         </p>
         <p>Please perform a successful deployment before proceeding to the next step</p>
-        <source>%DEPLOYANY_HOME%\bin\deploy.bat DEPLOY -sourcePath src/main/database -env test -onboardingMode</source>
+        <source>%OBEVO_HOME%\bin\deploy.bat DEPLOY -sourcePath src/main/database -env test -onboardingMode</source>
             <p>In Obevo, we strove to make the reverse-engineering as smooth as possible, so hopefully it will
             be successful on the first try. But for various reasons, it may not. Hence, you should iteratively deploy,
             review the logs, fix problems, and redeploy until all issues are fixed.
@@ -324,7 +324,7 @@ GO]]></source>
             Obevo can deploy any new changes going forward
         </p>
         <p>To do this, run the INIT command</p>
-        <source>%DEPLOYANY_HOME%\bin\deploy.bat INIT -sourcePath src/main/database</source>
+        <source>%OBEVO_HOME%\bin\deploy.bat INIT -sourcePath src/main/database</source>
         <p>Do the same for the rest of your environments (e.g. qa, uat) if needed</p>
         <p>In case you have some ddls in uat but not production, the suggestion is to:</p>
         <ul>

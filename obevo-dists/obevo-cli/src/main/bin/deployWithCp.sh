@@ -16,13 +16,13 @@
 #
 
 
-DEPLOYANY_HOME=$(dirname $0)/..
-DEPLOYANY_CLASSPATH=$1
-export DEPLOYANY_CLASSPATH
+OBEVO_HOME=$(dirname $0)/..
+OBEVO_CLASSPATH=$1
+export OBEVO_CLASSPATH
 
-echo Setting DEPLOYANY_CLASSPATH variable as ${DEPLOYANY_CLASSPATH}
+echo Setting OBEVO_CLASSPATH variable as ${OBEVO_CLASSPATH}
 
 REST_OF_ARGS=${*:2}
 
 # *** Now delegating to the full script
-${DEPLOYANY_HOME}/bin/deploy.sh ${REST_OF_ARGS}
+${OBEVO_HOME}/bin/deploy.sh ${REST_OF_ARGS}

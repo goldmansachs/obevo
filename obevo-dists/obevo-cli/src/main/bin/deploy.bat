@@ -21,12 +21,12 @@ IF "%JAVA_HOME%" == "" (
     EXIT /B 1
 )
 
-SET DEPLOYANY_HOME=%~dp0\..
+SET OBEVO_HOME=%~dp0\..
 
-REM *** Set DEPLOYANY_CLASSPATH for when we look to read the DB files from the classpath, esp. via the deployWithCp.bat script ***
-SET CLASSPATH=%DEPLOYANY_CLASSPATH%;%DEPLOYANY_HOME%\conf;%DEPLOYANY_HOME%\lib\*
+REM *** Set OBEVO_CLASSPATH for when we look to read the DB files from the classpath, esp. via the deployWithCp.bat script ***
+SET CLASSPATH=%OBEVO_CLASSPATH%;%OBEVO_HOME%\conf;%OBEVO_HOME%\lib\*
 
-REM *** Set DEPLOYANY_LIBRARY_PATH if we need to add any library paths to the execution, e.g. for Sybase IQ client loads ***
-SET PATH=%DEPLOYANY_LIBRARY_PATH%;%PATH%
+REM *** Set OBEVO_LIBRARY_PATH if we need to add any library paths to the execution, e.g. for Sybase IQ client loads ***
+SET PATH=%OBEVO_LIBRARY_PATH%;%PATH%
 
 %JAVA_HOME%\bin\java -cp %CLASSPATH% com.gs.obevo.dist.Main %*

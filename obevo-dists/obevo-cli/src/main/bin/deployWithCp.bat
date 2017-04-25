@@ -16,10 +16,10 @@
 
 @echo off
 
-SET DEPLOYANY_HOME=%~dp0\..
-SET DEPLOYANY_CLASSPATH=%1
+SET OBEVO_HOME=%~dp0\..
+SET OBEVO_CLASSPATH=%1
 
-ECHO Setting DEPLOYANY_CLASSPATH variable as %DEPLOYANY_CLASSPATH%
+ECHO Setting OBEVO_CLASSPATH variable as %OBEVO_CLASSPATH%
 
 REM *** Extracting the classpath from the args ***
 SET REST_OF_ARGS=
@@ -32,4 +32,4 @@ GOTO loop1
 :after_loop
 
 REM *** Now delegating to the full script
-%DEPLOYANY_HOME%\bin\deploy.bat %REST_OF_ARGS%
+%OBEVO_HOME%\bin\deploy.bat %REST_OF_ARGS%

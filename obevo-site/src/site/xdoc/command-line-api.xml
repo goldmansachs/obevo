@@ -25,7 +25,7 @@
     <body>
         <p>
         The command line format is generally as follows:
-        <source>$DEPLOYANY_PATH/bin/deploy.sh &lt;COMMAND&gt; -arg1 arg -arg2 arg etc</source>
+        <source>$OBEVO_PATH/bin/deploy.sh &lt;COMMAND&gt; -arg1 arg -arg2 arg etc</source>
         where &lt;COMMAND&gt; is one of the following:
         </p>
 

@@ -23,12 +23,12 @@ then
 fi
 
 # *** In Unix environments, for now we'll assume that the JAVA_HOME variable is already set ***
-DEPLOYANY_HOME=$(dirname $0)/..
+OBEVO_HOME=$(dirname $0)/..
 
-# *** Set DEPLOYANY_CLASSPATH for when we look to read the DB files from the classpath, esp. via the deployWithCp.bat script ***
-CLASSPATH=${DEPLOYANY_CLASSPATH}:${DEPLOYANY_HOME}/conf:${DEPLOYANY_HOME}/lib/*
+# *** Set OBEVO_CLASSPATH for when we look to read the DB files from the classpath, esp. via the deployWithCp.bat script ***
+CLASSPATH=${OBEVO_CLASSPATH}:${OBEVO_HOME}/conf:${OBEVO_HOME}/lib/*
 
-# *** Set DEPLOYANY_LIBRARY_PATH if we need to add any library paths to the execution, e.g. for Sybase IQ client loads ***
-LD_LIBRARY_PATH=${DEPLOYANY_LIBRARY_PATH}:${LD_LIBRARY_PATH}
+# *** Set OBEVO_LIBRARY_PATH if we need to add any library paths to the execution, e.g. for Sybase IQ client loads ***
+LD_LIBRARY_PATH=${OBEVO_LIBRARY_PATH}:${LD_LIBRARY_PATH}
 
 ${JAVA_HOME}/bin/java -cp ${CLASSPATH} com.gs.obevo.dist.Main $@

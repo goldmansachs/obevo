@@ -51,7 +51,7 @@
                     Here is an example - this will reverse-engineer the DB that was generated in the kata steps above. A sample
                     output from Aqua Data Studio is provided in reveng-example
                     <source><![CDATA[
-%DEPLOYANY_HOME%\bin\deploy.bat DBREVENG -dbType DB2 -dbSchema YourSchemaName -mode schema -inputDir h:\reveng-example -outputDir h:\reveng-example-output
+%OBEVO_HOME%\bin\deploy.bat DBREVENG -dbType DB2 -dbSchema YourSchemaName -mode schema -inputDir h:\reveng-example -outputDir h:\reveng-example-output
 
 # note - for dbSchema, specify the DB2 schema, i.e. the ASE-equivalent of "database", i.e. IQ-equivalent of "schema", etc.
 
