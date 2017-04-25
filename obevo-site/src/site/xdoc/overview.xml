@@ -31,7 +31,7 @@
             usually would be painful to get that under source control, and thus Obevo has functionality to make
             it as easy as possible (and continually looks to improve)
         </p>
-        <p>Obevo was built to handle such cases (and vetted by many existing systems at Goldman Sachs).
+        <p>Obevo was built to handle such cases (and vetted by its usage and onboarding into long-lived existing systems).
             See here JIRATOREPLACE-DEPLOYANY-753 for an example project (an actual system whose names and contents have
             been anonymized, while preserving the object types and relationships). In our opinion, the resulting code is
             rather maintainable (considering the hundreds of db objects!) compared to what may otherwise result if the
