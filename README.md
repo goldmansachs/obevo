@@ -1,11 +1,8 @@
-WORK IN PROGRESS
-
 # Obevo
 [![][travis img]][travis]
 [![][maven img]][maven]
 [![][release img]][release]
-[![][license img]][license]
-
+[![][license-apache img]][license-apache]
 
 
 ## What is it? 
