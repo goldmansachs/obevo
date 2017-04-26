@@ -1,6 +1,6 @@
 WORK IN PROGRESS
 
-# Reladomo
+# Obevo
 [![Build Status](https://travis-ci.org/goldmansachs/obevo.svg?branch=master)](https://travis-ci.org/goldmansachs/obevo)
 
 ## What is it? 
