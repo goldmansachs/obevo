@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+
+    Copyright 2017 Goldman Sachs.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+    <properties>
+        <title>In-memory DB Conversion for Unit Testing</title>
+    </properties>
+    <body>
+        <macro name="toc">
+            <param name="fromDepth" value="0" />
+            <param name="toDepth" value="1" />
+        </macro>
+        <section name="In-memory DBs for unit testing">
+            <p>Obevo can create an in-memory db from your existing SQLs, thus guaranteeing that the same
+            DDLs you use to deploy to prod are the same ones for your testing</p>
+
+            Some translation happens to ensure that your prod SQLs work against an in-mem environment (notably to
+            simplify some SQLs, as we don't need to support as much rich logic in an in-mem environment)
+            <ul>
+                <li>Stored Procedures, Functions, and Triggers are not deployed (very hard to unit-test these, or the SQL varies too much between the live dbs and the in-memory dbs)</li>
+                <li>See the other translations done in the class InMemoryTranslator. These include:
+                    <ul>
+                        <li>Removing &quot;lock data rows&quot; and such from Sybase</li>
+                        <li>Removing mentions of &quot;clustered&quot; for indices</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <p>You have two options to convert to an in-memory database:</p>
+
+            <subsection name="Option 1 - use the inMemoryDbType variable in your system-config.xml">
+                <p>In your system-config.xml, you define the type for your system via the "dbSystemConfig type="SYBASE_ASE"".</p>
+
+                <p>At the dbEnvironment level, you can then specify the inMemoryDbType to facilitate the conversion from the
+                    system type to the in-memory environment type, per the example below.
+                </p>
+
+                <p>You can then use the standard DbEnvironmentFactory API to access the environment and build the DbDeployerAppContext.</p>
+
+                <p>
+                    <b>HOWEVER</b>, if you are re-creating the DB across tests, please reuse the DbDeployerAppContext instance
+                    as to save time in reloading your db files from disk.
+                </p>
+
+
+                <source><![CDATA[<dbEnvironment name="BOSI_A_1"
+            cleanBuildAllowed="true"
+            jdbcUrl="jdbc:hsqldb:mem:unit1inmem" inMemoryDbType="HSQL"
+            defaultUserId="sa"
+            defaultPassword=""
+            >
+]]></source>
+            </subsection>
+            <subsection name="Option 2 - Use the UnitTestDbBuilder to convert the environment in memory">
+                <p>There is a wrapper API also available to build the in-memory database by using a reference env from
+                    your environments and optionally overriding some values.
+                </p>
+
+                <p>This option
+                    <b>
+                        <i>will cache the reads from file disk</i>
+                    </b>
+                    , so no need for you to reuse the DbDeployerAppContext
+                    from the wrapper API
+                </p>
+
+                You can just include this in maven to get access to the utility:
+                <source><![CDATA[<properties>
+    <obevo.version>${project.version}</obevo.version>
+</properties>
+...
+<dependencies>
+    <dependency>
+        <groupId>com.goldmansachs.obevo</groupId>
+        <artifactId>obevo-db-unittest</artifactId>
+        <version>${obevo.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>com.goldmansachs.obevo</groupId>
+        <artifactId>obevo-db-hsql</artifactId>  <!-- or obevo-db-h2 -->
+        <version>${obevo.version}</version>
+    </dependency>
+</dependencies>
+]]></source>
+
+                And here is some sample code to build the DB:
+                <source><![CDATA[DbDeployerAppContext context = UnitTestDbBuilder.newBuilder()
+    .setSourcePath("platforms/db2/step1")
+    .setReferenceEnvName("unittestrefh2")  // mention the environment name that you want to model off
+    .setEnvName("myUnitTestDb")  // optionally - rename the environment if you are changing it from the reference
+    .setDbPlatform(new H2DbPlatform())  // you can override the platform in code, or do it in the XML as mentioned in option 1
+    .setDbServer("mydb2testH2")  // setting this value is a shortcut to generate the JDBC url for this environment for you if not already specified
+    .buildContext();
+
+// Once you have the reference to the DbDeployerAppContext, the code remains the same.
+context.setupEnvInfra();
+context.cleanEnvironment();
+context.deploy();
+
+System.out.println("This is my JDBC url for reference - " + context.getEnvironment().getJdbcUrl());]]></source>
+            </subsection>
+        </section>
+        <section name="Manually defining a translation SQL">
+            <p>The translation logic works for most cases, but at times it will not.</p>
+
+            <p>To define your own SQL, leverage the include/exclude platforms functionality to define the SQL for your
+                regular environments separately from the in-memory environments, e.g.
+            </p>
+            <source><![CDATA[
+//// CHANGE name="myChange" excludePlatforms="HSQL,H2"
+My DB2-compatible SQL
+
+//// CHANGE name="myChange" includePlatforms="HSQL,H2"
+My in-memory-compatible SQL]]></source>
+        </section>
+    </body>
+</document>

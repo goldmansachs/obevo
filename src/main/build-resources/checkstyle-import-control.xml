@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<!--
+
+    Copyright 2017 Goldman Sachs.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<!DOCTYPE import-control PUBLIC
+    "-//Puppy Crawl//DTD Import Control 1.1//EN"
+    "http://www.puppycrawl.com/dtds/import_control_1_1.dtd">
+<!--
+
+    Copyright 2017 Goldman Sachs.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<!--
+General Rules:
+* util is a core utility package, stuff like the JDK or Apache Commons Lang should have. It should not depend on the packages below
+* api is the public package. It can depend on util
+* impl can depend on util/api. The reverse is not allowed
+* apps can depend on util/api, but not on impl. None of the above should depend on apps
+-->
+<import-control pkg="com.gs.obevo">
+    <allow pkg=".*" regex="true" />
+    <disallow pkg="com\.google\..*" regex="true" />
+    <!-- prevent Guava access; needed here as this is forced in by hive dependencies in Hive module -->
+
+    <!-- obevo-core module -->
+    <subpackage name="util">
+        <disallow pkg="com.gs.obevo.api" />
+        <disallow pkg="com.gs.obevo.impl" />
+    </subpackage>
+    <subpackage name="api">
+        <disallow pkg="com.gs.obevo.impl" />
+        <!-- Making an exception here for the text + graph packages.
+        It makes things much easier for Change to implement the relevant interfaces directly,
+        and haven't figured out a neat way to split from it. -->
+        <allow pkg="com.gs.obevo.impl.text" />
+        <allow pkg="com.gs.obevo.impl.graph" />
+    </subpackage>
+    <subpackage name="impl">
+        <!-- The impl folder has the main deployer implementation; the subpackages help feed into it -->
+        <disallow pkg="com\.gs\.obevo\.impl\..*" regex="true" local-only="true" />
+    </subpackage>
+
+    <!-- obevo-db module -->
+    <!-- Would like to uncomment the changes below, but still more refactoring needed. Will consider this at a future date -->
+    <subpackage name="db">
+        <!--
+                <subpackage name="api">
+                    <disallow pkg="com.gs.obevo
+                    <disallow pkg="com.gs.obevo />
+                    <disallow pkg="com.gs.obevo />
+                </subpackage>
+        -->
+        <subpackage name="impl">
+            <!--
+                        <disallow pkg="com.gs.obevo />
+            -->
+            <subpackage name="core">
+                <disallow pkg="com.gs.obevo.db.impl.platforms" />
+            </subpackage>
+        </subpackage>
+        <!--
+                <subpackage name="apps">
+                    <disallow pkg="com.gs.obevo
+                    <disallow pkg="com.gs.obevo />
+                </subpackage>
+        -->
+    </subpackage>
+</import-control>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+
+    Copyright 2017 Goldman Sachs.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+    <properties>
+        <title>Obevo</title>
+    </properties>
+    <body>
+        <section name="Welcome">
+        Welcome to the Obevo Home Page. This tool and most of this wiki focuses on Database Deployment
+        </section>
+        <section name="Feature List">
+            <ul>
+                <li>Organized maintenance of all your DB-object files (tables, stored procedures, views, static data)
+                    <ul>
+                        <li>1 file per object - just as you would with Java files</li>
+                        <li>Edit stored procedures, views, and static data files in place (if you have them) - just as you would with Java files</li>
+                        <li>No need to specify the order in which to deploy your files - Obevo figures it out for you (a la a Java compiler compiling classes)</li>
+                    </ul>
+                </li>
+
+                <li>Deploys to DB2, Sybase ASE, Sybase IQ</li>
+                <li>In-memory DB support - convert your scripts to an in-memory database for unit testing support</li>
+                <li>Easy onboarding - get your production schema checked in and deployed to other environments in under 2 hours</li>
+                <li>Runnable from Java, command-line, or maven</li>
+                <li>Easy integration into your SDLC and deployment - package and deploy alongside your Java code and run a simple command like this:</li>
+                <li>$OBEVO_HOME/bin/deploy.sh -dir /home/myuser/myproject/latest-version/db -env prod</li>
+                <li>Extra features like cleaning and rebuilding existing schemas and detecting/firing reorgs</li>
+            </ul></section>
+        <section name="How to read this doc">
+        <ul>
+            <li>Sections 1-6 are intro information</li>
+            <li>Section 7 is how to onboard an {+}{+}<i>existing</i> system; (for new systems, sections 1-6
+                would suffice)
+            </li>
+            <li>Sections 8-onward are advanced use cases</li>
+        </ul>
+        </section>
+        <section name="Document Conventions">
+        <p>This Kata assumes we are running this from a Windows desktop. Adjust the command line arguments accordingly for Linux if you choose</p>
+        </section>
+    </body>
+</document>

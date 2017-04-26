@@ -1,0 +1,807 @@
+-----------------------------------------------------------------------------
+-- DDL for Database 'dbdeploy01'
+-----------------------------------------------------------------------------
+print '<<<<< CREATING Database - dbdeploy01 >>>>>'
+go
+
+use master
+go
+
+IF EXISTS (SELECT 1 FROM sysdatabases WHERE name = 'dbdeploy01')
+	drop database dbdeploy01
+
+IF (@@error != 0)
+BEGIN
+	PRINT "Error CREATING database 'dbdeploy01'"
+	SELECT syb_quit()
+END
+go
+
+create database dbdeploy01 on dev22 = 300
+log on dev4 = 50
+go
+
+
+-----------------------------------------------------------------------------
+-- DDL for Group 'DACT_RO'
+-----------------------------------------------------------------------------
+
+print '<<<<< CREATING Group - "DACT_RO" >>>>>'
+go 
+
+exec sp_addgroup 'DACT_RO'
+
+go 
+
+
+-----------------------------------------------------------------------------
+-- DDL for Group 'DACT_RW'
+-----------------------------------------------------------------------------
+
+print '<<<<< CREATING Group - "DACT_RW" >>>>>'
+go 
+
+exec sp_addgroup 'DACT_RW'
+
+go 
+
+
+-----------------------------------------------------------------------------
+-- DDL for Group 'shant'
+-----------------------------------------------------------------------------
+
+print '<<<<< CREATING Group - "shant" >>>>>'
+go 
+
+exec sp_addgroup 'shant'
+
+go 
+
+
+-----------------------------------------------------------------------------
+-- DDL for Group 'shant2'
+-----------------------------------------------------------------------------
+
+print '<<<<< CREATING Group - "shant2" >>>>>'
+go 
+
+exec sp_addgroup 'shant2'
+
+go 
+
+
+-----------------------------------------------------------------------------
+-- DDL for User 'myuser01'
+-----------------------------------------------------------------------------
+
+print '<<<<< CREATING User - "myuser01" >>>>>'
+go 
+
+exec sp_adduser 'myuser01' ,'myuser01' ,'MYGROUP01'
+go 
+
+
+-----------------------------------------------------------------------------
+-- DDL for User 'myuser02'
+-----------------------------------------------------------------------------
+
+print '<<<<< CREATING User - "myuser02" >>>>>'
+go
+
+exec sp_adduser 'myuser02' ,'myuser02' ,'MYGROUP01'
+go
+
+
+-----------------------------------------------------------------------------
+-- DDL for Rule 'dbdeploy01.dbo.booleanRule'
+-----------------------------------------------------------------------------
+
+print '<<<<< CREATING Rule - "dbdeploy01.dbo.booleanRule" >>>>>'
+go 
+
+setuser 'dbo'
+go 
+
+set quoted_identifier on
+go 
+
+CREATE RULE booleanRule
+as @booleanValue in (1, 0)
+go 
+
+set quoted_identifier off
+go 
+
+setuser
+go 
+
+-----------------------------------------------------------------------------
+-- DDL for Rule 'dbdeploy01.dbo.booleanRule2'
+-----------------------------------------------------------------------------
+
+print '<<<<< CREATING Rule - "dbdeploy01.dbo.booleanRule2" >>>>>'
+go 
+
+setuser 'dbo'
+go 
+
+set quoted_identifier on
+go 
+
+CREATE RULE booleanRule2
+as @booleanValue in (1, 0)
+go 
+
+set quoted_identifier off
+go 
+
+setuser
+go 
+
+-----------------------------------------------------------------------------
+-- DDL for Default 'dbdeploy01.dbo.DateDefault'
+-----------------------------------------------------------------------------
+
+print '<<<<< CREATING Default - "dbdeploy01.dbo.DateDefault" >>>>>'
+go 
+
+setuser 'dbo'
+go 
+
+set quoted_identifier on
+go 
+
+CREATE DEFAULT DateDefault AS '01Jan1972'
+go 
+
+set quoted_identifier off
+go 
+
+setuser
+go 
+
+-----------------------------------------------------------------------------
+-- DDL for UserDefinedDatatype 'dbdeploy01.Boolean'
+-----------------------------------------------------------------------------
+
+print '<<<<< CREATING UserDefinedDatatype - "dbdeploy01.Boolean" >>>>>'
+go 
+
+SETUSER 'dbo'
+go
+
+exec  sp_addtype 'Boolean' , 'tinyint' , nonull
+go 
+
+sp_bindrule 'dbo.booleanRule', 'Boolean'
+go
+
+SETUSER
+go
+
+
+-----------------------------------------------------------------------------
+-- DDL for UserDefinedDatatype 'dbdeploy01.Boolean2'
+-----------------------------------------------------------------------------
+
+print '<<<<< CREATING UserDefinedDatatype - "dbdeploy01.Boolean2" >>>>>'
+go 
+
+SETUSER 'dbo'
+go
+
+exec  sp_addtype 'Boolean2' , 'tinyint' , nonull
+go 
+
+sp_bindrule 'dbo.booleanRule2', 'Boolean2'
+go
+
+SETUSER
+go
+
+
+-----------------------------------------------------------------------------
+-- DDL for Table 'dbdeploy01.dbo.DefaultColTest'
+-----------------------------------------------------------------------------
+print '<<<<< CREATING Table - "dbdeploy01.dbo.DefaultColTest" >>>>>'
+go
+
+use dbdeploy01
+go 
+
+setuser 'dbo'
+go 
+
+create table DefaultColTest (
+	id                              int                              identity  ,
+	default_str                     varchar(25)                     DEFAULT  '123' 
+      null  ,
+	default_nn_str                  varchar(25)                     DEFAULT  '123' 
+  not null  ,
+	default_curdate                 datetime                        DEFAULT  getdate() 
+      null  ,
+	default_date1                   datetime                        DEFAULT  '20 Jan 2005 12:12:12' 
+      null  ,
+	default_date2                   datetime                        DEFAULT  'Jan 20 2005' 
+      null  ,
+		CONSTRAINT PK_DefaultColTest PRIMARY KEY CLUSTERED ( id )  on 'default' 
+)
+lock datarows
+ on 'default'
+go 
+
+
+setuser
+go 
+
+-----------------------------------------------------------------------------
+-- DDL for Table 'dbdeploy01.dbo.TableSpecialCol'
+-----------------------------------------------------------------------------
+print '<<<<< CREATING Table - "dbdeploy01.dbo.TableSpecialCol" >>>>>'
+go
+
+setuser 'dbo'
+go 
+
+create table TableSpecialCol (
+	idField                         int                              not null  ,
+	smallDateTimeField              smalldatetime                    not null  ,
+	textField                       text                             not null  ,
+	booleanCol                      Boolean                          not null   ,
+	boolean2Col                     Boolean2                         not null   ,
+ PRIMARY KEY CLUSTERED ( idField )  on 'default' 
+)
+lock allpages
+ on 'default'
+go 
+
+sp_placeobject 'default', 'dbo.TableSpecialCol.tTableSpecialCol'
+go 
+
+
+sp_bindrule 'dbo.booleanRule', 'TableSpecialCol.booleanCol'
+go 
+
+sp_bindrule 'dbo.booleanRule2', 'TableSpecialCol.boolean2Col'
+go 
+
+setuser
+go 
+
+-----------------------------------------------------------------------------
+-- DDL for Table 'dbdeploy01.dbo.TableSuffixTest'
+-----------------------------------------------------------------------------
+print '<<<<< CREATING Table - "dbdeploy01.dbo.TableSuffixTest" >>>>>'
+go
+
+setuser 'dbo'
+go 
+
+create table TableSuffixTest (
+	idField                         int                              not null  ,
+ PRIMARY KEY CLUSTERED ( idField )  on 'default' 
+)
+lock datarows
+with exp_row_size = 1 on 'default'
+go 
+
+
+setuser
+go 
+
+-----------------------------------------------------------------------------
+-- DDL for Table 'dbdeploy01.dbo.TestTable'
+-----------------------------------------------------------------------------
+print '<<<<< CREATING Table - "dbdeploy01.dbo.TestTable" >>>>>'
+go
+
+setuser 'dbo'
+go 
+
+create table TestTable (
+	idField                         int                              not null  ,
+	stringField                     varchar(100)                     not null  ,
+	stringDateField                 date                                  null  ,
+	dateTimeField                   datetime                             null  ,
+	myBooleanCol                    int                                  null   ,
+	tinyIntCol                      tinyint                          not null  ,
+	timeUpdated                     datetime                         not null  ,
+	textField                       text                                 null  ,
+	myNewCol                        int                                  null  ,
+		CONSTRAINT PK PRIMARY KEY CLUSTERED ( idField )  on 'default' 
+)
+lock datarows
+ on 'default'
+go 
+
+sp_placeobject 'default', 'dbo.TestTable.tTestTable'
+go 
+
+
+sp_bindefault 'dbo.DateDefault', 'TestTable.stringDateField'
+go 
+
+sp_bindrule 'dbo.booleanRule', 'TestTable.myBooleanCol'
+go 
+
+setuser
+go 
+
+-----------------------------------------------------------------------------
+-- DDL for Index 'IND1'
+-----------------------------------------------------------------------------
+
+print '<<<<< CREATING Index - "IND1" >>>>>'
+go 
+
+create nonclustered index IND1 
+on dbdeploy01.dbo.TestTable(stringField)
+go 
+
+
+-----------------------------------------------------------------------------
+-- DDL for Trigger 'dbdeploy01.dbo.TestTableTrigger1'
+-----------------------------------------------------------------------------
+
+print '<<<<< CREATING Trigger - "dbdeploy01.dbo.TestTableTrigger1" >>>>>'
+go 
+
+setuser 'dbo'
+go 
+
+create trigger TestTableTrigger1
+on TestTable
+for insert
+as
+print "Added!"
+go 
+
+setuser
+go 
+
+-----------------------------------------------------------------------------
+-- DDL for Table 'dbdeploy01.dbo.TestTableA'
+-----------------------------------------------------------------------------
+print '<<<<< CREATING Table - "dbdeploy01.dbo.TestTableA" >>>>>'
+go
+
+setuser 'dbo'
+go 
+
+create table TestTableA (
+	id                              int                              not null  ,
+	tId                             int                                  null  ,
+	test                            varchar(25)                          null  ,
+	fk                              int                              not null  ,
+		CONSTRAINT PK PRIMARY KEY CLUSTERED ( id )  on 'default' 
+)
+lock datarows
+ on 'default'
+go 
+
+
+setuser
+go 
+
+-----------------------------------------------------------------------------
+-- DDL for Index 'IND1'
+-----------------------------------------------------------------------------
+
+print '<<<<< CREATING Index - "IND1" >>>>>'
+go 
+
+create nonclustered index IND1 
+on dbdeploy01.dbo.TestTableA(test)
+go 
+
+
+-----------------------------------------------------------------------------
+-- DDL for Table 'dbdeploy01.dbo.ARTIFACTEXECUTION'
+-----------------------------------------------------------------------------
+print '<<<<< CREATING Table - "dbdeploy01.dbo.ARTIFACTEXECUTION" >>>>>'
+go
+
+setuser 'dbo'
+go 
+
+create table ARTIFACTEXECUTION (
+	ID                              numeric(19,0)                    not null  ,
+	STATUS                          char(1)                          not null  ,
+	DEPLOYTIME                      datetime                         not null  ,
+	EXECUTORID                      varchar(128)                     not null  ,
+	TOOLVERSION                     varchar(32)                      not null  ,
+	INIT_COMMAND                    int                              not null  ,
+	ROLLBACK_COMMAND                int                              not null  ,
+	REQUESTERID                     varchar(128)                         null  ,
+	REASON                          varchar(128)                         null  ,
+		CONSTRAINT DEPL_EXEC_PK PRIMARY KEY CLUSTERED ( ID )  on 'default' 
+)
+lock allpages
+ on 'default'
+go 
+
+Grant Select on dbo.ARTIFACTEXECUTION to public 
+go
+
+setuser
+go 
+
+-----------------------------------------------------------------------------
+-- DDL for Table 'dbdeploy01.dbo.ARTIFACTEXECUTIONATTR'
+-----------------------------------------------------------------------------
+print '<<<<< CREATING Table - "dbdeploy01.dbo.ARTIFACTEXECUTIONATTR" >>>>>'
+go
+
+setuser 'dbo'
+go 
+
+create table ARTIFACTEXECUTIONATTR (
+	DEPLOYEXECUTIONID               numeric(19,0)                    not null  ,
+	ATTRNAME                        varchar(128)                     not null  ,
+	ATTRVALUE                       varchar(128)                     not null   
+)
+lock allpages
+ on 'default'
+go 
+
+Grant Select on dbo.ARTIFACTEXECUTIONATTR to public 
+go
+
+setuser
+go 
+
+-----------------------------------------------------------------------------
+-- DDL for Table 'dbdeploy01.dbo.ARTIFACTDEPLOYMENT'
+-----------------------------------------------------------------------------
+print '<<<<< CREATING Table - "dbdeploy01.dbo.ARTIFACTDEPLOYMENT" >>>>>'
+go
+
+setuser 'dbo'
+go 
+
+create table ARTIFACTDEPLOYMENT (
+	ARTFTYPE                        varchar(31)                      not null  ,
+	ARTIFACTPATH                    varchar(255)                     not null  ,
+	OBJECTNAME                      varchar(255)                     not null  ,
+	ACTIVE                          int                                  null  ,
+	CHANGETYPE                      varchar(255)                         null  ,
+	CONTENTHASH                     varchar(255)                         null  ,
+	DBSCHEMA                        varchar(255)                         null  ,
+	DEPLOY_USER_ID                  varchar(32)                          null  ,
+	TIME_INSERTED                   datetime                             null  ,
+	TIME_UPDATED                    datetime                             null  ,
+	ROLLBACKCONTENT                 text                                 null  ,
+	INSERTDEPLOYID                  numeric(19,0)                        null  ,
+	UPDATEDEPLOYID                  numeric(19,0)                        null  ,
+		CONSTRAINT ARTDEFPK PRIMARY KEY CLUSTERED ( ARTIFACTPATH, OBJECTNAME )  on 'default' 
+)
+lock allpages
+ on 'default'
+go 
+
+sp_placeobject 'default', 'dbo.ARTIFACTDEPLOYMENT.tARTIFACTDEPLOYMENT'
+go 
+
+Grant Select on dbo.ARTIFACTDEPLOYMENT to public 
+go
+
+setuser
+go 
+
+-----------------------------------------------------------------------------
+-- DDL for View 'dbdeploy01.dbo.TestView'
+-----------------------------------------------------------------------------
+
+print '<<<<< CREATING View - "dbdeploy01.dbo.TestView" >>>>>'
+go 
+
+setuser 'dbo'
+go 
+
+-- ensure that ? is not interpreted as a parameter
+create view TestView AS select idField "MyId", stringField "MyString", myBooleanCol "MyMyBooleanCol" from TestTable
+go 
+
+setuser
+go 
+
+-----------------------------------------------------------------------------
+-- DDL for Stored Procedure 'dbdeploy01.dbo.SpWithTemp'
+-----------------------------------------------------------------------------
+
+print '<<<<< CREATING Stored Procedure - "dbdeploy01.dbo.SpWithTemp" >>>>>'
+go 
+
+setuser 'dbo'
+go 
+
+set quoted_identifier on
+go 
+
+create proc SpWithTemp (@MaxCount  int) as
+--$Header: /home/cvs/gdtech/costar/src/db/procs/DelExcessSelectTrades.eqd,v 1.2 2010/08/13 18:15:51 jayava Exp $
+begin
+    /* Adaptive Server has expanded all '*' elements in the following statement */ select #MyTemp.FieldA, #MyTemp.FieldB from #MyTemp
+end
+go 
+
+
+sp_procxmode '"SpWithTemp"', unchained
+go 
+
+set quoted_identifier off
+go 
+
+setuser
+go 
+
+-----------------------------------------------------------------------------
+-- DDL for Stored Procedure 'dbdeploy01.dbo.SpWithTemp2'
+-----------------------------------------------------------------------------
+
+print '<<<<< CREATING Stored Procedure - "dbdeploy01.dbo.SpWithTemp2" >>>>>'
+go 
+
+setuser 'dbo'
+go 
+
+set quoted_identifier on
+go 
+
+create proc SpWithTemp2 (@MaxCount  int) as
+--$Header: /home/cvs/gdtech/costar/src/db/procs/DelExcessSelectTrades.eqd,v 1.2 2010/08/13 18:15:51 jayava Exp $
+begin
+    /* Adaptive Server has expanded all '*' elements in the following statement */ select #MyTemp.FieldA, #MyTemp.FieldB from #MyTemp
+end
+go 
+
+
+sp_procxmode '"SpWithTemp2"', unchained
+go 
+
+set quoted_identifier off
+go 
+
+setuser
+go 
+
+-----------------------------------------------------------------------------
+-- DDL for Stored Procedure 'dbdeploy01.dbo.ProcWithDoubleQuotes'
+-----------------------------------------------------------------------------
+
+print '<<<<< CREATING Stored Procedure - "dbdeploy01.dbo.ProcWithDoubleQuotes" >>>>>'
+go 
+
+setuser 'dbo'
+go 
+
+create procedure ProcWithDoubleQuotes as/* Adaptive Server has expanded all '*' elements in the following statement */  select "abc", TestView.MyId, TestView.MyString, TestView.MyMyBooleanCol from TestView
+go 
+
+
+sp_procxmode 'ProcWithDoubleQuotes', unchained
+go 
+
+setuser
+go 
+
+-----------------------------------------------------------------------------
+-- DDL for Stored Procedure 'dbdeploy01.dbo.TestProc'
+-----------------------------------------------------------------------------
+
+print '<<<<< CREATING Stored Procedure - "dbdeploy01.dbo.TestProc" >>>>>'
+go 
+
+setuser 'dbo'
+go 
+
+set quoted_identifier on
+go 
+
+create procedure TestProc as/* Adaptive Server has expanded all '*' elements in the following statement */  select TestView.MyId, TestView.MyString, TestView.MyMyBooleanCol from TestView
+go 
+
+create procedure TestProc;2 (@param1  int) as/* Adaptive Server has expanded all '*' elements in the following statement */  select TestView.MyId, TestView.MyString, TestView.MyMyBooleanCol from TestView
+go 
+
+
+sp_procxmode '"TestProc"', unchained
+go 
+
+set quoted_identifier off
+go 
+
+setuser
+go 
+
+-----------------------------------------------------------------------------
+-- Dependent DDL for Object(s)
+-----------------------------------------------------------------------------
+use dbdeploy01
+go
+
+exec sp_changedbowner 'belyav', true 
+go
+
+exec master.dbo.sp_dboption dbdeploy01, 'trunc log on chkpt', true
+go
+
+exec master.dbo.sp_dboption dbdeploy01, 'abort tran on log full', true
+go
+
+checkpoint
+go
+
+use dbdeploy01
+go 
+
+sp_addthreshold dbdeploy01, 'logsegment', 1832, sp_thresholdaction
+go 
+
+Grant Select on dbo.ARTIFACTDEPLOYMENT to public
+go
+
+Grant Select on dbo.ARTIFACTEXECUTION to public
+go
+
+Grant Select on dbo.ARTIFACTEXECUTIONATTR to public
+go
+
+Grant Select on dbo.sysalternates to public
+go
+
+Grant Select on dbo.sysattributes to public
+go
+
+Grant Select on dbo.syscolumns to public
+go
+
+Grant Select on dbo.syscomments to public
+go
+
+Grant Select on dbo.sysconstraints to public
+go
+
+Grant Select on dbo.sysdepends to public
+go
+
+Grant Select on dbo.sysindexes to public
+go
+
+Grant Select on dbo.sysjars to public
+go
+
+Grant Select on dbo.syskeys to public
+go
+
+Grant Select on dbo.syslogs to public
+go
+
+Grant Select on dbo.sysobjects(cache) to public
+go
+
+Grant Select on dbo.sysobjects(ckfirst) to public
+go
+
+Grant Select on dbo.sysobjects(crdate) to public
+go
+
+Grant Select on dbo.sysobjects(deltrig) to public
+go
+
+Grant Select on dbo.sysobjects(erlchgts) to public
+go
+
+Grant Select on dbo.sysobjects(expdate) to public
+go
+
+Grant Select on dbo.sysobjects(id) to public
+go
+
+Grant Select on dbo.sysobjects(identburnmax) to public
+go
+
+Grant Select on dbo.sysobjects(indexdel) to public
+go
+
+Grant Select on dbo.sysobjects(instrig) to public
+go
+
+Grant Select on dbo.sysobjects(loginame) to public
+go
+
+Grant Select on dbo.sysobjects(name) to public
+go
+
+Grant Select on dbo.sysobjects(objspare) to public
+go
+
+Grant Select on dbo.sysobjects(schemacnt) to public
+go
+
+Grant Select on dbo.sysobjects(seltrig) to public
+go
+
+Grant Select on dbo.sysobjects(spacestate) to public
+go
+
+Grant Select on dbo.sysobjects(sysstat) to public
+go
+
+Grant Select on dbo.sysobjects(sysstat2) to public
+go
+
+Grant Select on dbo.sysobjects(sysstat3) to public
+go
+
+Grant Select on dbo.sysobjects(type) to public
+go
+
+Grant Select on dbo.sysobjects(uid) to public
+go
+
+Grant Select on dbo.sysobjects(updtrig) to public
+go
+
+Grant Select on dbo.sysobjects(userstat) to public
+go
+
+Grant Select on dbo.sysobjects(versionts) to public
+go
+
+Grant Select on dbo.syspartitionkeys to public
+go
+
+Grant Select on dbo.syspartitions to public
+go
+
+Grant Select on dbo.sysprocedures to public
+go
+
+Grant Select on dbo.sysprotects to public
+go
+
+Grant Select on dbo.sysqueryplans to public
+go
+
+Grant Select on dbo.sysreferences to public
+go
+
+Grant Select on dbo.sysroles to public
+go
+
+Grant Select on dbo.syssegments to public
+go
+
+Grant Select on dbo.sysslices to public
+go
+
+Grant Select on dbo.sysstatistics to public
+go
+
+Grant Select on dbo.systabstats to public
+go
+
+Grant Select on dbo.systhresholds to public
+go
+
+Grant Select on dbo.systypes to public
+go
+
+Grant Select on dbo.sysusermessages to public
+go
+
+Grant Select on dbo.sysusers to public
+go
+
+Grant Select on dbo.sysxtypes to public
+go
+
+alter table dbdeploy01.dbo.TestTableA
+add constraint TestTableA_408385493 FOREIGN KEY (fk) REFERENCES dbdeploy01.dbo.TestTable(idField)
+go
+
+
+
+-- DDLGen Completed
+-- at 09/24/16 22:42:07 EDT

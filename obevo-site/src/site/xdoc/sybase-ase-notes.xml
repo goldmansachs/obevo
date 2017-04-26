@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+
+    Copyright 2017 Goldman Sachs.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+    <properties>
+        <title>Sybase ASE Notes</title>
+    </properties>
+    <body>
+        <macro name="toc">
+            <param name="fromDepth" value="0" />
+            <param name="toDepth" value="1" />
+        </macro>
+        <section name="Sybase stored procedures for quotes and temp tables">
+            <p>For teams that have a lot of Sybase stored procedures, you may hit the following two use cases:</p>
+            <subsection name="Supporting Quoted Identifiers">
+                <p>
+                    <b>The Problem</b>
+                    In ANSI SQL, you use single-quotes to represent strings, not double-quotes. Double-quotes would tie
+                    to
+                    identifiers in the DB (e.g. column names, tables names, in case they have spaces)
+                </p>
+                <p>For Sybase, this is also true if you connect via JDBC, but for whatever reason, it is not true if you
+                    connect
+                    via the isql command line - see
+                    <a class="externalLink"
+                        href="http://infocenter.sybase.com/help/index.jsp?topic=/com.sybase.infocenter.dc38151.1510/html/iqrefbb/CACIIHCI.htm">
+                        Sybase's doc for more info
+                    </a>
+                </p>
+                <p>Hence, if you deployed stored procedures via isql, and then try to re-deploy via isql or
+                    Obevo in
+                    its default setting, you will get an error, as the SP will have double-quotes
+                </p>
+                <p>
+                    <b>The Solution</b>
+                </p>
+                <p>If you specify the metadata annotation //// METADATA DISABLE_QUOTED_IDENTIFIERS, then
+                    Obevo will turn off the quotedidentifier option so that the double-quotes will be treated
+                    as
+                    strings. It will then turn it back on for subsequent deployments
+                </p>
+                <p>Note that the Obevo reverse-engineering step mentioned earlier will automatically add this
+                    annotation if it sees a double-quote in the text. (Though there is a chance that it is actually
+                    intended as
+                    an identifier, the likely case is that it was intended as a string. You should try to recall if the
+                    SP was
+                    originally deployed via isqlto help your decision)if you do the reverse-engineering steps above,
+                </p>
+            </subsection>
+            <subsection name="Temp Tables as Input to Stored Procedures">
+                <p>In Costar, we've had some cases where a stored procedure required a temp table to be populated for
+                    running
+                    the stored procedure. However, to create the SP, we need the temp table created in the first place
+                </p>
+                <p>To do this, you can do this in the sp sql file itself, but just remember to add the temp table
+                    beforehand and
+                    then to drop it, e.g.
+                </p>
+                <source><![CDATA[create table #mytemp (a int, b int)
+go
+create proc PopulateSelectTradeTemps() as
+...
+select * from #mytemp
+...
+end
+go
+drop #mytemp]]></source>
+                <p>(not that we'd want to do something like this in the age of Java and Mithra/Hibernate, but this is
+                    here in
+                    case you need it.
+                </p>
+            </subsection>
+        </section>
+        <section name="Interesting/unhelpful error messages when dealing w/ Sybase - see the FAQ">
+            <p>Compared to the other DBMS types supported by Obevo, Sybase has a lot of interesting error and error
+                messages (or lack of helpful error messages).
+            </p>
+
+            <p>Please see the
+                <a href="faq.html">FAQ pages</a>
+                for more information
+            </p>
+        </section>
+        <section name="Duplicate index names allowed in Sybase but not in in-memory DBs">
+            <p>Sybase allows for indices not to have unique names given they refer to different tables. This is not
+                supported by the in-memory databases.
+            </p>
+            <p>To work around this, you can use a marker tag in system-config.xml as shown below. This will force
+                all
+                indices in a schema to be prefixed with a table name in test mode.
+            </p>
+            <source><![CDATA[<dbSystemConfig type="SYBASE_ASE">
+<schemas>
+<schema name="schema_name">
+<duplicateIndexNames>true</duplicateIndexNames>
+...]]></source>
+
+        </section>
+    </body>
+</document>

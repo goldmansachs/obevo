@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+#*
+ * Copyright 2017 Goldman Sachs.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *#
+<document xmlns="http://maven.apache.org/XDOC/2.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+    <properties>
+        <title>Java API</title>
+    </properties>
+    <body>
+        <section name="Module Overview">
+            <p>Before diving into the Java code, first let's describe the modules in Obevo.</p>
+
+            <p>NOTE for the review week of Feb 22 - I have not created this module group structure in maven yet</p>
+
+            <p>First, describe the high-level module groupings (the first-level of directories in the Obevo codebase):</p>
+            <table>
+                <tr>
+                    <th>Module Group</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td>obevo-core</td>
+                    <td>The core Obevo algorithm framework, as described in the
+                        <a href="design-walkthrough.html">Design Walkthrough</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>obevo-db-platforms</td>
+                    <td>DBMS-platform implementations of Obevo</td>
+                </tr>
+                <tr>
+                    <td>obevo-db-utils</td>
+                    <td>Java client utilities for DBMS-platforms that sit on top of the platform modules</td>
+                </tr>
+                <tr>
+                    <td>obevo-build-apis</td>
+                    <td>API endpoints for clients to access Obevo from their builds</td>
+                </tr>
+                <tr>
+                    <td>obevo-doc</td>
+                    <td>Documentation and Obevo-internal modules</td>
+                </tr>
+            </table>
+
+            <p>And now the modules themselves (the first-level of directories in the Obevo codebase):</p>
+
+            <table>
+                <tr>
+                    <th>Module</th>
+                    <th>Module Group</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td>obevo-core</td>
+                    <td>core</td>
+                    <td>Core module for implementing the Obevo incremental-deployment algorithm</td>
+                </tr>
+                <tr>
+                    <td>obevo-db</td>
+                    <td>db-platforms</td>
+                    <td>The base implementation of the core DA algorithm for DBMS platforms</td>
+                </tr>
+                <tr>
+                    <td>obevo-db-* (db2, h2, hsql, postgresql, sybase-ase, sybase-iq)</td>
+                    <td>db-platforms</td>
+                    <td>The DBMS-specific implementations. These implement a few interfaces defined in obevo-db</td>
+                </tr>
+                <tr>
+                    <td>obevo-schemacrawler</td>
+                    <td>db-platforms</td>
+                    <td>Wrapper code around the schemacrawler library (i.e. handling a couple tweaks around how to call the library)</td>
+                </tr>
+                <tr>
+                    <td>obevo-catotemp</td>
+                    <td>db-platforms</td>
+                    <td>Copy of the CATO library; hoping to retire this once the main CATO library takes in some changes</td>
+                </tr>
+                <tr>
+                    <td>obevo-sql-parser</td>
+                    <td>db-platforms</td>
+                    <td>SQL parsing/translation code to help w/ the unit test db translations</td>
+                </tr>
+                <tr>
+                    <td>obevo-db-client-alldbs</td>
+                    <td>db-platforms</td>
+                    <td>maven dependency grouping as a convenience to retrieve all DBMS implementations</td>
+                </tr>
+                <tr>
+                    <td>obevo-db-scenario-tests</td>
+                    <td>db-platforms</td>
+                    <td>Scenario tests (not for client usage)</td>
+                </tr>
+                <tr>
+                    <td>obevo-db-unittest</td>
+                    <td>obevo-db-utils</td>
+                    <td>Utilities to facilitate creating unit test dbs and loading data via DB Unit</td>
+                </tr>
+                <tr>
+                    <td>obevo-hibernate</td>
+                    <td>obevo-db-utils</td>
+                    <td>Utility to generate DDLs from Hibernate</td>
+                </tr>
+                <tr>
+                    <td>obevo-reladomo-util</td>
+                    <td>obevo-db-utils</td>
+                    <td>Utility to generate DDLs from Reladomo</td>
+                </tr>
+                <tr>
+                    <td>obevo-dist</td>
+                    <td>obevo-build-apis</td>
+                    <td>binary assembly distribution</td>
+                </tr>
+                <tr>
+                    <td>obevo-maven-plugin</td>
+                    <td>obevo-build-apis</td>
+                    <td>Maven plugin</td>
+                </tr>
+                <tr>
+                    <td>obevo-maven-cbk-archetype</td>
+                    <td>obevo-build-apis</td>
+                    <td>Maven archetype to create Obevo projects.</td>
+                </tr>
+                <tr>
+                    <td>obevo-site</td>
+                    <td>obevo-doc</td>
+                    <td>The documentation bundle</td>
+                </tr>
+                <tr>
+                    <td>obevo-internal-infra</td>
+                    <td>obevo-doc</td>
+                    <td>The infrastructure to serve up the documentation</td>
+                </tr>
+                <tr>
+                    <td>obevo-examples</td>
+                    <td>obevo-doc</td>
+                    <td>Examples + kata</td>
+                </tr>
+            </table>
+        </section>
+        <section name="Modules relevant for Java API Users">
+            <p>As an API client, you'll only need to depend on the following:</p>
+            <ul>
+                <li>The core module for the platform type you are interested in (e.g. obevo-db for DBMS platforms)</li>
+                <li>The specific platform module that you are working on, e.g. one of the obevo-db *impl* modules or obevo-db-client-alldbs to access all impls</li>
+                <li>Optionally, any of the Java utility modules, e.g. in the obevo-db-utils module group</li>
+                <li>You should not access the other modules via Java</li>
+            </ul>
+        </section>
+        <section name="Java Package Overview">
+            <p>com.gs.obevo is the main package under which all is kept - this is in the obevo-core
+                module that has the code focusing on the change calculation algorithm.
+            </p>
+
+            Under that, you will have the following core packages
+
+            <table>
+                <tr><th>Sub-package</th><th>Description</th></tr>
+                <tr>
+                    <td>api</td>
+                    <td>The public API entrypoint for executing deployments; good place to start to explore the API. Typically has the following subpackages:
+                        <ul>
+                            <li>factory: Convenience factory classes to access the main Obevo classes</li>
+                            <li>appdata: The domain model classes corresponding to the code and data that clients would provide</li>
+                            <li>platform: The core classes/interfaces that will operate on the user data to carry out deployments.</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>impl</td>
+                    <td>The implementations of the API. Clients should avoid accessing these classes as these are meant to be internal</td>
+                </tr>
+                <tr>
+                    <td>apps</td>
+                    <td>Obevo utilities built off the deploy api besides the basic deploy. Should only rely on the api/model packages, and not impl</td>
+                </tr>
+            </table>
+
+            And you will also have the com.gs.obevo.db subpackage for the database platform, which will have the same pattern
+            of child packages, i.e. api, impl, apps
+        </section>
+        <section name="Key classes">
+            <table>
+                <tr><th>Class</th><th>Description</th></tr>
+                <tr>
+                    <td>com.gs.obevo.db.api.factory.DbEnvironmentFactory</td>
+                    <td>The main entrypoint; use this to access the systems that you've configured in your system configs and such.</td>
+                </tr>
+                <tr>
+                    <td>com.gs.obevo.db.api.appdata.DbEnvironment</td>
+                    <td>The model class representing an environment to connect to. DbEnvironmentFactory would return
+                        this
+                    </td>
+                </tr>
+                <tr>
+                    <td>com.gs.obevo.db.api.DbDeployerAppContext</td>
+                    <td>Context class to use to invoke deployments and that has references to the components that the Deployer uses and that you can access. e.g. methods for reading changes from source or the audit table</td>
+                </tr>
+            </table>
+        </section>
+        <section name="Retrieving dependencies from your artifact repository">
+            <p>Define the dependencies in your project prior to using them in your project</p>
+            <p>Maven Example 1 - Conventional way
+                <source><![CDATA[
+<dependency>
+    <groupId>com.goldmansachs.obevo</groupId>
+    <artifactId>obevo-db</artifactId>
+    <version>${project.version}</version>
+</dependency>
+<dependency>
+    <groupId>com.goldmansachs.obevo</groupId>
+    <artifactId>obevo-db-hsql</artifactId>  <!-- replace db-hsql w/ whatever platform you are trying to deploy to -->
+    <version>${project.version}</version>
+</dependency>
+]]></source>
+            </p>
+
+            <p>Maven Example 2 - Use the Obevo BOM to manage your dependency versions in one place (see the
+                <a href="https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html">Maven doc on BOMs</a>for more information)
+
+                <source><![CDATA[<!-- First define the BOM in your dependencyManagement section -->
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>com.goldmansachs.obevo</groupId>
+            <artifactId>obevo-db</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+
+<!-- Then define your dependencies in the modules that need them; no need to specify the version numbers here -->
+<dependencies>
+    <dependency>
+        <groupId>com.goldmansachs.obevo</groupId>
+        <artifactId>obevo-db</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.goldmansachs.obevo</groupId>
+        <artifactId>obevo-db-hsql</artifactId>  <!-- replace db-hsql w/ whatever platform you are trying to deploy to -->
+    </dependency>
+</dependencies>]]></source>
+            </p>
+        </section>
+        <section name="Example API Usage - DbEnvironmentFactory">
+
+            <p>DbEnvironmentFactory is the main API to read in your project configurations from the config file. Explore the API and the overloads for each method to see what other method options are available.
+
+            <source><![CDATA[
+// Read the environment from your file system
+DbEnvironment env = DbEnvironmentFactory.getInstance().readOneFromSourcePath("./src/test/resources/platforms/hsql");
+// Build the app context - you can pass in credentials via the API if needed
+DbDeployerAppContext context = env.buildAppContext("sa", "password");
+
+// Then invoke the deploy commands.
+context.cleanEnvironment();
+context.deploy();]]></source>
+            </p>
+        </section>
+        <section name="Example API Usage - Direct Creation of DbEnvironment">
+            Or if you don't want to use the configuration file, you can create the DbEnvironment object directly, and then
+            create the DbDeployerAppContext directly from there:
+
+            <source><![CDATA[DbEnvironment dbEnv = new DbEnvironment();
+dbEnv.setSourceDirs(Lists.mutable.with(FileRetrievalMode.FILE_SYSTEM.getFileObject("./src/test/resources/platforms/h2/step1")));
+dbEnv.setName("test");
+dbEnv.setDbPlatform(new H2DbPlatform());
+dbEnv.setSchemas(Lists.mutable.with(new Schema("SCHEMA1"), new Schema("SCHEMA2")));
+dbEnv.setDbServer("BLAH");
+
+dbEnv.setSchemaNameOverrides(UnifiedMap.newWithKeysValues("SCHEMA1", "bogusSchema"));
+dbEnv.setNullToken("(null)");
+dbEnv.setDataDelimiter('^');
+
+DbDeployerAppContext context = dbEnv.getAppContextBuilder()
+        .setCredential(new Credential("sa", ""))
+        .build();
+
+context.setupEnvInfra();
+context.cleanEnvironment();
+context.deploy();]]></source>
+        </section>
+    </body>
+</document>

@@ -1,0 +1,121 @@
+<!--
+
+    Copyright 2017 Goldman Sachs.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<dbSystemConfig type="com.gs.obevo.db.api.factory.DbEnvironmentXmlEnricherTest1DbPlatform"
+    autoReorgEnabled="false"
+    dataDelimiter="!"
+    nullToken="nulTok"
+    sourceDirs="DbEnvironmentXmlEnricher/extradir1,./src/test/resources/DbEnvironmentXmlEnricher/extradir2"
+    acceptedExtensions="overridenExt1,overridenExt2,overridenExt3"
+    >
+    <schemas>
+        <schema name="SCHEMA1">
+            <excludes>
+                <table>tab1</table>
+                <table>tab2</table>
+                <view>view1Pat</view>
+                <view>view2%Pat</view>
+                <sp>sp1</sp>
+                <sp>sp2</sp>
+                <sp>sp3</sp>
+                <sp>sp4</sp>
+            </excludes>
+            <duplicateIndexNames>true</duplicateIndexNames>
+        </schema>
+        <schema name="SCHEMA2" />
+        <schema name="SCHEMA3" />
+        <schema name="SCHEMA4_RO" readOnly="true" />
+    </schemas>
+    <groups>
+        <group name="grp1" />
+        <group name="grp2" />
+    </groups>
+    <users>
+        <user name="usr1" />
+        <user name="usr2" password="pass" admin="true" />
+    </users>
+    <environments>
+        <dbEnvironment name="test1" type="DEV" cleanBuildAllowed="true" dbHost="host" dbPort="123" dbServer="dbServ"
+            dbDataSourceName="dbSrc" dbSchemaPrefix="pref" dbSchemaSuffix="suff" defaultUserId="defId"
+            defaultPassword="defPass" persistToFile="true" disableAuditTracking="true" jdbcUrl="url"
+            defaultTablespace="defTab" checksumDetectionEnabled="true">
+            <includeSchemas>SCHEMA1,SCHEMA2</includeSchemas>
+            <schemaOverrides>
+                <schemaOverride schema="SCHEMA1" overrideValue="overriden_SCHEMA1" />
+            </schemaOverrides>
+            <tokens>
+                <token key="key" value="val" />
+                <token key="key2" value="val2" />
+                <token key="myProcGroupToken" value="detokenizedProcGroup" />
+            </tokens>
+            <auditTableSql>env specific
+
+            sql</auditTableSql>
+        </dbEnvironment>
+        <dbEnvironment name="test2" cleanBuildAllowed="false" type="UAT" invalidObjectCheckEnabled="false"
+            reorgCheckEnabled="false">
+            <excludeSchemas>SCHEMA1,SCHEMA2</excludeSchemas>
+            <schemaOverrides>
+                <schemaOverride schema="SCHEMA3" overrideValue="overriden_SCHEMA1" />
+            </schemaOverrides>
+            <permissions>
+                <permission scheme="VIEW">
+                    <grant groups="DACT_RW_BATCH1, DACT_RW_BATCH2, DACT_RW" users="CMDRRWDB"
+                        privileges="SELECT, INSERT, UPDATE, DELETE" />
+                </permission>
+            </permissions>
+        </dbEnvironment>
+        <dbEnvironment name="test3" type="DEV" cleanBuildAllowed="true" dbHost="myhost1.me.com"
+            dbPort="1234"
+            dbServer="MYSERVER1" dbSchemaSuffix="_MYSUFFIX"
+            autoReorgEnabled="true">
+            <!--
+            <tokens>
+                <token key="key" value="fdasf" />
+                <token key="key2" value="fdasf2" />
+            </tokens>
+             -->
+            <schemaOverrides>
+                <schemaOverride schema="SCHEMA4_RO" overrideValue="overriden_SCHEMA4_RO" />
+            </schemaOverrides>
+        </dbEnvironment>
+        <dbEnvironment name="test4" type="DEV" cleanBuildAllowed="true" dbHost="myhost1.me.com"
+            dbPort="1234"
+            dbServer="MYSERVER1" dbSchemaPrefix="MYPREFIX_"
+            autoReorgEnabled="true">
+        </dbEnvironment>
+    </environments>
+    <permissions>
+        <permission scheme="TABLE">
+            <grant groups="DACT_RO_BATCH1, DACT_RO_BATCH2, DACT_RO" users="CMDRRODB" privileges="SELECT" />
+            <grant groups="DACT_RW_BATCH1, DACT_RW_BATCH2, DACT_RW" users="CMDRRWDB"
+                privileges="SELECT, INSERT, UPDATE, DELETE, INDEX, REFERENCES" />
+        </permission>
+        <permission scheme="VIEW">
+            <grant groups="DACT_RW_BATCH1, DACT_RW_BATCH2, DACT_RW" users="CMDRRWDB"
+                privileges="SELECT, INSERT, UPDATE, DELETE" />
+        </permission>
+        <permission scheme="PROCEDURE">
+            <!-- with myProcGroupToken, verify that token replacement occurs. With myOtherGroupNoToken, verify that a
+            missing token still works fine and doesn't fail the system -->
+            <grant groups="DACT_RW_BATCH1, DACT_RW_BATCH2, ${myProcGroupToken}, ${myOtherGroupNoToken}"
+                privileges="EXECUTE" />
+        </permission>
+    </permissions>
+    <auditTableSql><![CDATA[global
+sql]]></auditTableSql>
+</dbSystemConfig>
