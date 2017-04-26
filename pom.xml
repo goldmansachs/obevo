@@ -373,6 +373,7 @@ To be filled in w/ proper values for Obevo
                     <excludes>
                         <!-- Standard project files to exclude -->
                         <exclude>**/.idea/**</exclude>
+                        <exclude>**/.travis.yml</exclude>
                         <exclude>**/BUILD.md</exclude>
                         <exclude>**/CHANGELOG.md</exclude>
                         <exclude>**/CONTRIBUTING.md</exclude>
