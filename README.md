@@ -1,4 +1,6 @@
 # Obevo
+[![Build Status](https://travis-ci.org/goldmansachs/obevo.svg?branch=master)](https://travis-ci.org/goldmansachs/obevo)
+
 [![][travis img]][travis]
 [![][maven img]][maven]
 [![][release img]][release]
