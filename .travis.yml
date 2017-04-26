@@ -13,4 +13,4 @@ matrix:
     - jdk: oraclejdk8
       env:
         - DESC="regularBuild"
-        - CMD="mvn clean install"
+        - CMD="mvn -T 1C clean install"
