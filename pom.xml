@@ -315,7 +315,7 @@ To be filled in w/ proper values for Obevo
                                     <version>1.6.0</version>
                                 </requireJavaVersion>
                                 <requireMavenVersion>
-                                    <version>3.3.3</version>
+                                    <version>3.2.5</version>
                                 </requireMavenVersion>
                             </rules>
                             <fail>true</fail>
@@ -373,6 +373,7 @@ To be filled in w/ proper values for Obevo
                     <excludes>
                         <!-- Standard project files to exclude -->
                         <exclude>**/.idea/**</exclude>
+                        <exclude>**/.travis.yml</exclude>
                         <exclude>**/BUILD.md</exclude>
                         <exclude>**/CHANGELOG.md</exclude>
                         <exclude>**/CONTRIBUTING.md</exclude>
