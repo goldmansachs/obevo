@@ -82,6 +82,8 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
         // Many of the DB metadata drivers like IQ/ASE/DB2 don't support the function metadata lookups and
         // schemacrawler complains (though the library still does the job). We set the log level here to avoid
         // excessive log messages
+        java.util.logging.Logger schemaCrawlerLogger = java.util.logging.Logger.getLogger("schemacrawler");
+        schemaCrawlerLogger.setLevel(Level.WARNING);
         java.util.logging.Logger javaUtilLogger = java.util.logging.Logger.getLogger("schemacrawler.crawl.RoutineRetriever");
         javaUtilLogger.setLevel(Level.SEVERE);
 
