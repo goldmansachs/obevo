@@ -2,7 +2,7 @@ language: java
 jdk: oraclejdk8
 
 before_install:
-  - export MAVEN_OPTS="-Dmaven.repo.local=$HOME/.m2/repository -Xmx2g -Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss:SSS"
+  - export MAVEN_OPTS="-Dmaven.repo.local=$HOME/.m2/repository -Djava.util.logging.config.file=build-logging.properties -Xmx2g -Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss:SSS"
 
 install:
   -
