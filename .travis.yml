@@ -2,7 +2,7 @@ language: java
 jdk: oraclejdk8
 
 before_install:
-  - export MAVEN_OPTS="-Dmaven.repo.local=$HOME/.m2/repository -Djava.util.logging.config.file=build-logging.properties -Xmx2g -Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss:SSS"
+  - export MAVEN_OPTS="-Dmaven.repo.local=$HOME/.m2/repository -Xmx2g -Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss:SSS"
 
 install:
   -
@@ -14,8 +14,3 @@ matrix:
       env:
         - DESC="regularBuild"
         - CMD="mvn clean install"
-#    - jdk: oraclejdk8
-#      env:
-#        - DESC="unit tests"
-#        - CMD="mvn install --batch-mode --show-version --errors"
-#        - SONAR_COMMAND="sonar:sonar -Dsonar.host.url=https://sonarqube.com -Dsonar.login=${SONARQUBE_TOKEN} -Dsonar.organization=eclipse-collections"
