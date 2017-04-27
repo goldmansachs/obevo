@@ -7,9 +7,12 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/target/generated-sources/plugin" isTestSource="false" generated="true" />
+      <excludeFolder url="file://$MODULE_DIR$/target/apidocs" />
       <excludeFolder url="file://$MODULE_DIR$/target/build-resources" />
       <excludeFolder url="file://$MODULE_DIR$/target/classes" />
       <excludeFolder url="file://$MODULE_DIR$/target/dependency-maven-plugin-markers" />
+      <excludeFolder url="file://$MODULE_DIR$/target/failsafe-reports" />
+      <excludeFolder url="file://$MODULE_DIR$/target/javadoc-bundle-options" />
       <excludeFolder url="file://$MODULE_DIR$/target/maven-archiver" />
       <excludeFolder url="file://$MODULE_DIR$/target/maven-shared-archive-resources" />
       <excludeFolder url="file://$MODULE_DIR$/target/test-classes" />
@@ -50,15 +53,15 @@
     <orderEntry type="library" name="Maven: commons-pool:commons-pool:1.5.4" level="project" />
     <orderEntry type="library" name="Maven: org.freemarker:freemarker:2.3.23" level="project" />
     <orderEntry type="module" module-name="obevo-dbmetadata-impl" scope="RUNTIME" />
-    <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler:14.15.02" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-hsqldb:14.15.02" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler:14.16.01-java7" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-hsqldb:14.16.01-java7" level="project" />
     <orderEntry type="library" name="Maven: org.hsqldb:hsqldb:2.3.2" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-sybaseiq:14.15.02" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-postgresql:14.15.02" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-oracle:14.15.02" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-sqlserver:14.15.02" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-sybaseiq:14.16.01-java7" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-postgresql:14.16.01-java7" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-oracle:14.16.01-java7" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-sqlserver:14.16.01-java7" level="project" />
     <orderEntry type="library" name="Maven: com.microsoft.sqlserver:mssql-jdbc:6.1.0.jre8" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-db2:14.15.02" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-db2:14.16.01-java7" level="project" />
     <orderEntry type="module" module-name="obevo-db-sybase-ase" />
     <orderEntry type="module" module-name="obevo-db-sybase-iq" />
     <orderEntry type="module" module-name="obevo-db-postgresql" />
