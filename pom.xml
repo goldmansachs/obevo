@@ -837,7 +837,7 @@
 
     <profiles>
         <profile>
-            <id>upload-to-maven-central</id>
+            <id>release</id>
             <build>
                 <plugins>
                     <plugin>
