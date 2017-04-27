@@ -8,5 +8,6 @@ install:
   -
 
 env:
-  - DESC="regularBuild"
-  - CMD="mvn -T 1C clean install"
+  regular:
+    - DESC="regularBuild"
+    - CMD="mvn -T 1C clean install"
