@@ -38,7 +38,7 @@ public interface TextDependencyExtractable {
 
     /**
      * The object's identity. The {@link TextDependencyExtractor} would use the names from the identities as the
-     * dependencies to try to extract from the text (see {@link this#getContentForDependencyCalculation()}.
+     * dependencies to try to extract from the text (see {@link #getContentForDependencyCalculation()}.
      */
     ObjectKey getObjectKey();
 

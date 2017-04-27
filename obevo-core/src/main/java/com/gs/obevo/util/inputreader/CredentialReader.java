@@ -21,12 +21,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Original author - Rob Mendelow
  * This is for reading in credentials in an agnostic manner
- * <p/>
+ *
  * The thing is that on Windows, the regular command line, Eclipse command line, and IntelliJ command line have
  * different quirks for reading information
- * <p/>
+ *
  * The most consistent way to read in windows is via a dialog box, so here we have this uniform entry point in code to
  * do so
  */

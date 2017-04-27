@@ -26,30 +26,6 @@ import java.util.concurrent.atomic.AtomicLong;
  * instances of immutable objects - Strings in particular and also zero value numerics.
  * The zero value in numeric data is very inputreader but other values will rarely coincide
  * so only zero is interned for these objects.
- * <p/>
- * Using this class across all cached business objects gave Hydra a 65% memory saving.
- * <p/>
- * This is a better implementation than the one provided by java.lang.String.intern()
- * <p/>
- * Cached entries in the internal map are held through WeakReferences so the cache entries are automatically garbage
- * collected when no external hard references to them remain in the application.
- * <p/>
- * Example: If you have a String s in your code that you wish to intern, do this:
- * <p/>
- * <p/>
- * <pre>
- *               String s;
- *               ...
- *               ...
- *               s = InternMap.instance().intern(s);
- * </pre>
- * <p/>
- * Relevant comments from java.lang.String.intern:
- * <p/>
- * Returns a canonical representation for the string object. A pool of strings, initially empty, is maintained privately
- * by the class String. When the intern method is invoked, if the pool already contains a string equal to this String
- * object as determined by the equals(Object) method, then the string from the pool is returned. Otherwise, this String
- * object is added to the pool and a reference to this String object is returned.
  */
 public final class InternMap {
     private static final int SEGMENTS = 64;               // Must be a power of 2. Represents likely concurrency.

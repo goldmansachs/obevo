@@ -21,7 +21,7 @@ import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.db.impl.platforms.AbstractSqlExecutor;
 
 /**
- * See <class>IqDataSource</class> javadoc for why this class is separate from the other SqlExecutor classes
+ * See {@link IqDataSource} javadoc for why this class is separate from the other SqlExecutor classes
  * For that same reason, we must mark this as non-transactional
  */
 public class IqSqlExecutor extends AbstractSqlExecutor {

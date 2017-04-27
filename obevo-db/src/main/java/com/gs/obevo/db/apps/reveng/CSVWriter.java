@@ -205,7 +205,7 @@ public class CSVWriter implements Closeable {
 
     /**
      * Writes the entire ResultSet to a CSV file.
-     * <p/>
+     *
      * The caller is responsible for closing the ResultSet.
      *
      * @param rs                 the recordset to write
@@ -401,8 +401,6 @@ public class CSVWriter implements Closeable {
 
     /**
      * Flush underlying stream to writer.
-     *
-     * @throws IOException if bad things happen
      */
     public void flush() {
 

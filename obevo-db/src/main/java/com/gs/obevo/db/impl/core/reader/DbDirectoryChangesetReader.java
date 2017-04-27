@@ -292,7 +292,7 @@ public class DbDirectoryChangesetReader implements DbChangeReader {
      * Originally, we required the db files to end in .changes.*, but we now want to have the convention of the stard
      * file name being the
      * file that you edit, much like the other ones
-     * <p/>
+     *
      * Originally, we wanted to regular name to be for the baseline, but given this is not yet implemented and won't
      * drive the changes, this was a wrong idea from the start. Eventually, we will have the baseline files in
      * .baseline.*

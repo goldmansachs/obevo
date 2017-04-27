@@ -19,9 +19,9 @@ import com.gs.obevo.api.platform.ChangeCommand;
 import org.eclipse.collections.api.block.predicate.Predicate;
 
 /**
- * A command that indicates a warning or exception from the given {@link this#getChanges()}.
+ * A command that indicates a warning or exception from the given {@link #getChanges()}.
  *
- * The {@link this#getCommandDescription()} would be used to describe the problem.
+ * The {@link #getCommandDescription()} would be used to describe the problem.
  */
 public interface ChangeCommandWarning extends ChangeCommand {
     Predicate<ChangeCommandWarning> IS_FATAL = new Predicate<ChangeCommandWarning>() {

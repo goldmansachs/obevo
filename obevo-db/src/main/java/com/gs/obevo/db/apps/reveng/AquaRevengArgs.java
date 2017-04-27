@@ -46,7 +46,7 @@ public class AquaRevengArgs {
     private boolean preprocessSchemaTokens = true;
 
     /**
-     * @deprecated Use {@link this#getInputPath()}
+     * @deprecated Use {@link #getInputPath()}
      */
     @Deprecated
     public File getInputDir() {
@@ -54,7 +54,7 @@ public class AquaRevengArgs {
     }
 
     /**
-     * @deprecated Use {@link this#setInputPath(File)}
+     * @deprecated Use {@link #setInputPath(File)}
      */
     @Deprecated
     @Argument(value = "inputDir", required = false)
@@ -81,7 +81,7 @@ public class AquaRevengArgs {
     }
 
     /**
-     * @deprecated Use {@link this#getOutputPath()}
+     * @deprecated Use {@link #getOutputPath()}
      */
     @Deprecated
     public File getOutputDir() {
@@ -89,7 +89,7 @@ public class AquaRevengArgs {
     }
 
     /**
-     * @deprecated Use {@link this#setOutputPath(File)}
+     * @deprecated Use {@link #setOutputPath(File)}
      */
     @Deprecated
     @Argument(value = "outputDir", required = false)

@@ -186,7 +186,7 @@ public class UnitTestDbBuilder {
     }
 
     /**
-     * (optional) credential defaults to username==sa and password==<blank>, per the default convention of h2/hsql
+     * (optional) credential defaults to username==sa and password==&lt;blank&gt;, per the default convention of h2/hsql
      * @param credential
      */
     public UnitTestDbBuilder setCredential(Credential credential) {

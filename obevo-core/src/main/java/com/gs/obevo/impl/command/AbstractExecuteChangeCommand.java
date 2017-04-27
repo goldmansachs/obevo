@@ -35,7 +35,7 @@ public abstract class AbstractExecuteChangeCommand extends AuditOnlyChangeComman
     }
 
     /**
-     * See {@link this#isDrop()}.
+     * See {@link #isDrop()}.
      */
     @Override
     public final ExecuteChangeCommand withDrop(boolean drop) {

@@ -564,7 +564,7 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
     }
 
     /**
-     * @see this#getChangeset()
+     * @see #getChangeset()
      */
     public void setChangeset(String changeset) {
         this.changeset = changeset;
