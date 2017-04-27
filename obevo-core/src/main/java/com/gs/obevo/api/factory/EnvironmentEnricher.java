@@ -24,7 +24,7 @@ public interface EnvironmentEnricher<T extends Environment> {
      * Reads the environment that is found in the configurations inside sourcePath
      * This would be called when the provided folder is already tokenized and only one environment is expected
      * In this case, no environment is passed in via command line
-     * <p/>
+     *
      * An error will be thrown
      */
     DeploySystem<T> readSystem(FileObject sourcePath);

@@ -162,7 +162,6 @@ public class Db2SqlExecutor extends AbstractSqlExecutor {
      * http://publib.boulder.ibm.com/infocenter/db2luw/v8/index.jsp?topic=/com.ibm.db2.udb.doc/ad/tjvjcerr.htm
      *
      * @param exception An instance of SQL Exception
-     *                  <p/>
      *                  TODO handle the hardcoding of these errorCodes a little bit better
      * @return The table name from SQL Exception
      */

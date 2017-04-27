@@ -26,17 +26,17 @@ public class ChangeIncremental extends Change {
     private String rollbackIfAlreadyDeployedContent;
     private transient boolean rollbackActivated = false;
     /**
-     * The {@link this#drop}, {@link this#keepIncrementalOrder}, and {@link this#manuallyCodedDrop} fields are related
+     * The {@link #drop}, {@link #keepIncrementalOrder}, and {@link #manuallyCodedDrop} fields are related
      * to help determine the deployment order, specifically around whether drops should be done in the reverse normal
      * order or if they should be executed in the explicit order they were coded in.
      */
     private boolean drop;
     /**
-     * See javadoc in {@link this#drop}.
+     * See javadoc in {@link #drop}.
      */
     private transient boolean keepIncrementalOrder;
     /**
-     * See javadoc in {@link this#drop}.
+     * See javadoc in {@link #drop}.
      */
     private transient boolean manuallyCodedDrop;
     private MutableCollection<String> baselinedChanges;

@@ -23,8 +23,7 @@ import javax.swing.*;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Original Author: Rob Mendelow
- * Main user is <class>CredentialReader</class>
+ * Main user is {@link CredentialReader}.
  */
 public class DialogInputReader implements UserInputReader {
     @Override

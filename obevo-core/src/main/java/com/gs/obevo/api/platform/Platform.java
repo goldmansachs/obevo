@@ -51,7 +51,7 @@ public interface Platform {
 
     /**
      * Checks if the platform has a ChangeType of the given name already registered. Should only be used in exceptional
-     * cases - usually, we want to be able to rely on {@link this#getChangeType(String)}.
+     * cases - usually, we want to be able to rely on {@link #getChangeType(String)}.
      */
     boolean hasChangeType(String name);
 

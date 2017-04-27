@@ -142,7 +142,7 @@ public class Environment<T extends Platform> {
     /**
      * The main source path that was used to invoke this environment deployment. Used in case the paths are read in via
      * configuration and need to be resolved by some other executor.
-     * Most other clients should just stick w/ {@link this#setSourceDirs(RichIterable)}.
+     * Most other clients should just stick w/ {@link #setSourceDirs(RichIterable)}.
      */
     public void setCoreSourcePath(FileObject coreSourcePath) {
         this.coreSourcePath = coreSourcePath;
@@ -154,7 +154,7 @@ public class Environment<T extends Platform> {
 
     /**
      * Paths specified in a config file. Used in case the paths need to be resolved by some other executor.
-     * Most other clients should just stick w/ {@link this#setSourceDirs(RichIterable)}.
+     * Most other clients should just stick w/ {@link #setSourceDirs(RichIterable)}.
      */
     public void setAdditionalSourceDirs(ListIterable<String> additionalSourceDirs) {
         this.additionalSourceDirs = additionalSourceDirs;

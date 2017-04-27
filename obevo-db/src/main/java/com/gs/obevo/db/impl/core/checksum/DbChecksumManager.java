@@ -39,7 +39,7 @@ public interface DbChecksumManager {
     /**
      * Calculates the checksum differences and then applies the changes to the target DB.
      *
-     * @param checksumEntryInclusionPredicate See the description in {@link this#determineChecksumDifferences(Predicate)}
+     * @param checksumEntryInclusionPredicate See the description in {@link #determineChecksumDifferences(Predicate)}
      */
     void applyChecksumDiffs(Predicate<? super ChecksumEntry> checksumEntryInclusionPredicate);
 

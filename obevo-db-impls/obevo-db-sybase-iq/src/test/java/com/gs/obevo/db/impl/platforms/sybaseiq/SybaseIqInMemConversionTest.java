@@ -22,7 +22,7 @@ import org.junit.Test;
 
 /**
  * Smoke test to ensure that the Sybase IQ configurations work fine
- * <p/>
+ *
  * Very few tables here, just want an end-to-end run
  */
 public class SybaseIqInMemConversionTest {

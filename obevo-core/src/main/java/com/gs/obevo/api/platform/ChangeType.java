@@ -48,7 +48,7 @@ public interface ChangeType {
     /**
      * DB trigger objects. This is the old incrementable change type
      *
-     * @deprecated Move to the new rerunnable trigger ChangeType {@link this#TRIGGER_STR}
+     * @deprecated Move to the new rerunnable trigger ChangeType {@link #TRIGGER_STR}
      */
     @Deprecated
     String TRIGGER_INCREMENTAL_OLD_STR = "TRIGGER";  // need to keep the old name for backwards-compatibility
@@ -107,13 +107,13 @@ public interface ChangeType {
 
     /**
      * The recommended directory name for clients to store code of this type in. Should generally correspond to
-     * {@link this#getName()}.
+     * {@link #getName()}.
      */
     String getDirectoryName();
 
     /**
      * The legacy directory name that is checked for this change type. This is used as a fallback to the regular
-     * {@link this#getDirectoryName()}.
+     * {@link #getDirectoryName()}.
      * @deprecated Would like to wean folks off of this
      */
     @Deprecated

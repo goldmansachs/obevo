@@ -51,3 +51,16 @@ Documentation is available [online] (https://goldmansachs.github.io/obevo/)
 
 * [Versions] (https://github.com/goldmansachs/obevo/releases)
 * [Maven Central] (http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.goldmansachs.obevo%22)
+
+
+[travis]:https://travis-ci.org/goldmansachs/obevo
+[travis img]:https://travis-ci.org/goldmansachs/obevo.svg?branch=master
+
+[license-apache]:LICENSE.txt
+[license-apache img]:https://img.shields.io/badge/License-Apache%202-blue.svg
+
+[maven]:http://search.maven.org/#search|gav|1|g:"com.goldmansachs.obevo"%20AND%20a:"obevo"
+[maven img]:https://maven-badges.herokuapp.com/maven-central/com.goldmansachs.obevo/obevo/badge.svg
+
+[release]:https://github.com/goldmansachs/obevo/releases
+[release img]:https://img.shields.io/github/release/goldmansachs/obevo.svg

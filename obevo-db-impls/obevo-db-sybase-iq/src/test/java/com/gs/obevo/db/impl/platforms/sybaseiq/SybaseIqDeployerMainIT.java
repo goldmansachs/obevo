@@ -27,7 +27,7 @@ import org.junit.runners.Parameterized;
 
 /**
  * Smoke test to ensure that the Sybase IQ configurations work fine
- * <p/>
+ *
  * Very few tables here, just want an end-to-end run
  */
 @RunWith(Parameterized.class)

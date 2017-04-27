@@ -168,7 +168,7 @@ public class DbEnvironment extends Environment<DbPlatform> {
     }
 
     /**
-     * @Deprecated use {@link this#getPlatform()}
+     * @deprecated use {@link #getPlatform()}
      */
     @Deprecated
     public DbPlatform getDbPlatform() {
@@ -176,7 +176,7 @@ public class DbEnvironment extends Environment<DbPlatform> {
     }
 
     /**
-     * @Deprecated use {@link this#setPlatform(Platform)}
+     * @deprecated use {@link #setPlatform(Platform)}
      */
     @Deprecated
     public void setDbPlatform(DbPlatform dbPlatform) {
@@ -268,8 +268,8 @@ public class DbEnvironment extends Environment<DbPlatform> {
     /**
      * Sets the default driver class to use.
      *
-     * @see this#setDriverClassName(String)
-     * @deprecated Use {@link this#setDriverClassName(String)} instead. Will retire in next version.
+     * @see #setDriverClassName(String)
+     * @deprecated Use {@link #setDriverClassName(String)} instead. Will retire in next version.
      */
     @Deprecated
     public void setDriverClass(Class<? extends Driver> driverClass) {
@@ -372,7 +372,7 @@ public class DbEnvironment extends Environment<DbPlatform> {
     }
 
     /**
-     * @see {@link this#getAuditTableSql()}
+     * @see #getAuditTableSql()
      */
     public void setAuditTableSql(String auditTableSql) {
         this.auditTableSql = auditTableSql;
