@@ -1,10 +1,8 @@
 # Obevo
 [![Build Status](https://travis-ci.org/goldmansachs/obevo.svg?branch=master)](https://travis-ci.org/goldmansachs/obevo)
-
-[![][travis img]][travis]
-[![][maven img]][maven]
-[![][release img]][release]
-[![][license-apache img]][license-apache]
+[![][maven img]][http://search.maven.org/#search|gav|1|g:"com.goldmansachs.obevo"%20AND%20a:"obevo"]
+[![][https://img.shields.io/github/release/goldmansachs/obevo.svg]][https://github.com/goldmansachs/obevo/releases]
+[![][https://img.shields.io/badge/License-Apache%202-blue.svg]][LICENSE.txt]
 
 
 ## What is it? 
