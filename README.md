@@ -4,6 +4,7 @@
 [![][release img]][release]
 [![][license-apache img]][license-apache]
 
+[![Build Status](https://travis-ci.org/goldmansachs/obevo.svg?branch=master)](https://travis-ci.org/goldmansachs/obevo)
 
 ## What is it? 
 Obevo is a database deployment tool that handles enterprise scale and complexity:
