@@ -11,6 +11,16 @@ Or looking to improve the DB Deployment of a years-old system with hundreds (or 
 Obevo has your use case covered
 
 
+## Quick Links
+
+* [Documentation](https://goldmansachs.github.io/obevo/)
+* [Java API](https://goldmansachs.github.io/obevo/java-api.html)
+* [Command Line API](https://goldmansachs.github.io/obevo/command-line-api.html)
+* [Maven](https://goldmansachs.github.io/obevo/maven-api.html)
+* [Gradle](https://goldmansachs.github.io/obevo/gradle-api.html)
+* [Sample Project To Get Started](https://github.com/goldmansachs/obevo-kata)
+
+
 ### Organized maintenance of all your DB-object files
 
 Write 1 file per DB object in your source code to make
@@ -62,21 +72,6 @@ Treat your DB code like you would treat your application code!
 Obevo currently supports DB2, Sybase ASE, Sybase IQ, PostgreSQL, MS SQL Server, Oracle, HSQLDB, and H2
 
 It has special handling for DBMS, such as reorgs for DB2 and handling transaction log checks for Sybase ASE
-
-
-## Sample Project
-To help getting started with Obevo, a simple project is available with maven and gradle build set-up.
-
-https://github.com/goldmansachs/obevo-kata
-
-
-## Quick Links
-
-* [Documentation](https://goldmansachs.github.io/obevo/)
-* [Java API](https://goldmansachs.github.io/obevo/java-api.html)
-* [Command Line API](https://goldmansachs.github.io/obevo/command-line-api.html)
-* [Maven](https://goldmansachs.github.io/obevo/maven-api.html)
-* [Gradle](https://goldmansachs.github.io/obevo/gradle-api.html)
 
 
 ## Acquiring Obevo
