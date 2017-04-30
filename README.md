@@ -11,7 +11,7 @@ Or looking to improve the DB Deployment of a years-old system with hundreds (or 
 Obevo has your use case covered
 
 
-#### Organized maintenance of all your DB-object files
+### Organized maintenance of all your DB-object files
 
 Write 1 file per DB object in your source code to make
 By allowing your DB files to be maintained per DB object (as you would with classes in application code), db file maintenance
@@ -26,7 +26,7 @@ becomes much easier compared to DB Deployment tools that require a new file or c
 ![1 file per object structure](obevo-site/src/site/resources/images/db-kata-file-setup.jpg)
 
 
-#### In-memory and integration testing
+### In-memory and integration testing
 
 How do you test your DDLs before deploying to production?
 
@@ -38,13 +38,13 @@ that you can use in your tests. The conversion is done at runtime, so you do not
 just for in-memory testing
 
 
-#### Easy onboarding of existing systems
+### Easy onboarding of existing systems
 
 Hesitant about getting your existing database schema under SDLC control due to how objects your application has built up
 over the years? Obevo has been vetted against many such cases from applications in large enterprises.
 
 
-#### Versatile to run
+### Versatile to run
 
 Obevo can be invoked via:
 * [Java API](https://goldmansachs.github.io/obevo/java-api.html)
@@ -57,7 +57,7 @@ Obevo is designed to allow your DB code to be packaged and deployed alongside yo
 Treat your DB code like you would treat your application code!
 
 
-#### DBMS-specific features
+### DBMS-specific features
 
 Obevo currently supports DB2, Sybase ASE, Sybase IQ, PostgreSQL, MS SQL Server, Oracle, HSQLDB, and H2
 
