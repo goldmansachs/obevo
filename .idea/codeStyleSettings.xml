@@ -40,6 +40,9 @@
         <JavaCodeStyleSettings>
           <option name="CLASS_NAMES_IN_JAVADOC" value="3" />
         </JavaCodeStyleSettings>
+        <MarkdownNavigatorCodeStyleSettings>
+          <option name="RIGHT_MARGIN" value="-1" />
+        </MarkdownNavigatorCodeStyleSettings>
         <XML>
           <option name="XML_TEXT_WRAP" value="0" />
           <option name="XML_ALIGN_ATTRIBUTES" value="false" />

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/obevo-bom/obevo-bom.iml" filepath="$PROJECT_DIR$/obevo-bom/obevo-bom.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-dists/obevo-cli/obevo-cli.iml" filepath="$PROJECT_DIR$/obevo-dists/obevo-cli/obevo-cli.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-core/obevo-core.iml" filepath="$PROJECT_DIR$/obevo-core/obevo-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-db/obevo-db.iml" filepath="$PROJECT_DIR$/obevo-db/obevo-db.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-dists/obevo-db-client-alldbs/obevo-db-client-alldbs.iml" filepath="$PROJECT_DIR$/obevo-dists/obevo-db-client-alldbs/obevo-db-client-alldbs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-db2/obevo-db-db2.iml" filepath="$PROJECT_DIR$/obevo-db-impls/obevo-db-db2/obevo-db-db2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-h2/obevo-db-h2.iml" filepath="$PROJECT_DIR$/obevo-db-impls/obevo-db-h2/obevo-db-h2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-hsql/obevo-db-hsql.iml" filepath="$PROJECT_DIR$/obevo-db-impls/obevo-db-hsql/obevo-db-hsql.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-impls.iml" filepath="$PROJECT_DIR$/obevo-db-impls/obevo-db-impls.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-internal-test-helper/obevo-db-internal-test-helper.iml" filepath="$PROJECT_DIR$/obevo-db-impls/obevo-db-internal-test-helper/obevo-db-internal-test-helper.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-mssql/obevo-db-mssql.iml" filepath="$PROJECT_DIR$/obevo-db-impls/obevo-db-mssql/obevo-db-mssql.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-oracle/obevo-db-oracle.iml" filepath="$PROJECT_DIR$/obevo-db-impls/obevo-db-oracle/obevo-db-oracle.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-postgresql/obevo-db-postgresql.iml" filepath="$PROJECT_DIR$/obevo-db-impls/obevo-db-postgresql/obevo-db-postgresql.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-scenario-tests/obevo-db-scenario-tests.iml" filepath="$PROJECT_DIR$/obevo-db-impls/obevo-db-scenario-tests/obevo-db-scenario-tests.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-sybase-ase/obevo-db-sybase-ase.iml" filepath="$PROJECT_DIR$/obevo-db-impls/obevo-db-sybase-ase/obevo-db-sybase-ase.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-sybase-iq/obevo-db-sybase-iq.iml" filepath="$PROJECT_DIR$/obevo-db-impls/obevo-db-sybase-iq/obevo-db-sybase-iq.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-utils/obevo-db-unittest-util/obevo-db-unittest-util.iml" filepath="$PROJECT_DIR$/obevo-utils/obevo-db-unittest-util/obevo-db-unittest-util.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-dbmetadata-impl/obevo-dbmetadata-impl.iml" filepath="$PROJECT_DIR$/obevo-dbmetadata-impl/obevo-dbmetadata-impl.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-dists/obevo-dists.iml" filepath="$PROJECT_DIR$/obevo-dists/obevo-dists.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-internal-comparer/obevo-internal-comparer.iml" filepath="$PROJECT_DIR$/obevo-internal-comparer/obevo-internal-comparer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-internal-test-client-01/obevo-internal-test-client-01.iml" filepath="$PROJECT_DIR$/obevo-internal-test-client-01/obevo-internal-test-client-01.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-internal-test-client-02/obevo-internal-test-client-02.iml" filepath="$PROJECT_DIR$/obevo-internal-test-client-02/obevo-internal-test-client-02.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-dists/obevo-maven-plugin/obevo-maven-plugin.iml" filepath="$PROJECT_DIR$/obevo-dists/obevo-maven-plugin/obevo-maven-plugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-parent.iml" filepath="$PROJECT_DIR$/obevo-parent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-utils/obevo-reladomo-util/obevo-reladomo-util.iml" filepath="$PROJECT_DIR$/obevo-utils/obevo-reladomo-util/obevo-reladomo-util.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-site/obevo-site.iml" filepath="$PROJECT_DIR$/obevo-site/obevo-site.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-utils/obevo-utils.iml" filepath="$PROJECT_DIR$/obevo-utils/obevo-utils.iml" />
+    </modules>
+  </component>
+</project>
