@@ -1,4 +1,4 @@
-# Obevo -
+# Obevo
 
 [![Build Status abc](https://travis-ci.org/goldmansachs/obevo.svg?branch=master)](https://travis-ci.org/goldmansachs/obevo) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.goldmansachs.obevo/obevo-parent/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.goldmansachs.obevo/obevo-parent) [![Releases](https://img.shields.io/github/release/goldmansachs/obevo.svg)](https://github.com/goldmansachs/obevo/releases) [![Apache License](https://img.shields.io/badge/License-Apache%202-blue.svg)](LICENSE.txt)
 
