@@ -21,9 +21,10 @@ Obevo has your use case covered
 * [Sample Project To Get Started](https://github.com/goldmansachs/obevo-kata)
 
 
-### Organized maintenance of all your DB-object files
+## Why Use Obevo?
 
-Write 1 file per DB object in your source code to make
+### Organized maintenance of all your DB object files to handle all use cases
+
 By allowing your DB files to be maintained per DB object (as you would with classes in application code), db file maintenance
 becomes much easier compared to DB Deployment tools that require a new file or change definition per migration:
 
