@@ -4,7 +4,8 @@
 [![][release img]][release]
 [![][license-apache img]][license-apache]
 
-[![Build Status](https://travis-ci.org/goldmansachs/obevo.svg?branch=master)](https://travis-ci.org/goldmansachs/obevo)
+[![Build Status abc](https://travis-ci.org/goldmansachs/obevo.svg?branch=master)](https://travis-ci.org/goldmansachs/obevo)
+[![](https://maven-badges.herokuapp.com/maven-central/com.goldmansachs.obevo/obevo/badge.svg)](http://search.maven.org/#search|gav|1|g:"com.goldmansachs.obevo"%20AND%20a:"obevo-parent")
 
 ## What is it? 
 Obevo is a database deployment tool that handles enterprise scale and complexity:
@@ -60,7 +61,7 @@ Documentation is available [online] (https://goldmansachs.github.io/obevo/)
 [license-apache]:LICENSE.txt
 [license-apache img]:https://img.shields.io/badge/License-Apache%202-blue.svg
 
-[maven]:http://search.maven.org/#search|gav|1|g:"com.goldmansachs.obevo"%20AND%20a:"obevo"
+[maven]:http://search.maven.org/#search|gav|1|g:"com.goldmansachs.obevo"%20AND%20a:"obevo-parent"
 [maven img]:https://maven-badges.herokuapp.com/maven-central/com.goldmansachs.obevo/obevo/badge.svg
 
 [release]:https://github.com/goldmansachs/obevo/releases
