@@ -11,3 +11,12 @@ env:
   regular:
     - DESC="regularBuild"
     - CMD="mvn -T 1C clean install"
+
+deploy:
+  provider: releases
+  api_key:
+    secure: "gMBwI1goZEZrGTZrv2+9ifnfnfUZ5dw3YPF13VqhsIOHjvlcDS09S2/tH/LQdS+TNFBQGdOryO8GisHw/d1+L4wnDJ7G3EwozEXGqyvgscXKiMhltu43kuOxX+KPT5yzMTVPDuZ3zj/2jbtTOCc+vJN0KqYOoNQG7XtjocvYdMeQOSPf7D3ButgB2MoZ8h0gB7JM8C0kZ5qp2SPSa5FY0JxjeTlPIQZ21k1L/T9FkQ9EZNNtUnHvakxtJntmOSpG5UL542wOT0if2H+hPDP7duu87GUKkNB6VmYM78mCeGEBciysF8uTInqknPvAnMcvpioW0Mndvax/397XKUaNWmGEWhDYF/eIq5c+DyhsEL5fiTwoleSeVSUHvzvjwW9nrXmXJ0cJBXrFbVjWOoslOOWLKu6h82jH9YsZTvv5iIMaVsGDupPTsdKcJzkIR3YxvqoLrU3HvdU3BEzJ6jJoxmCMne5znOBizd66WQnJlJr9nEC7P6c/Ax+QEto+1DMfGw7pJwqudWMcIUUETCR/UlZF9JF2TS6AX7VAAR3G3+7LK69mzDKnh3h8M1WBJpd2uxKtwvvvRuBXUl2BxT8+RncuWfHAwp4mg8qg5ZTku2E2hU8LKlE7jfO8HdsFpQsTpN7mcXb38FRiav11mP26G5SkQhf8Ub0gJQTzjWhx/aE="
+  file: 'obevo-dists/obevo-cli/target/obevo-cli-$TRAVIS_TAG-dist.zip'
+  skip_cleanup: true
+  on:
+    tags
