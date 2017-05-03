@@ -36,7 +36,7 @@
                         </goals>
                         <id>make-app-assembly</id>
                         <configuration>
-                            <attach>true</attach>
+                            <attach>false</attach>
                             <descriptors>
                                 <descriptor>src/main/assembly/dist.xml</descriptor>
                             </descriptors>
