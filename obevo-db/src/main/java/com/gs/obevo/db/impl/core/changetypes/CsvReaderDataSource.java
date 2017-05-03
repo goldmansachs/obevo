@@ -15,33 +15,28 @@
  */
 package com.gs.obevo.db.impl.core.changetypes;
 
+import java.io.Reader;
+import java.util.List;
+
 import com.gs.obevo.api.platform.DeployerRuntimeException;
 import com.gs.obevocomparer.data.CatoDataObject;
 import com.gs.obevocomparer.input.AbstractCatoDataSource;
 import com.gs.obevocomparer.input.CatoTypeConverter;
-import org.apache.commons.collections.IteratorUtils;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.factory.Lists;
-import org.eclipse.collections.impl.list.mutable.ListAdapter;
-
-import java.io.Reader;
-import java.util.Iterator;
-import java.util.List;
+import org.eclipse.collections.impl.list.fixed.ArrayAdapter;
 
 public class CsvReaderDataSource extends AbstractCatoDataSource {
     private final Reader reader;
     private final char delim;
     private final Function<String, String> convertDbObjectName;
     private final String nullToken;
+/*
     private CSVParser csvreader;
     private Iterator<CSVRecord> iterator;
-/*
-    private au.com.bytecode.opencsv.CSVReader csvreader;
 */
+    private au.com.bytecode.opencsv.CSVReader csvreader;
     private MutableList<String> fields;
     private boolean initialized = false;
 
@@ -58,17 +53,17 @@ public class CsvReaderDataSource extends AbstractCatoDataSource {
      */
     public void init() {
         if (!this.initialized) {
-            CSVFormat csvFormat = CSVFormat.newFormat(delim).withIgnoreSurroundingSpaces(true).withQuote('"').withEscape('\\').withNullString(nullToken);
 
 
             try {
+/*
+            CSVFormat csvFormat = CSVFormat.newFormat(delim).withIgnoreSurroundingSpaces(true).withQuote('"').withEscape('\\').withNullString(nullToken);
                 this.csvreader = new CSVParser(reader, csvFormat);
                 this.iterator = csvreader.iterator();
                 MutableList<String> fields = ListAdapter.adapt(IteratorUtils.toList(iterator.next().iterator()));
-/*
+*/
                 this.csvreader = new au.com.bytecode.opencsv.CSVReader(this.reader, this.delim);
                 MutableList<String> fields = ArrayAdapter.adapt(this.csvreader.readNext());
-*/
                 this.fields = fields.collect(this.convertDbObjectName);
             } catch (Exception e) {
                 throw new DeployerRuntimeException(e);
@@ -93,6 +88,7 @@ public class CsvReaderDataSource extends AbstractCatoDataSource {
 
     @Override
     protected CatoDataObject nextDataObject() throws Exception {
+/*
         if (!this.iterator.hasNext()) {
             return null;
         }
@@ -105,7 +101,12 @@ public class CsvReaderDataSource extends AbstractCatoDataSource {
                     + this.fields.size() + " columns, but the row was: " + Lists.mutable.with(data));
         }
 
-/*
+        CatoDataObject dataObject = this.createDataObject();
+        for (int i = 0; i < data.size(); i++) {
+            dataObject.setValue(this.fields.get(i), data.get(i));
+        }
+*/
+
         String[] data = this.csvreader.readNext();
 
         if (data == null || data.length == 0 || (data.length == 1 && data[0].isEmpty())) {
@@ -118,12 +119,6 @@ public class CsvReaderDataSource extends AbstractCatoDataSource {
         CatoDataObject dataObject = this.createDataObject();
         for (int i = 0; i < data.length; i++) {
             dataObject.setValue(this.fields.get(i), data[i]);
-        }
-*/
-
-        CatoDataObject dataObject = this.createDataObject();
-        for (int i = 0; i < data.size(); i++) {
-            dataObject.setValue(this.fields.get(i), data.get(i));
         }
 
         return dataObject;

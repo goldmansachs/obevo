@@ -29,10 +29,12 @@ import org.eclipse.collections.impl.block.factory.StringFunctions;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.utility.internal.IteratorIterate;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
+@Ignore("Ignoring temporarily until we bring back the CSV logic")
 public class CsvReaderDataSourceTest {
     @Test
     public void testCsvDataSource() throws Exception {
@@ -105,9 +107,6 @@ public class CsvReaderDataSourceTest {
         verifyCsv("field1,field2,field3\n" +
                         "b1,\"b\\\",b3",
                 Lists.mutable.<String>of("field1"),
-/*
-                Maps.mutable.of("field1", "a\\1", "field2", "a2", "field3", "a\"3"),
-*/
                 Maps.mutable.of("field1", "b1", "field2", "b\\2", "field3", "b3")
         );
     }
