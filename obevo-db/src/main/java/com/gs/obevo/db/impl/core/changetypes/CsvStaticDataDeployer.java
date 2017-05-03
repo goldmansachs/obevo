@@ -15,19 +15,14 @@
  */
 package com.gs.obevo.db.impl.core.changetypes;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 import javax.sql.DataSource;
 
-import au.com.bytecode.opencsv.CSVReader;
 import com.gs.obevocomparer.compare.CatoComparison;
 import com.gs.obevocomparer.compare.CatoProperties;
 import com.gs.obevocomparer.compare.breaks.Break;
@@ -54,7 +49,6 @@ import com.gs.obevo.dbmetadata.api.DaNamedObject;
 import com.gs.obevo.dbmetadata.api.DaSchemaInfoLevel;
 import com.gs.obevo.dbmetadata.api.DaTable;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
-import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.lang3.Validate;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.function.Function;
@@ -162,9 +156,8 @@ public class CsvStaticDataDeployer {
                 ),
                 "Could not find table %1$s.%2$s", artifact.getPhysicalSchema(), artifact.getObjectName());
 
-        CsvReaderDataSource fileSource = this.getFileDataSource(table, artifact.getConvertedContent(),
-                env.getDataDelimiter(), env.getNullToken());
-        fileSource.init();  // initialize so that we can discover the fields in the file
+        CsvReaderDataSource fileSource = new CsvStaticDataReader().getFileDataSource(table, artifact.getConvertedContent(),
+                env.getDataDelimiter(), env.getNullToken(), dbPlatform.convertDbObjectName());
 
         // we check this here to ensure that in case there are more fields in the DB than in the csv file
         // (i.e. for default columns), that we exclude them later on
@@ -220,7 +213,7 @@ public class CsvStaticDataDeployer {
     }
 
     private StaticDataChangeRows parseReconChanges(Change artifact, DaTable table,
-            CsvReaderDataSource fileSource,
+            CatoDataSource fileSource,
             CatoProperties reconFields, final MutableSet<String> fileColumnNames, String updateTimeColumn) {
         CatoDataSource dbSource = this.getQueryDataSource(artifact.getPhysicalSchema(), table);
 
@@ -430,35 +423,6 @@ public class CsvStaticDataDeployer {
         }
     }
 
-    private CsvReaderDataSource getFileDataSource(DaTable table, String content, char dataDelimiter, String nullToken) {
-        CsvReaderDataSource fileSource = new CsvReaderDataSource("fileSource", new StringReader(content),
-                dataDelimiter, this.dbPlatform.convertDbObjectName());
-        ConvertUtilsBean cub = new ConvertUtilsBean();
-        for (DaColumn col : table.getColumns()) {
-            Class targetClassName;
-
-            // This is to handle cases in Sybase ASE where a column comes back in quotes, e.g. "Date"
-            // This happens if the column name happens to be a keyword, e.g. for Date
-            String columnName = col.getName();
-            if (columnName.startsWith("\"") && columnName.endsWith("\"")) {
-                columnName = columnName.substring(1, columnName.length() - 1);
-            }
-            try {
-                // this is to handle "tinyint"
-                if (col.getColumnDataType().getTypeClassName().equalsIgnoreCase("byte")) {
-                    targetClassName = Integer.class;
-                } else {
-                    targetClassName = Class.forName(col.getColumnDataType().getTypeClassName());
-                }
-            } catch (ClassNotFoundException e) {
-                throw new DeployerRuntimeException(e);
-            }
-            fileSource.addDerivedField(new MyDerivedField(this.dbPlatform.convertDbObjectName().valueOf(columnName),
-                    targetClassName, cub, nullToken));
-        }
-        return fileSource;
-    }
-
     private DaIndex getUniqueKey(DaTable table) {
         if (table.getPrimaryKey() == null) {
             for (DaIndex index : table.getIndices()) {
@@ -471,120 +435,5 @@ public class CsvStaticDataDeployer {
         }
         return null;
 
-    }
-
-    private static class MyDerivedField implements CatoDerivedField {
-        private final String field;
-        private final ConvertUtilsBean cub;
-        private final Class targetClass;
-        private final String nullToken;
-
-        public MyDerivedField(String field, Class targetClass, ConvertUtilsBean cub, String nullToken) {
-            this.field = field;
-            this.cub = cub;
-            this.targetClass = targetClass;
-            this.nullToken = nullToken;
-        }
-
-        @Override
-        public String getName() {
-            return this.field;
-        }
-
-        @Override
-        public Object getValue(CatoDataObject obj) {
-            Object value = obj.getValue(this.field);
-
-            // if we have a null token and the target is of type string, we need to explicitly treat the blank input
-            // (which comes back as
-            // null in opencsv and cato) as a "", and not a null
-            if (this.nullToken != null && this.targetClass.equals(String.class)) {
-                if (value == null) {
-                    value = "";
-                }
-            }
-
-            if (value == null) {
-                return null;
-            } else if (!this.targetClass.equals(String.class) && value.equals("")) {
-                return null;
-            } else if (this.nullToken != null && value.equals(this.nullToken)) {
-                // regardless of the output type, if the input was the null token string, we return null here
-                return null;
-            } else {
-                return this.cub.convert(value.toString(), this.targetClass);
-            }
-        }
-    }
-
-    private static class NoOpTypeConverter implements CatoTypeConverter {
-        @Override
-        public Object convert(Object data) {
-            return data;
-        }
-    }
-
-    public static class CsvReaderDataSource extends AbstractCatoDataSource {
-        private final Reader reader;
-        private final char delim;
-        private final Function<String, String> convertDbObjectName;
-        private CSVReader csvreader;
-        private MutableList<String> fields;
-        private boolean initialized = false;
-
-        public CsvReaderDataSource(String name, Reader reader, char delim, Function<String, String> convertDbObjectName) {
-            super(name, new NoOpTypeConverter());
-            this.reader = reader;
-            this.delim = delim;
-            this.convertDbObjectName = convertDbObjectName;
-        }
-
-        /**
-         * Putting this init here so that we can discover the file fields before running the actual rec
-         */
-        public void init() {
-            if (!this.initialized) {
-                this.csvreader = new CSVReader(this.reader, this.delim);
-                try {
-                    this.fields = Lists.mutable.with(this.csvreader.readNext()).collect(this.convertDbObjectName);
-                } catch (IOException e) {
-                    throw new DeployerRuntimeException(e);
-                }
-                this.initialized = true;
-            }
-        }
-
-        @Override
-        protected void openSource() throws Exception {
-            this.init();
-        }
-
-        public List<String> getFields() {
-            return this.fields;
-        }
-
-        @Override
-        protected void closeSource() throws Exception {
-            this.csvreader.close();
-        }
-
-        @Override
-        protected CatoDataObject nextDataObject() throws Exception {
-            String[] data = this.csvreader.readNext();
-
-            if (data == null || data.length == 0 || (data.length == 1 && data[0].isEmpty())) {
-                return null;
-            } else if (data.length != this.fields.size()) {
-                throw new IllegalArgumentException("This row does not have the right # of columns: expecting "
-                        + this.fields.size() + " columns, but the row was: " + Lists.mutable.with(data));
-            }
-
-            CatoDataObject dataObject = this.createDataObject();
-            for (int i = 0; i < data.length; i++) {
-                dataObject.setValue(this.fields.get(i), data[i]);
-            }
-
-            return dataObject;
-        }
     }
 }
