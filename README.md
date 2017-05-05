@@ -13,12 +13,15 @@ Obevo has your use case covered
 
 ## Quick Links
 
+Getting Started
 * [Documentation](https://goldmansachs.github.io/obevo/)
+* [Sample Project](https://github.com/goldmansachs/obevo-kata)
+
+API Links
 * [Java API](https://goldmansachs.github.io/obevo/java-api.html)
 * [Command Line API](https://goldmansachs.github.io/obevo/command-line-api.html)
 * [Maven](https://goldmansachs.github.io/obevo/maven-api.html)
 * [Gradle](https://goldmansachs.github.io/obevo/gradle-api.html)
-* [Sample Project To Get Started](https://github.com/goldmansachs/obevo-kata)
 
 
 ## Why Use Obevo?

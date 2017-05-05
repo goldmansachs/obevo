@@ -1,4 +1,4 @@
-# Contributing to Obevo (WORK IN PROGRESS)
+# Contributing to Obevo
 
 This file contains information about reporting issues as well as contributing code. Make sure
 you read our [Contributor Covenant Code of Conduct](CONTRIBUTOR_COVENANT.md) before you

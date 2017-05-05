@@ -54,7 +54,7 @@
         </ul>
         </section>
         <section name="Document Conventions">
-        <p>This Kata assumes we are running this from a Windows desktop. Adjust the command line arguments accordingly for Linux if you choose</p>
+        <p>This documentation assumes we are running this from a Windows desktop. Adjust the command line arguments accordingly for Linux if you choose</p>
         </section>
     </body>
 </document>

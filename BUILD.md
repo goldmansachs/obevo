@@ -1,6 +1,5 @@
-# Building Obevo (WORK IN PROGRESS)
+# Building Obevo
 
-Obevo is currently built and run with JDK 1.8.
-The source code compatibility should be JDK 1.6; a couple dependencies force the runtime to be 1.8, but we hope to fix this soon.
+Obevo requires a minimum of JDK 7 to build and run. We have tested against JDK 8 also
 
-Use Maven 3.3.x or greater to build Obevo
+Use Maven 3.2.5 or greater to build Obevo [Download](https://maven.apache.org/download.cgi)
