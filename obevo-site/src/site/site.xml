@@ -34,7 +34,7 @@
         <menu name="Getting Started">
             <item name="Intro" href="index.html" />
             <item name="Overview" href="overview.html" />
-            <item name="Kata" href="https://github.com/goldmansachs/obevo-kata" />
+            <item name="Setup your Distribution" href="setup.html" />
             <item name="Help and Support" href="support.html" />
         </menu>
         <menu name="Technical Documentation">
