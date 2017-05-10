@@ -105,16 +105,10 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.sf.opencsv</groupId>
-            <artifactId>opencsv</artifactId>
-        </dependency>
-<!--
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
             <version>1.4</version>
         </dependency>
--->
         <dependency>
             <groupId>com.goldmansachs.obevo</groupId>
             <artifactId>obevo-internal-comparer</artifactId>

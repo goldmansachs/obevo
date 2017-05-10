@@ -13,6 +13,5 @@ Each module in this project has a NOTICE.txt file denoting the module's own depe
 This product depends on (links to) the following software:
   Eclipse Collections API under Eclipse Public License - v 1.0
   Eclipse Collections Main Library under Eclipse Public License - v 1.0
-  opencsv under Apache 2
   SLF4J API Module under MIT License
 

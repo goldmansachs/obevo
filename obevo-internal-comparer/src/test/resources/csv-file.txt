@@ -1,3 +1,0 @@
-a,b,c,d,e
-1,a,,45.6,value
-"value2","val,val","","rrr","\"quoted\""

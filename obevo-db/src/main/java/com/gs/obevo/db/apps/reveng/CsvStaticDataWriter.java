@@ -21,6 +21,9 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.gs.obevo.api.appdata.PhysicalSchema;
@@ -38,6 +41,8 @@ import com.gs.obevo.dbmetadata.api.DbMetadataManager;
 import com.gs.obevo.util.FileUtilsCobra;
 import com.gs.obevo.util.inputreader.Credential;
 import com.gs.obevo.util.inputreader.CredentialReader;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -122,12 +127,10 @@ public class CsvStaticDataWriter {
                 sqlExecutor.getJdbcTemplate().query(conn, selectSql, new ResultSetHandler<Void>() {
                     @Override
                     public Void handle(ResultSet rs) throws SQLException {
-                        CSVWriter writer = null;
+                        CSVPrinter writer = null;
                         try {
                             FileWriter fw = new FileWriter(tableFile);
-                            writer = new CSVWriter(fw);
-                            writer.setDateFormatString("yyyy-MM-dd");
-                            writer.setTimeFormatString("yyyy-MM-dd HH:mm:ss.SSS");
+                            writer = new CSVPrinter(fw, CSVFormat.DEFAULT);
 
                             if (updateTimeColumnForTable != null) {
                                 String metadataLine = String.format("//// METADATA %s=\"%s\"",
@@ -136,7 +139,30 @@ public class CsvStaticDataWriter {
                                 // delimited
                             }
 
-                            writer.writeAll(rs, true);
+                            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                            DateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
+                            int columnCount = rs.getMetaData().getColumnCount();
+
+                            while(rs.next()) {
+                                for(int i = 1; i <= columnCount; ++i) {
+                                    Object object = rs.getObject(i);
+                                    if (object != null) {
+                                        switch (rs.getMetaData().getColumnType(i)) {
+                                        case Types.DATE:
+                                            object = dateFormat.format(object);
+                                            break;
+                                        case Types.TIMESTAMP:
+                                            object = dateTimeFormat.format(object);
+                                            break;
+                                        }
+                                    }
+                                    writer.print(object);
+                                }
+
+                                writer.println();
+                            }
+                            writer.printRecords();
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         } finally {

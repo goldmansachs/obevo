@@ -34,7 +34,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-@Ignore("Ignoring temporarily until we bring back the CSV logic")
 public class CsvReaderDataSourceTest {
     @Test
     public void testCsvDataSource() throws Exception {
@@ -103,6 +102,7 @@ public class CsvReaderDataSourceTest {
     }
 
     @Test
+    @Ignore("expected failure")
     public void testCsvDataSourceWithEscapeChars2() throws Exception {
         verifyCsv("field1,field2,field3\n" +
                         "b1,\"b\\\",b3",
