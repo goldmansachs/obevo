@@ -80,5 +80,5 @@ It has special handling for DBMS, such as reorgs for DB2 and handling transactio
 
 ## Acquiring Obevo
 
-* [Versions] (https://github.com/goldmansachs/obevo/releases)
-* [Maven Central] (http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.goldmansachs.obevo-dist%22)
+* [Versions](https://github.com/goldmansachs/obevo/releases)
+* [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.goldmansachs.obevo-dist%22)
