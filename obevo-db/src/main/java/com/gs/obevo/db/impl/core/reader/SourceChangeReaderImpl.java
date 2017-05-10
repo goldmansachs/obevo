@@ -16,7 +16,6 @@
 package com.gs.obevo.db.impl.core.reader;
 
 import com.gs.obevo.api.appdata.Change;
-import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.impl.SourceChangeReader;
 import com.gs.obevo.impl.text.TextDependencyExtractor;
@@ -33,14 +32,12 @@ public class SourceChangeReaderImpl implements SourceChangeReader<DbEnvironment>
     private final DbChangeReader dbChangeReader;
     private final TextDependencyExtractor textDependencyExtractor;
     private final ImmutableList<PrepareDbChange> artifactTranslators;
-    private final ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry;
 
-    public SourceChangeReaderImpl(DbEnvironment env, DbChangeReader dbChangeReader, TextDependencyExtractor textDependencyExtractor, ImmutableList<PrepareDbChange> artifactTranslators, ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry) {
+    public SourceChangeReaderImpl(DbEnvironment env, DbChangeReader dbChangeReader, TextDependencyExtractor textDependencyExtractor, ImmutableList<PrepareDbChange> artifactTranslators) {
         this.env = env;
         this.dbChangeReader = dbChangeReader;
         this.textDependencyExtractor = textDependencyExtractor;
         this.artifactTranslators = artifactTranslators;
-        this.changeTypeBehaviorRegistry = changeTypeBehaviorRegistry;
     }
 
     @Override
@@ -61,7 +58,6 @@ public class SourceChangeReaderImpl implements SourceChangeReader<DbEnvironment>
         // the same
         for (Change change : sourceChanges) {
             this.tokenizeChange(change, env);
-            change.setChangeTypeBehavior(changeTypeBehaviorRegistry.getChangeTypeBehavior(change.getChangeType().getName()));
         }
 
         return sourceChanges;
