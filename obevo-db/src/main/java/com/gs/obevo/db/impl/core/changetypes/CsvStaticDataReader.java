@@ -83,19 +83,23 @@ public class CsvStaticDataReader {
             // if we have a null token and the target is of type string, we need to explicitly treat the blank input
             // (which comes back as
             // null in opencsv and cato) as a "", and not a null
+/*
             if (this.nullToken != null && this.targetClass.equals(String.class)) {
                 if (value == null) {
                     value = "";
                 }
             }
+*/
 
             if (value == null) {
                 return null;
             } else if (!this.targetClass.equals(String.class) && value.equals("")) {
                 return null;
+/*
             } else if (this.nullToken != null && value.equals(this.nullToken)) {
                 // regardless of the output type, if the input was the null token string, we return null here
                 return null;
+*/
             } else {
                 return this.cub.convert(value.toString(), this.targetClass);
             }

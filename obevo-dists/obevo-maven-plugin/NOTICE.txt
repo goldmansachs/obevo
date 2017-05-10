@@ -12,6 +12,7 @@ Each module in this project has a NOTICE.txt file denoting the module's own depe
 
 This product depends on (links to) the following software:
   Apache Commons Codec under Apache License, Version 2.0
+  Apache Commons CSV under The Apache License, Version 2.0
   Apache Commons DbUtils under The Apache Software License, Version 2.0
   Command Line Interface Parser for Java under The Apache Software License, Version 2.0
   Commons BeanUtils under The Apache Software License, Version 2.0
@@ -48,7 +49,6 @@ This product depends on (links to) the following software:
   obevo-db-sybase-iq under The Apache License, Version 2.0
   obevo-dbmetadata-impl under The Apache License, Version 2.0
   obevo-internal-comparer under The Apache License, Version 2.0
-  opencsv under Apache 2
   PostgreSQL JDBC Driver under BSD License
   SchemaCrawler under Eclipse Public License - v 1.0
   SchemaCrawler for HyperSQL under Eclipse Public License - v 1.0

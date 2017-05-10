@@ -104,6 +104,8 @@
         <slf4j.version>1.7.18</slf4j.version>
         <eclipsecollections.version>7.0.2</eclipsecollections.version>
         <schemacrawler.version>14.16.01-java7</schemacrawler.version>
+
+        <sonar.exclusions>file:**/generated-sources/**/*</sonar.exclusions>
     </properties>
 
     <build>
@@ -209,8 +211,8 @@
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -601,11 +603,6 @@
                 <groupId>commons-dbcp</groupId>
                 <artifactId>commons-dbcp</artifactId>
                 <version>1.4</version>
-            </dependency>
-            <dependency>
-                <groupId>net.sf.opencsv</groupId>
-                <artifactId>opencsv</artifactId>
-                <version>2.3</version>
             </dependency>
             <dependency>
                 <groupId>org.dbunit</groupId>
