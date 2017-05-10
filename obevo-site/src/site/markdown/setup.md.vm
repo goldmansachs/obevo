@@ -1,0 +1,86 @@
+<!--
+
+    Copyright 2017 Goldman Sachs.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+## Obtaining Obevo
+
+You can download the binary from the [releases page](https://github.com/goldmansachs/obevo/releases)
+* [Latest Release - ${project.version}](https://github.com/goldmansachs/obevo/releases/download/${project.version}/obevo-cli-${project.version}-dist.zip)
+
+For access via other APIs or build tools, please see the relevant pages:
+* [Java](java-api.html)
+* [Maven](maven-api.html)
+* [Gradle](gradle-api.html)
+
+## Setting up your Obevo distribution
+
+Obevo is licensed as Apache 2.0; thus, any proprietary dependencies (notably any proprietary JDBC drivers) cannot be
+included in the distributions that we create.
+
+As of this writing, this applies to the following DBMS types:
+* DB2
+* Oracle
+* Sybase ASE
+* Sybase IQ
+
+To use Obevo with these databases, you will need to acquire the JDBC drivers yourself and include them in the distribution
+as follows:
+
+### Zip binary distribution
+
+Add the JDBC drivers to the /lib folder
+
+
+### Java API
+
+Add the JDBC drivers to your classpath using whichever method is relevant for your developer setup
+
+### Maven API
+
+Add the JDBC drivers to your Maven repository and declare them as dependencies in your pom file, per the &lt;dependencies&gt; tag example below
+
+```xml
+<plugin>
+    <groupId>${project.parent.groupId}</groupId>
+    <artifactId>obevo-maven-plugin</artifactId>
+    <version>${project.version}</version>
+    <executions>
+        <execution>
+            <id>deploy-db-module</id>
+            <goals>
+                <goal>deploy</goal>
+            </goals>
+            <configuration>
+                <env>dev1</env>
+                <user>deployer</user>
+                <password>deploypass</password>
+                <sourcePath>src/main/database</sourcePath>
+            </configuration>
+        </execution>
+    </executions>
+    <dependencies>
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc14</artifactId>
+            <version>10.2.0.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ibm.db2</groupId>
+            <artifactId>db2jcc</artifactId>
+            <version>x.y.z</version>
+        </dependency>
+    </dependencies>
+</plugin>```

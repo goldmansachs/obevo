@@ -380,6 +380,7 @@ public abstract class DbDeployerAppContextImpl implements DbDeployerAppContext {
                 return new DbDeployer(
                         getArtifactDeployerDao()
                         , getInputReader()
+                        , changeTypeBehaviorRegistry
                         , getChangesetCreator()
                         , getPostDeployAction()
                         , getDbMetadataManager()
@@ -406,7 +407,7 @@ public abstract class DbDeployerAppContextImpl implements DbDeployerAppContext {
         return this.singleton("getSourceChangeReader", new Function0<SourceChangeReader>() {
             @Override
             public SourceChangeReader value() {
-                return new SourceChangeReaderImpl(env, getDbChangeReader(), getTextDependencyExtractor(), getArtifactTranslators(), changeTypeBehaviorRegistry);
+                return new SourceChangeReaderImpl(env, getDbChangeReader(), getTextDependencyExtractor(), getArtifactTranslators());
             }
         });
     }

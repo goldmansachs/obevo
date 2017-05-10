@@ -28,6 +28,7 @@ import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.appdata.Schema;
 import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeCommand;
+import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.api.platform.ToolVersion;
 import com.gs.obevo.api.platform.DeployExecutionDao;
 import com.gs.obevo.api.platform.DeployMetrics;
@@ -67,10 +68,12 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
     private final DeployExecutionDao deployExecutionDao;
     private final Credential credential;
     private final MainInputReader mainInputReader;
+    private final ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry;
 
 
     public MainDeployer(ChangeAuditDao artifactDeployerDao,
             MainInputReader mainInputReader,
+            ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry,
             ChangesetCreator changesetCreator,
             PostDeployAction postDeployAction,
             DeployMetricsCollector deployMetricsCollector,
@@ -79,6 +82,7 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
     ) {
         this.artifactDeployerDao = artifactDeployerDao;
         this.mainInputReader = mainInputReader;
+        this.changeTypeBehaviorRegistry = changeTypeBehaviorRegistry;
         this.changesetCreator = changesetCreator;
         this.postDeployAction = postDeployAction;
         this.deployMetricsCollector = deployMetricsCollector;
@@ -134,6 +138,11 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
         }
 
         ImmutableList<Change> sourceChanges = mainInputReader.readInternal(env, deployerArgs);
+        for (Change change : sourceChanges) {
+            change.setChangeTypeBehavior(changeTypeBehaviorRegistry.getChangeTypeBehavior(change.getChangeType().getName()));
+
+        }
+
         OnboardingStrategy onboardingStrategy = getOnboardingStrategy(deployerArgs);
         onboardingStrategy.validateSourceDirs(env.getSourceDirs(), env.getSchemaNames());
 

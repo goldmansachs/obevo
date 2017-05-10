@@ -25,6 +25,7 @@ import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.appdata.Schema;
 import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeType;
+import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.api.platform.DeployExecutionDao;
 import com.gs.obevo.api.platform.ToolVersion;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
@@ -78,8 +79,8 @@ public class DbDeployer extends MainDeployer<DbPlatform, DbEnvironment> {
     private final DbChecksumManager dbChecksumManager;
     private DbEnvironment env;
 
-    public DbDeployer(ChangeAuditDao artifactDeployerDao, MainInputReader mainInputReader, ChangesetCreator changesetCreator, PostDeployAction postDeployAction, DbMetadataManager dbMetadataManager, SqlExecutor sqlExecutor, DeployMetricsCollector deployMetricsCollector, DbChecksumManager dbChecksumManager, DeployExecutionDao deployExecutionDao, Credential credential) {
-        super(artifactDeployerDao, mainInputReader, changesetCreator, postDeployAction, deployMetricsCollector, deployExecutionDao, credential);
+    public DbDeployer(ChangeAuditDao artifactDeployerDao, MainInputReader mainInputReader, ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry, ChangesetCreator changesetCreator, PostDeployAction postDeployAction, DbMetadataManager dbMetadataManager, SqlExecutor sqlExecutor, DeployMetricsCollector deployMetricsCollector, DbChecksumManager dbChecksumManager, DeployExecutionDao deployExecutionDao, Credential credential) {
+        super(artifactDeployerDao, mainInputReader, changeTypeBehaviorRegistry, changesetCreator, postDeployAction, deployMetricsCollector, deployExecutionDao, credential);
         this.dbMetadataManager = dbMetadataManager;
         this.sqlExecutor = sqlExecutor;
         this.dbChecksumManager = dbChecksumManager;
