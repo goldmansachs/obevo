@@ -156,7 +156,7 @@ public class CsvStaticDataDeployer {
                 ),
                 "Could not find table %1$s.%2$s", artifact.getPhysicalSchema(), artifact.getObjectName());
 
-        CsvReaderDataSource fileSource = new CsvStaticDataReader().getFileDataSource(table, artifact.getConvertedContent(),
+        CsvReaderDataSource fileSource = new CsvStaticDataReader().getFileDataSource(env.getCsvVersion(), table, artifact.getConvertedContent(),
                 env.getDataDelimiter(), env.getNullToken(), dbPlatform.convertDbObjectName());
 
         // we check this here to ensure that in case there are more fields in the DB than in the csv file

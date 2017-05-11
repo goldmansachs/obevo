@@ -18,10 +18,11 @@ package com.gs.obevo.db.impl.core.deploy;
 import java.io.StringReader;
 import java.util.Map;
 
+import com.gs.obevo.db.impl.core.changetypes.CsvReaderDataSource;
+import com.gs.obevo.db.impl.core.changetypes.CsvStaticDataReader;
 import com.gs.obevocomparer.compare.simple.SimpleCatoProperties;
 import com.gs.obevocomparer.data.CatoDataObject;
 import com.gs.obevocomparer.spring.CatoSimpleJavaConfiguration;
-import com.gs.obevo.db.impl.core.changetypes.CsvReaderDataSource;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.MutableMap;
@@ -93,11 +94,14 @@ public class CsvReaderDataSourceTest {
     @Test
     public void testCsvDataSourceWithEscapeChars() throws Exception {
         verifyCsv("field1,field2,field3\n" +
-                        "a\\\\1,a2,\"a\\\"3\"\n" +
-                        "b1,\"b\\2\",b3",
+                        "a\\\\1,a\"2,\"a\\\"3\"\n" +
+                        "b\\1,\"b\\2\",\"b\\3\"\n" +
+                        "\"c\\\"1\",\"c\\2\",\"c\\3\""
+                ,
                 Lists.mutable.<String>of("field1"),
-                Maps.mutable.of("field1", "a\\1", "field2", "a2", "field3", "a\"3"),
-                Maps.mutable.of("field1", "b1", "field2", "b\\2", "field3", "b3")
+                Maps.mutable.of("field1", "a\\1", "field2", "a\"2", "field3", "a\"3"),
+                Maps.mutable.of("field1", "b\\1", "field2", "b\\2", "field3", "b\\3"),
+                Maps.mutable.of("field1", "c\"1", "field2", "c\\2", "field3", "c\\3")
         );
     }
 
@@ -112,7 +116,7 @@ public class CsvReaderDataSourceTest {
     }
 
     private void verifyCsv(String input, MutableList<String> keyFields, MutableMap<String, String>... rows) throws Exception {
-        CsvReaderDataSource ds = new CsvReaderDataSource("test", new StringReader(input), ',', StringFunctions.toLowerCase(), "null");
+        CsvReaderDataSource ds = new CsvReaderDataSource(CsvStaticDataReader.CSV_V2, "test", new StringReader(input), ',', StringFunctions.toLowerCase(), "null");
         ds.setCatoConfiguration(new CatoSimpleJavaConfiguration(new SimpleCatoProperties(keyFields)));
         ds.init();
         ds.open();

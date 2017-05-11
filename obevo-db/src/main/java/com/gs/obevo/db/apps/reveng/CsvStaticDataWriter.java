@@ -33,6 +33,7 @@ import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.platform.DbDeployerAppContext;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.db.api.platform.SqlExecutor;
+import com.gs.obevo.db.impl.core.changetypes.CsvReaderDataSource;
 import com.gs.obevo.db.impl.core.reader.TextMarkupDocumentReader;
 import com.gs.obevo.dbmetadata.api.DaNamedObject;
 import com.gs.obevo.dbmetadata.api.DaSchemaInfoLevel;
@@ -43,6 +44,7 @@ import com.gs.obevo.util.inputreader.Credential;
 import com.gs.obevo.util.inputreader.CredentialReader;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.QuoteMode;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -64,9 +66,13 @@ public class CsvStaticDataWriter {
         final DbEnvironment env = new DbEnvironment();
         env.setPlatform(args.getDbPlatform());
         env.setSystemDbPlatform(args.getDbPlatform());
-        env.setDbHost(args.getDbHost());
-        env.setDbPort(args.getDbPort());
-        env.setDbServer(args.getDbServer());
+        if (args.getJdbcUrl() != null) {
+            env.setJdbcUrl(args.getJdbcUrl());
+        } else {
+            env.setDbHost(args.getDbHost());
+            env.setDbPort(args.getDbPort());
+            env.setDbServer(args.getDbServer());
+        }
         if (args.getDriverClass() != null) {
             env.setDriverClassName(args.getDriverClass());
         }
@@ -90,19 +96,20 @@ public class CsvStaticDataWriter {
         for (String table : dataTables) {
             System.out.println("Working on table " + table + " at " + new Date());
 
+            CSVFormat csvFormat = CsvReaderDataSource.getCsvFormat(env.getDataDelimiter(), env.getNullToken()).withQuoteMode(QuoteMode.NON_NUMERIC);
             mw.writeTable(env.getPlatform(), new PhysicalSchema(schema.getName()), table.trim(),
                     new File(args.getOutputDir(), env.getPlatform().getChangeType(ChangeType.STATICDATA_STR).getDirectoryName()),
-                    args.getUpdateTimeColumns());
+                    args.getUpdateTimeColumns(), csvFormat);
         }
     }
 
-    public CsvStaticDataWriter(SqlExecutor sqlExecutor, DbMetadataManager metadataManager) {
+    private CsvStaticDataWriter(SqlExecutor sqlExecutor, DbMetadataManager metadataManager) {
         this.sqlExecutor = sqlExecutor;
         this.metadataManager = metadataManager;
     }
 
-    public void writeTable(DbPlatform dbtype, PhysicalSchema schema, String tableName, File directory,
-            MutableSet<String> updateTimeColumns) {
+    private void writeTable(DbPlatform dbtype, PhysicalSchema schema, String tableName, File directory,
+            MutableSet<String> updateTimeColumns, final CSVFormat csvFormat) {
         directory.mkdirs();
         DaTable table = this.metadataManager.getTableInfo(schema.getPhysicalName(), tableName, new DaSchemaInfoLevel().setRetrieveTableColumns(true));
         if (table == null) {
@@ -130,7 +137,7 @@ public class CsvStaticDataWriter {
                         CSVPrinter writer = null;
                         try {
                             FileWriter fw = new FileWriter(tableFile);
-                            writer = new CSVPrinter(fw, CSVFormat.DEFAULT);
+                            writer = new CSVPrinter(fw, csvFormat);
 
                             if (updateTimeColumnForTable != null) {
                                 String metadataLine = String.format("//// METADATA %s=\"%s\"",
@@ -144,6 +151,12 @@ public class CsvStaticDataWriter {
 
                             int columnCount = rs.getMetaData().getColumnCount();
 
+                            // print headers
+                            for(int i = 1; i <= columnCount; ++i) {
+                                writer.print(rs.getMetaData().getColumnName(i));
+                            }
+                            writer.println();
+
                             while(rs.next()) {
                                 for(int i = 1; i <= columnCount; ++i) {
                                     Object object = rs.getObject(i);
@@ -155,6 +168,14 @@ public class CsvStaticDataWriter {
                                         case Types.TIMESTAMP:
                                             object = dateTimeFormat.format(object);
                                             break;
+                                        case Types.LONGVARCHAR:
+                                        case Types.VARCHAR:
+                                        case Types.CHAR:
+                                            // escape the string text if declared so that the input CSV can also handle the escapes
+                                            if (csvFormat.getEscapeCharacter() != null && object instanceof String) {
+                                                object = ((String)object).replace("" + csvFormat.getEscapeCharacter(), "" + csvFormat.getEscapeCharacter() + csvFormat.getEscapeCharacter());
+                                            }
+                                            break;
                                         }
                                     }
                                     writer.print(object);
@@ -162,7 +183,8 @@ public class CsvStaticDataWriter {
 
                                 writer.println();
                             }
-                            writer.printRecords();
+
+                            writer.flush();
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         } finally {

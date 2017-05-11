@@ -34,6 +34,7 @@ public class AquaRevengArgs {
     private boolean generateBaseline;
     private DbPlatform dbPlatform;
     private String dbHost;
+    private String jdbcUrl;
     private Integer dbPort;
     private String dbServer;
     private String dbSchema;
@@ -140,6 +141,15 @@ public class AquaRevengArgs {
     @Argument(value = "dbType", required = true, description = "DB Type is needed to facilitate reverse engineering; use values [H2, HSQL, SYBASE_IQ, DB2, SYBASE_ASE, POSTGRESQL]")
     public void setDbTypeStr(String dbType) {
         this.dbPlatform = DbPlatformConfiguration.getInstance().valueOf(dbType.toUpperCase());
+    }
+
+    public String getJdbcUrl() {
+        return jdbcUrl;
+    }
+
+    @Argument(value = "jdbcUrl", required = false, description = "Only for static data reverse-engineering")
+    public void setJdbcUrl(String jdbcUrl) {
+        this.jdbcUrl = jdbcUrl;
     }
 
     public String getDbHost() {

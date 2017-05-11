@@ -60,6 +60,7 @@ public class DbEnvironment extends Environment<DbPlatform> {
     private boolean invalidObjectCheckEnabled = true;
     private boolean reorgCheckEnabled = true;
     private int metadataLineReaderVersion = 2;  // default is 2; version 3 is the new that we want people to move towards
+    private int csvVersion = 1;  // we want to move folks to the latest version 2
     private boolean legacy3_9UpgradeEnabled = false;  // only here as a very-rare contingency. Should remove this as part of 6.x
 
     public DbEnvironment() {
@@ -100,6 +101,7 @@ public class DbEnvironment extends Environment<DbPlatform> {
         this.invalidObjectCheckEnabled = env.invalidObjectCheckEnabled;
         this.reorgCheckEnabled = env.reorgCheckEnabled;
         this.metadataLineReaderVersion = env.metadataLineReaderVersion;
+        this.csvVersion = env.csvVersion;
     }
 
     @Override
@@ -432,6 +434,14 @@ public class DbEnvironment extends Environment<DbPlatform> {
 
     public void setMetadataLineReaderVersion(int metadataLineReaderVersion) {
         this.metadataLineReaderVersion = metadataLineReaderVersion;
+    }
+
+    public int getCsvVersion() {
+        return csvVersion;
+    }
+
+    public void setCsvVersion(int csvVersion) {
+        this.csvVersion = csvVersion;
     }
 
     public boolean isLegacy3_9UpgradeEnabled() {
