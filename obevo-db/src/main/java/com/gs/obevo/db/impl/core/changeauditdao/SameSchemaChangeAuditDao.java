@@ -149,12 +149,6 @@ public class SameSchemaChangeAuditDao implements ChangeAuditDao {
             // We will still grant this here to make up for the existing DBs that did not have the grants given
             DbChangeTypeBehavior tableChangeType = (DbChangeTypeBehavior)changeTypeBehaviorRegistry.getChangeTypeBehavior(ChangeType.TABLE_STR);
 
-            if (env.isLegacy3_9UpgradeEnabled()) {
-                // This should be a safe change, but was affecting 1 team for some reason. Removing this for now; it should no longer be needed as most clients are on at least 4.x
-                tableChangeType.applyGrants(conn, physicalSchema, dbChangeTable, Lists.immutable.with(new Permission("artifacTable",
-                        Lists.immutable.with(new Grant(Lists.immutable.with("SELECT"), Multimaps.immutable.list.with(GrantTargetType.PUBLIC, "PUBLIC"))))));
-            }
-
             // Here, we detect if we are on an older version of the table due to missing columns (added for version
             // 3.9.0). If we find the
             // columns are missing, we will add them and backfill

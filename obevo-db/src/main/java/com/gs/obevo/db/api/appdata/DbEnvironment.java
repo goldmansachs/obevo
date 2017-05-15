@@ -20,6 +20,7 @@ import java.sql.Driver;
 import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.platform.Platform;
+import com.gs.obevo.db.api.factory.DbPlatformConfiguration;
 import com.gs.obevo.db.api.platform.DbDeployerAppContext;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.db.api.platform.DbTranslationDialect;
@@ -59,9 +60,8 @@ public class DbEnvironment extends Environment<DbPlatform> {
     private boolean checksumDetectionEnabled = false;
     private boolean invalidObjectCheckEnabled = true;
     private boolean reorgCheckEnabled = true;
-    private int metadataLineReaderVersion = 2;  // default is 2; version 3 is the new that we want people to move towards
-    private int csvVersion = 1;  // we want to move folks to the latest version 2
-    private boolean legacy3_9UpgradeEnabled = false;  // only here as a very-rare contingency. Should remove this as part of 6.x
+    private int metadataLineReaderVersion = DbPlatformConfiguration.getInstance().getFeatureToggleVersion("metadataLineReaderVersion");
+    private int csvVersion = DbPlatformConfiguration.getInstance().getFeatureToggleVersion("csvVersion");
 
     public DbEnvironment() {
     }
@@ -442,13 +442,5 @@ public class DbEnvironment extends Environment<DbPlatform> {
 
     public void setCsvVersion(int csvVersion) {
         this.csvVersion = csvVersion;
-    }
-
-    public boolean isLegacy3_9UpgradeEnabled() {
-        return legacy3_9UpgradeEnabled;
-    }
-
-    public void setLegacy3_9UpgradeEnabled(boolean legacy3_9UpgradeEnabled) {
-        this.legacy3_9UpgradeEnabled = legacy3_9UpgradeEnabled;
     }
 }

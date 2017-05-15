@@ -17,6 +17,7 @@ package com.gs.obevo.db.impl.platforms.sqltranslator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.platform.ChangeType;
@@ -74,7 +75,7 @@ public class InMemoryTranslator implements PrepareDbChange {
 
     @Override
     public final String prepare(String sql, final Change change, final DbEnvironment env) {
-        if (change != null && change.getChangeType().getName() == ChangeType.STATICDATA_STR
+        if (change != null && Objects.equals(change.getChangeType().getName(), ChangeType.STATICDATA_STR)
                 && !StaticDataChangeTypeBehavior.isInsertModeStaticData(sql)) {
             return sql;
         }

@@ -1,7 +1,0 @@
-//// METADATA includeEnvs=test,unittest*
-A_ID^B_ID^STRING_FIELD^TIMESTAMP_FIELD^C_ID
-1^2^AB,C^2012-01-01 12:12:12^
-2^3^(null)^2013-01-01 11:11:11.65432^9
-3^4^ABC^(null)^9
-4^4^0006^(null)^9
-
