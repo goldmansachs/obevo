@@ -79,14 +79,6 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
     @Override
     public DaCatalog getDatabase(String physicalSchema, DaSchemaInfoLevel schemaInfoLevel, boolean searchAllTables,
             boolean searchAllProcedures) {
-        // Many of the DB metadata drivers like IQ/ASE/DB2 don't support the function metadata lookups and
-        // schemacrawler complains (though the library still does the job). We set the log level here to avoid
-        // excessive log messages
-        java.util.logging.Logger schemaCrawlerLogger = java.util.logging.Logger.getLogger("schemacrawler");
-        schemaCrawlerLogger.setLevel(Level.WARNING);
-        java.util.logging.Logger javaUtilLogger = java.util.logging.Logger.getLogger("schemacrawler.crawl.RoutineRetriever");
-        javaUtilLogger.setLevel(Level.SEVERE);
-
         return this.getDatabase(schemaInfoLevel, physicalSchema, null, null, searchAllTables, searchAllProcedures);
     }
 
@@ -98,6 +90,13 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
      */
     private DaCatalog getDatabase(DaSchemaInfoLevel schemaInfoLevel, String schemaName, String tableName,
             String procedureName, boolean searchAllTables, boolean searchAllProcedures) {
+        // Many of the DB metadata drivers like IQ/ASE/DB2 don't support the function metadata lookups and
+        // schemacrawler complains (though the library still does the job). We set the log level here to avoid
+        // excessive log messages
+        java.util.logging.Logger.getLogger("schemacrawler").setLevel(Level.WARNING);
+        java.util.logging.Logger.getLogger("schemacrawler.crawl.RoutineRetriever").setLevel(Level.SEVERE);
+        java.util.logging.Logger.getLogger("schemacrawler.crawl.SchemaCrawler").setLevel(Level.SEVERE);
+
         Validate.notNull(schemaName, "Schema must be specified");
         Connection conn = null;
         try {

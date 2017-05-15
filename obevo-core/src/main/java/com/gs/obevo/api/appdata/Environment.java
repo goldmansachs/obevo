@@ -62,6 +62,7 @@ public class Environment<T extends Platform> {
             return env.getName();
         }
     };
+    private boolean legacyDirectoryStructureEnabled;
 
     public Environment() {
         // You must not modify this constructor. Mithra calls this internally.
@@ -318,5 +319,13 @@ public class Environment<T extends Platform> {
 
     public ImmutableMap<String, String> getExtraEnvAttrs() {
         return extraEnvAttrs == null ? Maps.immutable.<String, String>empty() : extraEnvAttrs;
+    }
+
+    public boolean isLegacyDirectoryStructureEnabled() {
+        return legacyDirectoryStructureEnabled;
+    }
+
+    public void setLegacyDirectoryStructureEnabled(boolean legacyDirectoryStructureEnabled) {
+        this.legacyDirectoryStructureEnabled = legacyDirectoryStructureEnabled;
     }
 }

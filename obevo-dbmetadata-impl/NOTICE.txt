@@ -1,7 +1,6 @@
 Obevo
 Copyright 2017 Goldman Sachs
 Licensed under Apache 2.0 license
-The Licensor does not indemnify the Licensee against infringement of any third party patent including, but not limited to, United States Patents 5,937,402 and 6,101,502.
 
 See the target/maven-shared-archive-resources/META-INF/DEPENDENCIES for links to the license texts.
 

@@ -110,6 +110,11 @@
             <version>1.4</version>
         </dependency>
         <dependency>
+            <groupId>net.sf.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>2.3</version>
+        </dependency>
+        <dependency>
             <groupId>com.goldmansachs.obevo</groupId>
             <artifactId>obevo-internal-comparer</artifactId>
             <version>${project.version}</version>

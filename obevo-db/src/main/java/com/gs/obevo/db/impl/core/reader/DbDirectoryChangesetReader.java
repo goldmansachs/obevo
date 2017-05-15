@@ -173,7 +173,7 @@ public class DbDirectoryChangesetReader implements DbChangeReader {
         if (dir != null && dir.exists()) {
             return dir;
         }
-        if (changeType.getDirectoryNameOld() != null) {
+        if (env.isLegacyDirectoryStructureEnabled() && changeType.getDirectoryNameOld() != null) {
             // for backwards-compatibility
             dir = schemaDir.getChild(changeType.getDirectoryNameOld());
             if (dir != null && dir.exists()) {

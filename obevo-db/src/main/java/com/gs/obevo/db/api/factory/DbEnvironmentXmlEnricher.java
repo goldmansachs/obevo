@@ -264,9 +264,6 @@ public class DbEnvironmentXmlEnricher implements EnvironmentEnricher<DbEnvironme
             dbEnv.setPersistToFile(envCfg.getBoolean("[@persistToFile]", false));
             dbEnv.setDisableAuditTracking(envCfg.getBoolean("[@disableAuditTracking]", false));
 
-            dbEnv.setLegacy3_9UpgradeEnabled(
-                    envCfg.getBoolean("[@legacy3_9UpgradeEnabled]", sysCfg.getBoolean("[@legacy3_9UpgradeEnabled]", false))
-            );
             dbEnv.setRollbackDetectionEnabled(
                     envCfg.getBoolean("[@rollbackDetectionEnabled]", sysCfg.getBoolean("[@rollbackDetectionEnabled]", true))
             );
@@ -283,8 +280,15 @@ public class DbEnvironmentXmlEnricher implements EnvironmentEnricher<DbEnvironme
                     envCfg.getBoolean("[@checksumDetectionEnabled]", sysCfg.getBoolean("[@checksumDetectionEnabled]", false))
             );
             dbEnv.setMetadataLineReaderVersion(
-                    envCfg.getInt("[@metadataLineReaderVersion]", sysCfg.getInt("[@metadataLineReaderVersion]", 2))
+                    envCfg.getInt("[@metadataLineReaderVersion]", sysCfg.getInt("[@metadataLineReaderVersion]", dbPlatformConfiguration.getFeatureToggleVersion("metadataLineReaderVersion")))
             );
+            dbEnv.setCsvVersion(
+                    envCfg.getInt("[@csvVersion]", sysCfg.getInt("[@csvVersion]", dbPlatformConfiguration.getFeatureToggleVersion("csvVersion")))
+            );
+            int legacyDirectoryStructureEnabledValue = envCfg.getInt("[@legacyDirectoryStructureEnabled]", sysCfg.getInt("[@legacyDirectoryStructureEnabled]", dbPlatformConfiguration.getFeatureToggleVersion("legacyDirectoryStructureEnabled")));
+            dbEnv.setLegacyDirectoryStructureEnabled(legacyDirectoryStructureEnabledValue == 1);  // 1 == legacy, 2 == new
+
+
             MutableMap<String, String> extraEnvAttrs = Maps.mutable.empty();
             for (String extraEnvAttr : dbPlatformConfiguration.getExtraEnvAttrs()) {
                 String attrStr = "[@" + extraEnvAttr + "]";

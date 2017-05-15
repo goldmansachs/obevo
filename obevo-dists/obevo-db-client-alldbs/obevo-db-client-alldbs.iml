@@ -22,6 +22,7 @@
     <orderEntry type="library" name="Maven: commons-digester:commons-digester:1.8.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.commons:commons-csv:1.4" level="project" />
+    <orderEntry type="library" name="Maven: net.sf.opencsv:opencsv:2.3" level="project" />
     <orderEntry type="module" module-name="obevo-internal-comparer" />
     <orderEntry type="module" module-name="obevo-core" />
     <orderEntry type="library" name="Maven: org.jgrapht:jgrapht-core:0.9.1" level="project" />

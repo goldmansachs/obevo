@@ -23,6 +23,8 @@ import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.map.ImmutableMap;
 import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.set.ImmutableSet;
+import org.eclipse.collections.api.set.MutableSet;
+import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.set.mutable.SetAdapter;
@@ -37,6 +39,7 @@ public class DbPlatformConfiguration {
     private final Config platformConfigs;
     private final ImmutableMap<String, String> dbPlatformMap;
     private final ImmutableSet<String> extraEnvAttrs;
+    private final ImmutableMap<String, Integer> featureToggleVersions;
 
     public static DbPlatformConfiguration getInstance() {
         return INSTANCE;
@@ -47,6 +50,7 @@ public class DbPlatformConfiguration {
         this.platformConfigs = this.config.getConfig("db").getConfig("platforms");
         this.dbPlatformMap = getDbPlatformMap();
         this.extraEnvAttrs = createExtraEnvAttrs();
+        this.featureToggleVersions = createFeatureToggleVersions();
     }
 
     public DbPlatform valueOf(String dbPlatformStr) {
@@ -69,6 +73,10 @@ public class DbPlatformConfiguration {
         return extraEnvAttrs;
     }
 
+    public int getFeatureToggleVersion(String featureToggleName) {
+        return featureToggleVersions.getIfAbsentValue(featureToggleName, 0);
+    }
+
     protected ImmutableSet<String> createExtraEnvAttrs() {
         if (!this.config.hasPath("extraEnvAttrs")) {
             return Sets.immutable.empty();
@@ -81,6 +89,20 @@ public class DbPlatformConfiguration {
             }
         }).toImmutable();
     }
+
+    private ImmutableMap<String, Integer> createFeatureToggleVersions() {
+        if (!this.config.hasPath("featureToggles")) {
+            return Maps.immutable.empty();
+        }
+        final Config attrConfig = this.config.getConfig("featureToggles");
+        return SetAdapter.adapt(attrConfig.root().keySet()).toMap(Functions.<String>getPassThru(), new Function<String, Integer>() {
+            @Override
+            public Integer valueOf(String featureToggleName) {
+                return attrConfig.getConfig(featureToggleName).getInt("defaultVersion");
+            }
+        }).toImmutable();
+    }
+
     /**
      * Returns the default name-to-platform mappings. We put this in a separate protected method to allow external
      * distributions to override these values as needed.

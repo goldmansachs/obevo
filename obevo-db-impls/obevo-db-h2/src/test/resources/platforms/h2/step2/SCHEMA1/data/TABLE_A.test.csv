@@ -1,7 +1,0 @@
-//// METADATA includeEnvs=test
-A_ID^B_ID^STRING_FIELD^TIMESTAMP_FIELD^C_ID
-2^3^(null)^2013-01-01 12:12:12.65432^9
-3^4^"00
-9"^(null)^9
-4^4^0006^(null)^9
-

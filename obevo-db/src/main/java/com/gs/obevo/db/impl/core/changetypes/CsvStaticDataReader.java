@@ -17,18 +17,20 @@ package com.gs.obevo.db.impl.core.changetypes;
 
 import java.io.StringReader;
 
-import com.gs.obevocomparer.data.CatoDataObject;
-import com.gs.obevocomparer.input.CatoDerivedField;
 import com.gs.obevo.api.platform.DeployerRuntimeException;
 import com.gs.obevo.dbmetadata.api.DaColumn;
 import com.gs.obevo.dbmetadata.api.DaTable;
+import com.gs.obevocomparer.data.CatoDataObject;
+import com.gs.obevocomparer.input.CatoDerivedField;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.eclipse.collections.api.block.function.Function;
 
 public class CsvStaticDataReader {
+    public static final int CSV_V1 = 1;  // 1 is the original
+    public static final int CSV_V2 = 2;  // 2 is latest that fixes a number of CSV issues
 
-    public CsvReaderDataSource getFileDataSource(DaTable table, String content, char dataDelimiter, String nullToken, Function<String, String> convertDbObjectName) {
-        CsvReaderDataSource fileSource = new CsvReaderDataSource("fileSource", new StringReader(content),
+    public CsvReaderDataSource getFileDataSource(int csvVersion, DaTable table, String content, char dataDelimiter, String nullToken, Function<String, String> convertDbObjectName) {
+        CsvReaderDataSource fileSource = new CsvReaderDataSource(csvVersion, "fileSource", new StringReader(content),
                 dataDelimiter, convertDbObjectName, nullToken);
         ConvertUtilsBean cub = new ConvertUtilsBean();
         for (DaColumn col : table.getColumns()) {
@@ -50,7 +52,7 @@ public class CsvStaticDataReader {
             } catch (ClassNotFoundException e) {
                 throw new DeployerRuntimeException(e);
             }
-            fileSource.addDerivedField(new MyDerivedField(convertDbObjectName.valueOf(columnName),
+            fileSource.addDerivedField(new MyDerivedField(csvVersion, convertDbObjectName.valueOf(columnName),
                     targetClassName, cub, nullToken));
         }
 
@@ -59,12 +61,14 @@ public class CsvStaticDataReader {
     }
 
     private static class MyDerivedField implements CatoDerivedField {
+        private final int csvVersion;
         private final String field;
         private final ConvertUtilsBean cub;
         private final Class targetClass;
         private final String nullToken;
 
-        public MyDerivedField(String field, Class targetClass, ConvertUtilsBean cub, String nullToken) {
+        public MyDerivedField(int csvVersion, String field, Class targetClass, ConvertUtilsBean cub, String nullToken) {
+            this.csvVersion = csvVersion;
             this.field = field;
             this.cub = cub;
             this.targetClass = targetClass;
@@ -83,23 +87,21 @@ public class CsvStaticDataReader {
             // if we have a null token and the target is of type string, we need to explicitly treat the blank input
             // (which comes back as
             // null in opencsv and cato) as a "", and not a null
-/*
-            if (this.nullToken != null && this.targetClass.equals(String.class)) {
-                if (value == null) {
-                    value = "";
+            if (csvVersion == CSV_V1) {
+                if (this.nullToken != null && this.targetClass.equals(String.class)) {
+                    if (value == null) {
+                        value = "";
+                    }
                 }
             }
-*/
 
             if (value == null) {
                 return null;
             } else if (!this.targetClass.equals(String.class) && value.equals("")) {
                 return null;
-/*
-            } else if (this.nullToken != null && value.equals(this.nullToken)) {
+            } else if (csvVersion == CSV_V1 && this.nullToken != null && value.equals(this.nullToken)) {
                 // regardless of the output type, if the input was the null token string, we return null here
                 return null;
-*/
             } else {
                 return this.cub.convert(value.toString(), this.targetClass);
             }
