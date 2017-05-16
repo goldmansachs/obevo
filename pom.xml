@@ -27,7 +27,6 @@
     <modules>
         <module>obevo-dists</module>
         <module>obevo-utils</module>
-        <module>obevo-bom</module>
         <module>obevo-dbmetadata-impl</module>
         <module>obevo-core</module>
         <module>obevo-db</module>
@@ -36,6 +35,7 @@
         <module>obevo-site</module>
         <module>obevo-internal-test-client-01</module>
         <module>obevo-internal-test-client-02</module>
+        <module>obevo-bom</module>  <!-- put bom at the end as the last module of the staging plugin must be deployed for all the eligible modules to get deployed -->
     </modules>
 
     <name>Obevo Parent POM</name>
