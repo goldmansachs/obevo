@@ -31,6 +31,10 @@
         across multiple jars or source paths.
     </description>
 
+    <properties>
+        <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>  <!-- not deploying this module to Maven central -->
+    </properties>
+
     <build>
         <resources>
             <resource>
