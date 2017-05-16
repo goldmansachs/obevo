@@ -21,7 +21,7 @@
 
     <groupId>com.goldmansachs.obevo</groupId>
     <artifactId>obevo-parent</artifactId>
-    <version>6.0.1</version>
+    <version>6.0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -67,7 +67,7 @@
         <url>https://github.com/goldmansachs/obevo/</url>
         <connection>scm:git:https://github.com/goldmansachs/obevo.git</connection>
         <developerConnection>scm:git:https://github.com/goldmansachs/obevo.git</developerConnection>
-      <tag>6.0.1</tag>
+      <tag>6.0.0</tag>
   </scm>
 
 
