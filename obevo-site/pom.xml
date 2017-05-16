@@ -26,6 +26,8 @@
     <artifactId>obevo-site</artifactId>
 
     <properties>
+        <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>  <!-- not deploying this module to Maven central -->
+
         <product.url>https://github.com/goldmansachs/obevo/</product.url>
         <kata.product.url>https://github.com/goldmansachs/obevo-kata/</kata.product.url>
         <kata.product.sourceroot>${kata.product.url}/tree/master</kata.product.sourceroot>
