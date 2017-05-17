@@ -21,7 +21,7 @@ import org.eclipse.collections.impl.factory.Maps;
 
 public class PostgreSqlParamReader {
     public static ParamReader getParamReader() {
-        return new ParamReader(ConfigFactory.parseResources("postgresql-creds.properties"), "postgresql", ConfigFactory.parseMap(Maps.mutable.<String, Object>of(
+        return new ParamReader(ConfigFactory.parseResources(System.getProperty("dbCredsFile", "postgresql-creds.properties")), "postgresql", ConfigFactory.parseMap(Maps.mutable.<String, Object>of(
                 "sysattrs.type", "POSTGRESQL",
                 "logicalSchemas.schema1", "schema1",
                 "logicalSchemas.schema2", "schema2"

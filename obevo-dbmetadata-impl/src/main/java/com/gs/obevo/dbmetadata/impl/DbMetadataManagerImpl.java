@@ -196,13 +196,13 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
         otherInfoLevel.setRetrieveDatabaseInfo(true);
         //otherInfoLevel.setRetrieveJdbcDriverInfo(false);  // would prefer to add this back due to issues w/ Sybase ASE; requires followup w/ SchemaCrawler team
         otherInfoLevel.setRetrieveAdditionalJdbcDriverInfo(false);  // unneeded for our use cases and causes some problems w/ some JDBC drivers
-        otherInfoLevel.setRetrieveColumnDataTypes(true);  // todo was standard before - parameterize this?
 
         // tables
         otherInfoLevel.setRetrieveTables(schemaInfoLevel.isRetrieveTables());
         otherInfoLevel.setRetrieveAdditionalTableAttributes(schemaInfoLevel.isRetrieveTables());
 
         // table columns
+        otherInfoLevel.setRetrieveColumnDataTypes(schemaInfoLevel.isRetrieveTableColumns());
         otherInfoLevel.setRetrieveTableColumns(schemaInfoLevel.isRetrieveTableColumns());
         otherInfoLevel.setRetrieveAdditionalColumnAttributes(schemaInfoLevel.isRetrieveTableColumns());
 

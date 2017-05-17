@@ -112,7 +112,7 @@ public abstract class AbstractDbMetadataManagerIT {
             try {
                 jdbc.update(sql);
             } catch (Exception ignore) {
-                LOG.info("Ignoring error here for dropping tables (no easy way for this in DB2)");
+                LOG.info("Ignoring error here for dropping tables (simplest way to do this), {}", ignore.getMessage());
             }
         }
 

@@ -46,7 +46,7 @@
     <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-sqlserver:14.16.01-java7" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: com.microsoft.sqlserver:mssql-jdbc:6.1.0.jre8" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-db2:14.16.01-java7" level="project" />
-    <orderEntry type="library" name="Maven: postgresql:postgresql:9.1-901-1.jdbc4" level="project" />
+    <orderEntry type="library" name="Maven: org.postgresql:postgresql:42.1.1.jre7" level="project" />
     <orderEntry type="module" module-name="obevo-db-internal-test-helper" scope="TEST" />
     <orderEntry type="module" module-name="obevo-db" scope="TEST" production-on-test="" />
     <orderEntry type="module" module-name="obevo-db-unittest-util" scope="TEST" />
