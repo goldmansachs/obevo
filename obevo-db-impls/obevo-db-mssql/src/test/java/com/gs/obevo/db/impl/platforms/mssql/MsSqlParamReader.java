@@ -21,7 +21,7 @@ import org.eclipse.collections.impl.factory.Maps;
 
 public class MsSqlParamReader {
     public static ParamReader getParamReader() {
-        return new ParamReader(ConfigFactory.parseResources("mssql-creds.properties"),
+        return new ParamReader(ConfigFactory.parseResources(System.getProperty("dbCredsFile", "mssql-creds.properties")),
                 "mssql", ConfigFactory.parseMap(Maps.mutable.<String, Object>of(
                         "sysattrs.type", "MSSQL",
                         "logicalSchemas.schema1", "oats"

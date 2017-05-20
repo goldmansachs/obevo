@@ -52,7 +52,7 @@
     <orderEntry type="module" module-name="obevo-db-hsql" />
     <orderEntry type="library" name="Maven: org.hsqldb:hsqldb:2.3.2" level="project" />
     <orderEntry type="module" module-name="obevo-db-mssql" />
-    <orderEntry type="library" name="Maven: com.microsoft.sqlserver:mssql-jdbc:6.1.0.jre8" level="project" />
+    <orderEntry type="library" name="Maven: com.microsoft.sqlserver:mssql-jdbc:6.1.0.jre7" level="project" />
     <orderEntry type="module" module-name="obevo-db-oracle" />
     <orderEntry type="library" scope="TEST" name="Maven: org.slf4j:slf4j-simple:1.7.18" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.18" level="project" />

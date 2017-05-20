@@ -66,4 +66,13 @@
             <!-- optional for the translation code -->
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>amazon-build</id>
+            <properties>
+                <dbCredsFile>amazon-mssql-creds.properties</dbCredsFile>
+            </properties>
+        </profile>
+    </profiles>
 </project>

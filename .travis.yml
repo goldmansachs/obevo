@@ -10,7 +10,7 @@ install:
 env:
   regular:
     - DESC="regularBuild"
-    - CMD="mvn -T 1C clean install"
+    - CMD="mvn -T 1C -P amazon-build clean install"
 
 deploy:
   provider: releases
