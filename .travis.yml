@@ -7,7 +7,7 @@ before_install:
 install:
   -
 
-script: mvn -T 1C -P amazon-build clean install
+script: mvn -T 1C clean install
 
 deploy:
   provider: releases
