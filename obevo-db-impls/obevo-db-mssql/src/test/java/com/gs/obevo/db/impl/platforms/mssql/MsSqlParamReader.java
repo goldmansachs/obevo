@@ -17,11 +17,17 @@ package com.gs.obevo.db.impl.platforms.mssql;
 
 import com.gs.obevo.db.testutil.ParamReader;
 import com.typesafe.config.ConfigFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.collections.impl.factory.Maps;
 
 public class MsSqlParamReader {
     public static ParamReader getParamReader() {
-        return new ParamReader(ConfigFactory.parseResources(System.getProperty("dbCredsFile", "mssql-creds.properties")),
+        String dbCredsFile = System.getProperty("dbCredsFile");
+        if (StringUtils.isEmpty(dbCredsFile)) {
+            dbCredsFile = "mssql-creds.properties";
+        }
+
+        return new ParamReader(ConfigFactory.parseResources(dbCredsFile),
                 "mssql", ConfigFactory.parseMap(Maps.mutable.<String, Object>of(
                         "sysattrs.type", "MSSQL",
                         "logicalSchemas.schema1", "oats"
