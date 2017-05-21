@@ -71,7 +71,7 @@
         </ul>
         <p>Alternative considered - tool generates the diffs:</p>
         <ul>
-            <li>An approach that people may think of (and one that has been explored in the CSW Synchronizer tool) is to
+            <li>An approach that people may think of is to
                 just maintain the latest version of the schema in your source, and have the tool figure out the
                 differences
             </li>

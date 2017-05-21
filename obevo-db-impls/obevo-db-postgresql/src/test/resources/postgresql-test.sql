@@ -16,16 +16,12 @@
 
 create table METADATA_TEST_TABLE (afield int, bfield int)
 GO
-grant select, insert, update on METADATA_TEST_TABLE to GROUP DACT_RO
-GO
 
 create table TABLE_A (
     A_ID INT NOT NULL,
     A2_ID INT,
     PRIMARY KEY (A_ID)
 )
-GO
-grant select, insert, update, delete on TABLE_A to GROUP DACT_RO
 GO
 
 
@@ -55,23 +51,16 @@ GO
 ALTER TABLE TABLE_B_WITH_FK ADD CONSTRAINT FK_A FOREIGN KEY (OTHER_A_ID) REFERENCES TABLE_A(A_ID)
 GO
 
-grant select, insert, update, delete on TABLE_B_WITH_FK to GROUP DACT_RO
-GO
-
 create table TABLE_GENERATED_ID (
 	GEN_ID    SERIAL,
 	FIELD1  INT
 )
-GO
-grant select, insert, update on TABLE_GENERATED_ID to GROUP DACT_RO
 GO
 
 
 
 CREATE VIEW VIEW1 AS SELECT * FROM METADATA_TEST_TABLE
 -- my comment
-GO
-GRANT select on VIEW1 to GROUP DACT_RO
 GO
 
 

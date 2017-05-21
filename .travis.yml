@@ -7,10 +7,7 @@ before_install:
 install:
   -
 
-env:
-  regular:
-    - DESC="regularBuild"
-    - CMD="mvn -T 1C clean install"
+script: mvn -T 1C clean install
 
 deploy:
   provider: releases

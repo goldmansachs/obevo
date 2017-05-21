@@ -277,7 +277,7 @@ GO]]></source>
                     (*)
                 </p>
                 <ul>
-                    <li>You must create a new alter statement. This is required to guarantee that we can always reply all
+                    <li>You must create a new alter statement. This is required to guarantee that we can always replay all
                         the changes in a DB file to recreate the schema from scratch
                     </li>
                     <li>Modifying white-space is fine; the tool will tolerate that. But changing actual content will fail.</li>

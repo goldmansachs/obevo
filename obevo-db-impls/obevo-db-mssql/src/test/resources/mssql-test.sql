@@ -30,16 +30,12 @@ GO
 
 create table METADATA_TEST_TABLE (afield int, bfield int)
 GO
-grant select, insert, update on METADATA_TEST_TABLE to DACT_RO_DBDeploy
-GO
 
 create table TABLE_A (
     A_ID INT NOT NULL,
     A2_ID INT,
     PRIMARY KEY (A_ID)
 )
-GO
-grant select, insert, update, delete on TABLE_A to DACT_RO_DBDeploy
 GO
 
 create table TEST_TYPES (
@@ -83,15 +79,10 @@ GO
 ALTER TABLE TABLE_B_WITH_FK ADD CONSTRAINT FK_A FOREIGN KEY (OTHER_A_ID) REFERENCES TABLE_A(A_ID)
 GO
 
-grant select, insert, update, delete on TABLE_B_WITH_FK to DACT_RO_DBDeploy
-GO
-
 create table TABLE_GENERATED_ID (
 	GEN_ID    BIGINT IDENTITY NOT NULL,
 	FIELD1  INT
 )
-GO
-grant select, insert, update on TABLE_GENERATED_ID to DACT_RO_DBDeploy
 GO
 
 
@@ -99,15 +90,11 @@ GO
 CREATE VIEW VIEW1 AS SELECT * FROM METADATA_TEST_TABLE
 -- my comment
 GO
-GRANT select on VIEW1 to DACT_RO_DBDeploy
-GO
 
 
 create table INVALID_TABLE (a INT)
 GO
 create view INVALID_VIEW AS SELECT * FROM INVALID_TABLE
-GO
-grant SELECT on VIEW1 to DACT_RO_DBDeploy
 GO
 DROP TABLE INVALID_TABLE
 GO

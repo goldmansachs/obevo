@@ -25,6 +25,6 @@ public class MsSqlJdbcDataSourceFactory extends JdbcDataSourceFactory {
     }
 
     public static String createUrl(String host, int port) {
-        return String.format("jdbc:sybase:Tds:%1$s:%2$s", host, port);
+        return String.format("jdbc:sqlserver:%1$s:%2$s", host, port);
     }
 }

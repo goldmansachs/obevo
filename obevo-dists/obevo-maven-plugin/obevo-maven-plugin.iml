@@ -55,13 +55,13 @@
     <orderEntry type="module" module-name="obevo-db-sybase-ase" />
     <orderEntry type="module" module-name="obevo-db-sybase-iq" />
     <orderEntry type="module" module-name="obevo-db-postgresql" />
-    <orderEntry type="library" name="Maven: postgresql:postgresql:9.1-901-1.jdbc4" level="project" />
+    <orderEntry type="library" name="Maven: org.postgresql:postgresql:42.1.1.jre7" level="project" />
     <orderEntry type="module" module-name="obevo-db-h2" />
     <orderEntry type="library" name="Maven: com.h2database:h2:1.4.187" level="project" />
     <orderEntry type="module" module-name="obevo-db-hsql" />
     <orderEntry type="library" name="Maven: org.hsqldb:hsqldb:2.3.2" level="project" />
     <orderEntry type="module" module-name="obevo-db-mssql" />
-    <orderEntry type="library" name="Maven: com.microsoft.sqlserver:mssql-jdbc:6.1.0.jre8" level="project" />
+    <orderEntry type="library" name="Maven: com.microsoft.sqlserver:mssql-jdbc:6.1.0.jre7" level="project" />
     <orderEntry type="module" module-name="obevo-db-oracle" />
     <orderEntry type="library" name="Maven: commons-cli:commons-cli:1.2" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.18" level="project" />
