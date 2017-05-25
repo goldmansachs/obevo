@@ -253,7 +253,7 @@ public class DbEnvironmentXmlEnricher implements EnvironmentEnricher<DbEnvironme
                     schemaNameOverrides.put(schema, schemaOverride.getString("[@overrideValue]"));
                 } else {
                     throw new IllegalArgumentException("Schema override definition value "
-                            + schema + " is not defined in the schema list " + schemaNames);
+                            + schema + " is not defined in the schema list " + schemaNames + " for environment " + dbEnv.getName());
                 }
             }
 
