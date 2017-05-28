@@ -21,6 +21,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.gs.obevo.api.platform.ChangeType;
+import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.db.impl.core.util.MultiLineStringSplitter;
 import com.gs.obevo.impl.changetypes.UnclassifiedChangeType;
@@ -50,6 +51,51 @@ public abstract class AbstractDdlReveng {
     private final ImmutableList<RevengPattern> revengPatterns;
     private final Procedure2<ChangeEntry, String> postProcessChange;
 
+    public static String removeQuotes(String input) {
+        Pattern compile = Pattern.compile("\"([A-Z_0-9]+)\"", Pattern.DOTALL);
+
+        StringBuffer sb = new StringBuffer(input.length());
+
+        Matcher matcher = compile.matcher(input);
+        while (matcher.find()) {
+            matcher.appendReplacement(sb, matcher.group(1));
+        }
+        matcher.appendTail(sb);
+
+        return sb.toString();
+    }
+
+    public static AbstractDdlReveng.LineParseOutput substituteTablespace(String input) {
+        Pattern compile = Pattern.compile("(\\s+IN\\s+)\"(\\w+)\"(\\s*)", Pattern.DOTALL);
+
+        StringBuffer sb = new StringBuffer(input.length());
+
+        String addedToken = null;
+        String addedValue = null;
+        Matcher matcher = compile.matcher(input);
+        if (matcher.find()) {
+            addedToken = matcher.group(2) + "_token";
+            addedValue = matcher.group(2);
+            matcher.appendReplacement(sb, matcher.group(1) + "\"\\${" + addedToken + "}\"" + matcher.group(3));
+        }
+        matcher.appendTail(sb);
+
+        return new AbstractDdlReveng.LineParseOutput(sb.toString()).withToken(addedToken, addedValue);
+    }
+
+    protected static final Function<String, LineParseOutput> REMOVE_QUOTES = new Function<String, AbstractDdlReveng.LineParseOutput>() {
+        @Override
+        public AbstractDdlReveng.LineParseOutput valueOf(String input) {
+            return new AbstractDdlReveng.LineParseOutput(removeQuotes(input));
+        }
+    };
+    protected static final Function<String, AbstractDdlReveng.LineParseOutput> REPLACE_TABLESPACE = new Function<String, AbstractDdlReveng.LineParseOutput>() {
+        @Override
+        public AbstractDdlReveng.LineParseOutput valueOf(String input) {
+            return substituteTablespace(input);
+        }
+    };
+
     public AbstractDdlReveng(DbPlatform platform, MultiLineStringSplitter stringSplitter, ImmutableList<Predicate<String>> skipPredicates, ImmutableList<RevengPattern> revengPatterns, Procedure2<ChangeEntry, String> postProcessChange) {
         this.platform = platform;
         this.stringSplitter = stringSplitter;
@@ -59,7 +105,7 @@ public abstract class AbstractDdlReveng {
     }
 
     public void reveng(AquaRevengArgs args) {
-        if (args.getInputPath() == null) {
+        if (!isNativeRevengSupported() && args.getInputPath() == null) {
             printInstructions(args);
         } else {
             revengMain(args);
@@ -68,9 +114,39 @@ public abstract class AbstractDdlReveng {
 
     protected abstract void printInstructions(AquaRevengArgs args);
 
+    protected boolean isNativeRevengSupported() {
+        return false;
+    }
+
+    protected File doNativeReveng(AquaRevengArgs args, DbEnvironment env) {
+        return null;
+    }
+
     private void revengMain(AquaRevengArgs args) {
         String schema = args.getDbSchema();
-        File file = args.getInputPath();
+        File file;
+        if (args.getInputPath() != null) {
+            file = args.getInputPath();
+        } else if (isNativeRevengSupported()) {
+            DbEnvironment env = new DbEnvironment();
+            env.setPlatform(platform);
+            env.setSystemDbPlatform(platform);
+            env.setDbHost(args.getDbHost());
+            if (args.getDbPort() != null) {
+                env.setDbPort(args.getDbPort());
+            }
+            env.setDbServer(args.getDbServer());
+            env.setJdbcUrl(args.getJdbcUrl());
+            if (args.getDriverClass() != null) {
+                env.setDriverClassName(args.getDriverClass());
+            } else {
+                env.setDriverClassName(platform.getDriverClass(env).getName());
+            }
+
+            file = doNativeReveng(args, env);
+        } else {
+            throw new IllegalStateException("Can't reach here");
+        }
         boolean generateBaseline = args.isGenerateBaseline();
         File outputDir = args.getOutputPath();
 
@@ -229,7 +305,7 @@ public abstract class AbstractDdlReveng {
             }
         }
 
-        new RevengWriter().write(platform, changeEntries, outputDir, generateBaseline, RevengWriter.defaultShouldOverwritePredicate(), args.getDbHost(), args.getDbPort(), args.getDbServer());
+        new RevengWriter().write(platform, changeEntries, outputDir, generateBaseline, RevengWriter.defaultShouldOverwritePredicate(), args.getJdbcUrl(), args.getDbHost(), args.getDbPort(), args.getDbServer());
     }
 
     /**

@@ -221,12 +221,14 @@ public abstract class AbstractDbMetadataManagerIT {
     }
 
     @Test
+    @Ignore
     public void testSpecificTableLookup() throws Exception {
         DaTable table = mgr.getTableInfo(getSchemaName(), "TABLE_A", new DaSchemaInfoLevel().setRetrieveTableAndColumnDetails());
         verify_TABLE_A(table, "TABLE_A");
     }
 
     @Test
+    @Ignore
     public void testSpecificRoutineLookup() throws Exception {
         if (isStoredProcedureSupported()) {
             DaRoutine sp = mgr.getProcedureInfo(getSchemaName(), "SP1", new DaSchemaInfoLevel().setRetrieveRoutineDetails(true)).getFirst();

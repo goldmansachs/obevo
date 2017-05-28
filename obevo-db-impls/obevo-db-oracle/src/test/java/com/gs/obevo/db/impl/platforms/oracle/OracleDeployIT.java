@@ -53,8 +53,8 @@ public class OracleDeployIT {
     @Test
     public void testDeploy() throws Exception {
         getAppContext.valueOf(1)
-                .cleanEnvironment()
                 .setupEnvInfra()
+                .cleanEnvironment()
                 .deploy();
 
         // ensuring that we can modify

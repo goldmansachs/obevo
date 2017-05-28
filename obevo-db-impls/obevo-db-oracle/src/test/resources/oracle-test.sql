@@ -16,16 +16,12 @@
 
 create table METADATA_TEST_TABLE (afield int, bfield int)
 GO
-grant select, insert, update on METADATA_TEST_TABLE to DACT_RO
-GO
 
 create table TABLE_A (
     A_ID INT NOT NULL,
     A2_ID INT,
     PRIMARY KEY (A_ID)
 )
-GO
-grant select, insert, update, delete on TABLE_A to DACT_RO
 GO
 
 
@@ -55,8 +51,6 @@ GO
 ALTER TABLE TABLE_B_WITH_FK ADD CONSTRAINT FK_A FOREIGN KEY (OTHER_A_ID) REFERENCES TABLE_A(A_ID)
 GO
 
-grant select, insert, update, delete on TABLE_B_WITH_FK to DACT_RO
-GO
 
 
 --no sequences yet in Oracle 11
@@ -65,22 +59,16 @@ GO
 --	FIELD1  INT
 --)
 -- G O
---grant select, insert, update on TABLE_GENERATED_ID to DACT_RO
--- G O
 
 -- need to ignore Oracle views for now due to bad testing environment
 --CREATE VIEW VIEW1 AS SELECT * FROM METADATA_TEST_TABLE
 -- my comment
--- G O
---GRANT select on VIEW1 to DACT_RO
 -- G O
 
 
 create table INVALID_TABLE (a INT)
 GO
 --create view INVALID_VIEW AS SELECT * FROM INVALID_TABLE
--- G O
---grant SELECT on INVALID_VIEW to DACT_RO
 -- G O
 DROP TABLE INVALID_TABLE
 GO

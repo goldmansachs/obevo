@@ -89,19 +89,6 @@ public class Db2lookReveng extends AbstractDdlReveng {
                 "-cor -e -td ~ ";
     }
 
-    static final Function<String, LineParseOutput> REMOVE_QUOTES = new Function<String, AbstractDdlReveng.LineParseOutput>() {
-        @Override
-        public AbstractDdlReveng.LineParseOutput valueOf(String input) {
-            return new AbstractDdlReveng.LineParseOutput(removeQuotes(input));
-        }
-    };
-    static final Function<String, AbstractDdlReveng.LineParseOutput> REPLACE_TABLESPACE = new Function<String, AbstractDdlReveng.LineParseOutput>() {
-        @Override
-        public AbstractDdlReveng.LineParseOutput valueOf(String input) {
-            return substituteTablespace(input);
-        }
-    };
-
     static ImmutableList<RevengPattern> getRevengPatterns() {
         String nameSubPattern = "\"?(\\w+)\"?";
         String schemaNameSubPattern = "\"?(\\w+\\.)?(\\w+)\"?";
@@ -127,37 +114,5 @@ public class Db2lookReveng extends AbstractDdlReveng {
                 new AbstractDdlReveng.RevengPattern(ChangeType.TRIGGER_STR, "(?i)create\\s+or\\s+replace\\s+trigger\\s+" + schemaNameSubPattern, 2, null, null),
                 new AbstractDdlReveng.RevengPattern(ChangeType.TRIGGER_STR, "(?i)create\\s+or\\s+replace\\s+trigger\\s+" + nameSubPattern)
         );
-    }
-
-    public static String removeQuotes(String input) {
-        Pattern compile = Pattern.compile("\"([A-Z_0-9]+)\"", Pattern.DOTALL);
-
-        StringBuffer sb = new StringBuffer(input.length());
-
-        Matcher matcher = compile.matcher(input);
-        while (matcher.find()) {
-            matcher.appendReplacement(sb, matcher.group(1));
-        }
-        matcher.appendTail(sb);
-
-        return sb.toString();
-    }
-
-    public static AbstractDdlReveng.LineParseOutput substituteTablespace(String input) {
-        Pattern compile = Pattern.compile("(\\s+IN\\s+)\"(\\w+)\"(\\s*)", Pattern.DOTALL);
-
-        StringBuffer sb = new StringBuffer(input.length());
-
-        String addedToken = null;
-        String addedValue = null;
-        Matcher matcher = compile.matcher(input);
-        if (matcher.find()) {
-            addedToken = matcher.group(2) + "_token";
-            addedValue = matcher.group(2);
-            matcher.appendReplacement(sb, matcher.group(1) + "\"\\${" + addedToken + "}\"" + matcher.group(3));
-        }
-        matcher.appendTail(sb);
-
-        return new AbstractDdlReveng.LineParseOutput(sb.toString()).withToken(addedToken, addedValue);
     }
 }

@@ -17,6 +17,7 @@ package com.gs.obevo.db.impl.platforms.oracle;
 
 import com.gs.obevo.db.api.platform.SqlExecutor;
 import com.gs.obevo.db.impl.core.DbDeployerAppContextImpl;
+import com.gs.obevo.db.impl.core.envinfrasetup.EnvironmentInfraSetup;
 import com.gs.obevo.db.impl.core.jdbc.DataSourceFactory;
 import org.eclipse.collections.api.block.function.Function0;
 
@@ -33,5 +34,10 @@ public class OracleAppContext extends DbDeployerAppContextImpl {
     @Override
     protected DataSourceFactory getDataSourceFactory() {
         return new OracleJdbcDataSourceFactory();
+    }
+
+    @Override
+    public EnvironmentInfraSetup getEnvironmentInfraSetup() {
+        return new OracleEnvironmentInfraSetup(this.getEnvironment(), this.getManagedDataSource(), this.deployStatsTracker());
     }
 }

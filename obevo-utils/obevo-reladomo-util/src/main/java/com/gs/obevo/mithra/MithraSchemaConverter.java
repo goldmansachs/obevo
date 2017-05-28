@@ -87,7 +87,7 @@ public class MithraSchemaConverter {
             }
         });
 
-        new RevengWriter().write(platform, changeEntries, outputDir, generateBaseline, RevengWriter.defaultShouldOverwritePredicate(), null, null, null);
+        new RevengWriter().write(platform, changeEntries, outputDir, generateBaseline, RevengWriter.defaultShouldOverwritePredicate(), null, null, null, null);
     }
 
     /*
