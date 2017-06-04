@@ -101,23 +101,17 @@ public class OracleReveng extends AbstractDdlReveng {
         interim.toFile().mkdirs();
         try (Connection conn = ds.getConnection();
              BufferedWriter fileWriter = Files.newBufferedWriter(interim.resolve("output.sql"), Charset.defaultCharset())) {
-//            MutableList<Map<String, Object>> help = jdbc.queryForList(conn, trySql);
-///            System.out.println("Helping " + help);
 
             // https://docs.oracle.com/database/121/ARPLS/d_metada.htm#BGBJBFGE
             jdbc.update(conn, "{ CALL DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM,'STORAGE',false) }");
-            jdbc.update(conn, "{ CALL DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM,'SQLTERMINATOR',false) }");
-            //jdbc.update(conn, "{ CALL DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM,'TABLESPACE',false) }");
-            jdbc.update(conn, "{ CALL DBMS_METADATA.SET_REMAP_PARAM(DBMS_METADATA.SESSION_TRANSFORM,'REMAP_SCHEMA', 'DBDEPLOY01', 'SHANTSCHEMA' ) }");
-
-            //jdbc.update(conn, "{ CALL SET_REMAP_PARAM(tr_handle,'REMAP_TABLESPACE','TBS1','TBS2') }");
 
 
             MutableList<Map<String, Object>> maps = jdbc.queryForList(conn,
-                    "SELECT OBJECT_TYPE, dbms_metadata.get_ddl(REPLACE(object_type,' ','_'), object_name, owner) || ';' AS object_ddl " +
-                    "FROM DBA_OBJECTS WHERE OWNER = '" + args.getDbSchema() + "' AND OBJECT_TYPE NOT IN ('PACKAGE BODY', 'LOB','MATERIALIZED VIEW', 'TABLE PARTITION')");
-
-//            jdbc.update(conn, "EXECUTE DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM,'DEFAULT');");
+                    "SELECT CASE WHEN OBJECT_TYPE = 'TABLE' THEN 1 WHEN OBJECT_TYPE = 'INDEX' THEN 2 ELSE 3 END SORT_ORDER,\n" +
+                            "    OBJECT_TYPE,\n" +
+                            "    dbms_metadata.get_ddl(REPLACE(object_type,' ','_'), object_name, owner) || ';' AS object_ddl\n" +
+                            "FROM DBA_OBJECTS WHERE OWNER = '" + args.getDbSchema() + "' AND OBJECT_TYPE NOT IN ('PACKAGE BODY', 'LOB','MATERIALIZED VIEW', 'TABLE PARTITION')\n" +
+                            "ORDER BY 1");
 
             for (Map<String, Object> map : maps) {
                 System.out.println(map);
@@ -132,7 +126,7 @@ public class OracleReveng extends AbstractDdlReveng {
                 String clobAsString = w.toString();
                 clobAsString = clobAsString.replaceAll(";.*$", "");
 
-                System.out.println("ABCD: " + clobAsString);
+                System.out.println("Content for " + map.get("OBJECT_TYPE") + ": " + clobAsString);
                 fileWriter.write(clobAsString);
                 fileWriter.newLine();
                 fileWriter.write("~");
@@ -152,29 +146,21 @@ public class OracleReveng extends AbstractDdlReveng {
     }
 
     static ImmutableList<RevengPattern> getRevengPatterns() {
-        String nameSubPattern = "\"?(\\w+)\"?";
         String schemaNameSubPattern = "\"?(\\w+\\.)?(\\w+)\"?";
+        String schemaSysNamePattern = "\"?(\\w+\\.)?(SYS_\\w+)\"?";
         return Lists.immutable.with(
                 new AbstractDdlReveng.RevengPattern(ChangeType.SEQUENCE_STR, "(?i)create\\s+(?:or\\s+replace\\s+)?sequence\\s+" + schemaNameSubPattern, 2, null, null).withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
-                new AbstractDdlReveng.RevengPattern(ChangeType.SEQUENCE_STR, "(?i)create\\s+(?:or\\s+replace\\s+)?sequence\\s+" + nameSubPattern).withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
                 new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)create\\s+table\\s+" + schemaNameSubPattern, 2, null, null).withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)create\\s+table\\s+" + nameSubPattern).withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+add\\s+constraint\\s+" + nameSubPattern + "\\s+foreign\\s+key", 2, 3, "FK").withPostProcessSql(REMOVE_QUOTES),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + nameSubPattern + "\\s+add\\s+constraint\\s+" + nameSubPattern + "\\s+foreign\\s+key", 1, 2, "FK").withPostProcessSql(REMOVE_QUOTES),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+add\\s+constraint\\s+" + nameSubPattern, 2, 3, null).withPostProcessSql(REMOVE_QUOTES),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + nameSubPattern + "\\s+add\\s+constraint\\s+" + nameSubPattern, 1, 2, null).withPostProcessSql(REMOVE_QUOTES),
+//                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+add\\s+constraint\\s+" + nameSubPattern + "\\s+foreign\\s+key", 2, 3, "FK").withPostProcessSql(REMOVE_QUOTES),
+//                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+add\\s+constraint\\s+" + nameSubPattern, 2, 3, null).withPostProcessSql(REMOVE_QUOTES),
                 new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + schemaNameSubPattern, 2, null, null).withPostProcessSql(REMOVE_QUOTES),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + nameSubPattern).withPostProcessSql(REMOVE_QUOTES),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)create\\s+index\\s+" + schemaNameSubPattern + "\\s+on\\s+" + schemaNameSubPattern, 3, 2, "INDEX").withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)create\\s+index\\s+" + nameSubPattern + "\\s+on\\s+" + nameSubPattern, 2, 1, "INDEX").withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
+                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)create\\s+unique\\s+index\\s+" + schemaSysNamePattern + "\\s+on\\s+" + schemaNameSubPattern, 4, 2, "excludeEnvs=\"%\" comment=\"this_is_potentially_a_redundant_primaryKey_index_please_double_check\"").withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
+                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)create\\s+(?:unique\\s+)index\\s+" + schemaNameSubPattern + "\\s+on\\s+" + schemaNameSubPattern, 4, 2, "INDEX").withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
                 new AbstractDdlReveng.RevengPattern(ChangeType.FUNCTION_STR, "(?i)create\\s+(?:or\\s+replace\\s+)?(?:force\\s+)?(?:editionable\\s+)?function\\s+" + schemaNameSubPattern, 2, null, null),
-                new AbstractDdlReveng.RevengPattern(ChangeType.FUNCTION_STR, "(?i)create\\s+(?:or\\s+replace\\s+)?(?:force\\s+)?(?:editionable\\s+)?function\\s+" + nameSubPattern),
                 new AbstractDdlReveng.RevengPattern(ChangeType.VIEW_STR, "(?i)create\\s+(?:or\\s+replace\\s+)?(?:force\\s+)?(?:editionable\\s+)?view\\s+" + schemaNameSubPattern, 2, null, null),
-                new AbstractDdlReveng.RevengPattern(ChangeType.VIEW_STR, "(?i)create\\s+(?:or\\s+replace\\s+)?(?:force\\s+)?(?:editionable\\s+)?view\\s+" + nameSubPattern),
-                new AbstractDdlReveng.RevengPattern(ChangeType.SP_STR, "(?i)create\\s+or\\s+replace\\s+procedure\\s+" + schemaNameSubPattern, 2, null, null),
-                new AbstractDdlReveng.RevengPattern(ChangeType.SP_STR, "(?i)create\\s+or\\s+replace\\s+procedure\\s+" + nameSubPattern),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TRIGGER_STR, "(?i)create\\s+or\\s+replace\\s+trigger\\s+" + schemaNameSubPattern, 2, null, null),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TRIGGER_STR, "(?i)create\\s+or\\s+replace\\s+trigger\\s+" + nameSubPattern)
+                new AbstractDdlReveng.RevengPattern(ChangeType.SP_STR, "(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)procedure\\s+" + schemaNameSubPattern, 2, null, null),
+                new AbstractDdlReveng.RevengPattern(ChangeType.PACKAGE_STR, "(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)package\\s+" + schemaNameSubPattern, 2, null, null),
+                new AbstractDdlReveng.RevengPattern(ChangeType.TRIGGER_STR, "(?i)create\\s+or\\s+replace\\s+trigger\\s+" + schemaNameSubPattern, 2, null, null)
         );
     }
 }

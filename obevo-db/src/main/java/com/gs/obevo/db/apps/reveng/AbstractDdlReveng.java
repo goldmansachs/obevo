@@ -48,6 +48,7 @@ public abstract class AbstractDdlReveng {
     private final DbPlatform platform;
     private final MultiLineStringSplitter stringSplitter;
     private final ImmutableList<Predicate<String>> skipPredicates;
+    private ImmutableList<Predicate<String>> skipLinePredicates;
     private final ImmutableList<RevengPattern> revengPatterns;
     private final Procedure2<ChangeEntry, String> postProcessChange;
 
@@ -110,6 +111,10 @@ public abstract class AbstractDdlReveng {
         } else {
             revengMain(args);
         }
+    }
+
+    public void setSkipLinePredicates(ImmutableList<Predicate<String>> skipLinePredicates) {
+        this.skipLinePredicates = skipLinePredicates;
     }
 
     protected abstract void printInstructions(AquaRevengArgs args);
@@ -190,18 +195,25 @@ public abstract class AbstractDdlReveng {
                 } else if (line.startsWith("-- DDL Statements for ")) {
                     dataLines.set(i, "");
                 }
+
+                // For PostgreSQL
+                if ((line.equals("--")
+                        && dataLines.get(i + 1).startsWith("-- Name: ")
+                        && dataLines.get(i + 2).equals("--"))) {
+                    dataLines.set(i, "");
+                    dataLines.set(i + 1, "GO");
+                    dataLines.set(i + 2, "");
+                }
             }
         });
 
-        String data = dataLines.makeString(SystemUtils.LINE_SEPARATOR);
+        String data = dataLines
+                .reject(skipLinePredicates != null ? Predicates.or(skipLinePredicates) : (Predicate) Predicates.alwaysFalse())
+                .makeString(SystemUtils.LINE_SEPARATOR);
 
         MutableList<String> entries = stringSplitter.valueOf(data);
 
-        String candidateObject = "UNKNOWN";
-        ChangeType candidateObjectType = UnclassifiedChangeType.INSTANCE;
-
         int selfOrder = 0;
-        int objectOrder = 0;
 
 
         // Find object names
@@ -218,20 +230,11 @@ public abstract class AbstractDdlReveng {
                 candidateLine = candidateLine.replaceAll(schema + "\\.", "");  // alternate DB2 for views
                 candidateLine = removeQuotesFromProcxmode(candidateLine);  // sybase ASE
 
-                RevengPattern chosenRevengPattern = null;
-                String secondaryName = null;
                 for (RevengPattern revengPattern : revengPatterns) {
                     RevengPatternOutput patternMatch = revengPattern.evaluate(candidateLine);
                     if (patternMatch != null) {
                         System.out.println("OBJECT NAME " + patternMatch.getPrimaryName());
                         objectNames.add(patternMatch.getPrimaryName());
-                        chosenRevengPattern = revengPattern;
-                        candidateObject = patternMatch.getPrimaryName();
-                        if (patternMatch.getSecondaryName() != null) {
-                            secondaryName = patternMatch.getSecondaryName();
-                        }
-                        candidateObjectType = platform.getChangeType(revengPattern.getChangeType());
-                        objectOrder = 0;
                         break;
                     }
                 }
@@ -240,6 +243,8 @@ public abstract class AbstractDdlReveng {
 
         MutableMap<String, AtomicInteger> countByObject = Maps.mutable.empty();
 
+        String candidateObject = "UNKNOWN";
+        ChangeType candidateObjectType = UnclassifiedChangeType.INSTANCE;
         for (String candidateLine : entries) {
             try {
 
@@ -269,7 +274,6 @@ public abstract class AbstractDdlReveng {
                                 secondaryName = patternMatch.getSecondaryName();
                             }
                             candidateObjectType = platform.getChangeType(revengPattern.getChangeType());
-                            objectOrder = 0;
                             break;
                         }
                     }

@@ -13,10 +13,14 @@ public class CreateDbInstance {
     public static final String dbInstanceIdentifier = "dbdeploy-oracle-12-1";
 
     public static void main(String[] args) throws Exception {
-        //create();
-        //delete();
+/*
+        create();
         describe();
+*/
+
+        delete();
     }
+
     public static void describe() throws Exception {
         while (true) {
             DescribeDBInstancesRequest request = new DescribeDBInstancesRequest()
@@ -36,7 +40,7 @@ public class CreateDbInstance {
         }
     }
 
-    public static void create() {
+    public static void create() throws Exception {
         // http://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_CreateDBInstance.html
         CreateDBInstanceRequest request = new CreateDBInstanceRequest()
                 .withEngine("oracle-se2")
@@ -53,6 +57,8 @@ public class CreateDbInstance {
                 ;
         DBInstance response = client.createDBInstance(request);
         System.out.println(response);
+
+        describe();
     }
 
     public static void delete() {
