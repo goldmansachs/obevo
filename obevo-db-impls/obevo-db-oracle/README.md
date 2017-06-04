@@ -6,8 +6,8 @@ Create user with RDS Full Permissions
 Store the results in ~/.aws/credentials
 
 [default]
-aws_access_key_id=AKIAIF53QVVRXNQTY4CA
-aws_secret_access_key=vauAkc0OfWeMnkUs54gYKFsIDTGzxe9GUYQE2CUE
+aws_access_key_id=yourAccessKey
+aws_secret_access_key=yourSecretAccessKey
 
 https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/setup-credentials.html
 
