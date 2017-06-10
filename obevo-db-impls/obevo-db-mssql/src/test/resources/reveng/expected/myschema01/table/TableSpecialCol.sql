@@ -1,10 +1,10 @@
 //// CHANGE name=change0
-CREATE TABLE [dbo].[TableSpecialCol](
+CREATE TABLE TableSpecialCol(
 	[idField] [int] NOT NULL,
 	[smallDateTimeField] [smalldatetime] NULL,
 	[textField] [text] COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	[booleanCol] [dbo].[Boolean] NOT NULL,
-	[boolean2Col] [dbo].[Boolean2] NOT NULL,
+	[booleanCol] Boolean NOT NULL,
+	[boolean2Col] Boolean2 NOT NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[idField] ASC
@@ -14,9 +14,9 @@ PRIMARY KEY CLUSTERED
 GO
 
 //// CHANGE name=change1
-EXEC sys.sp_bindrule @rulename=N'[dbo].[booleanRule]', @objname=N'[dbo].[TableSpecialCol].[booleanCol]' , @futureonly='futureonly'
+EXEC sys.sp_bindrule @rulename=N'booleanRule', @objname=N'TableSpecialCol.[booleanCol]' , @futureonly='futureonly'
 GO
 
 //// CHANGE name=change2
-EXEC sys.sp_bindrule @rulename=N'[dbo].[booleanRule2]', @objname=N'[dbo].[TableSpecialCol].[boolean2Col]' , @futureonly='futureonly'
+EXEC sys.sp_bindrule @rulename=N'booleanRule2', @objname=N'TableSpecialCol.[boolean2Col]' , @futureonly='futureonly'
 GO

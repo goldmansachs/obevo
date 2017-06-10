@@ -4,6 +4,7 @@ import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
 import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
 import com.gs.obevo.db.apps.reveng.ChangeEntry;
+import com.gs.obevo.db.impl.core.reader.TextMarkupDocumentReader;
 import com.gs.obevo.db.impl.core.util.MultiLineStringSplitter;
 import org.apache.commons.lang3.ObjectUtils;
 import org.eclipse.collections.api.block.predicate.Predicate;
@@ -23,11 +24,15 @@ public class MsSqlReveng extends AbstractDdlReveng {
                 getRevengPatterns(),
                 new Procedure2<ChangeEntry, String>() {
                     @Override
-                    public void value(ChangeEntry changeEntry, String s) {
-
+                    public void value(ChangeEntry changeEntry, String sql) {
+                        if (sql.contains("\"")) {
+                            changeEntry.addMetadataAnnotation(TextMarkupDocumentReader.TOGGLE_DISABLE_QUOTED_IDENTIFIERS);
+                        }
                     }
                 }
         );
+        setStartQuote("\\[");
+        setEndQuote("\\]");
         setSkipLinePredicates(Lists.immutable.<Predicate<String>>of(
                 StringPredicates.matches(".*\\s*/\\*+\\s+Object")
                 , StringPredicates.startsWith("/****** Object:")
@@ -66,22 +71,23 @@ public class MsSqlReveng extends AbstractDdlReveng {
 
     static ImmutableList<RevengPattern> getRevengPatterns() {
         String schemaNameSubPattern = getSchemaObjectPattern("\\[", "\\]");
+        NamePatternType namePatternType = NamePatternType.TWO;
 
         return Lists.immutable.with(
-                new AbstractDdlReveng.RevengPattern(ChangeType.SEQUENCE_STR, "(?i)create\\s+seq(uence)?\\s+" + schemaNameSubPattern, 2),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)create\\s+table\\s+" + schemaNameSubPattern, 2),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+add\\s+constraint\\s+" + schemaNameSubPattern + "\\s+foreign\\s+key", 2, 4, "FK"),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+add\\s+constraint\\s+" + schemaNameSubPattern, 2, 4, null),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+", 2),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)create\\s+(?:(?:unique)|(?:nonclustered)\\s+)?(?:\\w+\\s+)?index\\s+" + schemaNameSubPattern + "\\s+on\\s+" + schemaNameSubPattern, 4, 2, "INDEX"),
-                new AbstractDdlReveng.RevengPattern(ChangeType.FUNCTION_STR, "(?i)create\\s+func(tion)?\\s+" + schemaNameSubPattern, 2),
-                new AbstractDdlReveng.RevengPattern(ChangeType.VIEW_STR, "(?i)create\\s+view\\s+" + schemaNameSubPattern, 2),
-                new AbstractDdlReveng.RevengPattern(ChangeType.SP_STR, "(?i)create\\s+proc(?:edure)?\\s+" + schemaNameSubPattern, 2),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TRIGGER_STR, "(?i)create\\s+trigger\\s+" + schemaNameSubPattern + "on\\s+" + schemaNameSubPattern, 4, 2, null),
-                new AbstractDdlReveng.RevengPattern(ChangeType.DEFAULT_STR, "(?i)create\\s+default\\s+" + schemaNameSubPattern, 2),
-                new AbstractDdlReveng.RevengPattern(ChangeType.RULE_STR, "(?i)create\\s+rule\\s+" + schemaNameSubPattern, 2),
-                new AbstractDdlReveng.RevengPattern(ChangeType.USERTYPE_STR, "(?i)create\\s+type\\s+'" + schemaNameSubPattern, 2),
-                new AbstractDdlReveng.RevengPattern(ChangeType.USERTYPE_STR, "(?i)^(exec\\s+)?sp_addtype\\s+'(\\w+)'", 2)
+                new AbstractDdlReveng.RevengPattern(ChangeType.USERTYPE_STR, namePatternType, "(?i)create\\s+type\\s+" + schemaNameSubPattern + "\\s+"),
+                new AbstractDdlReveng.RevengPattern(ChangeType.DEFAULT_STR, namePatternType, "(?i)create\\s+default\\s+" + schemaNameSubPattern),
+                new AbstractDdlReveng.RevengPattern(ChangeType.SEQUENCE_STR, namePatternType, "(?i)create\\s+seq(uence)?\\s+" + schemaNameSubPattern),
+                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+table\\s+" + schemaNameSubPattern),
+                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+add\\s+constraint\\s+" + schemaNameSubPattern + "\\s+foreign\\s+key", 1, 2, "FK"),
+                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+add\\s+constraint\\s+" + schemaNameSubPattern, 1, 2, null),
+                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+"),
+                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+(?:(?:unique)|(?:nonclustered)\\s+)?(?:\\w+\\s+)?index\\s+" + schemaNameSubPattern + "\\s+on\\s+" + schemaNameSubPattern, 2, 1, "INDEX"),
+                new AbstractDdlReveng.RevengPattern(ChangeType.FUNCTION_STR, namePatternType, "(?i)create\\s+func(tion)?\\s+" + schemaNameSubPattern),
+                new AbstractDdlReveng.RevengPattern(ChangeType.VIEW_STR, namePatternType, "(?i)create\\s+view\\s+" + schemaNameSubPattern),
+                new AbstractDdlReveng.RevengPattern(ChangeType.SP_STR, namePatternType, "(?i)create\\s+proc(?:edure)?\\s+" + schemaNameSubPattern),
+                new AbstractDdlReveng.RevengPattern(ChangeType.TRIGGER_STR, namePatternType, "(?i)create\\s+trigger\\s+" + schemaNameSubPattern + "on\\s+" + schemaNameSubPattern, 2, 1, null),
+                new AbstractDdlReveng.RevengPattern(ChangeType.RULE_STR, namePatternType, "(?i)create\\s+rule\\s+" + schemaNameSubPattern),
+                new AbstractDdlReveng.RevengPattern(ChangeType.USERTYPE_STR, namePatternType, "(?i)^(exec\\s+)?sp_addtype\\s+'(\\w+)'")
         );
 /*
         return Lists.immutable.with(

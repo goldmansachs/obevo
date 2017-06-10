@@ -1,5 +1,5 @@
 //// CHANGE name=change0
-CREATE TABLE [dbo].[TableSuffixTest](
+CREATE TABLE TableSuffixTest(
 	[idField] [int] NOT NULL,
 PRIMARY KEY CLUSTERED 
 (

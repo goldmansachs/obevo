@@ -22,10 +22,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.annimon.stream.OptionalInt;
+import com.annimon.stream.function.IntFunction;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.platform.DbPlatform;
@@ -35,6 +38,7 @@ import com.gs.obevo.util.FileUtilsCobra;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.function.Function0;
 import org.eclipse.collections.api.block.predicate.Predicate;
@@ -43,20 +47,28 @@ import org.eclipse.collections.api.block.procedure.primitive.ObjectIntProcedure;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.MutableMap;
+import org.eclipse.collections.api.multimap.MutableMultimap;
+import org.eclipse.collections.api.multimap.set.MutableSetMultimap;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Maps;
+import org.eclipse.collections.impl.factory.Multimaps;
 import org.eclipse.collections.impl.factory.Sets;
-import org.eclipse.collections.impl.list.fixed.ArrayAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractDdlReveng {
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractDdlReveng.class);
+
     private final DbPlatform platform;
     private final MultiLineStringSplitter stringSplitter;
     private final ImmutableList<Predicate<String>> skipPredicates;
     private ImmutableList<Predicate<String>> skipLinePredicates;
     private final ImmutableList<RevengPattern> revengPatterns;
     private final Procedure2<ChangeEntry, String> postProcessChange;
+    private String startQuote = "";
+    private String endQuote = "";
 
     public static String removeQuotes(String input) {
         Pattern compile = Pattern.compile("\"([A-Z_0-9]+)\"", Pattern.DOTALL);
@@ -139,6 +151,14 @@ public abstract class AbstractDdlReveng {
 
     public void setSkipLinePredicates(ImmutableList<Predicate<String>> skipLinePredicates) {
         this.skipLinePredicates = skipLinePredicates;
+    }
+
+    public void setStartQuote(String startQuote) {
+        this.startQuote = startQuote;
+    }
+
+    public void setEndQuote(String endQuote) {
+        this.endQuote = endQuote;
     }
 
     protected abstract void printInstructions(AquaRevengArgs args);
@@ -256,7 +276,8 @@ public abstract class AbstractDdlReveng {
 
 
         // Find object names
-        MutableSet<String> objectNames = Sets.mutable.empty();
+        MutableSet<RevengPatternOutput> objectNames = Sets.mutable.empty();
+        MutableSetMultimap<String, String> objectToSchemasMap = Multimaps.mutable.set.empty();
         for (String candidateLine : entries) {
             candidateLine = StringUtils.stripStart(candidateLine, "\r\n \t");
 
@@ -274,8 +295,11 @@ public abstract class AbstractDdlReveng {
                 for (RevengPattern revengPattern : revengPatterns) {
                     RevengPatternOutput patternMatch = revengPattern.evaluate(candidateLine);
                     if (patternMatch != null) {
-                        System.out.println("OBJECT NAME " + patternMatch.getPrimaryName() + ":" + patternMatch.getSecondaryName());
-                        objectNames.add(patternMatch.getPrimaryName());
+                        LOG.info("Found object: {}", patternMatch);
+                        objectNames.add(patternMatch);
+                        if (patternMatch.getSchema() != null) {
+                            objectToSchemasMap.put(patternMatch.getPrimaryName(), patternMatch.getSchema());
+                        }
                         break;
                     }
                 }
@@ -294,8 +318,9 @@ public abstract class AbstractDdlReveng {
                 if (StringUtils.isNotBlank(candidateLine)
                         && Predicates.noneOf(skipPredicates).accept(candidateLine)
                         ) {
+
 /*
-                    for (String objectName : objectNames) {
+                    for (RevengPatternOutput objectName : objectNames) {
                         candidateLine = candidateLine.replaceAll(schema + "\\s*\\." + objectName, objectName);  // sybase ASE
                         candidateLine = candidateLine.replaceAll(schema.toLowerCase() + "\\s*\\." + objectName.toLowerCase(), objectName.toLowerCase());  // sybase ASE
                     }
@@ -305,10 +330,14 @@ public abstract class AbstractDdlReveng {
                     candidateLine = candidateLine.replaceAll("'dbo\\.", "'");  // sybase ASE
 */
 
+
+
 /*
                     candidateLine = candidateLine.replaceAll("\"" + schema + "\\s*\"\\.", "");  // DB2
                     candidateLine = candidateLine.replaceAll(schema + "\\.", "");  // alternate DB2 for views
 */
+
+
                     candidateLine = removeQuotesFromProcxmode(candidateLine);  // sybase ASE
 
                     RevengPattern chosenRevengPattern = null;
@@ -323,6 +352,23 @@ public abstract class AbstractDdlReveng {
                             }
                             candidateObjectType = platform.getChangeType(revengPattern.getChangeType());
                             break;
+                        }
+                    }
+
+                    for (RevengPatternOutput objectOutput : objectNames) {
+                        MutableSet<String> replacerSchemas = objectToSchemasMap.get(objectOutput.getPrimaryName());
+                        if (replacerSchemas == null || replacerSchemas.isEmpty()) {
+                            replacerSchemas = objectToSchemasMap.valuesView().toSet();
+                        }
+                        LOG.info("Using replacer schemas {} on object {}", replacerSchemas, objectOutput.getPrimaryName());
+
+                        for (String replacerSchema : replacerSchemas) {
+                            candidateLine = candidateLine.replaceAll(startQuote + replacerSchema + "\\s*" + endQuote + "\\." + startQuote + objectOutput.getPrimaryName() + endQuote, objectOutput.getPrimaryName());
+                            candidateLine = candidateLine.replaceAll(replacerSchema + "\\s*" + "\\." + objectOutput.getPrimaryName(), objectOutput.getPrimaryName());
+                            if (objectOutput.getSecondaryName() != null) {
+                                candidateLine = candidateLine.replaceAll(startQuote + replacerSchema + "\\s*" + endQuote + "\\." + startQuote + objectOutput.getSecondaryName() + endQuote, objectOutput.getSecondaryName());
+                                candidateLine = candidateLine.replaceAll(replacerSchema + "\\s*" + "\\." + objectOutput.getSecondaryName(), objectOutput.getSecondaryName());
+                            }
                         }
                     }
 
@@ -407,8 +453,46 @@ public abstract class AbstractDdlReveng {
         }
     }
 
+    public enum NamePatternType {
+        ONE (1),
+        TWO (2),
+        THREE (3),
+        ;
+
+        private final int numParts;
+
+        NamePatternType(int numParts) {
+            this.numParts = numParts;
+        }
+
+        public OptionalInt getSchemaIndex(int groupIndex) {
+            switch (numParts) {
+            case 2:
+                return OptionalInt.of(groupIndex * numParts - 1);
+            case 3:
+                return OptionalInt.of(groupIndex * numParts - 2);
+            default:
+                return OptionalInt.empty();
+            }
+        }
+
+        public OptionalInt getSubSchemaIndex(int groupIndex) {
+            switch (numParts) {
+            case 3:
+                return OptionalInt.of(groupIndex * numParts - 1);
+            default:
+                return OptionalInt.empty();
+            }
+        }
+
+        public int getObjectIndex(int groupIndex) {
+            return groupIndex * numParts;
+        }
+    }
+
     public static class RevengPattern {
         private final String changeType;
+        private final NamePatternType namePatternType;
         private final Pattern pattern;
         private final int primaryNameIndex;
         private final Integer secondaryNameIndex;
@@ -422,16 +506,17 @@ public abstract class AbstractDdlReveng {
             }
         };
 
-        public RevengPattern(String changeType, String pattern) {
-            this(changeType, pattern, 1);
+        public RevengPattern(String changeType, NamePatternType namePatternType, String pattern) {
+            this(changeType, namePatternType, pattern, 1);
         }
 
-        public RevengPattern(String changeType, String pattern, int primaryNameIndex) {
-            this(changeType, pattern, primaryNameIndex, null, null);
+        private RevengPattern(String changeType, NamePatternType namePatternType, String pattern, int primaryNameIndex) {
+            this(changeType, namePatternType, pattern, primaryNameIndex, null, null);
         }
 
-        public RevengPattern(String changeType, String pattern, int primaryNameIndex, Integer secondaryNameIndex, String annotation) {
+        public RevengPattern(String changeType, NamePatternType namePatternType, String pattern, int primaryNameIndex, Integer secondaryNameIndex, String annotation) {
             this.changeType = changeType;
+            this.namePatternType = namePatternType;
             this.pattern = Pattern.compile(pattern, Pattern.DOTALL);
             this.primaryNameIndex = primaryNameIndex;
             this.secondaryNameIndex = secondaryNameIndex;
@@ -440,6 +525,10 @@ public abstract class AbstractDdlReveng {
 
         public String getChangeType() {
             return changeType;
+        }
+
+        public NamePatternType getNamePatternType() {
+            return namePatternType;
         }
 
         public Pattern getPattern() {
@@ -468,14 +557,31 @@ public abstract class AbstractDdlReveng {
         }
 
         public RevengPatternOutput evaluate(String input) {
-            Matcher matcher = pattern.matcher(input);
+            final Matcher matcher = pattern.matcher(input);
+            IntFunction<String> groupFunction = new IntFunction<String>() {
+                @Override
+                public String apply(int value) {
+                    return matcher.group(value);
+                }
+            };
+
             if (matcher.find()) {
-                String primaryName = matcher.group(primaryNameIndex);
+                String primaryName = matcher.group(namePatternType.getObjectIndex(primaryNameIndex));
+                String schema = namePatternType.getSchemaIndex(primaryNameIndex).mapToObj(groupFunction).orElse(null);
+                String subSchema = namePatternType.getSubSchemaIndex(primaryNameIndex).mapToObj(groupFunction).orElse(null);
+
                 String secondaryName = null;
                 if (secondaryNameIndex != null) {
-                    secondaryName = matcher.group(secondaryNameIndex);
+                    secondaryName = matcher.group(namePatternType.getObjectIndex(secondaryNameIndex));
+                    if (schema == null) {
+                        schema = namePatternType.getSchemaIndex(secondaryNameIndex).mapToObj(groupFunction).orElse(null);
+                    }
+                    if (subSchema == null) {
+                        subSchema = namePatternType.getSubSchemaIndex(secondaryNameIndex).mapToObj(groupFunction).orElse(null);
+                    }
+
                 }
-                return new RevengPatternOutput(primaryName, secondaryName, input);
+                return new RevengPatternOutput(primaryName, secondaryName, schema, subSchema, input);
             }
 
             return null;
@@ -485,6 +591,7 @@ public abstract class AbstractDdlReveng {
         public String toString() {
             return new ToStringBuilder(this)
                     .append("changeType", changeType)
+                    .append("namePatternType", namePatternType)
                     .append("pattern", pattern)
                     .append("primaryNameIndex", primaryNameIndex)
                     .append("secondaryNameIndex", secondaryNameIndex)
@@ -497,11 +604,15 @@ public abstract class AbstractDdlReveng {
     public static class RevengPatternOutput {
         private final String primaryName;
         private final String secondaryName;
+        private final String schema;
+        private final String subSchema;
         private final String revisedLine;
 
-        public RevengPatternOutput(String primaryName, String secondaryName, String revisedLine) {
+        public RevengPatternOutput(String primaryName, String secondaryName, String schema, String subSchema, String revisedLine) {
             this.primaryName = primaryName;
             this.secondaryName = secondaryName;
+            this.schema = schema;
+            this.subSchema = subSchema;
             this.revisedLine = revisedLine;
         }
 
@@ -513,8 +624,46 @@ public abstract class AbstractDdlReveng {
             return secondaryName;
         }
 
+        public String getSchema() {
+            return schema;
+        }
+
+        public String getSubSchema() {
+            return subSchema;
+        }
+
         public String getRevisedLine() {
             return revisedLine;
+        }
+
+        @Override
+        public String toString() {
+            return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+                    .append("schema", schema)
+                    .append("subSchema", subSchema)
+                    .append("primaryName", primaryName)
+                    .append("secondaryName", secondaryName)
+                    .toString();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            RevengPatternOutput that = (RevengPatternOutput) o;
+            return Objects.equals(primaryName, that.primaryName) &&
+                    Objects.equals(secondaryName, that.secondaryName) &&
+                    Objects.equals(schema, that.schema) &&
+                    Objects.equals(subSchema, that.subSchema);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(primaryName, secondaryName, schema, subSchema);
         }
     }
 }
