@@ -129,6 +129,9 @@ public abstract class AbstractDdlReveng {
     protected static String getSchemaObjectPattern(String startQuoteStr, String endQuoteStr) {
         return "(?:" + namePattern(startQuoteStr, endQuoteStr) + "\\.)?" + namePattern(startQuoteStr, endQuoteStr);
     }
+    protected static String getObjectPattern(String startQuoteStr, String endQuoteStr) {
+        return namePattern(startQuoteStr, endQuoteStr);
+    }
 
     protected static String getSchemaObjectWithPrefixPattern(String startQuoteStr, String endQuoteStr, String objectNamePrefix) {
         return "(?:" + namePattern(startQuoteStr, endQuoteStr) + "\\.)?" + nameWithPrefixPattern(startQuoteStr, endQuoteStr, objectNamePrefix);

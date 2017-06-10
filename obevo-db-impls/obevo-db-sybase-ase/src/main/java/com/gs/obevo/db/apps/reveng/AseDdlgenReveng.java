@@ -63,8 +63,8 @@ public class AseDdlgenReveng extends AbstractDdlReveng {
     }
 
     private static ImmutableList<RevengPattern> getRevengPatterns() {
-        String nameSubPattern = "\"?(\\w+)\"?";
-        NamePatternType namePatternType = NamePatternType.ONE;
+        String nameSubPattern = getCatalogSchemaObjectPattern("", "");
+        NamePatternType namePatternType = NamePatternType.THREE;
         return Lists.immutable.with(
                 new AbstractDdlReveng.RevengPattern(ChangeType.SEQUENCE_STR, namePatternType, "(?i)create\\s+seq(uence)?\\s+" + nameSubPattern),
                 new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+table\\s+" + nameSubPattern),
