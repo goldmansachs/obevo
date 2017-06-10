@@ -74,6 +74,10 @@ function global:Script-DBObjectsIntoFolders([string]$SavePath, [string]$server, 
 		$scriptr.Options.Permissions = $False
 
 		$scriptr.Options.WithDependencies = $False
+		$scriptr.Options.SchemaQualify = $True
+		<#
+		SchemaQualifyForeignKeysReferences
+		#>
 
 		$TypeFolder=$ScriptThis.GetType().Name
 

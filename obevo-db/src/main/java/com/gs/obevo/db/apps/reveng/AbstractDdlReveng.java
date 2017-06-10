@@ -16,6 +16,12 @@
 package com.gs.obevo.db.apps.reveng;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -105,6 +111,24 @@ public abstract class AbstractDdlReveng {
         this.postProcessChange = postProcessChange;
     }
 
+    protected static String getCatalogSchemaObjectPattern(String startQuoteStr, String endQuoteStr) {
+        return "(?:" + namePattern(startQuoteStr, endQuoteStr) + "\\.)?" + "(?:" + namePattern(startQuoteStr, endQuoteStr) + "\\.)?" + namePattern(startQuoteStr, endQuoteStr);
+    }
+    protected static String getSchemaObjectPattern(String startQuoteStr, String endQuoteStr) {
+        return "(?:" + namePattern(startQuoteStr, endQuoteStr) + "\\.)?" + namePattern(startQuoteStr, endQuoteStr);
+    }
+
+    protected static String getSchemaObjectWithPrefixPattern(String startQuoteStr, String endQuoteStr, String objectNamePrefix) {
+        return "(?:" + namePattern(startQuoteStr, endQuoteStr) + "\\.)?" + nameWithPrefixPattern(startQuoteStr, endQuoteStr, objectNamePrefix);
+    }
+
+    private static String namePattern(String startQuoteStr, String endQuoteStr) {
+        return "(?:(?:" + startQuoteStr + ")?(\\w+)(?:" + endQuoteStr + ")?)";
+    }
+    private static String nameWithPrefixPattern(String startQuoteStr, String endQuoteStr, String prefix) {
+        return "(?:(?:" + startQuoteStr + ")?(" + prefix + "\\w+)(?:" + endQuoteStr + ")?)";
+    }
+
     public void reveng(AquaRevengArgs args) {
         if (!isNativeRevengSupported() && args.getInputPath() == null) {
             printInstructions(args);
@@ -161,7 +185,19 @@ public abstract class AbstractDdlReveng {
         if (file.isFile()) {
             dataLines = FileUtilsCobra.readLines(file);
         } else {
-            dataLines = ArrayAdapter.adapt(file.listFiles())
+            final MutableList<File> files = Lists.mutable.empty();
+            try {
+                Files.walkFileTree(file.toPath(), new SimpleFileVisitor<Path>() {
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                        files.add(file.toFile());
+                        return super.visitFile(file, attrs);
+                    }
+                });
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            dataLines = files
                     .select(new Predicate<File>() {
                         @Override
                         public boolean accept(File file) {
@@ -178,6 +214,9 @@ public abstract class AbstractDdlReveng {
         dataLines.forEachWithIndex(new ObjectIntProcedure<String>() {
             @Override
             public void value(String line, int i) {
+                if (!line.isEmpty() && line.charAt(0) == '\uFEFF') {
+                    dataLines.set(i, dataLines.get(i).substring(1));
+                }
                 if (line.startsWith("--------------------")
                         && dataLines.get(i + 1).startsWith("-- DDL Statements")
                         && dataLines.get(i + 2).startsWith("--------------------")) {
@@ -224,16 +263,18 @@ public abstract class AbstractDdlReveng {
             if (StringUtils.isNotBlank(candidateLine)
                     && Predicates.noneOf(skipPredicates).accept(candidateLine)
                     ) {
+/*
                 candidateLine = candidateLine.replaceAll(schema + "\\.dbo\\.", "");  // sybase ASE
                 candidateLine = candidateLine.replaceAll("'dbo\\.", "'");  // sybase ASE
                 candidateLine = candidateLine.replaceAll("\"" + schema + "\\s*\"\\.", "");  // DB2
                 candidateLine = candidateLine.replaceAll(schema + "\\.", "");  // alternate DB2 for views
                 candidateLine = removeQuotesFromProcxmode(candidateLine);  // sybase ASE
+*/
 
                 for (RevengPattern revengPattern : revengPatterns) {
                     RevengPatternOutput patternMatch = revengPattern.evaluate(candidateLine);
                     if (patternMatch != null) {
-                        System.out.println("OBJECT NAME " + patternMatch.getPrimaryName());
+                        System.out.println("OBJECT NAME " + patternMatch.getPrimaryName() + ":" + patternMatch.getSecondaryName());
                         objectNames.add(patternMatch.getPrimaryName());
                         break;
                     }
@@ -253,14 +294,21 @@ public abstract class AbstractDdlReveng {
                 if (StringUtils.isNotBlank(candidateLine)
                         && Predicates.noneOf(skipPredicates).accept(candidateLine)
                         ) {
+/*
                     for (String objectName : objectNames) {
                         candidateLine = candidateLine.replaceAll(schema + "\\s*\\." + objectName, objectName);  // sybase ASE
                         candidateLine = candidateLine.replaceAll(schema.toLowerCase() + "\\s*\\." + objectName.toLowerCase(), objectName.toLowerCase());  // sybase ASE
                     }
+*/
+/*
                     candidateLine = candidateLine.replaceAll(schema + "\\.dbo\\.", "");  // sybase ASE
                     candidateLine = candidateLine.replaceAll("'dbo\\.", "'");  // sybase ASE
+*/
+
+/*
                     candidateLine = candidateLine.replaceAll("\"" + schema + "\\s*\"\\.", "");  // DB2
                     candidateLine = candidateLine.replaceAll(schema + "\\.", "");  // alternate DB2 for views
+*/
                     candidateLine = removeQuotesFromProcxmode(candidateLine);  // sybase ASE
 
                     RevengPattern chosenRevengPattern = null;
@@ -375,7 +423,11 @@ public abstract class AbstractDdlReveng {
         };
 
         public RevengPattern(String changeType, String pattern) {
-            this(changeType, pattern, 1, null, null);
+            this(changeType, pattern, 1);
+        }
+
+        public RevengPattern(String changeType, String pattern, int primaryNameIndex) {
+            this(changeType, pattern, primaryNameIndex, null, null);
         }
 
         public RevengPattern(String changeType, String pattern, int primaryNameIndex, Integer secondaryNameIndex, String annotation) {

@@ -620,9 +620,6 @@ go
 use dbdeploy01
 go
 
-exec sp_changedbowner 'belyav', true 
-go
-
 exec master.dbo.sp_dboption dbdeploy01, 'trunc log on chkpt', true
 go
 

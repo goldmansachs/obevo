@@ -1,21 +1,21 @@
-package com.gs.obevo.db.impl.platforms.oracle;
+package com.gs.obevo.db.impl.platforms.mssql;
 
 import java.io.File;
 
-import com.gs.obevo.db.api.appdata.DbEnvironment;
-import com.gs.obevo.db.api.factory.DbEnvironmentFactory;
 import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
 import com.gs.obevo.db.testutil.DirectoryAssert;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
-public class OracleRevengTest {
+public class MsSqlRevengTest {
     @Test
     public void testReverseEngineeringFromFile() throws Exception {
         AquaRevengArgs args = new AquaRevengArgs();
-        args.setDbSchema("MYSCHEMA01");
+        args.setDbSchema("myschema01");
         args.setGenerateBaseline(false);
-        args.setJdbcUrl("jdbc:oracle:thin:@myhost.me.com:1234:MYSERVER");
+        args.setDbHost("myhost.me.com");
+        args.setDbPort(1234);
+        args.setDbServer("myserver");
         args.setUsername("myuser");
         args.setPassword("mypass");
 
@@ -23,11 +23,10 @@ public class OracleRevengTest {
         FileUtils.deleteDirectory(outputDir);
         args.setOutputPath(outputDir);
 
-        args.setInputPath(new File("./src/test/resources/reveng/oracle/input.sql"));
+        args.setInputPath(new File("./src/test/resources/reveng/input"));
 
-        new OracleReveng().reveng(args);
+        new MsSqlReveng().reveng(args);
 
-        DirectoryAssert.assertDirectoriesEqual(new File("./src/test/resources/reveng/oracle/expected"), outputDir);
-
+        DirectoryAssert.assertDirectoriesEqual(new File("./src/test/resources/reveng/expected"), outputDir);
     }
 }

@@ -15,16 +15,12 @@
  */
 package com.gs.obevo.db.impl.platforms.db2;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
 import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
 import com.gs.obevo.db.apps.reveng.ChangeEntry;
 import com.gs.obevo.db.impl.core.util.MultiLineStringSplitter;
 import org.apache.commons.lang3.ObjectUtils;
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.block.procedure.Procedure2;
 import org.eclipse.collections.api.list.ImmutableList;
@@ -90,29 +86,18 @@ public class Db2lookReveng extends AbstractDdlReveng {
     }
 
     static ImmutableList<RevengPattern> getRevengPatterns() {
-        String nameSubPattern = "\"?(\\w+)\"?";
-        String schemaNameSubPattern = "\"?(\\w+\\.)?(\\w+)\"?";
+        String schemaNameSubPattern = getSchemaObjectPattern("\"", "\"");
         return Lists.immutable.with(
-                new AbstractDdlReveng.RevengPattern(ChangeType.SEQUENCE_STR, "(?i)create\\s+or\\s+replace\\s+sequence\\s+" + schemaNameSubPattern, 2, null, null).withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
-                new AbstractDdlReveng.RevengPattern(ChangeType.SEQUENCE_STR, "(?i)create\\s+or\\s+replace\\s+sequence\\s+" + nameSubPattern).withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
+                new AbstractDdlReveng.RevengPattern(ChangeType.SEQUENCE_STR, "(?i)create\\s+or\\s+replace\\s+sequence\\s+" + schemaNameSubPattern, 2).withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
                 new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)create\\s+table\\s+" + schemaNameSubPattern, 2, null, null).withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)create\\s+table\\s+" + nameSubPattern).withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+add\\s+constraint\\s+" + nameSubPattern + "\\s+foreign\\s+key", 2, 3, "FK").withPostProcessSql(REMOVE_QUOTES),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + nameSubPattern + "\\s+add\\s+constraint\\s+" + nameSubPattern + "\\s+foreign\\s+key", 1, 2, "FK").withPostProcessSql(REMOVE_QUOTES),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+add\\s+constraint\\s+" + nameSubPattern, 2, 3, null).withPostProcessSql(REMOVE_QUOTES),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + nameSubPattern + "\\s+add\\s+constraint\\s+" + nameSubPattern, 1, 2, null).withPostProcessSql(REMOVE_QUOTES),
+                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+add\\s+constraint\\s+" + schemaNameSubPattern + "\\s+foreign\\s+key", 2, 4, "FK").withPostProcessSql(REMOVE_QUOTES),
+                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+add\\s+constraint\\s+" + schemaNameSubPattern, 2, 4, null).withPostProcessSql(REMOVE_QUOTES),
                 new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + schemaNameSubPattern, 2, null, null).withPostProcessSql(REMOVE_QUOTES),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + nameSubPattern).withPostProcessSql(REMOVE_QUOTES),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)create\\s+index\\s+" + schemaNameSubPattern + "\\s+on\\s+" + nameSubPattern, 3, 2, "INDEX").withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)create\\s+index\\s+" + nameSubPattern + "\\s+on\\s+" + nameSubPattern, 2, 1, "INDEX").withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
-                new AbstractDdlReveng.RevengPattern(ChangeType.FUNCTION_STR, "(?i)create\\s+or\\s+replace\\s+function\\s+" + schemaNameSubPattern, 2, null, null),
-                new AbstractDdlReveng.RevengPattern(ChangeType.FUNCTION_STR, "(?i)create\\s+or\\s+replace\\s+function\\s+" + nameSubPattern),
-                new AbstractDdlReveng.RevengPattern(ChangeType.VIEW_STR, "(?i)create\\s+or\\s+replace\\s+view\\s+" + schemaNameSubPattern, 2, null, null),
-                new AbstractDdlReveng.RevengPattern(ChangeType.VIEW_STR, "(?i)create\\s+or\\s+replace\\s+view\\s+" + nameSubPattern),
-                new AbstractDdlReveng.RevengPattern(ChangeType.SP_STR, "(?i)create\\s+or\\s+replace\\s+procedure\\s+" + schemaNameSubPattern, 2, null, null),
-                new AbstractDdlReveng.RevengPattern(ChangeType.SP_STR, "(?i)create\\s+or\\s+replace\\s+procedure\\s+" + nameSubPattern),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TRIGGER_STR, "(?i)create\\s+or\\s+replace\\s+trigger\\s+" + schemaNameSubPattern, 2, null, null),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TRIGGER_STR, "(?i)create\\s+or\\s+replace\\s+trigger\\s+" + nameSubPattern)
+                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)create\\s+index\\s+" + schemaNameSubPattern + "\\s+on\\s+" + schemaNameSubPattern, 4, 2, "INDEX").withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
+                new AbstractDdlReveng.RevengPattern(ChangeType.FUNCTION_STR, "(?i)create\\s+or\\s+replace\\s+function\\s+" + schemaNameSubPattern, 2),
+                new AbstractDdlReveng.RevengPattern(ChangeType.VIEW_STR, "(?i)create\\s+or\\s+replace\\s+view\\s+" + schemaNameSubPattern, 2),
+                new AbstractDdlReveng.RevengPattern(ChangeType.SP_STR, "(?i)create\\s+or\\s+replace\\s+procedure\\s+" + schemaNameSubPattern, 2),
+                new AbstractDdlReveng.RevengPattern(ChangeType.TRIGGER_STR, "(?i)create\\s+or\\s+replace\\s+trigger\\s+" + schemaNameSubPattern, 2)
         );
     }
 }

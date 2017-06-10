@@ -95,6 +95,7 @@ public class RevengWriter {
     }
 
     public void write(Platform platform, MutableList<ChangeEntry> allRevEngDestinations, File outputDir, boolean generateBaseline, Predicate2<File, RevEngDestination> shouldOverwritePredicate, String jdbcUrl, String dbHost, Integer dbPort, String dbServer) {
+        outputDir.mkdirs();
         if (shouldOverwritePredicate == null) {
             shouldOverwritePredicate = defaultShouldOverwritePredicate();
         }

@@ -1,4 +1,4 @@
-package com.gs.obevo.db.impl.platforms.postgresql;
+package com.gs.obevo.db.impl.platforms.mssql;
 
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
@@ -12,10 +12,10 @@ import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.impl.block.factory.StringPredicates;
 import org.eclipse.collections.impl.factory.Lists;
 
-public class PostgreSqlPgDumpReveng extends AbstractDdlReveng {
-    public PostgreSqlPgDumpReveng() {
+public class MsSqlReveng extends AbstractDdlReveng {
+    public MsSqlReveng() {
         super(
-                new PostgreSqlDbPlatform(),
+                new MsSqlDbPlatform(),
                 new MultiLineStringSplitter("GO", true),
                 Lists.immutable.<Predicate<String>>of(
                         StringPredicates.contains("-- PostgreSQL database dump").and(StringPredicates.contains("-- Dumped by pg_dump"))
@@ -29,18 +29,10 @@ public class PostgreSqlPgDumpReveng extends AbstractDdlReveng {
                 }
         );
         setSkipLinePredicates(Lists.immutable.<Predicate<String>>of(
-                StringPredicates.startsWith("SET statement_timeout")
-                , StringPredicates.startsWith("SET default_tablespace")
-                , StringPredicates.startsWith("SET lock_timeout")
-                , StringPredicates.startsWith("SET idle_in_transaction_session_timeout")
-                , StringPredicates.startsWith("SET client_encoding")
-                , StringPredicates.startsWith("SET standard_conforming_strings")
-                , StringPredicates.startsWith("SET check_function_bodies")
-                , StringPredicates.startsWith("SET client_min_messages")
-                , StringPredicates.startsWith("SET row_security")
-                , StringPredicates.startsWith("SET default_with_oids")
-                , StringPredicates.startsWith("CREATE SCHEMA")
-                , StringPredicates.startsWith("SET search_path")
+                StringPredicates.matches(".*\\s*/\\*+\\s+Object")
+                , StringPredicates.startsWith("/****** Object:")
+                , StringPredicates.startsWith("SET ANSI_NULLS")
+                , StringPredicates.startsWith("SET QUOTED_IDENTIFIER")
         ));
     }
 
@@ -53,10 +45,14 @@ public class PostgreSqlPgDumpReveng extends AbstractDdlReveng {
         System.out.println("");
         System.out.println("");
         System.out.println("2) Run the following command to generate the DDL file:");
+/*
         System.out.println(getCommandWithDefaults(args, "<username>", "<password>", "<dbServerName>", "<dbSchema>", "<outputFile>"));
+*/
         System.out.println("");
         System.out.println("Here is an example command (in case your values are not filled in):");
+/*
         System.out.println(getCommandWithDefaults(args, "myuser", "mypassword", "MYDB2DEV01", "myschema", "H:\\db2-ddl-output.txt"));
+*/
         System.out.println("");
         System.out.println("*** Exception handling *** ");
         System.out.println("If you get an exception that you do not have the BIND privilege, e.g. 'SQL0552N  \"yourId\" does not have the privilege to perform operation \"BIND\".  SQLSTATE=42502");
@@ -69,9 +65,25 @@ public class PostgreSqlPgDumpReveng extends AbstractDdlReveng {
     }
 
     static ImmutableList<RevengPattern> getRevengPatterns() {
-        String schemaNameSubPattern = "\"?(\\w+\\.)?(\\w+)\"?";
-        String sequenceTablePatterm = "\"?(\\w+)\\.(\\w+)\"?";
+        String schemaNameSubPattern = getSchemaObjectPattern("\\[", "\\]");
 
+        return Lists.immutable.with(
+                new AbstractDdlReveng.RevengPattern(ChangeType.SEQUENCE_STR, "(?i)create\\s+seq(uence)?\\s+" + schemaNameSubPattern, 2),
+                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)create\\s+table\\s+" + schemaNameSubPattern, 2),
+                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+add\\s+constraint\\s+" + schemaNameSubPattern + "\\s+foreign\\s+key", 2, 4, "FK"),
+                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+add\\s+constraint\\s+" + schemaNameSubPattern, 2, 4, null),
+                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+", 2),
+                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)create\\s+(?:(?:unique)|(?:nonclustered)\\s+)?(?:\\w+\\s+)?index\\s+" + schemaNameSubPattern + "\\s+on\\s+" + schemaNameSubPattern, 4, 2, "INDEX"),
+                new AbstractDdlReveng.RevengPattern(ChangeType.FUNCTION_STR, "(?i)create\\s+func(tion)?\\s+" + schemaNameSubPattern, 2),
+                new AbstractDdlReveng.RevengPattern(ChangeType.VIEW_STR, "(?i)create\\s+view\\s+" + schemaNameSubPattern, 2),
+                new AbstractDdlReveng.RevengPattern(ChangeType.SP_STR, "(?i)create\\s+proc(?:edure)?\\s+" + schemaNameSubPattern, 2),
+                new AbstractDdlReveng.RevengPattern(ChangeType.TRIGGER_STR, "(?i)create\\s+trigger\\s+" + schemaNameSubPattern + "on\\s+" + schemaNameSubPattern, 4, 2, null),
+                new AbstractDdlReveng.RevengPattern(ChangeType.DEFAULT_STR, "(?i)create\\s+default\\s+" + schemaNameSubPattern, 2),
+                new AbstractDdlReveng.RevengPattern(ChangeType.RULE_STR, "(?i)create\\s+rule\\s+" + schemaNameSubPattern, 2),
+                new AbstractDdlReveng.RevengPattern(ChangeType.USERTYPE_STR, "(?i)create\\s+type\\s+'" + schemaNameSubPattern, 2),
+                new AbstractDdlReveng.RevengPattern(ChangeType.USERTYPE_STR, "(?i)^(exec\\s+)?sp_addtype\\s+'(\\w+)'", 2)
+        );
+/*
         return Lists.immutable.with(
                 new RevengPattern(ChangeType.SEQUENCE_STR, "(?i)create\\s+(?:or\\s+replace\\s+)?sequence\\s+" + schemaNameSubPattern, 2, null, null).withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
                 new RevengPattern(ChangeType.TABLE_STR, "(?i)create\\s+table\\s+" + schemaNameSubPattern, 2, null, null).withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
@@ -86,5 +98,6 @@ public class PostgreSqlPgDumpReveng extends AbstractDdlReveng {
                 new RevengPattern(ChangeType.PACKAGE_STR, "(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)package\\s+" + schemaNameSubPattern, 2, null, null),
                 new RevengPattern(ChangeType.TRIGGER_STR, "(?i)create\\s+or\\s+replace\\s+trigger\\s+" + schemaNameSubPattern, 2, null, null)
         );
+*/
     }
 }
