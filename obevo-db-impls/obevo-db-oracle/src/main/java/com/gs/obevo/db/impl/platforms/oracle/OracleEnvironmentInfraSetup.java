@@ -32,6 +32,10 @@ public class OracleEnvironmentInfraSetup implements EnvironmentInfraSetup {
 
     @Override
     public void setupEnvInfra(boolean failOnSetupException) {
+        // will reenable this functionality at another time
+        if (true) {
+            return;
+        }
         Connection conn = null;
         try {
             conn = ds.getConnection();
