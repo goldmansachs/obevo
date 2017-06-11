@@ -54,11 +54,11 @@ public class JdbcHelper {
     private final boolean parameterTypeEnabled;
 
     public JdbcHelper() {
-        this(new DefaultJdbcHandler(), true);
+        this(null, true);
     }
 
     public JdbcHelper(JdbcHandler jdbcHandler, boolean parameterTypeEnabled) {
-        this.jdbcHandler = jdbcHandler;
+        this.jdbcHandler = jdbcHandler != null ? jdbcHandler : new DefaultJdbcHandler();
         this.parameterTypeEnabled = parameterTypeEnabled;
     }
 

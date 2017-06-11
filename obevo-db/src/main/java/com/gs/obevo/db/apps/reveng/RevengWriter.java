@@ -94,7 +94,8 @@ public class RevengWriter {
         templateConfig.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
     }
 
-    public void write(Platform platform, MutableList<ChangeEntry> allRevEngDestinations, File outputDir, boolean generateBaseline, Predicate2<File, RevEngDestination> shouldOverwritePredicate, String dbHost, Integer dbPort, String dbServer) {
+    public void write(Platform platform, MutableList<ChangeEntry> allRevEngDestinations, File outputDir, boolean generateBaseline, Predicate2<File, RevEngDestination> shouldOverwritePredicate, String jdbcUrl, String dbHost, Integer dbPort, String dbServer) {
+        outputDir.mkdirs();
         if (shouldOverwritePredicate == null) {
             shouldOverwritePredicate = defaultShouldOverwritePredicate();
         }
@@ -192,6 +193,7 @@ public class RevengWriter {
             MutableMap<String, Object> params = Maps.mutable.empty();
             params.put("platform", platform.getName());
             params.put("schemas", schemas);
+            params.put("jdbcUrl", jdbcUrl);
             params.put("dbHost", dbHost);
             params.put("dbPort", dbPort != null ? String.valueOf(dbPort) : null);
             params.put("dbServer", dbServer);

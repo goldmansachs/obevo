@@ -1,0 +1,7 @@
+CREATE OR REPLACE EDITIONABLE PROCEDURE SP1 IS
+BEGIN
+    -- ensure that SP comment remains
+    DELETE FROM TABLE_A;
+END;
+
+GO

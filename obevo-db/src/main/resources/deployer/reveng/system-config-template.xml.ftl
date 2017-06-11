@@ -25,7 +25,9 @@
         <!-- Your production database that you reverse-engineered from; do NOT deploy to this environment for your testing!
         DELETE THIS COMMENT AFTER FINISHING ONBOARDING -->
         <dbEnvironment name="prod"
-        <#if dbHost?? && dbPort??>
+        <#if jdbcUrl??>
+            jdbcUrl="${jdbcUrl}">
+        <#elseif dbHost?? && dbPort??>
             dbHost="${dbHost}" dbPort="${dbPort}"<#if dbServer??> dbServer="${dbServer}"</#if>>
         <#elseif dbServer??>
             dbDataSourceName="${dbServer}">

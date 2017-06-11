@@ -14,5 +14,4 @@
 -- under the License.
 --
 
-//// METADATA excludeEnvs=% comment="excludingDueToUnavailableTestingEnv"
 CREATE OR REPLACE VIEW VIEW1 AS SELECT * FROM VIEW3

@@ -77,9 +77,10 @@ public class Db2lookRevengTest {
     public void testSchemaExtraction() {
         ImmutableList<AbstractDdlReveng.RevengPattern> patterns = Db2lookReveng.getRevengPatterns().select(Predicates.attributeEqual(AbstractDdlReveng.RevengPattern.TO_CHANGE_TYPE, "VIEW"));
 
-        AbstractDdlReveng.RevengPatternOutput evaluate = patterns.get(0).evaluate("CREATE or REPLACE VIEW SCHEMA.MYVIEW AS ABC DEF GHI");
-        assertEquals("MYVIEW", evaluate.getPrimaryName());
-        AbstractDdlReveng.RevengPatternOutput evaluate2 = patterns.get(1).evaluate("CREATE or REPLACE VIEW MYVIEW AS ABC DEF GHI");
-        assertEquals("MYVIEW", evaluate2.getPrimaryName());
+        AbstractDdlReveng.RevengPattern revengPattern = patterns.get(0);
+        assertEquals("MYVIEW", revengPattern.evaluate("CREATE or REPLACE VIEW SCHEMA.MYVIEW AS ABC DEF GHI").getPrimaryName());
+        assertEquals("MYVIEW", revengPattern.evaluate("CREATE or REPLACE VIEW \"SCHEMA\".\"MYVIEW\" AS ABC DEF GHI").getPrimaryName());
+        assertEquals("MYVIEW", revengPattern.evaluate("CREATE or REPLACE VIEW MYVIEW AS ABC DEF GHI").getPrimaryName());
+        assertEquals("MYVIEW", revengPattern.evaluate("CREATE or REPLACE VIEW \"MYVIEW\" AS ABC DEF GHI").getPrimaryName());
     }
 }

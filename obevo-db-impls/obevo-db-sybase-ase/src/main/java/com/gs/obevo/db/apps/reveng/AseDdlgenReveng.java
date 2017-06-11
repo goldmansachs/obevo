@@ -63,21 +63,22 @@ public class AseDdlgenReveng extends AbstractDdlReveng {
     }
 
     private static ImmutableList<RevengPattern> getRevengPatterns() {
-        String nameSubPattern = "\"?(\\w+)\"?";
+        String nameSubPattern = getCatalogSchemaObjectPattern("", "");
+        NamePatternType namePatternType = NamePatternType.THREE;
         return Lists.immutable.with(
-                new AbstractDdlReveng.RevengPattern(ChangeType.SEQUENCE_STR, "(?i)create\\s+seq(uence)?\\s+" + nameSubPattern),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)create\\s+table\\s+" + nameSubPattern),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + nameSubPattern + "\\s+add\\s+constraint\\s+" + nameSubPattern + "\\s+foreign\\s+key", 1, 2, "FK"),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + nameSubPattern + "\\s+add\\s+constraint\\s+" + nameSubPattern, 1, 2, null),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + nameSubPattern),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)create\\s+(?:unique\\s+)?(?:\\w+\\s+)?index\\s+" + nameSubPattern + "\\s+on\\s+" + nameSubPattern, 2, 1, "INDEX"),
-                new AbstractDdlReveng.RevengPattern(ChangeType.FUNCTION_STR, "(?i)create\\s+func(tion)?\\s+" + nameSubPattern),
-                new AbstractDdlReveng.RevengPattern(ChangeType.VIEW_STR, "(?i)create\\s+view\\s+" + nameSubPattern),
-                new AbstractDdlReveng.RevengPattern(ChangeType.SP_STR, "(?i)create\\s+proc(edure)?\\s+" + nameSubPattern, 2, null, null),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TRIGGER_STR, "(?i)create\\s+trigger\\s+" + nameSubPattern),
-                new AbstractDdlReveng.RevengPattern(ChangeType.DEFAULT_STR, "(?i)create\\s+default\\s+" + nameSubPattern),
-                new AbstractDdlReveng.RevengPattern(ChangeType.RULE_STR, "(?i)create\\s+rule\\s+" + nameSubPattern),
-                new AbstractDdlReveng.RevengPattern(ChangeType.USERTYPE_STR, "(?i)^(exec\\s+)?sp_addtype\\s+'(\\w+)'", 2, null, null)
+                new AbstractDdlReveng.RevengPattern(ChangeType.SEQUENCE_STR, namePatternType, "(?i)create\\s+seq(?:uence)?\\s+" + nameSubPattern),
+                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+table\\s+" + nameSubPattern),
+                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)alter\\s+table\\s+" + nameSubPattern + "\\s+add\\s+constraint\\s+" + nameSubPattern + "\\s+foreign\\s+key", 1, 2, "FK"),
+                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)alter\\s+table\\s+" + nameSubPattern + "\\s+add\\s+constraint\\s+" + nameSubPattern, 1, 2, null),
+                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)alter\\s+table\\s+" + nameSubPattern),
+                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+(?:unique\\s+)?(?:\\w+\\s+)?index\\s+" + nameSubPattern + "\\s+on\\s+" + nameSubPattern, 2, 1, "INDEX"),
+                new AbstractDdlReveng.RevengPattern(ChangeType.FUNCTION_STR, namePatternType, "(?i)create\\s+func(?:tion)?\\s+" + nameSubPattern),
+                new AbstractDdlReveng.RevengPattern(ChangeType.VIEW_STR, namePatternType, "(?i)create\\s+view\\s+" + nameSubPattern),
+                new AbstractDdlReveng.RevengPattern(ChangeType.SP_STR, namePatternType, "(?i)create\\s+proc(?:edure)?\\s+" + nameSubPattern),
+                new AbstractDdlReveng.RevengPattern(ChangeType.TRIGGER_STR, namePatternType, "(?i)create\\s+trigger\\s+" + nameSubPattern),
+                new AbstractDdlReveng.RevengPattern(ChangeType.DEFAULT_STR, namePatternType, "(?i)create\\s+default\\s+" + nameSubPattern),
+                new AbstractDdlReveng.RevengPattern(ChangeType.RULE_STR, namePatternType, "(?i)create\\s+rule\\s+" + nameSubPattern),
+                new AbstractDdlReveng.RevengPattern(ChangeType.USERTYPE_STR, namePatternType, "(?i)^(?:exec\\s+)?sp_addtype\\s+'" + nameSubPattern + "'")
         );
     }
 

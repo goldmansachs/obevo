@@ -35,7 +35,8 @@
         <module>obevo-site</module>
         <module>obevo-internal-test-client-01</module>
         <module>obevo-internal-test-client-02</module>
-        <module>obevo-bom</module>  <!-- put bom at the end as the last module of the staging plugin must be deployed for all the eligible modules to get deployed -->
+        <module>obevo-internal-test-util</module>  <!-- put bom at the end as the last module of the staging plugin must be deployed for all the eligible modules to get deployed -->
+        <module>obevo-bom</module>
     </modules>
 
     <name>Obevo Parent POM</name>
@@ -364,7 +365,7 @@
                     <dependency>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>extra-enforcer-rules</artifactId>
-                        <version>1.0-alpha-5</version>
+                        <version>1.0-beta-6</version>
                     </dependency>
                 </dependencies>
             </plugin>

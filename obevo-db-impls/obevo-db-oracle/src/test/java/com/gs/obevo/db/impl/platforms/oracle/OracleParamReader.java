@@ -17,14 +17,21 @@ package com.gs.obevo.db.impl.platforms.oracle;
 
 import com.gs.obevo.db.testutil.ParamReader;
 import com.typesafe.config.ConfigFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.collections.impl.factory.Maps;
 
 public class OracleParamReader {
     public static ParamReader getParamReader() {
-        return new ParamReader(ConfigFactory.parseResources("oracle-creds.properties"),
+        String dbCredsFile = System.getProperty("dbCredsFile");
+        if (StringUtils.isEmpty(dbCredsFile)) {
+            dbCredsFile = "oracle-creds.properties";
+        }
+
+        return new ParamReader(ConfigFactory.parseResources(dbCredsFile),
                 "oracle", ConfigFactory.parseMap(Maps.mutable.<String, Object>of(
                         "sysattrs.type", "ORACLE",
-                        "logicalSchemas.schema1", "schema1"
+                        "logicalSchemas.schema1", "schema1",
+                        "logicalSchemas.schema2", "schema2"
                 ))
         );
     }
