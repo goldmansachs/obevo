@@ -21,8 +21,10 @@ import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.factory.DbEnvironmentFactory;
 import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
 import org.apache.commons.io.FileUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore("Not supporting reverse-engineering tests at this point, and Oracle tests can't run in build due to proprietary driver")
 public class OracleRevengIT {
     @Test
     public void testReveng() throws Exception {
