@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-bom" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-core" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-db" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-db-impls" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-db2" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-h2" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-hsql" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-internal-test-helper" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-mssql" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-oracle" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-postgresql" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-scenario-tests" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-sybase-ase" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-sybase-iq" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-dbmetadata-impl" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-dists" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-dists/obevo-cli" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-dists/obevo-db-client-alldbs" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-dists/obevo-maven-plugin" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-internal-comparer" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-internal-test-client-01" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-internal-test-client-02" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-internal-test-util" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-site" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-utils" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-utils/obevo-db-unittest-util" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-utils/obevo-reladomo-util" charset="UTF-8" />
+  </component>
+</project>
