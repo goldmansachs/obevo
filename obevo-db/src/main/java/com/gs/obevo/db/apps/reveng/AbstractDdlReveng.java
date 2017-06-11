@@ -39,6 +39,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.eclipse.collections.api.LazyIterable;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.function.Function0;
 import org.eclipse.collections.api.block.predicate.Predicate;
@@ -50,6 +51,7 @@ import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.multimap.MutableMultimap;
 import org.eclipse.collections.api.multimap.set.MutableSetMultimap;
 import org.eclipse.collections.api.set.MutableSet;
+import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Maps;
@@ -124,7 +126,8 @@ public abstract class AbstractDdlReveng {
     }
 
     protected static String getCatalogSchemaObjectPattern(String startQuoteStr, String endQuoteStr) {
-        return "(?:" + namePattern(startQuoteStr, endQuoteStr) + "\\.)?" + "(?:" + namePattern(startQuoteStr, endQuoteStr) + "\\.)?" + namePattern(startQuoteStr, endQuoteStr);
+        return    "(?:" + namePattern(startQuoteStr, endQuoteStr) + "\\.)?"
+                + "(?:" + namePattern(startQuoteStr, endQuoteStr) + "\\.)?" + namePattern(startQuoteStr, endQuoteStr);
     }
     protected static String getSchemaObjectPattern(String startQuoteStr, String endQuoteStr) {
         return "(?:" + namePattern(startQuoteStr, endQuoteStr) + "\\.)?" + namePattern(startQuoteStr, endQuoteStr);
@@ -281,6 +284,7 @@ public abstract class AbstractDdlReveng {
         // Find object names
         MutableSet<RevengPatternOutput> objectNames = Sets.mutable.empty();
         MutableSetMultimap<String, String> objectToSchemasMap = Multimaps.mutable.set.empty();
+        MutableSetMultimap<String, String> objectToSubSchemasMap = Multimaps.mutable.set.empty();
         for (String candidateLine : entries) {
             candidateLine = StringUtils.stripStart(candidateLine, "\r\n \t");
 
@@ -302,6 +306,9 @@ public abstract class AbstractDdlReveng {
                         objectNames.add(patternMatch);
                         if (patternMatch.getSchema() != null) {
                             objectToSchemasMap.put(patternMatch.getPrimaryName(), patternMatch.getSchema());
+                        }
+                        if (patternMatch.getSubSchema() != null) {
+                            objectToSubSchemasMap.put(patternMatch.getPrimaryName(), patternMatch.getSubSchema());
                         }
                         break;
                     }
@@ -363,14 +370,39 @@ public abstract class AbstractDdlReveng {
                         if (replacerSchemas == null || replacerSchemas.isEmpty()) {
                             replacerSchemas = objectToSchemasMap.valuesView().toSet();
                         }
-                        LOG.info("Using replacer schemas {} on object {}", replacerSchemas, objectOutput.getPrimaryName());
+                        MutableSet<String> replacerSubSchemas = objectToSubSchemasMap.get(objectOutput.getPrimaryName());
+                        if (replacerSubSchemas == null || replacerSubSchemas.isEmpty()) {
+                            replacerSubSchemas = objectToSubSchemasMap.valuesView().toSet();
+                        }
+                        LOG.info("Using replacer schemas {} and subschemas {} on object {}", replacerSchemas, replacerSubSchemas, objectOutput.getPrimaryName());
 
-                        for (String replacerSchema : replacerSchemas) {
-                            candidateLine = candidateLine.replaceAll(startQuote + replacerSchema + "\\s*" + endQuote + "\\." + startQuote + objectOutput.getPrimaryName() + endQuote, objectOutput.getPrimaryName());
-                            candidateLine = candidateLine.replaceAll(replacerSchema + "\\s*" + "\\." + objectOutput.getPrimaryName(), objectOutput.getPrimaryName());
-                            if (objectOutput.getSecondaryName() != null) {
-                                candidateLine = candidateLine.replaceAll(startQuote + replacerSchema + "\\s*" + endQuote + "\\." + startQuote + objectOutput.getSecondaryName() + endQuote, objectOutput.getSecondaryName());
-                                candidateLine = candidateLine.replaceAll(replacerSchema + "\\s*" + "\\." + objectOutput.getSecondaryName(), objectOutput.getSecondaryName());
+                        if (replacerSubSchemas.notEmpty()) {
+                            LazyIterable<Pair<String, String>> pairs = replacerSchemas.cartesianProduct(replacerSubSchemas);
+                            for (Pair<String, String> pair : pairs) {
+                                String replacerSchema = pair.getOne();
+                                String replacerSubSchema = pair.getTwo();
+                                for (boolean useQuotes : Lists.fixedSize.of(true, false)) {
+                                    String sQuote = useQuotes ? startQuote : "";
+                                    String eQuote = useQuotes ? endQuote : "";
+                                    candidateLine = candidateLine.replaceAll(sQuote + replacerSchema + "\\s*" + eQuote + "\\." + sQuote + replacerSubSchema + "\\s*" + eQuote + "\\." + sQuote + objectOutput.getPrimaryName() + eQuote, objectOutput.getPrimaryName());
+                                    candidateLine = candidateLine.replaceAll(sQuote + replacerSchema + "\\s*" + eQuote + "\\." + sQuote + "\\s*" + eQuote + "\\." + sQuote + objectOutput.getPrimaryName() + eQuote, objectOutput.getPrimaryName());
+                                    candidateLine = candidateLine.replaceAll(sQuote + replacerSubSchema + "\\s*" + eQuote + "\\." + sQuote + objectOutput.getPrimaryName() + eQuote, objectOutput.getPrimaryName());
+                                    if (objectOutput.getSecondaryName() != null) {
+                                        candidateLine = candidateLine.replaceAll(sQuote + replacerSchema + "\\s*" + eQuote + "\\." + sQuote + replacerSubSchema + "\\s*" + eQuote + "\\." + sQuote + objectOutput.getSecondaryName() + eQuote, objectOutput.getSecondaryName());
+                                        candidateLine = candidateLine.replaceAll(sQuote + replacerSchema + "\\s*" + eQuote + "\\." + sQuote + "\\s*" + eQuote + "\\." + sQuote + objectOutput.getSecondaryName() + eQuote, objectOutput.getSecondaryName());
+                                        candidateLine = candidateLine.replaceAll(sQuote + replacerSubSchema + "\\s*" + eQuote + "\\." + sQuote + objectOutput.getSecondaryName() + eQuote, objectOutput.getSecondaryName());
+                                    }
+                                }
+                                LOG.info("MY PAIRS! {}", pair);
+                            }
+                        } else {
+                            for (String replacerSchema : replacerSchemas) {
+                                candidateLine = candidateLine.replaceAll(startQuote + replacerSchema + "\\s*" + endQuote + "\\." + startQuote + objectOutput.getPrimaryName() + endQuote, objectOutput.getPrimaryName());
+                                candidateLine = candidateLine.replaceAll(replacerSchema + "\\s*" + "\\." + objectOutput.getPrimaryName(), objectOutput.getPrimaryName());
+                                if (objectOutput.getSecondaryName() != null) {
+                                    candidateLine = candidateLine.replaceAll(startQuote + replacerSchema + "\\s*" + endQuote + "\\." + startQuote + objectOutput.getSecondaryName() + endQuote, objectOutput.getSecondaryName());
+                                    candidateLine = candidateLine.replaceAll(replacerSchema + "\\s*" + "\\." + objectOutput.getSecondaryName(), objectOutput.getSecondaryName());
+                                }
                             }
                         }
                     }
