@@ -19,7 +19,7 @@ It must follow the pull request procedure outlined below.
 
 ### Coding Style
 * Use 4 spaces for indentation. No tabs.
-* A brace must be on a line by itself.
+* Use the [https://en.wikipedia.org/wiki/Indent_style#Variant:_1TBS_.28OTBS.29](egyptian style braces coding) for braces.
 
 ### Before your first code pull request
 

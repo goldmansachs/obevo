@@ -85,40 +85,14 @@ public class OracleReveng extends AbstractDdlReveng {
         DataSource ds = jdbcFactory.createDataSource(env, new Credential(args.getUsername(), args.getPassword()), 1);
         JdbcHelper jdbc = new JdbcHelper(null, false);
 
-        // can't remap schema name, object name, tablespace name
-        String trySql = "DECLARE\n" +
-                "h NUMBER; --handle returned by OPEN\n" +
-                "th NUMBER; -- handle returned by ADD_TRANSFORM\n" +
-                "doc CLOB;\n" +
-                "my_cursor SYS_REFCURSOR;\n" +
-                "BEGIN\n" +
-                "\n" +
-                "-- Specify the object type.\n" +
-                "h := DBMS_METADATA.OPEN('TABLE');\n" +
-                "\n" +
-                "-- Use filters to specify the particular object desired.\n" +
-                "DBMS_METADATA.SET_FILTER(h,'SCHEMA','DBDEPLOY01');\n" +
-                "DBMS_METADATA.SET_FILTER(h,'NAME','TABLE_B');\n" +
-                "\n" +
-                " -- Request that the metadata be transformed into creation DDL.\n" +
-                "th := DBMS_METADATA.ADD_TRANSFORM(h,'DDL');\n" +
-                "\n" +
-                " -- Fetch the object.\n" +
-                "doc := DBMS_METADATA.FETCH_CLOB(h);\n" +
-                "\n" +
-                " -- Release resources.\n" +
-                "DBMS_METADATA.CLOSE(h);\n" +
-                "OPEN my_cursor FOR SELECT doc FROM DUAL;\n" +
-                "--end;\n" +
-                "--return my_cursor;\n" +
-                "end;";
-        ;
+
         Path interim = new File(args.getOutputPath(), "interim").toPath();
         interim.toFile().mkdirs();
         try (Connection conn = ds.getConnection();
              BufferedWriter fileWriter = Files.newBufferedWriter(interim.resolve("output.sql"), Charset.defaultCharset())) {
 
             // https://docs.oracle.com/database/121/ARPLS/d_metada.htm#BGBJBFGE
+            // Note - can't remap schema name, object name, tablespace name
             jdbc.update(conn, "{ CALL DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM,'STORAGE',false) }");
 
 

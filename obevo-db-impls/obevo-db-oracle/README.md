@@ -1,44 +1,37 @@
-Oracle Setup steps:
+# Oracle Setup steps
 
-https://aws.amazon.com/
-My Account -> Security Credentials
-Create user with RDS Full Permissions
-Store the results in ~/.aws/credentials
+## Part 1 - JDBC Driver Setup
+1) Download the JDBC driver from Oracle
 
-[default]
-aws_access_key_id=yourAccessKey
-aws_secret_access_key=yourSecretAccessKey
+[Download Link](http://www.oracle.com/technetwork/database/features/jdbc/index-091264.html)
 
-https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/setup-credentials.html
+Use the "JDBC Thin" driver (i.e. ojdbc7.jar)
 
 
+2) Install it into your local Maven repository.
 
-https://chartio.com/resources/tutorials/how-to-create-a-user-and-grant-permissions-in-oracle/
+(Substitute the version and file parameters as needed)
 
-SELECT OBJECT_TYPE, dbms_metadata.get_ddl(REPLACE(object_type,' ','_'), object_name, owner) || ';' AS object_ddl
---select object_type, object_name, owner
-FROM DBA_OBJECTS
-WHERE
-      OWNER = 'DBDEPLOY03'
-  AND OBJECT_TYPE NOT IN ('PACKAGE BODY')
-  AND OBJECT_TYPE NOT IN('LOB','MATERIALIZED VIEW', 'TABLE PARTITION')
+```
+mvn install:install-file -DgroupId=com.oracle -DartifactId=ojdbc7 -Dversion=12.1.0.2 -Dfile=C:\Downloads\ojdbc7.jar -Dpackaging=jar -DgeneratePom=true
 
-ORDER BY
-    OWNER
-  , OBJECT_TYPE
-  , OBJECT_NAME
+```
 
 
--- to fix params
-EXECUTE DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM,'STORAGE',false);
-SELECT DBMS_METADATA.GET_DDL('TABLE',u.table_name)
-     FROM USER_ALL_TABLES u
-     WHERE u.nested='NO'
-     AND (u.iot_type is null or u.iot_type='IOT');
-EXECUTE DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM,'DEFAULT');
-possible values: https://docs.oracle.com/database/121/ARPLS/d_metada.htm#BGBJBFGE
+3) In obevo-db-oracle/pom.xml, update the Maven coordinates of the ojdbc7 driver if needed.
 
--- params to set
-PARTITIONING
-SEGMENT_ATTRIBUTES
-STORAGE
+
+4) When developing, use the Maven profile "-P amazon-personal-build"
+
+
+## Part 2 - Oracle DB Instance Setup
+1) Use the com.gs.obevo.amazon.CreateDbInstance Java class inside the obevo-internal-test-util module to create an Oracle
+instance for you in Amazon RDS and wait for the connection URL to appear.
+
+Warning - unless you already have an Oracle license, it is not free to use Oracle on Amazon RDS; there is an hourly rate.
+
+The default configuration of CreateDbInstance will create the smallest possible Oracle instance so that the cost is minimized.
+When you are not actively using the DB, you can destroy the instance using the same CreateDbInstance utility.
+
+
+2) Using the connection URL from the previous step, update the amazon-personal-oracle-creds.properties file as needed.
