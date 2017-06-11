@@ -27,8 +27,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.annimon.stream.OptionalInt;
-import com.annimon.stream.function.IntFunction;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.platform.DbPlatform;
@@ -48,7 +46,6 @@ import org.eclipse.collections.api.block.procedure.primitive.ObjectIntProcedure;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.MutableMap;
-import org.eclipse.collections.api.multimap.MutableMultimap;
 import org.eclipse.collections.api.multimap.set.MutableSetMultimap;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.api.tuple.Pair;
@@ -500,23 +497,23 @@ public abstract class AbstractDdlReveng {
             this.numParts = numParts;
         }
 
-        public OptionalInt getSchemaIndex(int groupIndex) {
+        public Integer getSchemaIndex(int groupIndex) {
             switch (numParts) {
             case 2:
-                return OptionalInt.of(groupIndex * numParts - 1);
+                return groupIndex * numParts - 1;
             case 3:
-                return OptionalInt.of(groupIndex * numParts - 2);
+                return groupIndex * numParts - 2;
             default:
-                return OptionalInt.empty();
+                return null;
             }
         }
 
-        public OptionalInt getSubSchemaIndex(int groupIndex) {
+        public Integer getSubSchemaIndex(int groupIndex) {
             switch (numParts) {
             case 3:
-                return OptionalInt.of(groupIndex * numParts - 1);
+                return groupIndex * numParts - 1;
             default:
-                return OptionalInt.empty();
+                return null;
             }
         }
 
@@ -591,28 +588,29 @@ public abstract class AbstractDdlReveng {
             return this;
         }
 
+        private String getme(Matcher matcher, Integer index) {
+            if (index == null) {
+                return null;
+            }
+            return matcher.group(index);
+        }
+
         public RevengPatternOutput evaluate(String input) {
             final Matcher matcher = pattern.matcher(input);
-            IntFunction<String> groupFunction = new IntFunction<String>() {
-                @Override
-                public String apply(int value) {
-                    return matcher.group(value);
-                }
-            };
 
             if (matcher.find()) {
                 String primaryName = matcher.group(namePatternType.getObjectIndex(primaryNameIndex));
-                String schema = namePatternType.getSchemaIndex(primaryNameIndex).mapToObj(groupFunction).orElse(null);
-                String subSchema = namePatternType.getSubSchemaIndex(primaryNameIndex).mapToObj(groupFunction).orElse(null);
+                String schema = getme(matcher, namePatternType.getSchemaIndex(primaryNameIndex));
+                String subSchema = getme(matcher, namePatternType.getSubSchemaIndex(primaryNameIndex));
 
                 String secondaryName = null;
                 if (secondaryNameIndex != null) {
                     secondaryName = matcher.group(namePatternType.getObjectIndex(secondaryNameIndex));
                     if (schema == null) {
-                        schema = namePatternType.getSchemaIndex(secondaryNameIndex).mapToObj(groupFunction).orElse(null);
+                        schema = getme(matcher, namePatternType.getSchemaIndex(secondaryNameIndex));
                     }
                     if (subSchema == null) {
-                        subSchema = namePatternType.getSubSchemaIndex(secondaryNameIndex).mapToObj(groupFunction).orElse(null);
+                        subSchema = getme(matcher, namePatternType.getSubSchemaIndex(secondaryNameIndex));
                     }
 
                 }
