@@ -16,6 +16,8 @@
 package com.gs.obevo.dist;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Date;
 
 import com.gs.obevo.cmdline.DeployerArgs;
@@ -32,6 +34,7 @@ import com.gs.obevo.util.EnumUtils;
 import com.gs.obevo.util.LogUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.log4j.FileAppender;
 import org.eclipse.collections.api.block.procedure.Procedure;
@@ -108,7 +111,15 @@ public class Main {
     }
 
     private static FileAppender getLogAppender(String commandName) {
-        File workDir = new File(FileUtils.getTempDirectory(), ".obevo");
+        // append the user name to the temp directory to 1) avoid conflicts in user folder  2) make it clearer who owned the directory
+        String userNameSuffix = SystemUtils.USER_NAME != null ? "-" + SystemUtils.USER_NAME : "";
+        File workDir;
+        try {
+            workDir = Files.createTempDirectory("obevo" + userNameSuffix).toFile();
+        } catch (IOException e) {
+            // fall back to old logic just in case the above fails (as of v6.1.0)
+            workDir = new File(FileUtils.getTempDirectory(), ".obevo" + userNameSuffix);
+        }
         final String logFileName = "obevo-" + commandName + "-" + LOG_NAME_TIME_FORMAT.print(new DateTime()) + ".log";
         return LogUtil.configureLogging(workDir, logFileName);
     }
