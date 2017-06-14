@@ -17,6 +17,7 @@ package com.gs.obevo.db.apps.reveng;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,6 +36,7 @@ import com.gs.obevo.impl.changetypes.UnclassifiedChangeType;
 import com.gs.obevo.util.FileUtilsCobra;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.eclipse.collections.api.LazyIterable;
@@ -145,10 +147,28 @@ public abstract class AbstractDdlReveng {
     }
 
     public void reveng(AquaRevengArgs args) {
-        if (!isNativeRevengSupported() && args.getInputPath() == null) {
-            printInstructions(args);
+        if (args.getInputPath() == null) {
+            File file = printInstructions(System.out, args);
+            System.out.println("");
+            System.out.println("");
+            if (file != null) {
+                System.out.println("Interim reverse-engineering from the vendor tool is complete.");
+                System.out.println("Content was written to: " + file);
+                System.out.println("Proceeding with full reverse-engineering: " + file);
+                System.out.println("");
+                System.out.println("*** In case the interim content Once those steps are done, rerun the reverse-engineering command you just ran, but add the following argument based on the <outputDirectory> value passed in above the argument:");
+                System.out.println("    -inputPath " + ObjectUtils.defaultIfNull(args.getOutputPath(), "<outputFile>"));
+                revengMain(file, args);
+            } else {
+                System.out.println("***********");
+                System.out.println("");
+                System.out.println("Once those steps are done, rerun the reverse-engineering command you just ran, but add the following argument based on the <outputDirectory> value passed in above the argument:");
+                System.out.println("    -inputPath " + ObjectUtils.defaultIfNull(args.getOutputPath(), "<outputFile>"));
+                System.out.println("");
+                System.out.println("If you need more information on the vendor reverse engineer process, see the doc: https://goldmansachs.github.io/obevo/reverse-engineer-dbmstools.html");
+            }
         } else {
-            revengMain(args);
+            revengMain(args.getInputPath(), args);
         }
     }
 
@@ -164,41 +184,19 @@ public abstract class AbstractDdlReveng {
         this.endQuote = endQuote;
     }
 
-    protected abstract void printInstructions(AquaRevengArgs args);
+    /**
+     * Either generate the file or directory with the DB schema information to reverse engineer given the input args,
+     * or print out instructions for the user on how to generate it.
+     *
+     * @param out The printstream to use in the implementing function to give output to the user.
+     * @param args The db args to reverse engineer
+     * @return The file or directory that has the reverse-engineered content, or null if the user should instead invoke the reverse-engineering command separately
+     */
+    protected abstract File printInstructions(PrintStream out, AquaRevengArgs args);
 
-    protected boolean isNativeRevengSupported() {
-        return false;
-    }
-
-    protected File doNativeReveng(AquaRevengArgs args, DbEnvironment env) {
-        return null;
-    }
-
-    private void revengMain(AquaRevengArgs args) {
+    private void revengMain(File file, AquaRevengArgs args) {
         String schema = args.getDbSchema();
-        File file;
-        if (args.getInputPath() != null) {
-            file = args.getInputPath();
-        } else if (isNativeRevengSupported()) {
-            DbEnvironment env = new DbEnvironment();
-            env.setPlatform(platform);
-            env.setSystemDbPlatform(platform);
-            env.setDbHost(args.getDbHost());
-            if (args.getDbPort() != null) {
-                env.setDbPort(args.getDbPort());
-            }
-            env.setDbServer(args.getDbServer());
-            env.setJdbcUrl(args.getJdbcUrl());
-            if (args.getDriverClass() != null) {
-                env.setDriverClassName(args.getDriverClass());
-            } else {
-                env.setDriverClassName(platform.getDriverClass(env).getName());
-            }
 
-            file = doNativeReveng(args, env);
-        } else {
-            throw new IllegalStateException("Can't reach here");
-        }
         boolean generateBaseline = args.isGenerateBaseline();
         File outputDir = args.getOutputPath();
 
@@ -436,6 +434,24 @@ public abstract class AbstractDdlReveng {
         }
 
         new RevengWriter().write(platform, changeEntries, outputDir, generateBaseline, RevengWriter.defaultShouldOverwritePredicate(), args.getJdbcUrl(), args.getDbHost(), args.getDbPort(), args.getDbServer());
+    }
+
+    protected DbEnvironment getDbEnvironment(AquaRevengArgs args) {
+        DbEnvironment env = new DbEnvironment();
+        env.setPlatform(platform);
+        env.setSystemDbPlatform(platform);
+        env.setDbHost(args.getDbHost());
+        if (args.getDbPort() != null) {
+            env.setDbPort(args.getDbPort());
+        }
+        env.setDbServer(args.getDbServer());
+        env.setJdbcUrl(args.getJdbcUrl());
+        if (args.getDriverClass() != null) {
+            env.setDriverClassName(args.getDriverClass());
+        } else {
+            env.setDriverClassName(platform.getDriverClass(env).getName());
+        }
+        return env;
     }
 
     /**

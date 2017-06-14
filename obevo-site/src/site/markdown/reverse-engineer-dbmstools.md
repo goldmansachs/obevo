@@ -24,15 +24,21 @@ command/s to run to generate some interim artifacts for Obevo to then complete p
 
 The following tools are currently supported.
 
-| DBMS | Tooling Leveraged by Obevo |
-|------|-----------|
-|Sybase ASE|[ddlgen](http://infocenter.sybase.com/help/index.jsp?topic=/com.sybase.infocenter.dc30191.1570100/doc/html/san1367605037678.html)|
-|DB2|[DB2LOOK](http://www.ibm.com/support/knowledgecenter/SSEPGG_11.1.0/com.ibm.db2.luw.admin.cmd.doc/doc/r0002051.html)|
-|Postgres|[pg_dump](https://www.postgresql.org/docs/9.6/static/app-pgdump.html)|
-|SQL Server|[Microsoft.SqlServer.Management.Smo.Scripter class in Powershell](https://msdn.microsoft.com/en-us/library/microsoft.sqlserver.management.smo.scripter.aspx)|
-|Oracle|[DBMS_METADATA API via JDBC](https://docs.oracle.com/database/121/ARPLS/d_metada.htm#ARPLS026)|
+| DBMS | Tooling Leveraged by Obevo | Who will invoke the vendor API? |
+|------|-----------|----------|
+|Sybase ASE|[ddlgen](http://infocenter.sybase.com/help/index.jsp?topic=/com.sybase.infocenter.dc30191.1570100/doc/html/san1367605037678.html)|User|
+|DB2|[DB2LOOK](http://www.ibm.com/support/knowledgecenter/SSEPGG_11.1.0/com.ibm.db2.luw.admin.cmd.doc/doc/r0002051.html)|User|
+|Postgres|[pg_dump](https://www.postgresql.org/docs/9.6/static/app-pgdump.html)|User|
+|SQL Server|[Microsoft.SqlServer.Management.Smo.Scripter class in Powershell](https://msdn.microsoft.com/en-us/library/microsoft.sqlserver.management.smo.scripter.aspx)|User|
+|Oracle|[DBMS_METADATA API via JDBC](https://docs.oracle.com/database/121/ARPLS/d_metada.htm#ARPLS026)|Obevo|
 
 The tooling generally works as follows:
+A) If Obevo invokes the vendor API
+1. Execute the Obevo command. This will invoke the vendor API and save its output into an interim file, and then proceed w/ the rest of the reverse engineering
+2. If the reverse-engineering looks good, then you are done
+3. Otherwise, modify the interim file and rerun the Obevo command w/ the interim file argument passed in
+
+B) If the user invokes the vendor API
 1. Execute the Obevo command to generate the DBMS-specific commands to reverse-engineer the DDLs to a particular format
 2. Execute those DBMS-specific commands to generate the DDL output file
 3. Re-execute the Obevo command w/ the DDL output file as an additional argument
@@ -67,3 +73,26 @@ Once you have these files, do the final touches on them as you see fit (e.g. del
 Note that we explicitly don't include the grants here. This is because you can (and should) use the global permissioning functionality instead.
 
 Once done, return to the [Existing Onboarding Guide](existing-onboarding-guide.html) to continue the onboarding process.
+
+
+# Notes on using each vendor API:
+
+## Sybase ASE - ddlgen
+
+Check with your database administrators on how to obtain the binaries to run ddlgen
+
+## DB2 - db2look
+
+Check with your database administrators on how to obtain the binaries to run db2look
+
+## PostgreSQL - pgdump
+
+pg_dump is available within the core distribution of PostgreSQL. You can use that distro as a client to connect to your
+DB; you do not need PostgreSQL installed on your computer.
+
+https://www.postgresql.org/download/
+
+## SQL Server
+
+
+## Oracle
