@@ -6,6 +6,10 @@
 
 Reverse-engineering added for Oracle, Postgres, SQL Server
 
+### Bug Fixes
+
+SchemaCrawler logginq moved to error level to avoid excessive noise from unsupported DBMS functions
+
 
 ## 6.0.1
 
