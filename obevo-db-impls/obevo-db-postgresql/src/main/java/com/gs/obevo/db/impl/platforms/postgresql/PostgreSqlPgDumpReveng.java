@@ -15,6 +15,9 @@
  */
 package com.gs.obevo.db.impl.platforms.postgresql;
 
+import java.io.File;
+import java.io.PrintStream;
+
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
 import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
@@ -59,40 +62,6 @@ public class PostgreSqlPgDumpReveng extends AbstractDdlReveng {
         ));
     }
 
-    @Override
-    protected void printInstructions(AquaRevengArgs args) {
-        System.out.println("1) Login to your DB2 command line environment by running the following command (assuming you have the DB2 command line client installed):");
-        System.out.println("    db2cmd");
-        System.out.println("");
-        System.out.println("That should result in a new command line window in Windows.");
-        System.out.println("");
-        System.out.println("");
-        System.out.println("2) Run the following command to generate the DDL file:");
-        System.out.println(getCommandWithDefaults(args, "<username>", "<password>", "<dbServerName>", "<dbSchema>", "<outputFile>"));
-        System.out.println("");
-        System.out.println("Here is an example command (in case your values are not filled in):");
-        System.out.println(getCommandWithDefaults(args, "myuser", "mypassword", "MYDB2DEV01", "myschema", "H:\\db2-ddl-output.txt"));
-        System.out.println("");
-        System.out.println("*** Exception handling *** ");
-        System.out.println("If you get an exception that you do not have the BIND privilege, e.g. 'SQL0552N  \"yourId\" does not have the privilege to perform operation \"BIND\".  SQLSTATE=42502");
-        System.out.println("then run the BIND command");
-        System.out.println("");
-        System.out.println("");
-        System.out.println("3) Once that is done, rerun the reverse-engineering command you just ran, but add the following argument based on the <outputDirectory> value passed in above the argument:");
-        System.out.println("    -inputDir " + ObjectUtils.defaultIfNull(args.getOutputDir(), "<outputFile>"));
-
-    }
-
-    private String getCommandWithDefaults(AquaRevengArgs args, String username, String password, String dbServer, String dbSchema, String outputFile) {
-        return "    db2look " +
-                "-d " + ObjectUtils.defaultIfNull(args.getDbServer(), dbServer) + " " +
-                "-z " + ObjectUtils.defaultIfNull(args.getDbSchema(), dbSchema) + " " +
-                "-i " + ObjectUtils.defaultIfNull(args.getUsername(), username) + " " +
-                "-w " + ObjectUtils.defaultIfNull(args.getPassword(), password) + " " +
-                "-o " + ObjectUtils.defaultIfNull(args.getOutputDir(), outputFile) + " " +
-                "-cor -e -td ~ ";
-    }
-
     static ImmutableList<RevengPattern> getRevengPatterns() {
         String schemaNameSubPattern = getObjectPattern("", "");
 
@@ -100,8 +69,6 @@ public class PostgreSqlPgDumpReveng extends AbstractDdlReveng {
         return Lists.immutable.with(
                 new RevengPattern(ChangeType.SEQUENCE_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)?sequence\\s+" + schemaNameSubPattern).withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
                 new RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+table\\s+" + schemaNameSubPattern).withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
-//                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+add\\s+constraint\\s+" + nameSubPattern + "\\s+foreign\\s+key", 2, 3, "FK").withPostProcessSql(REMOVE_QUOTES),
-//                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+add\\s+constraint\\s+" + nameSubPattern, 2, 3, null).withPostProcessSql(REMOVE_QUOTES),
                 new RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)alter\\s+table\\s+(?:only\\s+)" + schemaNameSubPattern).withPostProcessSql(REMOVE_QUOTES),
                 new RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)alter\\s+sequence\\s+" + schemaNameSubPattern + "\\s+owned\\s+by\\s+" + schemaNameSubPattern, 2, 1, null).withPostProcessSql(REMOVE_QUOTES),
                 new RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+(?:unique\\s+)index\\s+" + schemaNameSubPattern + "\\s+on\\s+" + schemaNameSubPattern, 2, 1, "INDEX").withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
@@ -111,5 +78,28 @@ public class PostgreSqlPgDumpReveng extends AbstractDdlReveng {
                 new RevengPattern(ChangeType.PACKAGE_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)package\\s+" + schemaNameSubPattern),
                 new RevengPattern(ChangeType.TRIGGER_STR, namePatternType, "(?i)create\\s+or\\s+replace\\s+trigger\\s+" + schemaNameSubPattern)
         );
+    }
+
+    @Override
+    protected File printInstructions(PrintStream out, AquaRevengArgs args) {
+        out.println("1) Run the following command to generate the DDL file:");
+        out.println(getCommandWithDefaults(args, "<username>", "<password>", "<dbHost>", "<dbPortNumber>", "<dbName>","<dbSchema>", "<outputFile>"));
+        out.println("");
+        out.println("Here is an example command (in case your values are not filled in):");
+        out.println(getCommandWithDefaults(args, "myuser", "mypassword", "myhost.myplace.com", "12345", "mydb", "myschema", "H:\\sybase-ddl-output.txt"));
+        out.println("");
+        out.println("The pg_dump command will ");
+
+        return null;
+    }
+
+    private String getCommandWithDefaults(AquaRevengArgs args, String username, String password, String dbHost, String dbPort, String dbName, String dbSchema, String outputDirectory) {
+        return "pg_dump -O --disable-dollar-quoting -s" +
+                " -h " + ObjectUtils.defaultIfNull(args.getDbHost(), dbHost) +
+                " -p " + ObjectUtils.defaultIfNull(args.getDbPort(), dbPort) +
+                " --username=" + ObjectUtils.defaultIfNull(args.getUsername(), username) +
+                " -d " + ObjectUtils.defaultIfNull(args.getDbServer(), dbName) +
+                " -n " + ObjectUtils.defaultIfNull(args.getDbSchema(), dbSchema) +
+                " -f " + ObjectUtils.defaultIfNull(args.getOutputPath(), outputDirectory);
     }
 }

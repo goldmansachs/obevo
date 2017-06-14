@@ -97,6 +97,8 @@
     </distributionManagement>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
         <!-- sharing common build files using mechanism described here: http://javasplitter.blogspot.com/2011/08/sharing-configuration-files-from-maven.html -->
         <build-resources.classifier>build-resources</build-resources.classifier>
         <build-resources.workdir>${basedir}/target/${build-resources.classifier}</build-resources.workdir>

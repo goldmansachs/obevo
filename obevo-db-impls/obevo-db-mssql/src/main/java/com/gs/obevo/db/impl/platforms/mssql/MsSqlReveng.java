@@ -15,6 +15,9 @@
  */
 package com.gs.obevo.db.impl.platforms.mssql;
 
+import java.io.File;
+import java.io.PrintStream;
+
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
 import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
@@ -56,34 +59,6 @@ public class MsSqlReveng extends AbstractDdlReveng {
         ));
     }
 
-    @Override
-    protected void printInstructions(AquaRevengArgs args) {
-        System.out.println("1) Login to your DB2 command line environment by running the following command (assuming you have the DB2 command line client installed):");
-        System.out.println("    db2cmd");
-        System.out.println("");
-        System.out.println("That should result in a new command line window in Windows.");
-        System.out.println("");
-        System.out.println("");
-        System.out.println("2) Run the following command to generate the DDL file:");
-/*
-        System.out.println(getCommandWithDefaults(args, "<username>", "<password>", "<dbServerName>", "<dbSchema>", "<outputFile>"));
-*/
-        System.out.println("");
-        System.out.println("Here is an example command (in case your values are not filled in):");
-/*
-        System.out.println(getCommandWithDefaults(args, "myuser", "mypassword", "MYDB2DEV01", "myschema", "H:\\db2-ddl-output.txt"));
-*/
-        System.out.println("");
-        System.out.println("*** Exception handling *** ");
-        System.out.println("If you get an exception that you do not have the BIND privilege, e.g. 'SQL0552N  \"yourId\" does not have the privilege to perform operation \"BIND\".  SQLSTATE=42502");
-        System.out.println("then run the BIND command");
-        System.out.println("");
-        System.out.println("");
-        System.out.println("3) Once that is done, rerun the reverse-engineering command you just ran, but add the following argument based on the <outputDirectory> value passed in above the argument:");
-        System.out.println("    -inputDir " + ObjectUtils.defaultIfNull(args.getOutputDir(), "<outputFile>"));
-
-    }
-
     static ImmutableList<RevengPattern> getRevengPatterns() {
         String schemaNameSubPattern = getSchemaObjectPattern("\\[", "\\]");
         NamePatternType namePatternType = NamePatternType.TWO;
@@ -104,21 +79,38 @@ public class MsSqlReveng extends AbstractDdlReveng {
                 new AbstractDdlReveng.RevengPattern(ChangeType.RULE_STR, namePatternType, "(?i)create\\s+rule\\s+" + schemaNameSubPattern),
                 new AbstractDdlReveng.RevengPattern(ChangeType.USERTYPE_STR, namePatternType, "(?i)^(exec\\s+)?sp_addtype\\s+'(\\w+)'")
         );
-/*
-        return Lists.immutable.with(
-                new RevengPattern(ChangeType.SEQUENCE_STR, "(?i)create\\s+(?:or\\s+replace\\s+)?sequence\\s+" + schemaNameSubPattern, 2, null, null).withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
-                new RevengPattern(ChangeType.TABLE_STR, "(?i)create\\s+table\\s+" + schemaNameSubPattern, 2, null, null).withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
-//                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+add\\s+constraint\\s+" + nameSubPattern + "\\s+foreign\\s+key", 2, 3, "FK").withPostProcessSql(REMOVE_QUOTES),
-//                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+add\\s+constraint\\s+" + nameSubPattern, 2, 3, null).withPostProcessSql(REMOVE_QUOTES),
-                new RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+table\\s+(?:only\\s+)" + schemaNameSubPattern, 2, null, null).withPostProcessSql(REMOVE_QUOTES),
-                new RevengPattern(ChangeType.TABLE_STR, "(?i)alter\\s+sequence\\s+" + schemaNameSubPattern + "\\s+owned\\s+by\\s+" + sequenceTablePatterm, 3, 2, null).withPostProcessSql(REMOVE_QUOTES),
-                new RevengPattern(ChangeType.TABLE_STR, "(?i)create\\s+(?:unique\\s+)index\\s+" + schemaNameSubPattern + "\\s+on\\s+" + schemaNameSubPattern, 4, 2, "INDEX").withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
-                new RevengPattern(ChangeType.FUNCTION_STR, "(?i)create\\s+(?:or\\s+replace\\s+)?(?:force\\s+)?(?:editionable\\s+)?function\\s+" + schemaNameSubPattern, 2, null, null),
-                new RevengPattern(ChangeType.VIEW_STR, "(?i)create\\s+(?:or\\s+replace\\s+)?(?:force\\s+)?(?:editionable\\s+)?view\\s+" + schemaNameSubPattern, 2, null, null),
-                new RevengPattern(ChangeType.SP_STR, "(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)procedure\\s+" + schemaNameSubPattern, 2, null, null),
-                new RevengPattern(ChangeType.PACKAGE_STR, "(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)package\\s+" + schemaNameSubPattern, 2, null, null),
-                new RevengPattern(ChangeType.TRIGGER_STR, "(?i)create\\s+or\\s+replace\\s+trigger\\s+" + schemaNameSubPattern, 2, null, null)
-        );
-*/
+    }
+
+    @Override
+    protected File printInstructions(PrintStream out, AquaRevengArgs args) {
+        out.println("1) Download the powershell script from: https://github.com/goldmansachs/obevo/tree/master/obevo-db-impls/obevo-db-mssql/src/main/resources/SqlServerDdlReveng.ps1");
+        out.println("");
+        out.println("2) Open a powershell prompt (assuming you have one installed):");
+        out.println("");
+        out.println("3) Source the script, e.g.:");
+        out.println("");
+        out.println("    . .\\SqlServerDdlReveng.ps1");
+        out.println("");
+        out.println("4) Run the following command to generate the DDL file:");
+        out.println(getCommandWithDefaults(args, "<username>", "<password>", "<dbHost>", "<database>", "<outputFile>"));
+        out.println("");
+        out.println("Here is an example command (in case your input arguments are not filled in):");
+        out.println(getCommandWithDefaults(args, "myuser", "mypassword", "myhost.me.com", "mydatabase", "H:\\db2-ddl-output.txt"));
+        out.println("");
+        out.println("*******");
+        out.println("NOTE - This script is still in beta and subject to signature changes.");
+        out.println("Please give it a try and provide us feedback, or contribute changes as needed.");
+
+        return null;
+    }
+
+
+    private String getCommandWithDefaults(AquaRevengArgs args, String username, String password, String dbHost, String dbSchema, String outputFile) {
+        return "    SqlServerDdlReveng " +
+                " " + ObjectUtils.defaultIfNull(args.getOutputPath(), outputFile) +
+                " " + ObjectUtils.defaultIfNull(args.getDbHost(), dbHost) +
+                " " + ObjectUtils.defaultIfNull(args.getDbSchema(), dbSchema) +
+                " " + ObjectUtils.defaultIfNull(args.getUsername(), username) +
+                " " + ObjectUtils.defaultIfNull(args.getPassword(), password);
     }
 }

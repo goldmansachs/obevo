@@ -15,6 +15,9 @@
  */
 package com.gs.obevo.db.impl.platforms.db2;
 
+import java.io.File;
+import java.io.PrintStream;
+
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
 import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
@@ -54,39 +57,6 @@ public class Db2lookReveng extends AbstractDdlReveng {
         setEndQuote("\"");
     }
 
-    @Override
-    protected void printInstructions(AquaRevengArgs args) {
-        System.out.println("1) Login to your DB2 command line environment by running the following command (assuming you have the DB2 command line client installed):");
-        System.out.println("    db2cmd");
-        System.out.println("");
-        System.out.println("That should result in a new command line window in Windows.");
-        System.out.println("");
-        System.out.println("");
-        System.out.println("2) Run the following command to generate the DDL file:");
-        System.out.println(getCommandWithDefaults(args, "<username>", "<password>", "<dbServerName>", "<dbSchema>", "<outputFile>"));
-        System.out.println("");
-        System.out.println("Here is an example command (in case your values are not filled in):");
-        System.out.println(getCommandWithDefaults(args, "myuser", "mypassword", "MYDB2DEV01", "myschema", "H:\\db2-ddl-output.txt"));
-        System.out.println("");
-        System.out.println("*** Exception handling *** ");
-        System.out.println("If you get an exception that you do not have the BIND privilege, e.g. 'SQL0552N  \"yourId\" does not have the privilege to perform operation \"BIND\".  SQLSTATE=42502");
-        System.out.println("then run the BIND command");
-        System.out.println("");
-        System.out.println("");
-        System.out.println("3) Once that is done, rerun the reverse-engineering command you just ran, but add the following argument based on the <outputDirectory> value passed in above the argument:");
-        System.out.println("    -inputDir " + ObjectUtils.defaultIfNull(args.getOutputDir(), "<outputFile>"));
-    }
-
-    private String getCommandWithDefaults(AquaRevengArgs args, String username, String password, String dbServer, String dbSchema, String outputFile) {
-        return "    db2look " +
-                "-d " + ObjectUtils.defaultIfNull(args.getDbServer(), dbServer) + " " +
-                "-z " + ObjectUtils.defaultIfNull(args.getDbSchema(), dbSchema) + " " +
-                "-i " + ObjectUtils.defaultIfNull(args.getUsername(), username) + " " +
-                "-w " + ObjectUtils.defaultIfNull(args.getPassword(), password) + " " +
-                "-o " + ObjectUtils.defaultIfNull(args.getOutputDir(), outputFile) + " " +
-                "-cor -e -td ~ ";
-    }
-
     static ImmutableList<RevengPattern> getRevengPatterns() {
         String schemaNameSubPattern = getSchemaObjectPattern("\"", "\"");
         NamePatternType namePatternType = NamePatternType.TWO;
@@ -102,5 +72,36 @@ public class Db2lookReveng extends AbstractDdlReveng {
                 new AbstractDdlReveng.RevengPattern(ChangeType.SP_STR, namePatternType, "(?i)create\\s+or\\s+replace\\s+procedure\\s+" + schemaNameSubPattern),
                 new AbstractDdlReveng.RevengPattern(ChangeType.TRIGGER_STR, namePatternType, "(?i)create\\s+or\\s+replace\\s+trigger\\s+" + schemaNameSubPattern)
         );
+    }
+
+    @Override
+    protected File printInstructions(PrintStream out, AquaRevengArgs args) {
+        out.println("1) Login to your DB2 command line environment by running the following command (assuming you have the DB2 command line client installed):");
+        out.println("    db2cmd");
+        out.println("");
+        out.println("That should result in a new command line window in Windows.");
+        out.println("");
+        out.println("");
+        out.println("2) Run the following command to generate the DDL file:");
+        out.println(getCommandWithDefaults(args, "<username>", "<password>", "<dbServerName>", "<dbSchema>", "<outputFile>"));
+        out.println("");
+        out.println("Here is an example command (in case your input arguments are not filled in):");
+        out.println(getCommandWithDefaults(args, "myuser", "mypassword", "MYDB2DEV01", "myschema", "H:\\db2-ddl-output.txt"));
+        out.println("");
+        out.println("*** Exception handling *** ");
+        out.println("If you get an exception that you do not have the BIND privilege, e.g. 'SQL0552N  \"yourId\" does not have the privilege to perform operation \"BIND\".  SQLSTATE=42502");
+        out.println("then run the BIND command");
+
+        return null;
+    }
+
+    private String getCommandWithDefaults(AquaRevengArgs args, String username, String password, String dbServer, String dbSchema, String outputFile) {
+        return "    db2look " +
+                "-d " + ObjectUtils.defaultIfNull(args.getDbServer(), dbServer) + " " +
+                "-z " + ObjectUtils.defaultIfNull(args.getDbSchema(), dbSchema) + " " +
+                "-i " + ObjectUtils.defaultIfNull(args.getUsername(), username) + " " +
+                "-w " + ObjectUtils.defaultIfNull(args.getPassword(), password) + " " +
+                "-o " + ObjectUtils.defaultIfNull(args.getOutputPath(), outputFile) + " " +
+                "-cor -e -td ~ ";
     }
 }

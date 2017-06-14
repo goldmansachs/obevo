@@ -15,6 +15,9 @@
  */
 package com.gs.obevo.db.apps.reveng;
 
+import java.io.File;
+import java.io.PrintStream;
+
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.impl.core.reader.TextMarkupDocumentReader;
 import com.gs.obevo.db.impl.core.util.MultiLineStringSplitter;
@@ -83,15 +86,14 @@ public class AseDdlgenReveng extends AbstractDdlReveng {
     }
 
     @Override
-    protected void printInstructions(AquaRevengArgs args) {
+    protected File printInstructions(PrintStream out, AquaRevengArgs args) {
         System.out.println("1) Run the following command to generate the DDL file:");
         System.out.println(getCommandWithDefaults(args, "<username>", "<password>", "<dbHost>", "<dbPortNumber>", "<dbSchema>", "<outputFile>"));
         System.out.println("");
         System.out.println("Here is an example command (in case your values are not filled in):");
         System.out.println(getCommandWithDefaults(args, "myuser", "mypassword", "myhost.myplace.com", "12345", "myschema", "H:\\sybase-ddl-output.txt"));
-        System.out.println("");
-        System.out.println("2) Once that is done, rerun the reverse-engineering command you just ran, but add the following argument based on the -O value passed in above the argument:");
-        System.out.println("    -inputDir " + ObjectUtils.defaultIfNull(args.getOutputDir(), "<outputFile>"));
+
+        return null;
     }
 
     private String getCommandWithDefaults(AquaRevengArgs args, String username, String password, String dbHost, String dbPort, String dbSchema, String outputDirectory) {

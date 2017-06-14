@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 
     Copyright 2017 Goldman Sachs.
@@ -97,21 +97,18 @@
             to serve as the starting point for your source code</p>
 
             <p>We have a couple methodologies available for you to use, depending on your DBMS:</p>
-            <p><b><u><a href="reverse-engineer-aquadatastudio.html">Option 1 (default): Aqua Data Studio</a></u></b>
-                <ul>
-                    <li>This is currently the primary methodology for reverse-engineering.</li>
-                    <li>It supports all DBMS types</li>
-                    <li>We are looking to move to the option below in the future, but it is still in the piloting phase</li>
-                </ul>
-            </p>
-            <p><b><u><a href="reverse-engineer-dbmstools.html">Option 2 (beta - in pilot): vendor-provided tools</a></u></b> (only available for Sybase ASE and DB2)
+            <p><b><u><a href="reverse-engineer-dbmstools.html">Option 1 (preferred): vendor-provided tools</a></u></b> (available for DB2, Oracle, PostgreSQL, SQL Server, Sybase ASE)
                 <ul>
                     <li>This option uses the tools provided by the vendors</li>
-                    <li>This will be the preferred option in the future</li>
-                    <li>Today, the feature is in pilot. Reach out to the product team via Github if you would like to try this
-                        out (particularly if you have a lot of DBMS's to reverse engineer, as this methodology is more
-                        automatable than the Aqua Data Studio method
-                    </li>
+                    <li>It is relatively new compared to option 2, but it is the way we are investing in going forward.</li>
+                    <li>Please reach out to the product team via Github if you have any questions in using this.</li>
+                </ul>
+            </p>
+            <p><b><u><a href="reverse-engineer-aquadatastudio.html">Option 2 (legacy): Aqua Data Studio</a></u></b>
+                <ul>
+                    <li>Aqua Data Studio is a tool previously used by the Obevo team in their regular DB-based work.</li>
+                    <li>However, it is proprietary and not 100% accurate for some edge cases; hence, we invested in the vendor-provided tool approach.</li>
+                    <li>That said, we already had the instructions for Aqua written, so we will continue to provide it for now.</li>
                 </ul>
             </p>
 
@@ -357,8 +354,8 @@ GO]]></source>
             get your UAT in line. This is not that great an option, but depending on your team's situation, it may be
             needed
         </p>
-        <p>To compare the schemas, use the Aqua Data Studio schema comparison tool or the schema comparison tool
-            provided by Obevo (will document this soon)
+        <p>To compare the schemas, use any DB management tool of your choice. <a href="http://sualeh.github.io/SchemaCrawler/">SchemaCrawler</a>,
+            which is used as a library in Obevo, also has comparison functionality.
         </p>
         <p>To compare the static data, see the following subsection...</p>
                 <h4>Comparing the Data across different databases</h4>

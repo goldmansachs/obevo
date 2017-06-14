@@ -19,6 +19,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -46,8 +47,13 @@ import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.block.factory.StringPredicates;
 import org.eclipse.collections.impl.factory.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OracleReveng extends AbstractDdlReveng {
+    private static final Logger LOG = LoggerFactory.getLogger(OracleReveng.class);
+    private static final String QUOTE = "\"";
+
     public OracleReveng() {
         super(
                 new OracleDbPlatform(),
@@ -70,100 +76,13 @@ public class OracleReveng extends AbstractDdlReveng {
                     }
                 }
         );
-        setStartQuote("\"");
-        setEndQuote("\"");
-    }
-
-    @Override
-    protected void printInstructions(AquaRevengArgs args) {
-
-    }
-
-    @Override
-    protected File doNativeReveng(AquaRevengArgs args, DbEnvironment env) {
-        JdbcDataSourceFactory jdbcFactory = new OracleJdbcDataSourceFactory();
-        DataSource ds = jdbcFactory.createDataSource(env, new Credential(args.getUsername(), args.getPassword()), 1);
-        JdbcHelper jdbc = new JdbcHelper(null, false);
-
-        // can't remap schema name, object name, tablespace name
-        String trySql = "DECLARE\n" +
-                "h NUMBER; --handle returned by OPEN\n" +
-                "th NUMBER; -- handle returned by ADD_TRANSFORM\n" +
-                "doc CLOB;\n" +
-                "my_cursor SYS_REFCURSOR;\n" +
-                "BEGIN\n" +
-                "\n" +
-                "-- Specify the object type.\n" +
-                "h := DBMS_METADATA.OPEN('TABLE');\n" +
-                "\n" +
-                "-- Use filters to specify the particular object desired.\n" +
-                "DBMS_METADATA.SET_FILTER(h,'SCHEMA','DBDEPLOY01');\n" +
-                "DBMS_METADATA.SET_FILTER(h,'NAME','TABLE_B');\n" +
-                "\n" +
-                " -- Request that the metadata be transformed into creation DDL.\n" +
-                "th := DBMS_METADATA.ADD_TRANSFORM(h,'DDL');\n" +
-                "\n" +
-                " -- Fetch the object.\n" +
-                "doc := DBMS_METADATA.FETCH_CLOB(h);\n" +
-                "\n" +
-                " -- Release resources.\n" +
-                "DBMS_METADATA.CLOSE(h);\n" +
-                "OPEN my_cursor FOR SELECT doc FROM DUAL;\n" +
-                "--end;\n" +
-                "--return my_cursor;\n" +
-                "end;";
-        ;
-        Path interim = new File(args.getOutputPath(), "interim").toPath();
-        interim.toFile().mkdirs();
-        try (Connection conn = ds.getConnection();
-             BufferedWriter fileWriter = Files.newBufferedWriter(interim.resolve("output.sql"), Charset.defaultCharset())) {
-
-            // https://docs.oracle.com/database/121/ARPLS/d_metada.htm#BGBJBFGE
-            jdbc.update(conn, "{ CALL DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM,'STORAGE',false) }");
-
-
-            MutableList<Map<String, Object>> maps = jdbc.queryForList(conn,
-                    "SELECT CASE WHEN OBJECT_TYPE = 'TABLE' THEN 1 WHEN OBJECT_TYPE = 'INDEX' THEN 2 ELSE 3 END SORT_ORDER,\n" +
-                            "    OBJECT_TYPE,\n" +
-                            "    dbms_metadata.get_ddl(REPLACE(object_type,' ','_'), object_name, owner) || ';' AS object_ddl\n" +
-                            "FROM DBA_OBJECTS WHERE OWNER = '" + args.getDbSchema() + "' AND OBJECT_TYPE NOT IN ('PACKAGE BODY', 'LOB','MATERIALIZED VIEW', 'TABLE PARTITION')\n" +
-                            "ORDER BY 1");
-
-            for (Map<String, Object> map : maps) {
-                System.out.println(map);
-                Clob clobObject = (Clob) map.get("OBJECT_DDL");
-                InputStream in = clobObject.getAsciiStream();
-                StringWriter w = new StringWriter();
-                try {
-                    IOUtils.copy(in, w);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                String clobAsString = w.toString();
-                clobAsString = clobAsString.replaceAll(";.*$", "");
-
-                System.out.println("Content for " + map.get("OBJECT_TYPE") + ": " + clobAsString);
-                fileWriter.write(clobAsString);
-                fileWriter.newLine();
-                fileWriter.write("~");
-                fileWriter.newLine();
-            }
-        } catch (SQLException | IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        System.out.println("DONE!!!!!!");
-        return interim.toFile();
-    }
-
-    @Override
-    protected boolean isNativeRevengSupported() {
-        return true;
+        setStartQuote(QUOTE);
+        setEndQuote(QUOTE);
     }
 
     static ImmutableList<RevengPattern> getRevengPatterns() {
-        String schemaNameSubPattern = getSchemaObjectPattern("\"", "\"");
-        String schemaSysNamePattern = getSchemaObjectWithPrefixPattern("\"", "\"", "SYS_");
+        String schemaNameSubPattern = getSchemaObjectPattern(QUOTE, QUOTE);
+        String schemaSysNamePattern = getSchemaObjectWithPrefixPattern(QUOTE, QUOTE, "SYS_");
         NamePatternType namePatternType = NamePatternType.TWO;
         return Lists.immutable.with(
                 new AbstractDdlReveng.RevengPattern(ChangeType.SEQUENCE_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)?sequence\\s+" + schemaNameSubPattern).withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
@@ -177,5 +96,55 @@ public class OracleReveng extends AbstractDdlReveng {
                 new AbstractDdlReveng.RevengPattern(ChangeType.PACKAGE_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)package\\s+" + schemaNameSubPattern),
                 new AbstractDdlReveng.RevengPattern(ChangeType.TRIGGER_STR, namePatternType, "(?i)create\\s+or\\s+replace\\s+trigger\\s+" + schemaNameSubPattern)
         );
+    }
+
+    @Override
+    protected File printInstructions(PrintStream out, AquaRevengArgs args) {
+        DbEnvironment env = getDbEnvironment(args);
+
+        JdbcDataSourceFactory jdbcFactory = new OracleJdbcDataSourceFactory();
+        DataSource ds = jdbcFactory.createDataSource(env, new Credential(args.getUsername(), args.getPassword()), 1);
+        JdbcHelper jdbc = new JdbcHelper(null, false);
+
+
+        Path interim = new File(args.getOutputPath(), "interim").toPath();
+        interim.toFile().mkdirs();
+        try (Connection conn = ds.getConnection();
+             BufferedWriter fileWriter = Files.newBufferedWriter(interim.resolve("output.sql"), Charset.defaultCharset())) {
+
+            // https://docs.oracle.com/database/121/ARPLS/d_metada.htm#BGBJBFGE
+            // Note - can't remap schema name, object name, tablespace name within JDBC calls; we will leave that to the existing code in AbstractDdlReveng
+            jdbc.update(conn, "{ CALL DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM,'STORAGE',false) }");
+
+            MutableList<Map<String, Object>> maps = jdbc.queryForList(conn,
+                    "SELECT CASE WHEN OBJECT_TYPE = 'TABLE' THEN 1 WHEN OBJECT_TYPE = 'INDEX' THEN 2 ELSE 3 END SORT_ORDER,\n" +
+                            "    OBJECT_TYPE,\n" +
+                            "    dbms_metadata.get_ddl(REPLACE(object_type,' ','_'), object_name, owner) || ';' AS object_ddl\n" +
+                            "FROM DBA_OBJECTS WHERE OWNER = '" + args.getDbSchema() + "' AND OBJECT_TYPE NOT IN ('PACKAGE BODY', 'LOB','MATERIALIZED VIEW', 'TABLE PARTITION')\n" +
+                            "ORDER BY 1");
+
+            for (Map<String, Object> map : maps) {
+                Clob clobObject = (Clob) map.get("OBJECT_DDL");
+                InputStream in = clobObject.getAsciiStream();
+                StringWriter w = new StringWriter();
+                try {
+                    IOUtils.copy(in, w);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                String clobAsString = w.toString();
+                clobAsString = clobAsString.replaceAll(";.*$", "");
+
+                LOG.debug("Content for {}: ", map.get("OBJECT_TYPE"), clobAsString);
+                fileWriter.write(clobAsString);
+                fileWriter.newLine();
+                fileWriter.write("~");
+                fileWriter.newLine();
+            }
+        } catch (SQLException | IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return interim.toFile();
     }
 }
