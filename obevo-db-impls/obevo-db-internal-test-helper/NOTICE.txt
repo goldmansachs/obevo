@@ -11,7 +11,7 @@ Each module in this project has a NOTICE.txt file denoting the module's own depe
 
 This product depends on (links to) the following software:
   Apache Commons Codec under Apache License, Version 2.0
-  Apache Commons CSV under The Apache License, Version 2.0
+  Apache Commons CSV under Apache License, Version 2.0
   Apache Commons DbUtils under The Apache Software License, Version 2.0
   Command Line Interface Parser for Java under The Apache Software License, Version 2.0
   Commons BeanUtils under The Apache Software License, Version 2.0
@@ -38,6 +38,7 @@ This product depends on (links to) the following software:
   obevo-db-unittest-util under The Apache License, Version 2.0
   obevo-internal-comparer under The Apache License, Version 2.0
   Objenesis under MIT License
+  opencsv under Apache 2
   SLF4J API Module under MIT License
   SLF4J Simple Binding under MIT License
   Typesafe Config under Apache License, Version 2.0

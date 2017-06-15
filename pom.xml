@@ -519,6 +519,10 @@
                     </licenseMapping>
                     <fileName>NOTICE.txt</fileName>
                     <includeChildDependencies>false</includeChildDependencies>
+                    <includeScopes>
+                        <includeScopes>compile</includeScopes>
+                        <includeScopes>runtime</includeScopes>
+                    </includeScopes>
                 </configuration>
                 <executions>
                     <execution>
@@ -888,8 +892,8 @@
             </build>
         </profile>
         <profile>
-            <!-- Use this profile to bulk-apply the lice -->
-            <id>update-license-files</id>
+            <!-- Use this profile to bulk-apply the NOTICE -->
+            <id>update-notice-files</id>
             <build>
                 <plugins>
                     <plugin>
@@ -923,6 +927,14 @@
                     </plugin>
 -->
 
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <!-- Use this profile to bulk-apply the license headers -->
+            <id>update-license-headers</id>
+            <build>
+                <plugins>
                     <plugin>
                         <!-- Generate the license header in each file.
                         The mycila plugin is a bit friendlier to apply the plugin, e.g. it was able to add it to

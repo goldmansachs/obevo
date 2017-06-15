@@ -22,33 +22,8 @@
     <!-- These artifact licenses could not be resolved by default; needed license entries as defined in
     https://source.jasig.org/licenses/license-mappings.xml -->
     <artifact>
-        <groupId>classworlds</groupId>
-        <artifactId>classworlds</artifactId>
-        <license>BSD Style License</license>
-    </artifact>
-    <artifact>
-        <groupId>de.zeigermann.xml</groupId>
-        <artifactId>xml-im-exporter</artifactId>
-        <license>BSD License</license>
-    </artifact>
-    <artifact>
         <groupId>junit-addons</groupId>
         <artifactId>junit-addons</artifactId>
-        <license>Apache License, Version 2.0</license>
-    </artifact>
-    <artifact>
-        <groupId>jdom</groupId>
-        <artifactId>jdom</artifactId>
-        <license>Apache style license</license>
-    </artifact>
-    <artifact>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-container-default</artifactId>
-        <license>Apache License, Version 2.0</license>
-    </artifact>
-    <artifact>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-interactivity-api</artifactId>
         <license>Apache License, Version 2.0</license>
     </artifact>
     <artifact>
@@ -57,7 +32,7 @@
         <license>EPL 1.0</license>
     </artifact>
 
-    <!-- Overriding name -->
+    <!-- Overriding display name (config is rather unclear on its own in the NOTICE.txt file) -->
     <artifact>
         <groupId>com.typesafe</groupId>
         <artifactId>config</artifactId>
@@ -65,7 +40,7 @@
         <name>Typesafe Config</name>
     </artifact>
 
-    <!-- Overriding licenses -->
+    <!-- Picking a specific license for a multi-licensed product -->
     <artifact>
         <groupId>org.eclipse.collections</groupId>
         <artifactId>eclipse-collections</artifactId>
