@@ -21,7 +21,7 @@
 
     <groupId>com.goldmansachs.obevo</groupId>
     <artifactId>obevo-parent</artifactId>
-    <version>6.0.2-SNAPSHOT</version>
+    <version>6.1.0</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -68,7 +68,7 @@
         <url>https://github.com/goldmansachs/obevo/</url>
         <connection>scm:git:https://github.com/goldmansachs/obevo.git</connection>
         <developerConnection>scm:git:https://github.com/goldmansachs/obevo.git</developerConnection>
-      <tag>6.0.0</tag>
+      <tag>6.1.0</tag>
   </scm>
 
 
@@ -109,7 +109,7 @@
         <schemacrawler.version>14.16.01-java7</schemacrawler.version>
 
         <sonar.exclusions>file:**/generated-sources/**/*</sonar.exclusions>
-        <dbCredsFile></dbCredsFile>  <!-- empty by default -->
+        <dbCredsFile />  <!-- empty by default -->
     </properties>
 
     <build>
