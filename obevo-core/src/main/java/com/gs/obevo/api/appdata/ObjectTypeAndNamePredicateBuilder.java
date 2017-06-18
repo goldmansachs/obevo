@@ -15,24 +15,33 @@
  */
 package com.gs.obevo.api.appdata;
 
+import java.util.Objects;
+
 import com.gs.obevo.util.lookuppredicate.LookupPredicateBuilder;
 import org.apache.commons.lang3.Validate;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.collection.ImmutableCollection;
+import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.multimap.ImmutableMultimap;
+import org.eclipse.collections.api.multimap.list.MutableListMultimap;
 import org.eclipse.collections.api.multimap.set.MutableSetMultimap;
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Multimaps;
+import org.eclipse.collections.impl.list.fixed.ArrayAdapter;
 
 /**
  * Predicate builder that works off the object type and object name. Can work on any kind of object; just needs
  * functions passed in from the target class to filter on that maps to the object type and name values.
  */
 public class ObjectTypeAndNamePredicateBuilder {
+    public static final String PART_SPLITTER = ",";
+    public static final String SINGLE_PREDICATE_SPLITTER = "~";
+    public static final String PREDICATE_SPLITTER = ";";
+
     public enum FilterType {
         INCLUDE(false),
         EXCLUDE(true),;
@@ -50,6 +59,21 @@ public class ObjectTypeAndNamePredicateBuilder {
 
     private final ImmutableMultimap<String, String> objectNamesByType;
     private final FilterType filterType;
+
+    public static ObjectTypeAndNamePredicateBuilder parse(String input, FilterType filterType) {
+        ImmutableList<String> fullPredicateParts = ArrayAdapter.adapt(input.split(PREDICATE_SPLITTER)).toImmutable();
+
+        MutableListMultimap<String, String> objectNamesByType = Multimaps.mutable.list.empty();
+        for (String fullPredicatePart : fullPredicateParts) {
+            ImmutableList<String> predicatePart = ArrayAdapter.adapt(fullPredicatePart.split(SINGLE_PREDICATE_SPLITTER)).toImmutable();
+            Validate.isTrue(predicatePart.size() == 2, "Must only have 1 delimiter " + SINGLE_PREDICATE_SPLITTER + " in this clause " + fullPredicatePart + " to find 2 parts, but found " + predicatePart.size() + " parts");
+            for (String objectName : predicatePart.get(1).split(PART_SPLITTER)) {
+                objectNamesByType.put(predicatePart.get(0), objectName);
+            }
+        }
+
+        return new ObjectTypeAndNamePredicateBuilder(objectNamesByType.toImmutable(), filterType);
+    }
 
     public ObjectTypeAndNamePredicateBuilder(FilterType filterType) {
         this(Multimaps.immutable.set.<String, String>empty(), filterType);
@@ -79,7 +103,8 @@ public class ObjectTypeAndNamePredicateBuilder {
         if (other == null) {
             return this;
         }
-        if (!this.filterType.equals(other.filterType)) {
+
+        if (!Objects.equals(this.filterType, other.filterType)) {
             throw new IllegalArgumentException("Filter types must match if we want to combine the builders; this: " + filterType + "; other: " + other.filterType);
         }
 
@@ -98,31 +123,35 @@ public class ObjectTypeAndNamePredicateBuilder {
      */
     public <T> Predicates<? super T> build(final Function<? super T, String> objectTypeFunction, final Function<? super T, String> objectNameFunction) {
         if (objectNamesByType.isEmpty()) {
-            if (filterType.isEmptyInputResult()) {
+            if (filterType == null || filterType.isEmptyInputResult()) {
                 return Predicates.alwaysTrue();
             } else {
                 return Predicates.alwaysFalse();
             }
         }
 
-        RichIterable<Predicate<? super T>> typePredicates = objectNamesByType.keyMultiValuePairsView().collect(new Function<Pair<String, RichIterable<String>>, Predicate<? super T>>() {
+        RichIterable<Predicate<? super T>> typePredicates = objectNamesByType.keyMultiValuePairsView().toList().collect(new Function<Pair<String, RichIterable<String>>, Predicate<? super T>>() {
             @Override
             public Predicate<? super T> valueOf(Pair<String, RichIterable<String>> pair) {
                 String objectType = pair.getOne();
                 RichIterable<String> objectPatterns = pair.getTwo();
+                boolean negatePredicate = filterType == FilterType.EXCLUDE;
+                if (objectType.startsWith("-")) {
+                    objectType = objectType.substring(1);
+                    negatePredicate = true;
+
+                }
+                System.out.println(objectType + ":" + negatePredicate + ":" + objectPatterns);
                 Predicate<T> objectTypeAndNamePredicate = getObjectTypeAndNamePredicate(
                         objectTypeFunction, Lists.immutable.with(objectType),
-                        objectNameFunction, objectPatterns.toList().toImmutable()
+                        negatePredicate, objectNameFunction, objectPatterns.toList().toImmutable()
                 );
 
-                if (filterType == FilterType.EXCLUDE) {
-                    objectTypeAndNamePredicate = Predicates.not(objectTypeAndNamePredicate);
-                }
                 return objectTypeAndNamePredicate;
             }
         });
 
-        if (filterType == FilterType.EXCLUDE) {
+        if (filterType == null || filterType == FilterType.EXCLUDE) {
             return Predicates.and(typePredicates);
         } else {
             return Predicates.or(typePredicates);
@@ -131,9 +160,14 @@ public class ObjectTypeAndNamePredicateBuilder {
 
     private static <T> Predicate<T> getObjectTypeAndNamePredicate(
             Function<? super T, String> typeFunction, ImmutableCollection<String> typePatterns,
-            Function<? super T, String> nameFunction, ImmutableCollection<String> namePatterns) {
+            boolean negate, Function<? super T, String> nameFunction, ImmutableCollection<String> namePatterns) {
         Predicates<? super T> typePredicate = LookupPredicateBuilder.convert(typeFunction, typePatterns);
         Predicates<? super T> namePredicate = LookupPredicateBuilder.convert(nameFunction, namePatterns);
-        return Predicates.and(typePredicate, namePredicate);
+
+        if (negate) {
+            namePredicate = Predicates.not(namePredicate);
+        }
+
+        return Predicates.or(Predicates.not(typePredicate), namePredicate);
     }
 }

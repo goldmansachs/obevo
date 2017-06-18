@@ -15,7 +15,7 @@
     under the License.
 
 -->
-# Reverse-Engineering via DBMS-Provided Tools
+## Reverse-Engineering via DBMS-Provided Tools
 Obevo will integrate w/ DBMS-provided tooling for reverse-engineering. We prefer this route over
 using external tools as the DBMS vendors are more likely to keep up-to-date on their own DDL generation tooling.
 
@@ -43,7 +43,7 @@ B) If the user invokes the vendor API
 2. Execute those DBMS-specific commands to generate the DDL output file
 3. Re-execute the Obevo command w/ the DDL output file as an additional argument
 
-# Execution Steps
+## Execution Steps
 Step 1: execute the NEWREVENG command with your arguments
 
 ```
@@ -75,24 +75,24 @@ Note that we explicitly don't include the grants here. This is because you can (
 Once done, return to the [Existing Onboarding Guide](existing-onboarding-guide.html) to continue the onboarding process.
 
 
-# Notes on using each vendor API:
+## Notes on using each vendor API:
 
-## Sybase ASE - ddlgen
+### Sybase ASE - ddlgen
 
 Check with your database administrators on how to obtain the binaries to run ddlgen
 
-## DB2 - db2look
+### DB2 - db2look
 
 Check with your database administrators on how to obtain the binaries to run db2look
 
-## PostgreSQL - pgdump
+### PostgreSQL - pgdump
 
 pg_dump is available within the core distribution of PostgreSQL. You can use that distro as a client to connect to your
 DB; you do not need PostgreSQL installed on your computer.
 
 https://www.postgresql.org/download/
 
-## SQL Server
+### SQL Server
 
 
-## Oracle
+### Oracle

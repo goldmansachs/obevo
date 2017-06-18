@@ -433,7 +433,7 @@ public abstract class AbstractDdlReveng {
             }
         }
 
-        new RevengWriter().write(platform, changeEntries, outputDir, generateBaseline, RevengWriter.defaultShouldOverwritePredicate(), args.getJdbcUrl(), args.getDbHost(), args.getDbPort(), args.getDbServer());
+        new RevengWriter().write(platform, changeEntries, outputDir, generateBaseline, RevengWriter.defaultShouldOverwritePredicate(), args.getJdbcUrl(), args.getDbHost(), args.getDbPort(), args.getDbServer(), args.getExcludeObjects());
     }
 
     protected DbEnvironment getDbEnvironment(AquaRevengArgs args) {

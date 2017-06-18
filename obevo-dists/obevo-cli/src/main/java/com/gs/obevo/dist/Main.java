@@ -29,6 +29,8 @@ import com.gs.obevo.db.apps.reveng.DbFileMergerArgs;
 import com.gs.obevo.db.apps.reveng.TableSyncher;
 import com.gs.obevo.db.cmdline.DbDeployerMain;
 import com.gs.obevo.db.impl.core.compare.data.DbDataComparisonUtil;
+import com.gs.obevo.reladomo.ReladomoSchemaConverter;
+import com.gs.obevo.reladomo.ReladomoSchemaConverterArgs;
 import com.gs.obevo.util.ArgsParser;
 import com.gs.obevo.util.EnumUtils;
 import com.gs.obevo.util.LogUtil;
@@ -64,7 +66,7 @@ public class Main {
         NEWREVENG,
         DBREVENGMERGE,
         DBREVENGTABLEMERGE,
-        MITHRAREVENG,
+        RELADOMOREVENG,
         INIT,
         PREVIEW,
         DBDATACOMPARE,
@@ -203,6 +205,14 @@ public class Main {
             @Override
             public void value(String[] argSubset) {
                 DbDataComparisonUtil.main(argSubset);
+            }
+        });
+        commandMap.put(DeployCommand.RELADOMOREVENG.name(), new Procedure<String[]>() {
+            @Override
+            public void value(String[] argSubset) {
+                ReladomoSchemaConverter schemaConverter = new ReladomoSchemaConverter();
+                ReladomoSchemaConverterArgs reladomoArgs = new ArgsParser().parse(argSubset, new ReladomoSchemaConverterArgs());
+                schemaConverter.convertDdlsToDaFormat(reladomoArgs);
             }
         });
 

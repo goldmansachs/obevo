@@ -45,6 +45,7 @@ public class AquaRevengArgs {
     private MutableSet<String> updateTimeColumns;
     private String nameCombinePattern;
     private boolean preprocessSchemaTokens = true;
+    private String excludeObjects;
 
     /**
      * @deprecated Use {@link #getInputPath()}
@@ -249,6 +250,15 @@ public class AquaRevengArgs {
     @Argument(value = "preprocessSchemaTokens", required = false, description = "Specifies if we try to replace the existing schema references with blanks for easier cross-schema compatibility of scripts. Default is true; only set to false if the schema prefixes had already been stripped out previously.")
     public void setPreprocessSchemaTokensStr(String preprocessSchemaTokens) {
         this.preprocessSchemaTokens = Boolean.valueOf(preprocessSchemaTokens);
+    }
+
+    public String getExcludeObjects() {
+        return excludeObjects;
+    }
+
+    @Argument(value = "excludeObjects", required = false, description = "Object patterns to exclude from reverse-engineering, e.g. TABLE~tab1,tab2;VIEW~view1,view2")
+    public void setExcludeObjects(String excludeObjects) {
+        this.excludeObjects = excludeObjects;
     }
 
     @Override

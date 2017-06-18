@@ -15,6 +15,7 @@
  */
 package com.gs.obevo.db.apps.reveng;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.factory.Lists;
@@ -100,5 +101,17 @@ public class ChangeEntry {
 
     public void addMetadataAnnotation(String metadataAnnotation) {
         this.metadataAnnotations.add(metadataAnnotation);
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("destination", destination)
+                .append("name", name)
+                .append("changeAnnotation", changeAnnotation)
+                .append("order", order)
+                .append("metadataAnnotations", metadataAnnotations)
+                .append("sql", sql)
+                .toString();
     }
 }

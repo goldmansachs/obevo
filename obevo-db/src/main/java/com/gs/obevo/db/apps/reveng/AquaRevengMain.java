@@ -153,7 +153,7 @@ public class AquaRevengMain {
         }
 
         File outputWriteFolder = tablespaceToken ? outputDir : new File(outputDir, "final");  // check the tablespaceToken value for backwards-compatibility
-        new RevengWriter().write(args.getDbPlatform(), allRevEngDestinations, outputWriteFolder, this.generateBaseline, null, args.getJdbcUrl(), args.getDbHost(), args.getDbPort(), args.getDbServer());
+        new RevengWriter().write(args.getDbPlatform(), allRevEngDestinations, outputWriteFolder, this.generateBaseline, null, args.getJdbcUrl(), args.getDbHost(), args.getDbPort(), args.getDbServer(), args.getExcludeObjects());
     }
 
     private ImmutableMap<ChangeType, Pattern> initPatternMap(Platform platform) {

@@ -82,7 +82,7 @@ select * from #mytemp
 end
 go
 drop #mytemp]]></source>
-                <p>(not that we'd want to do something like this in the age of Java and Mithra/Hibernate, but this is
+                <p>(not that we'd want to do something like this in the age of Java and Reladomo/Hibernate, but this is
                     here in
                     case you need it.
                 </p>

@@ -64,11 +64,6 @@ public class Environment<T extends Platform> {
     };
     private boolean legacyDirectoryStructureEnabled;
 
-    public Environment() {
-        // You must not modify this constructor. Mithra calls this internally.
-        // You can call this constructor. You can also add new constructors.
-    }
-
     public void copyFieldsFrom(Environment<T> env) {
         this.name = env.name;
         this.platform = env.platform;

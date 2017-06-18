@@ -6,6 +6,9 @@
 
 Reverse-engineering added for Oracle, Postgres, SQL Server
 
+#37 - Allowing objects to be excluded during reverse engineering
+
+
 ### Bug Fixes
 
 SchemaCrawler logginq moved to error level to avoid excessive noise from unsupported DBMS functions

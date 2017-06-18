@@ -87,7 +87,7 @@
                     fails
                 </li>
             </ul>
-            <p>You can leverage this at build time to ensure that {+}{+}<i>if you change your Hibernate/Mithra/Java
+            <p>You can leverage this at build time to ensure that {+}{+}<i>if you change your Hibernate/Reladomo/Java
                 model
                 files, that it will stay in sync with the changes you deploy to your DB</i>. Nice benefit, huh?
             </p>

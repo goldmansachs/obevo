@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Locale;
 
+import com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder;
 import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.DeployExecutionDao;
@@ -94,7 +95,7 @@ public class RevengWriter {
         templateConfig.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
     }
 
-    public void write(Platform platform, MutableList<ChangeEntry> allRevEngDestinations, File outputDir, boolean generateBaseline, Predicate2<File, RevEngDestination> shouldOverwritePredicate, String jdbcUrl, String dbHost, Integer dbPort, String dbServer) {
+    public void write(Platform platform, MutableList<ChangeEntry> allRevEngDestinations, File outputDir, boolean generateBaseline, Predicate2<File, RevEngDestination> shouldOverwritePredicate, String jdbcUrl, String dbHost, Integer dbPort, String dbServer, String excludeObjects) {
         outputDir.mkdirs();
         if (shouldOverwritePredicate == null) {
             shouldOverwritePredicate = defaultShouldOverwritePredicate();
@@ -108,12 +109,15 @@ public class RevengWriter {
                 DeployExecutionDao.DEPLOY_EXECUTION_ATTRIBUTE_TABLE_NAME
         ).collect(platform.convertDbObjectName()));
 
-        Predicates<? super RevEngDestination> objectExclusionPredicate = platform.getObjectExclusionPredicateBuilder()
-                .add(coreTablesToExclude.toImmutable())
-                .build(
-                        Functions.chain(RevEngDestination.TO_DB_OBJECT_TYPE, ChangeType.TO_NAME),
-                        RevEngDestination.TO_OBJECT_NAME
-                );
+        ObjectTypeAndNamePredicateBuilder objectExclusionPredicateBuilder = platform.getObjectExclusionPredicateBuilder()
+                .add(coreTablesToExclude.toImmutable());
+        if (excludeObjects != null) {
+            objectExclusionPredicateBuilder = objectExclusionPredicateBuilder.add(ObjectTypeAndNamePredicateBuilder.parse(excludeObjects, ObjectTypeAndNamePredicateBuilder.FilterType.EXCLUDE));
+        }
+        Predicates<? super RevEngDestination> objectExclusionPredicate = objectExclusionPredicateBuilder.build(
+                Functions.chain(RevEngDestination.TO_DB_OBJECT_TYPE, ChangeType.TO_NAME),
+                RevEngDestination.TO_OBJECT_NAME
+        );
 
         MutableMap<RevEngDestination, MutableList<ChangeEntry>> revEngDestinationMap =
                 UnifiedMapWithHashingStrategy.newMap(HashingStrategies.fromFunction(RevEngDestination.TO_IDENTITY));
