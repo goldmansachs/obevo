@@ -27,6 +27,10 @@ import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.list.fixed.ArrayAdapter;
 
+import static com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder.PREDICATE_SPLITTER;
+import static com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder.PART_SPLITTER;
+import static com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder.SINGLE_PREDICATE_SPLITTER;
+
 /**
  * Predicate to allow clients to only select specific Changes based on the identity fields, e.g. schema, change type,
  * object name, and change name.
@@ -36,15 +40,12 @@ import org.eclipse.collections.impl.list.fixed.ArrayAdapter;
  * TODO more docs to come here.
  */
 public class ChangeKeyPredicateBuilder {
-    private static final String singlePredicateSplitter = "~";
-    private static final String partSplitter = ",";
-
     public static ChangeKeyInclusionPredicateBuilder newBuilder() {
         return new ChangeKeyInclusionPredicateBuilder();
     }
 
     public static Predicate<? super Change> parseFullPredicate(String fullPredicateString) {
-        ImmutableList<String> fullPredicateParts = ArrayAdapter.adapt(fullPredicateString.split(";")).toImmutable();
+        ImmutableList<String> fullPredicateParts = ArrayAdapter.adapt(fullPredicateString.split(PREDICATE_SPLITTER)).toImmutable();
         ImmutableList<Predicate<? super Change>> singlePredicates = fullPredicateParts.collect(new Function<String, Predicate<? super Change>>() {
             @Override
             public Predicate<? super Change> valueOf(String singlePredicateString) {
@@ -57,7 +58,7 @@ public class ChangeKeyPredicateBuilder {
 
     @VisibleForTesting
     static Predicate<? super Change> parseSinglePredicate(String singlePredicateString) {
-        MutableList<String> changeParts = ArrayAdapter.adapt(singlePredicateString.split(singlePredicateSplitter));
+        MutableList<String> changeParts = ArrayAdapter.adapt(singlePredicateString.split(SINGLE_PREDICATE_SPLITTER));
         if (changeParts.size() > 4) {
             throw new IllegalArgumentException("Cannot have more than 4 parts here (i.e. splits via the tilde ~)");
         }
@@ -76,7 +77,7 @@ public class ChangeKeyPredicateBuilder {
     }
 
     private static ImmutableList<String> parseSinglePredicatePart(String predicateString) {
-        return ArrayAdapter.adapt(predicateString.split(partSplitter)).toImmutable();
+        return ArrayAdapter.adapt(predicateString.split(PART_SPLITTER)).toImmutable();
     }
 
     public static class ChangeKeyInclusionPredicateBuilder {
