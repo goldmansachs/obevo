@@ -19,7 +19,7 @@
     <parent>
         <artifactId>obevo-parent</artifactId>
         <groupId>com.goldmansachs.obevo</groupId>
-        <version>6.1.0</version>
+        <version>6.1.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
