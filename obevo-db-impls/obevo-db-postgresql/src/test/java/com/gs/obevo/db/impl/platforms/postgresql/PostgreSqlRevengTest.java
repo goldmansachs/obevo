@@ -44,6 +44,6 @@ public class PostgreSqlRevengTest {
 
         new PostgreSqlPgDumpReveng().reveng(args);
 
-        DirectoryAssert.assertDirectoriesEqual(new File("./src/test/resources/reveng/pgdump/expected"), outputDir);
+        DirectoryAssert.assertDirectoriesEqual(new File("./src/test/resources/reveng/pgdump/expected"), new File(outputDir, "final"));
     }
 }

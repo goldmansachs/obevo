@@ -198,7 +198,6 @@ public abstract class AbstractDdlReveng {
         String schema = args.getDbSchema();
 
         boolean generateBaseline = args.isGenerateBaseline();
-        File outputDir = args.getOutputPath();
 
         MutableList<ChangeEntry> changeEntries = Lists.mutable.empty();
 
@@ -267,11 +266,18 @@ public abstract class AbstractDdlReveng {
             }
         });
 
-        String data = dataLines
-                .reject(skipLinePredicates != null ? Predicates.or(skipLinePredicates) : (Predicate) Predicates.alwaysFalse())
-                .makeString(SystemUtils.LINE_SEPARATOR);
+        MutableList<String> entries;
+        if (stringSplitter != null) {
+            String data = dataLines
+                    .reject(skipLinePredicates != null ? Predicates.or(skipLinePredicates) : (Predicate) Predicates.alwaysFalse())
+                    .makeString(SystemUtils.LINE_SEPARATOR);
 
-        MutableList<String> entries = stringSplitter.valueOf(data);
+            entries = stringSplitter.valueOf(data);
+        } else {
+            // If null, then default each line to being its own parsable statement
+            entries = dataLines
+                    .reject(skipLinePredicates != null ? Predicates.or(skipLinePredicates) : (Predicate) Predicates.alwaysFalse());
+        }
 
         int selfOrder = 0;
 
@@ -283,21 +289,11 @@ public abstract class AbstractDdlReveng {
         for (String candidateLine : entries) {
             candidateLine = StringUtils.stripStart(candidateLine, "\r\n \t");
 
-            if (StringUtils.isNotBlank(candidateLine)
-                    && Predicates.noneOf(skipPredicates).accept(candidateLine)
-                    ) {
-/*
-                candidateLine = candidateLine.replaceAll(schema + "\\.dbo\\.", "");  // sybase ASE
-                candidateLine = candidateLine.replaceAll("'dbo\\.", "'");  // sybase ASE
-                candidateLine = candidateLine.replaceAll("\"" + schema + "\\s*\"\\.", "");  // DB2
-                candidateLine = candidateLine.replaceAll(schema + "\\.", "");  // alternate DB2 for views
-                candidateLine = removeQuotesFromProcxmode(candidateLine);  // sybase ASE
-*/
-
+            if (StringUtils.isNotBlank(candidateLine) && Predicates.noneOf(skipPredicates).accept(candidateLine)) {
                 for (RevengPattern revengPattern : revengPatterns) {
                     RevengPatternOutput patternMatch = revengPattern.evaluate(candidateLine);
                     if (patternMatch != null) {
-                        LOG.info("Found object: {}", patternMatch);
+                        LOG.debug("Found object: {}", patternMatch);
                         objectNames.add(patternMatch);
                         if (patternMatch.getSchema() != null) {
                             objectToSchemasMap.put(patternMatch.getPrimaryName(), patternMatch.getSchema());
@@ -323,26 +319,6 @@ public abstract class AbstractDdlReveng {
                 if (StringUtils.isNotBlank(candidateLine)
                         && Predicates.noneOf(skipPredicates).accept(candidateLine)
                         ) {
-
-/*
-                    for (RevengPatternOutput objectName : objectNames) {
-                        candidateLine = candidateLine.replaceAll(schema + "\\s*\\." + objectName, objectName);  // sybase ASE
-                        candidateLine = candidateLine.replaceAll(schema.toLowerCase() + "\\s*\\." + objectName.toLowerCase(), objectName.toLowerCase());  // sybase ASE
-                    }
-*/
-/*
-                    candidateLine = candidateLine.replaceAll(schema + "\\.dbo\\.", "");  // sybase ASE
-                    candidateLine = candidateLine.replaceAll("'dbo\\.", "'");  // sybase ASE
-*/
-
-
-
-/*
-                    candidateLine = candidateLine.replaceAll("\"" + schema + "\\s*\"\\.", "");  // DB2
-                    candidateLine = candidateLine.replaceAll(schema + "\\.", "");  // alternate DB2 for views
-*/
-
-
                     candidateLine = removeQuotesFromProcxmode(candidateLine);  // sybase ASE
 
                     RevengPattern chosenRevengPattern = null;
@@ -369,7 +345,7 @@ public abstract class AbstractDdlReveng {
                         if (replacerSubSchemas == null || replacerSubSchemas.isEmpty()) {
                             replacerSubSchemas = objectToSubSchemasMap.valuesView().toSet();
                         }
-                        LOG.info("Using replacer schemas {} and subschemas {} on object {}", replacerSchemas, replacerSubSchemas, objectOutput.getPrimaryName());
+                        LOG.debug("Using replacer schemas {} and subschemas {} on object {}", replacerSchemas, replacerSubSchemas, objectOutput.getPrimaryName());
 
                         if (replacerSubSchemas.notEmpty()) {
                             LazyIterable<Pair<String, String>> pairs = replacerSchemas.cartesianProduct(replacerSubSchemas);
@@ -433,7 +409,7 @@ public abstract class AbstractDdlReveng {
             }
         }
 
-        new RevengWriter().write(platform, changeEntries, outputDir, generateBaseline, RevengWriter.defaultShouldOverwritePredicate(), args.getJdbcUrl(), args.getDbHost(), args.getDbPort(), args.getDbServer(), args.getExcludeObjects());
+        new RevengWriter().write(platform, changeEntries, new File(args.getOutputPath(), "final"), generateBaseline, RevengWriter.defaultShouldOverwritePredicate(), args.getJdbcUrl(), args.getDbHost(), args.getDbPort(), args.getDbServer(), args.getExcludeObjects());
     }
 
     protected DbEnvironment getDbEnvironment(AquaRevengArgs args) {

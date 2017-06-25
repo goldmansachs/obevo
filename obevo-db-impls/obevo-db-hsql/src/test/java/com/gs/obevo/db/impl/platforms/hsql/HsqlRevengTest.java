@@ -13,24 +13,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.gs.obevo.db.impl.platforms.mssql;
+package com.gs.obevo.db.impl.platforms.hsql;
 
 import java.io.File;
 
+import com.gs.obevo.db.api.appdata.DbEnvironment;
+import com.gs.obevo.db.api.factory.DbEnvironmentFactory;
 import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
-import com.gs.obevo.db.testutil.DirectoryAssert;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
-public class MsSqlRevengTest {
+public class HsqlRevengTest {
     @Test
     public void testReverseEngineeringFromFile() throws Exception {
         AquaRevengArgs args = new AquaRevengArgs();
-        args.setDbSchema("myschema01");
+        args.setDbSchema("MYSCHEMA01");
         args.setGenerateBaseline(false);
-        args.setDbHost("myhost.me.com");
-        args.setDbPort(1234);
-        args.setDbServer("myserver");
+        args.setJdbcUrl("jdbc:hsqldb:mem:hsqldbreveng");
         args.setUsername("myuser");
         args.setPassword("mypass");
 
@@ -38,10 +37,20 @@ public class MsSqlRevengTest {
         FileUtils.deleteDirectory(outputDir);
         args.setOutputPath(outputDir);
 
-        args.setInputPath(new File("./src/test/resources/reveng/input"));
+        args.setInputPath(new File("./src/test/resources/reveng/hsql/input.sql"));
 
-        new MsSqlReveng().reveng(args);
+        new HsqlReveng().reveng(args);
 
-        DirectoryAssert.assertDirectoriesEqual(new File("./src/test/resources/reveng/expected"), new File(outputDir, "final"));
+        //DirectoryAssert.assertDirectoriesEqual(new File("./src/test/resources/reveng/hsql/expected"), outputDir);
+
+
+        // Ensure that we can still build the schema that was reverse engineered
+        DbEnvironment prod = DbEnvironmentFactory.getInstance().readOneFromSourcePath(new File(outputDir, "final").getAbsolutePath(), "prod");
+        prod.setCleanBuildAllowed(true);
+        prod.buildAppContext("sa", "")
+                .setupEnvInfra()
+                .cleanEnvironment()
+                .deploy();
+
     }
 }

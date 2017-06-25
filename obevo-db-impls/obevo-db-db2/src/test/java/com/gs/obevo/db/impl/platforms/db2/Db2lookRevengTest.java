@@ -42,7 +42,7 @@ public class Db2lookRevengTest {
         args.setOutputPath(outputDir);
         new Db2lookReveng().reveng(args);
 
-        DirectoryAssert.assertDirectoriesEqual(new File("./src/test/resources/reveng/db2look/expected"), outputDir);
+        DirectoryAssert.assertDirectoriesEqual(new File("./src/test/resources/reveng/db2look/expected"), new File(outputDir, "final"));
     }
 
     @Test

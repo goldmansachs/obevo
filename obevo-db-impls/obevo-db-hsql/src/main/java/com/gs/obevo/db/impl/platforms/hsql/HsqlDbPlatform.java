@@ -19,6 +19,7 @@ import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.DeployerAppContext;
 import com.gs.obevo.db.api.appdata.GrantTargetType;
 import com.gs.obevo.db.api.platform.DbChangeTypeImpl;
+import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
 import com.gs.obevo.db.impl.platforms.AbstractDbPlatform;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
@@ -59,5 +60,10 @@ public class HsqlDbPlatform extends AbstractDbPlatform {
     @Override
     public Function<String, String> convertDbObjectName() {
         return StringFunctions.toUpperCase();
+    }
+
+    @Override
+    public AbstractDdlReveng getDdlReveng() {
+        return new HsqlReveng();
     }
 }
