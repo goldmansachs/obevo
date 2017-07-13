@@ -22,12 +22,13 @@ import java.io.Writer;
 import java.util.Locale;
 import java.util.Map;
 
-import com.gs.obevo.db.apps.reveng.RevengWriter;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
 import org.apache.commons.io.IOUtils;
+
+import static freemarker.template.Configuration.VERSION_2_3_0;
 
 public class TestTemplateUtil {
     private static final TestTemplateUtil INSTANCE = new TestTemplateUtil();
@@ -39,10 +40,10 @@ public class TestTemplateUtil {
     }
 
     private TestTemplateUtil() {
-        this.templateConfig = new Configuration();
+        this.templateConfig = new Configuration(VERSION_2_3_0);
 
         // Where load the templates from:
-        templateConfig.setClassForTemplateLoading(RevengWriter.class, "/");
+        templateConfig.setClassForTemplateLoading(TestTemplateUtil.class, "/");
 
         // Some other recommended settings:
         templateConfig.setDefaultEncoding("UTF-8");

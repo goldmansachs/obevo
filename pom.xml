@@ -108,6 +108,8 @@
         <eclipsecollections.version>7.0.2</eclipsecollections.version>
         <schemacrawler.version>14.16.01-java7</schemacrawler.version>
 
+        <extra-enforcer-rules.version>1.0-beta-6</extra-enforcer-rules.version>
+
         <sonar.exclusions>file:**/generated-sources/**/*</sonar.exclusions>
         <dbCredsFile />  <!-- empty by default -->
     </properties>
@@ -367,7 +369,7 @@
                     <dependency>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>extra-enforcer-rules</artifactId>
-                        <version>1.0-beta-6</version>
+                        <version>${extra-enforcer-rules.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>

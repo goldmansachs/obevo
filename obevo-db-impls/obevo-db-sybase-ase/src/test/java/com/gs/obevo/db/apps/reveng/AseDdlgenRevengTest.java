@@ -48,6 +48,6 @@ public class AseDdlgenRevengTest {
 
         new AseDdlgenReveng().reveng(args);
 
-        DirectoryAssert.assertDirectoriesEqual(new File("./src/test/resources/reveng/ddlgen/expected"), outputDir);
+        DirectoryAssert.assertDirectoriesEqual(new File("./src/test/resources/reveng/ddlgen/expected"), new File(outputDir, "final"));
     }
 }

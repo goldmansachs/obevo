@@ -15,15 +15,18 @@
  */
 package com.gs.obevo.db.impl.platforms.hsql;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.factory.DbEnvironmentFactory;
 import com.gs.obevo.db.api.platform.DbDeployerAppContext;
+import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
 import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
 import com.gs.obevo.db.unittest.UnitTestDbBuilder;
 import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -32,12 +35,12 @@ public class HsqlDeployerTest {
 
     private JdbcHelper jdbc;
 
-    private void setup(DbDeployerAppContext context) {
+    private void setup() {
         this.jdbc = new JdbcHelper();
     }
 
     @Test
-    public void testDeploy() throws SQLException {
+    public void testDeploy() throws Exception {
         DbEnvironment env = DbEnvironmentFactory.getInstance().readOneFromSourcePath("./src/test/resources/platforms/hsql");
         DbDeployerAppContext context = env.buildAppContext("sa", "");
 
@@ -48,7 +51,7 @@ public class HsqlDeployerTest {
         context.cleanEnvironment();
         context.deploy();
 
-        this.setup(context);
+        this.setup();
         // simple test to assert that the table has been created
         int result;
         Connection conn = context.getDataSource().getConnection();
@@ -64,6 +67,22 @@ public class HsqlDeployerTest {
         } finally {
             DbUtils.closeQuietly(conn);
         }
+
+
+        // Test out reverse engineering
+        AquaRevengArgs args = new AquaRevengArgs();
+        args.setDbSchema("SCHEMA1");
+        args.setGenerateBaseline(false);
+        //args.setJdbcUrl("jdbc:hsqldb:hsql://localhost:9092/myserver");
+        args.setJdbcUrl(env.getJdbcUrl());
+        args.setUsername("sa");
+        args.setPassword("");
+
+        File outputDir = new File("./target/outputRevengNew");
+        FileUtils.deleteDirectory(outputDir);
+        args.setOutputPath(outputDir);
+
+        env.getPlatform().getDdlReveng().reveng(args);
     }
 
     @Test
@@ -84,7 +103,7 @@ public class HsqlDeployerTest {
         System.out.println("Created env at " + env.getJdbcUrl());
         int result;
 
-        this.setup(context);
+        this.setup();
         Connection conn = context.getDataSource().getConnection();
         try {
             result = this.jdbc.queryForInt(conn, "select count(*) from SCHEMA1.TABLE_A");

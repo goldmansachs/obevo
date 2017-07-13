@@ -42,7 +42,7 @@ public class OracleRevengTest {
 
         new OracleReveng().reveng(args);
 
-        DirectoryAssert.assertDirectoriesEqual(new File("./src/test/resources/reveng/oracle/expected"), outputDir);
+        DirectoryAssert.assertDirectoriesEqual(new File("./src/test/resources/reveng/oracle/expected"), new File(outputDir, "final"));
 
     }
 }
