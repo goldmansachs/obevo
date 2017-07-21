@@ -19,12 +19,15 @@ import java.io.File;
 
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.factory.DbEnvironmentFactory;
+import com.gs.obevo.db.apps.reveng.AbstractDdlRevengTest;
 import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
+import com.gs.obevo.db.testutil.DirectoryAssert;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
-public class HsqlRevengTest {
+public class HsqlRevengTest extends AbstractDdlRevengTest {
     @Test
+    @Override
     public void testReverseEngineeringFromFile() throws Exception {
         AquaRevengArgs args = new AquaRevengArgs();
         args.setDbSchema("MYSCHEMA01");
@@ -41,7 +44,7 @@ public class HsqlRevengTest {
 
         new HsqlReveng().reveng(args);
 
-        //DirectoryAssert.assertDirectoriesEqual(new File("./src/test/resources/reveng/hsql/expected"), outputDir);
+        DirectoryAssert.assertDirectoriesEqual(new File("./src/test/resources/reveng/hsql/expected"), new File(outputDir, "final"));
 
 
         // Ensure that we can still build the schema that was reverse engineered

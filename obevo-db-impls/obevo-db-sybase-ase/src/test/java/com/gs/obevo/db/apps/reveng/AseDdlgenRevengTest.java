@@ -21,7 +21,7 @@ import com.gs.obevo.db.testutil.DirectoryAssert;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
-public class AseDdlgenRevengTest {
+public class AseDdlgenRevengTest extends AbstractDdlRevengTest {
     @Test
     public void testInstructions() throws Exception {
         File outputDir = new File("./target/ddlgen/instructions");
@@ -36,7 +36,8 @@ public class AseDdlgenRevengTest {
     }
 
     @Test
-    public void testFullReveng() throws Exception {
+    @Override
+    public void testReverseEngineeringFromFile() throws Exception {
         File outputDir = new File("./target/ddlreveng/execute");
         FileUtils.deleteDirectory(outputDir);
 

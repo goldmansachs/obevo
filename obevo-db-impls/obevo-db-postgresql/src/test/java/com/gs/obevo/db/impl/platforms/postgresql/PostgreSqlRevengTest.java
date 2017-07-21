@@ -19,13 +19,15 @@ import java.io.File;
 
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.factory.DbEnvironmentFactory;
+import com.gs.obevo.db.apps.reveng.AbstractDdlRevengTest;
 import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
 import com.gs.obevo.db.testutil.DirectoryAssert;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
-public class PostgreSqlRevengTest {
+public class PostgreSqlRevengTest extends AbstractDdlRevengTest {
     @Test
+    @Override
     public void testReverseEngineeringFromFile() throws Exception {
         AquaRevengArgs args = new AquaRevengArgs();
         args.setDbSchema("myschema01");

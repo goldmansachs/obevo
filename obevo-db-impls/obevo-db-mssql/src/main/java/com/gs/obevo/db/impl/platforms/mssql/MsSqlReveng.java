@@ -57,6 +57,7 @@ public class MsSqlReveng extends AbstractDdlReveng {
                 , StringPredicates.startsWith("SET ANSI_NULLS")
                 , StringPredicates.startsWith("SET QUOTED_IDENTIFIER")
         ));
+        setSkipSchemaValidation(true);
     }
 
     static ImmutableList<RevengPattern> getRevengPatterns() {
