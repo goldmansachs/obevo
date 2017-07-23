@@ -18,6 +18,7 @@ package com.gs.obevo.db.impl.platforms.db2;
 import java.io.File;
 
 import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
+import com.gs.obevo.db.apps.reveng.AbstractDdlRevengTest;
 import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
 import com.gs.obevo.db.testutil.DirectoryAssert;
 import org.apache.commons.io.FileUtils;
@@ -27,11 +28,12 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class Db2lookRevengTest {
+public class Db2lookRevengTest extends AbstractDdlRevengTest {
     private static final String SCHEMA = "MYSCHEMA01";
 
     @Test
-    public void testReveng() throws Exception {
+    @Override
+    public void testReverseEngineeringFromFile() throws Exception {
         File outputDir = new File("./target/db2revengoutput");
         FileUtils.deleteDirectory(outputDir);
 

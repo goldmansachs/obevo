@@ -20,6 +20,7 @@
       <module fileurl="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-sybase-iq/obevo-db-sybase-iq.iml" filepath="$PROJECT_DIR$/obevo-db-impls/obevo-db-sybase-iq/obevo-db-sybase-iq.iml" />
       <module fileurl="file://$PROJECT_DIR$/obevo-utils/obevo-db-unittest-util/obevo-db-unittest-util.iml" filepath="$PROJECT_DIR$/obevo-utils/obevo-db-unittest-util/obevo-db-unittest-util.iml" />
       <module fileurl="file://$PROJECT_DIR$/obevo-dbmetadata-impl/obevo-dbmetadata-impl.iml" filepath="$PROJECT_DIR$/obevo-dbmetadata-impl/obevo-dbmetadata-impl.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-dependencies/obevo-dependencies.iml" filepath="$PROJECT_DIR$/obevo-dependencies/obevo-dependencies.iml" />
       <module fileurl="file://$PROJECT_DIR$/obevo-dists/obevo-dists.iml" filepath="$PROJECT_DIR$/obevo-dists/obevo-dists.iml" />
       <module fileurl="file://$PROJECT_DIR$/obevo-internal-comparer/obevo-internal-comparer.iml" filepath="$PROJECT_DIR$/obevo-internal-comparer/obevo-internal-comparer.iml" />
       <module fileurl="file://$PROJECT_DIR$/obevo-internal-test-client-01/obevo-internal-test-client-01.iml" filepath="$PROJECT_DIR$/obevo-internal-test-client-01/obevo-internal-test-client-01.iml" />

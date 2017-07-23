@@ -37,6 +37,7 @@
         <module>obevo-internal-test-client-02</module>
         <module>obevo-internal-test-util</module>  <!-- put bom at the end as the last module of the staging plugin must be deployed for all the eligible modules to get deployed -->
         <module>obevo-bom</module>
+        <module>obevo-dependencies</module>
     </modules>
 
     <name>Obevo Parent POM</name>
@@ -192,7 +193,8 @@
                     <artifactId>maven-enforcer-plugin</artifactId>
                     <version>1.4.1</version>
                 </plugin>
-<!-- commenting out maven-notice-plugin until we confirm proper strategy going forward around notices
+<!-- commenting out maven-notice-plugin until we confirm proper strategy going forward around notices -->
+<!--
                 <plugin>
                     <groupId>org.jasig.maven</groupId>
                     <artifactId>maven-notice-plugin</artifactId>
@@ -282,7 +284,8 @@
                     <execution>
                         <id>attach-sources</id>
                         <goals>
-                            <goal>jar</goal>
+                            <goal>jar-no-fork</goal>
+                            <goal>test-jar-no-fork</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -465,10 +468,10 @@
             <plugin>
                 <!-- sharing common build files using mechanism described here: http://javasplitter.blogspot.com/2011/08/sharing-configuration-files-from-maven.html -->
                 <artifactId>maven-assembly-plugin</artifactId>
-                <inherited>false</inherited>  <!-- we only publish the common files in the module root -->
                 <executions>
                     <execution>
                         <id>make-build-resources</id>
+                        <inherited>false</inherited>  <!-- we only publish the common files in the module root -->
                         <phase>validate</phase>  <!-- Should be first step in sharing common build files -->
                         <goals>
                             <goal>single</goal>
@@ -510,7 +513,8 @@
                 </executions>
             </plugin>
 
-<!-- commenting out maven-notice-plugin until we confirm proper strategy going forward around notices
+<!-- commenting out maven-notice-plugin until the 1.0.7 version is released -->
+<!--
             <plugin>
                 <groupId>org.jasig.maven</groupId>
                 <artifactId>maven-notice-plugin</artifactId>
@@ -563,280 +567,6 @@
             </plugin>
         </plugins>
     </build>
-    <dependencyManagement>
-        <dependencies>
-            <!-- Schemacrawler dependencies; note - no h2 or Sybase dependency exists for the latest version -->
-            <dependency>
-                <groupId>us.fatehi</groupId>
-                <artifactId>schemacrawler</artifactId>
-                <version>${schemacrawler.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>us.fatehi</groupId>
-                <artifactId>schemacrawler-db2</artifactId>
-                <version>${schemacrawler.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>us.fatehi</groupId>
-                <artifactId>schemacrawler-oracle</artifactId>
-                <version>${schemacrawler.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>us.fatehi</groupId>
-                <artifactId>schemacrawler-sybaseiq</artifactId>
-                <version>${schemacrawler.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>us.fatehi</groupId>
-                <artifactId>schemacrawler-postgresql</artifactId>
-                <version>${schemacrawler.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>us.fatehi</groupId>
-                <artifactId>schemacrawler-sqlserver</artifactId>
-                <version>${schemacrawler.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>us.fatehi</groupId>
-                <artifactId>schemacrawler-hsqldb</artifactId>
-                <version>${schemacrawler.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>3.1</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-lang</groupId>
-                <artifactId>commons-lang</artifactId>
-                <version>2.6</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-dbcp</groupId>
-                <artifactId>commons-dbcp</artifactId>
-                <version>1.4</version>
-            </dependency>
-            <dependency>
-                <groupId>org.dbunit</groupId>
-                <artifactId>dbunit</artifactId>
-                <version>2.4.9</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>2.0</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-collections</groupId>
-                <artifactId>commons-collections</artifactId>
-                <version>3.2.1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.collections</groupId>
-                <artifactId>eclipse-collections-api</artifactId>
-                <version>${eclipsecollections.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.collections</groupId>
-                <artifactId>eclipse-collections</artifactId>
-                <version>${eclipsecollections.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.collections</groupId>
-                <artifactId>eclipse-collections-testutils</artifactId>
-                <version>${eclipsecollections.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>joda-time</groupId>
-                <artifactId>joda-time</artifactId>
-                <version>1.6.2</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-codec</groupId>
-                <artifactId>commons-codec</artifactId>
-                <version>1.10</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-configuration</groupId>
-                <artifactId>commons-configuration</artifactId>
-                <version>1.7</version>
-                <exclusions>
-                    <exclusion>
-                        <!-- replaced by slf4j -->
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>commons-dbutils</groupId>
-                <artifactId>commons-dbutils</artifactId>
-                <version>1.6</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-beanutils</groupId>
-                <artifactId>commons-beanutils</artifactId>
-                <version>1.8.3</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-vfs2</artifactId>
-                <version>2.0</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.maven.scm</groupId>
-                        <artifactId>maven-scm-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.maven.scm</groupId>
-                        <artifactId>maven-scm-provider-svnexe</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <dependency>
-                <groupId>org.freemarker</groupId>
-                <artifactId>freemarker</artifactId>
-                <version>2.3.23</version>  <!-- compatible from 2.3.10 at least to latest version (up to 2.3.23 as of this writing) -->
-            </dependency>
-
-            <!-- slf4j dependencies -->
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-log4j12</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>jcl-over-slf4j</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-simple</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>log4j</groupId>
-                <artifactId>log4j</artifactId>
-                <version>1.2.14</version>
-            </dependency>
-
-            <!-- test dependencies -->
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>4.11</version>
-            </dependency>
-            <dependency>
-                <groupId>org.hamcrest</groupId>
-                <artifactId>hamcrest-core</artifactId>
-                <version>1.3</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.hamcrest</groupId>
-                <artifactId>hamcrest-library</artifactId>
-                <version>1.3</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>junit-addons</groupId>
-                <artifactId>junit-addons</artifactId>
-                <version>1.4</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>xerces</groupId>
-                        <artifactId>xercesImpl</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xerces</groupId>
-                        <artifactId>xmlParserAPIs</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-core</artifactId>
-                <version>1.8.2</version>
-            </dependency>
-
-
-            <!-- db dependencies -->
-            <dependency>
-                <groupId>org.hsqldb</groupId>
-                <artifactId>hsqldb</artifactId>
-                <version>2.3.2</version>
-            </dependency>
-            <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2</artifactId>
-                <!-- tests run w/ versions as early as 1.0.57 up until 1.4.187.
-                 Noted a regression w/ version 1.4.188; that needs some investigation.
-                 -->
-                <version>1.4.187</version>
-            </dependency>
-            <dependency>
-                <groupId>org.postgresql</groupId>
-                <artifactId>postgresql</artifactId>
-                <version>42.1.1.jre7</version>
-            </dependency>
-            <dependency>
-                <groupId>com.microsoft.sqlserver</groupId>
-                <artifactId>mssql-jdbc</artifactId>
-                <version>6.1.0.jre7</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.microsoft.azure</groupId>
-                        <artifactId>azure-keyvault</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit-addons</groupId>
-            <artifactId>junit-addons</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-library</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
 
     <reporting>
         <plugins>
@@ -913,7 +643,8 @@
                     </plugin>
 
                     <!-- Generate the NOTICE.txt files -->
-<!-- commenting out maven-notice-plugin until we confirm proper strategy going forward around notices
+<!-- commenting out maven-notice-plugin until we confirm proper strategy going forward around notices -->
+<!--
                     <plugin>
                         <groupId>org.jasig.maven</groupId>
                         <artifactId>maven-notice-plugin</artifactId>

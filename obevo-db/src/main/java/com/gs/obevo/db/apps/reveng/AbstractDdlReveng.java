@@ -70,6 +70,7 @@ public abstract class AbstractDdlReveng {
     private final Procedure2<ChangeEntry, String> postProcessChange;
     private String startQuote = "";
     private String endQuote = "";
+    private boolean skipSchemaValidation = false;
 
     public static String removeQuotes(String input) {
         Pattern compile = Pattern.compile("\"([A-Z_0-9]+)\"", Pattern.DOTALL);
@@ -156,7 +157,7 @@ public abstract class AbstractDdlReveng {
                 System.out.println("Content was written to: " + file);
                 System.out.println("Proceeding with full reverse-engineering: " + file);
                 System.out.println("");
-                System.out.println("*** In case the interim content Once those steps are done, rerun the reverse-engineering command you just ran, but add the following argument based on the <outputDirectory> value passed in above the argument:");
+                System.out.println("*** In case the interim content had issues when reverse-engineering to the final output, you can update the interim files and restart from there (without going back to the DB) by specifying the following argument:");
                 System.out.println("    -inputPath " + ObjectUtils.defaultIfNull(args.getOutputPath(), "<outputFile>"));
                 revengMain(file, args);
             } else {
@@ -182,6 +183,14 @@ public abstract class AbstractDdlReveng {
 
     public void setEndQuote(String endQuote) {
         this.endQuote = endQuote;
+    }
+
+    /**
+     * Temporary feature to allow us to handle subschemas in MS SQL. We should retire this once we fully support
+     * database + schema combos in Obevo.
+     */
+    public void setSkipSchemaValidation(boolean skipSchemaValidation) {
+        this.skipSchemaValidation = skipSchemaValidation;
     }
 
     /**
@@ -323,8 +332,9 @@ public abstract class AbstractDdlReveng {
 
                     RevengPattern chosenRevengPattern = null;
                     String secondaryName = null;
+                    RevengPatternOutput patternMatch = null;
                     for (RevengPattern revengPattern : revengPatterns) {
-                        RevengPatternOutput patternMatch = revengPattern.evaluate(candidateLine);
+                        patternMatch = revengPattern.evaluate(candidateLine);
                         if (patternMatch != null) {
                             chosenRevengPattern = revengPattern;
                             candidateObject = patternMatch.getPrimaryName();
@@ -334,6 +344,11 @@ public abstract class AbstractDdlReveng {
                             candidateObjectType = platform.getChangeType(revengPattern.getChangeType());
                             break;
                         }
+                    }
+
+                    // Ignore other schemas that may have been found in your parsing (came up during HSQLDB use case)
+                    if (!skipSchemaValidation && patternMatch != null && patternMatch.getSchema() != null && patternMatch.getSubSchema() == null && !patternMatch.getSchema().equalsIgnoreCase(schema)) {
+                        continue;
                     }
 
                     for (RevengPatternOutput objectOutput : objectNames) {

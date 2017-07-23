@@ -17,13 +17,15 @@ package com.gs.obevo.db.impl.platforms.mssql;
 
 import java.io.File;
 
+import com.gs.obevo.db.apps.reveng.AbstractDdlRevengTest;
 import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
 import com.gs.obevo.db.testutil.DirectoryAssert;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
-public class MsSqlRevengTest {
+public class MsSqlRevengTest extends AbstractDdlRevengTest {
     @Test
+    @Override
     public void testReverseEngineeringFromFile() throws Exception {
         AquaRevengArgs args = new AquaRevengArgs();
         args.setDbSchema("myschema01");

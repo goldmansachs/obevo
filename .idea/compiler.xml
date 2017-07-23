@@ -50,6 +50,7 @@
       <module name="obevo-db-sybase-iq" target="1.7" />
       <module name="obevo-db-unittest-util" target="1.7" />
       <module name="obevo-dbmetadata-impl" target="1.7" />
+      <module name="obevo-dependencies" target="1.7" />
       <module name="obevo-dists" target="1.7" />
       <module name="obevo-internal-comparer" target="1.7" />
       <module name="obevo-internal-test-client-01" target="1.7" />

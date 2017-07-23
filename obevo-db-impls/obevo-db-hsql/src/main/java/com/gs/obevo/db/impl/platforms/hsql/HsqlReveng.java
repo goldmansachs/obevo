@@ -106,7 +106,9 @@ public class HsqlReveng extends AbstractDdlReveng {
         try (Connection conn = ds.getConnection()) {
             // https://docs.oracle.com/database/121/ARPLS/d_metada.htm#BGBJBFGE
             // Note - can't remap schema name, object name, tablespace name within JDBC calls; we will leave that to the existing code in AbstractDdlReveng
-            jdbc.update(conn, "SCRIPT '" + interim.resolve("output.sql").toFile().getCanonicalPath() + "'");
+            File outputFile = interim.resolve("output.sql").toFile();
+            outputFile.delete();  // clean before creating
+            jdbc.update(conn, "SCRIPT '" + outputFile.getCanonicalPath() + "'");
         } catch (SQLException | IOException e) {
             throw new RuntimeException(e);
         }
