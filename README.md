@@ -15,7 +15,7 @@ Obevo has your use case covered
 
 Getting Started
 * [Documentation](https://goldmansachs.github.io/obevo/)
-* [Sample Project](https://github.com/goldmansachs/obevo-kata)
+* [Quickstart Examples](https://github.com/goldmansachs/obevo-kata) (Setup a new database or Onboard an existing database)
 
 API Links
 * [Java API](https://goldmansachs.github.io/obevo/java-api.html)

@@ -1,12 +1,29 @@
 # Change Log
 
+## 6.2.0
+
+Primary goal of this release was to support the reverse engineering lesson in the Obevo kata.
+
+### Functionality Improvements
+
+#51: Reverse-engineering added for HSQLDB
+
+### Bug Fixes
+
+#50: Obevo BOM should not also expose third-party dependencies
+
+### Technical Fixes
+
+#57: Uploading test sources to Maven central
+
+
 ## 6.1.0
 
 ### Functionality Improvements
 
 Reverse-engineering added for Oracle, Postgres, SQL Server
 
-#37 - Allowing objects to be excluded during reverse engineering
+#37: Allowing objects to be excluded during reverse engineering
 
 
 ### Bug Fixes
