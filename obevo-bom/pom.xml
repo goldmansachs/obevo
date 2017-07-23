@@ -39,11 +39,6 @@
         <dependencies>
             <dependency>
                 <groupId>com.goldmansachs.obevo</groupId>
-                <artifactId>obevo-dbmetadata-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.goldmansachs.obevo</groupId>
                 <artifactId>obevo-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -52,14 +47,15 @@
                 <artifactId>obevo-db</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>com.goldmansachs.obevo</groupId>
-                <artifactId>obevo-db-client-alldbs</artifactId>
+                <artifactId>obevo-db-impls</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.goldmansachs.obevo</groupId>
-                <artifactId>obevo-db-scenario-tests</artifactId>
+                <artifactId>obevo-db-db2</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -74,32 +70,7 @@
             </dependency>
             <dependency>
                 <groupId>com.goldmansachs.obevo</groupId>
-                <artifactId>obevo-db-sybase-ase</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.goldmansachs.obevo</groupId>
-                <artifactId>obevo-db-sybase-iq</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.goldmansachs.obevo</groupId>
-                <artifactId>obevo-db-db2</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.goldmansachs.obevo</groupId>
                 <artifactId>obevo-db-mssql</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.goldmansachs.obevo</groupId>
-                <artifactId>obevo-db-hive</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.goldmansachs.obevo</groupId>
-                <artifactId>obevo-db-postgresql</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -109,7 +80,39 @@
             </dependency>
             <dependency>
                 <groupId>com.goldmansachs.obevo</groupId>
-                <artifactId>obevo-reladomo-util</artifactId>
+                <artifactId>obevo-db-postgresql</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.goldmansachs.obevo</groupId>
+                <artifactId>obevo-db-scenario-tests</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.goldmansachs.obevo</groupId>
+                <artifactId>obevo-db-sybase-ase</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.goldmansachs.obevo</groupId>
+                <artifactId>obevo-db-sybase-iq</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.goldmansachs.obevo</groupId>
+                <artifactId>obevo-dbmetadata-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.goldmansachs.obevo</groupId>
+                <artifactId>obevo-dists</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.goldmansachs.obevo</groupId>
+                <artifactId>obevo-cli</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -119,14 +122,10 @@
             </dependency>
             <dependency>
                 <groupId>com.goldmansachs.obevo</groupId>
-                <artifactId>obevo-maven-cbk-archetype</artifactId>
+                <artifactId>obevo-db-client-alldbs</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.goldmansachs.obevo</groupId>
-                <artifactId>obevo-dist</artifactId>
-                <version>${project.version}</version>
-            </dependency>
+
             <dependency>
                 <groupId>com.goldmansachs.obevo</groupId>
                 <artifactId>obevo-internal-comparer</artifactId>
@@ -134,22 +133,39 @@
             </dependency>
             <dependency>
                 <groupId>com.goldmansachs.obevo</groupId>
+                <artifactId>obevo-internal-test-client-01</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.goldmansachs.obevo</groupId>
+                <artifactId>obevo-internal-test-client-02</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.goldmansachs.obevo</groupId>
+                <artifactId>obevo-internal-test-util</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.goldmansachs.obevo</groupId>
                 <artifactId>obevo-site</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>com.goldmansachs.obevo</groupId>
-                <artifactId>obevo-internal-infra</artifactId>
+                <artifactId>obevo-utils</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.goldmansachs.obevo</groupId>
-                <artifactId>obevo-test-client-01</artifactId>
+                <artifactId>obevo-db-unittest-util</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.goldmansachs.obevo</groupId>
-                <artifactId>obevo-test-client-02</artifactId>
+                <artifactId>obevo-reladomo-util</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

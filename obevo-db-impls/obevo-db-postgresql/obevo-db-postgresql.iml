@@ -39,12 +39,10 @@
     <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler:14.16.01-java7" level="project" />
     <orderEntry type="library" name="Maven: commons-io:commons-io:2.0" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-hsqldb:14.16.01-java7" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Maven: org.hsqldb:hsqldb:2.3.2" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-sybaseiq:14.16.01-java7" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-postgresql:14.16.01-java7" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-oracle:14.16.01-java7" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-sqlserver:14.16.01-java7" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Maven: com.microsoft.sqlserver:mssql-jdbc:6.1.0.jre7" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-db2:14.16.01-java7" level="project" />
     <orderEntry type="library" name="Maven: org.postgresql:postgresql:42.1.1.jre7" level="project" />
     <orderEntry type="module" module-name="obevo-db-internal-test-helper" scope="TEST" />

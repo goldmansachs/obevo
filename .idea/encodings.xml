@@ -17,6 +17,7 @@
     <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-sybase-ase" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-sybase-iq" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-dbmetadata-impl" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-dependencies" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-dists" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-dists/obevo-cli" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-dists/obevo-db-client-alldbs" charset="UTF-8" />

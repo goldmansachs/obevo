@@ -19,8 +19,9 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.goldmansachs.obevo</groupId>
-        <artifactId>obevo-parent</artifactId>
+        <artifactId>obevo-dependencies</artifactId>
         <version>6.1.1-SNAPSHOT</version>
+        <relativePath>../obevo-dependencies</relativePath>
     </parent>
     <artifactId>obevo-core</artifactId>
 
