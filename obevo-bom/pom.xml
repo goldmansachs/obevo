@@ -60,7 +60,19 @@
             </dependency>
             <dependency>
                 <groupId>com.goldmansachs.obevo</groupId>
+                <artifactId>obevo-db-db2</artifactId>
+                <classifier>tests</classifier>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.goldmansachs.obevo</groupId>
                 <artifactId>obevo-db-h2</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.goldmansachs.obevo</groupId>
+                <artifactId>obevo-db-h2</artifactId>
+                <classifier>tests</classifier>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -70,7 +82,24 @@
             </dependency>
             <dependency>
                 <groupId>com.goldmansachs.obevo</groupId>
+                <artifactId>obevo-db-hsql</artifactId>
+                <classifier>tests</classifier>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.goldmansachs.obevo</groupId>
+                <artifactId>obevo-db-internal-test-helper</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.goldmansachs.obevo</groupId>
                 <artifactId>obevo-db-mssql</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.goldmansachs.obevo</groupId>
+                <artifactId>obevo-db-mssql</artifactId>
+                <classifier>tests</classifier>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -80,7 +109,19 @@
             </dependency>
             <dependency>
                 <groupId>com.goldmansachs.obevo</groupId>
+                <artifactId>obevo-db-oracle</artifactId>
+                <classifier>tests</classifier>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.goldmansachs.obevo</groupId>
                 <artifactId>obevo-db-postgresql</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.goldmansachs.obevo</groupId>
+                <artifactId>obevo-db-postgresql</artifactId>
+                <classifier>tests</classifier>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -95,13 +136,37 @@
             </dependency>
             <dependency>
                 <groupId>com.goldmansachs.obevo</groupId>
+                <artifactId>obevo-db-sybase-ase</artifactId>
+                <classifier>tests</classifier>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.goldmansachs.obevo</groupId>
                 <artifactId>obevo-db-sybase-iq</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.goldmansachs.obevo</groupId>
+                <artifactId>obevo-db-sybase-iq</artifactId>
+                <classifier>tests</classifier>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.goldmansachs.obevo</groupId>
                 <artifactId>obevo-dbmetadata-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.goldmansachs.obevo</groupId>
+                <artifactId>obevo-dependencies</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.goldmansachs.obevo</groupId>
+                <artifactId>obevo-dependencies</artifactId>
+                <type>pom</type>
                 <version>${project.version}</version>
             </dependency>
 
@@ -118,6 +183,12 @@
             <dependency>
                 <groupId>com.goldmansachs.obevo</groupId>
                 <artifactId>obevo-maven-plugin</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.goldmansachs.obevo</groupId>
+                <artifactId>obevo-maven-plugin</artifactId>
+                <type>maven-plugin</type>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
