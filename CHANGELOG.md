@@ -1,5 +1,14 @@
 # Change Log
 
+## 6.2.1
+
+### Bug Fixes
+
+#49: Fixing DB2 Reorg detection - certain reorg error messages (incl. on batch update) were not getting parsed correctly
+#65: Added missing entries to the BOM
+#67: Documentation cleanups
+
+
 ## 6.2.0
 
 Primary goal of this release was to support the reverse engineering lesson in the Obevo kata.
