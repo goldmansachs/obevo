@@ -111,25 +111,35 @@ public class Db2ReOrgStatementExecutorIT {
 
     @Test
     public void testReorgExecution20054() {
-        this.performReorgExecution(true, 20054);
+        this.performReorgExecution(true, 20054, false);
+    }
+
+    @Test
+    public void testReorgExecution20054WithBatchUpdate() {
+        this.performReorgExecution(true, 20054, true);
     }
 
     @Test
     public void testReorgExecution20054Disabled() {
-        this.performReorgExecution(false, 20054);
+        this.performReorgExecution(false, 20054, false);
     }
 
     @Test
     public void testReorgExecution668() {
-        this.performReorgExecution(true, 668);
+        this.performReorgExecution(true, 668, false);
+    }
+
+    @Test
+    public void testReorgExecution668WithBatchUpdate() {
+        this.performReorgExecution(true, 668, true);
     }
 
     @Test
     public void testReorgExecution668Disabled() {
-        this.performReorgExecution(false, 668);
+        this.performReorgExecution(false, 668, false);
     }
 
-    private void performReorgExecution(final boolean autoReorgEnabled, final int errorCode) {
+    private void performReorgExecution(final boolean autoReorgEnabled, final int errorCode, final boolean testBatchUpdate) {
         this.setupExecutor(autoReorgEnabled);
         this.executor.executeWithinContext(physicalSchema, new Procedure<Connection>() {
             @Override
@@ -149,15 +159,24 @@ public class Db2ReOrgStatementExecutorIT {
 
                 MutableSet<String> expectedColumns = null;
                 try {
+                    Object[][] batchArgs = new Object[][] { new Object[0] };  // need single row of empty args for the batchUpdate calls below
                     // this next statement will fire a reorg
                     switch (errorCode) {
                     case 668:
                         expectedColumns = Sets.mutable.with("A", "E");
-                        executorJdbc.update(conn, "insert into a (a) values (5)");
+                        if (testBatchUpdate) {
+                            executorJdbc.batchUpdate(conn, "insert into a (a) values (5)", batchArgs);
+                        } else {
+                            executorJdbc.update(conn, "insert into a (a) values (5)");
+                        }
                         break;
                     case 20054:
                         expectedColumns = Sets.mutable.with("A");
-                        executorJdbc.update(conn, "alter table a drop column e");
+                        if (testBatchUpdate) {
+                            executorJdbc.batchUpdate(conn, "alter table a drop column e", batchArgs);
+                        } else {
+                            executorJdbc.update(conn, "alter table a drop column e");
+                        }
                         break;
                     default:
                         throw new IllegalArgumentException("Unsupported error code for this test: " + errorCode);
