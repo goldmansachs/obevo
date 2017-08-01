@@ -79,4 +79,16 @@ public class Db2SqlExecutorTest {
 
         verify(diagnosable, times(1)).getMessage();
     }
+
+    @Test
+    public void testFindTableNameFromSQLException668WithSpace() {
+        SQLException diagnosable = mock(SQLException.class);
+        // Note: We will be using SqlErrmc code alone inside the findTableFromSQLException method. Hence we are mocking
+        // only the getSqlErrmc method
+        when(diagnosable.getMessage()).thenReturn("random prefix - DB2 SQL Error: SQLCODE=-668, SQLSTATE=57016, SQLERRMC=7;MY_SCHEMA.MYTAB3, DRIVER=3.59.81");
+        assertEquals(Tuples.pair(new PhysicalSchema("MY_SCHEMA"), "MYTAB3"),
+                this.executor.findTableNameFromException(diagnosable, -668));
+
+        verify(diagnosable, times(1)).getMessage();
+    }
 }

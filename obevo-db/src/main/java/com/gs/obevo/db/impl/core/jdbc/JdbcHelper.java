@@ -120,6 +120,10 @@ public class JdbcHelper {
     }
 
     public int[] batchUpdate(Connection conn, String sql, Object[][] argsArray) {
+        return batchUpdateInternal(conn, 0, sql, argsArray);
+    }
+
+    private int[] batchUpdateInternal(Connection conn, int retryCount, String sql, Object[][] argsArray) {
         PreparedStatement ps = null;
         try {
             this.jdbcHandler.preUpdate(conn, this);
@@ -141,9 +145,14 @@ public class JdbcHelper {
 
             return ps.executeBatch();
         } catch (SQLException e) {
-            LOG.error("Error during batch execution; will print out the full batch stack trace: ");
-            this.logSqlBatchException(e, 0);
-            throw new DataAccessException(e);
+            DataAccessException dataAccessException = new DataAccessException(e);
+            boolean retry = this.jdbcHandler.handleException(this, conn, retryCount, dataAccessException);
+            if (retry) {
+                return this.batchUpdateInternal(conn, retryCount + 1, sql, argsArray);
+            } else {
+                LOG.error("Error during batch execution; will print out the full batch stack trace: ");
+                throw dataAccessException;
+            }
         } finally {
             DbUtils.closeQuietly(ps);
         }

@@ -155,8 +155,8 @@ public class Db2SqlExecutor extends AbstractSqlExecutor {
         jdbc.update(conn, "call sysproc.admin_cmd ('reorg table " + schema + "." + table + "')");
     }
 
-    private static final Pattern PATTERN_20054 = Pattern.compile("SQLERRMC: (\\w+)\\.(\\w+);");
-    private static final Pattern PATTERN_668 = Pattern.compile("SQLERRMC: 7;(\\w+)\\.(\\w+)");
+    private static final Pattern PATTERN_20054 = Pattern.compile("SQLERRMC:\\s*(\\w+)\\.(\\w+);");
+    private static final Pattern PATTERN_668 = Pattern.compile("SQLERRMC[:=]\\s*7;(\\w+)\\.(\\w+)");
     /**
      * Finds the table name from SQL Exception. Based on the documentation as defined at
      * http://publib.boulder.ibm.com/infocenter/db2luw/v8/index.jsp?topic=/com.ibm.db2.udb.doc/ad/tjvjcerr.htm
