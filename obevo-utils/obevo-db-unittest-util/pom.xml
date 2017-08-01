@@ -23,7 +23,7 @@
     <parent>
         <groupId>com.goldmansachs.obevo</groupId>
         <artifactId>obevo-utils</artifactId>
-        <version>6.2.1-SNAPSHOT</version>
+        <version>6.2.1</version>
     </parent>
 
     <dependencies>
