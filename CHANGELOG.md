@@ -1,5 +1,13 @@
 # Change Log
 
+## 6.2.2
+
+### Bug Fixes
+
+#49: Continuing fixes on DB2 Reorg
+Reverse engineering fixes - ensuring that MS SQL, Oracle, and PostgreSQL reverse-engineering can be invoked via command line
+
+
 ## 6.2.1
 
 ### Bug Fixes
