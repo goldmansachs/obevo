@@ -17,8 +17,6 @@ package com.gs.obevo.db.impl.platforms.oracle;
 
 import java.io.File;
 
-import com.gs.obevo.db.api.appdata.DbEnvironment;
-import com.gs.obevo.db.api.factory.DbEnvironmentFactory;
 import com.gs.obevo.db.apps.reveng.AbstractDdlRevengTest;
 import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
 import com.gs.obevo.db.testutil.DirectoryAssert;
@@ -42,7 +40,7 @@ public class OracleRevengTest extends AbstractDdlRevengTest {
 
         args.setInputPath(new File("./src/test/resources/reveng/oracle/input.sql"));
 
-        new OracleReveng().reveng(args);
+        new OracleDbPlatform().getDdlReveng().reveng(args);
 
         DirectoryAssert.assertDirectoriesEqual(new File("./src/test/resources/reveng/oracle/expected"), new File(outputDir, "final"));
 

@@ -26,6 +26,7 @@ import com.gs.obevo.db.api.platform.DbChangeTypeImpl;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.db.api.platform.DbTranslationDialect;
 import com.gs.obevo.db.api.platform.SqlExecutor;
+import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
 import com.gs.obevo.db.apps.reveng.ChangeEntry;
 import com.gs.obevo.db.impl.core.reader.TextMarkupDocumentReader;
 import com.gs.obevo.db.impl.platforms.AbstractDbPlatform;
@@ -133,5 +134,10 @@ public class MsSqlDbPlatform extends AbstractDbPlatform {
     @Override
     public String getTextType() {
         return "TEXT";
+    }
+
+    @Override
+    public AbstractDdlReveng getDdlReveng() {
+        return new MsSqlReveng();
     }
 }

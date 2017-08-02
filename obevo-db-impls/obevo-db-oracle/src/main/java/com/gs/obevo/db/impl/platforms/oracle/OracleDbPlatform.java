@@ -19,6 +19,7 @@ import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.DeployerAppContext;
 import com.gs.obevo.db.api.appdata.GrantTargetType;
 import com.gs.obevo.db.api.platform.DbChangeTypeImpl;
+import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
 import com.gs.obevo.db.impl.platforms.AbstractDbPlatform;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
@@ -73,5 +74,10 @@ public class OracleDbPlatform extends AbstractDbPlatform {
     @Override
     public String getBigIntType() {
         return "NUMBER(19)";  // Oracle doesn't support bigint as of version 11; sticking w/ NUMBER for compatibility across versions: https://docs.oracle.com/cd/B19306_01/gateways.102/b14270/apa.htm
+    }
+
+    @Override
+    public AbstractDdlReveng getDdlReveng() {
+        return new OracleReveng();
     }
 }

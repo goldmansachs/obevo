@@ -44,7 +44,7 @@ public class PostgreSqlRevengTest extends AbstractDdlRevengTest {
 
         args.setInputPath(new File("./src/test/resources/reveng/pgdump/input/input.sql"));
 
-        new PostgreSqlPgDumpReveng().reveng(args);
+        new PostgreSqlDbPlatform().getDdlReveng().reveng(args);
 
         DirectoryAssert.assertDirectoriesEqual(new File("./src/test/resources/reveng/pgdump/expected"), new File(outputDir, "final"));
     }

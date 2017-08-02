@@ -17,6 +17,7 @@ package com.gs.obevo.db.apps.reveng;
 
 import java.io.File;
 
+import com.gs.obevo.db.impl.platforms.sybasease.AseDbPlatform;
 import com.gs.obevo.db.testutil.DirectoryAssert;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
@@ -32,7 +33,7 @@ public class AseDdlgenRevengTest extends AbstractDdlRevengTest {
         args.setGenerateBaseline(false);
         args.setOutputPath(outputDir);
 
-        new AseDdlgenReveng().reveng(args);
+        new AseDbPlatform().getDdlReveng().reveng(args);
     }
 
     @Test
@@ -47,7 +48,7 @@ public class AseDdlgenRevengTest extends AbstractDdlRevengTest {
         args.setGenerateBaseline(false);
         args.setOutputPath(outputDir);
 
-        new AseDdlgenReveng().reveng(args);
+        new AseDbPlatform().getDdlReveng().reveng(args);
 
         DirectoryAssert.assertDirectoriesEqual(new File("./src/test/resources/reveng/ddlgen/expected"), new File(outputDir, "final"));
     }

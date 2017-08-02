@@ -42,7 +42,7 @@ public class MsSqlRevengTest extends AbstractDdlRevengTest {
 
         args.setInputPath(new File("./src/test/resources/reveng/input"));
 
-        new MsSqlReveng().reveng(args);
+        new MsSqlDbPlatform().getDdlReveng().reveng(args);
 
         DirectoryAssert.assertDirectoriesEqual(new File("./src/test/resources/reveng/expected"), new File(outputDir, "final"));
     }

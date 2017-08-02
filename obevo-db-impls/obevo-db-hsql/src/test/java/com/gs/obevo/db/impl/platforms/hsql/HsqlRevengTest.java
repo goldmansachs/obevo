@@ -42,7 +42,7 @@ public class HsqlRevengTest extends AbstractDdlRevengTest {
 
         args.setInputPath(new File("./src/test/resources/reveng/hsql/input.sql"));
 
-        new HsqlReveng().reveng(args);
+        new HsqlDbPlatform().getDdlReveng().reveng(args);
 
         DirectoryAssert.assertDirectoriesEqual(new File("./src/test/resources/reveng/hsql/expected"), new File(outputDir, "final"));
 
