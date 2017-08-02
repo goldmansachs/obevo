@@ -60,28 +60,37 @@ public class Db2SqlExecutorTest {
     }
 
     @Test
+    public void testFindTableNameFromSQLException20054WithSpace() {
+        SQLException diagnosable = mock(SQLException.class);
+        when(diagnosable.getMessage()).thenReturn("DB2 SQL error: SQLCODE: -20054, SQLSTATE: 55019, SQLERRMC: _MY_SCHEMA.MYTAB1_;23");
+        assertEquals(Tuples.pair(new PhysicalSchema("_MY_SCHEMA"), "MYTAB1_"),
+                this.executor.findTableNameFromException(diagnosable, -20054));
+        verify(diagnosable, times(1)).getMessage();
+    }
+
+    @Test
     public void testFindTableNameFromSQLException20054() {
         SQLException diagnosable = mock(SQLException.class);
-        when(diagnosable.getMessage()).thenReturn("DB2 SQL error: SQLCODE: -20054, SQLSTATE: 55019, SQLERRMC: MY_SCHEMA.MYTAB1_;23");
+        when(diagnosable.getMessage()).thenReturn("DB2 SQL error: SQLCODE: -20054, SQLSTATE: 55019, SQLERRMC=MY_SCHEMA.MYTAB1_;23");
         assertEquals(Tuples.pair(new PhysicalSchema("MY_SCHEMA"), "MYTAB1_"),
                 this.executor.findTableNameFromException(diagnosable, -20054));
         verify(diagnosable, times(1)).getMessage();
     }
 
     @Test
-    public void testFindTableNameFromSQLException668() {
+    public void testFindTableNameFromSQLException668WithSpace() {
         SQLException diagnosable = mock(SQLException.class);
         // Note: We will be using SqlErrmc code alone inside the findTableFromSQLException method. Hence we are mocking
         // only the getSqlErrmc method
-        when(diagnosable.getMessage()).thenReturn("DB2 SQL error: SQLCODE: -668, SQLSTATE: 57016, SQLERRMC: 7;MY_SCHEMA.MYTAB2_");
-        assertEquals(Tuples.pair(new PhysicalSchema("MY_SCHEMA"), "MYTAB2_"),
+        when(diagnosable.getMessage()).thenReturn("DB2 SQL error: SQLCODE: -668, SQLSTATE: 57016, SQLERRMC: 7;7MY_SCHEMA.MYTAB2_");
+        assertEquals(Tuples.pair(new PhysicalSchema("7MY_SCHEMA"), "MYTAB2_"),
                 this.executor.findTableNameFromException(diagnosable, -668));
 
         verify(diagnosable, times(1)).getMessage();
     }
 
     @Test
-    public void testFindTableNameFromSQLException668WithSpace() {
+    public void testFindTableNameFromSQLException668() {
         SQLException diagnosable = mock(SQLException.class);
         // Note: We will be using SqlErrmc code alone inside the findTableFromSQLException method. Hence we are mocking
         // only the getSqlErrmc method

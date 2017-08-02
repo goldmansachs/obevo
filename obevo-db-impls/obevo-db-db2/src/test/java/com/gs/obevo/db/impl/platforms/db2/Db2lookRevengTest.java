@@ -42,7 +42,7 @@ public class Db2lookRevengTest extends AbstractDdlRevengTest {
         args.setInputPath(new File("./src/test/resources/reveng/db2look/input/db2input.txt"));
         args.setGenerateBaseline(false);
         args.setOutputPath(outputDir);
-        new Db2lookReveng().reveng(args);
+        new Db2DbPlatform().getDdlReveng().reveng(args);
 
         DirectoryAssert.assertDirectoriesEqual(new File("./src/test/resources/reveng/db2look/expected"), new File(outputDir, "final"));
     }
@@ -54,7 +54,7 @@ public class Db2lookRevengTest extends AbstractDdlRevengTest {
         args.setGenerateBaseline(false);
         args.setOutputPath(new File("./target/db2revenginterm.txt"));
 
-        new Db2lookReveng().reveng(args);
+        new Db2DbPlatform().getDdlReveng().reveng(args);
     }
 
     @Test

@@ -155,8 +155,8 @@ public class Db2SqlExecutor extends AbstractSqlExecutor {
         jdbc.update(conn, "call sysproc.admin_cmd ('reorg table " + schema + "." + table + "')");
     }
 
-    private static final Pattern PATTERN_20054 = Pattern.compile("SQLERRMC:\\s*(\\w+)\\.(\\w+);");
-    private static final Pattern PATTERN_668 = Pattern.compile("SQLERRMC[:=]\\s*7;(\\w+)\\.(\\w+)");
+    private static final Pattern PATTERN_20054 = Pattern.compile("SQLERRMC[\\W]+\\s*(\\w+)\\.(\\w+);");
+    private static final Pattern PATTERN_668 = Pattern.compile("SQLERRMC[\\W]+\\s*7;(\\w+)\\.(\\w+)");
     /**
      * Finds the table name from SQL Exception. Based on the documentation as defined at
      * http://publib.boulder.ibm.com/infocenter/db2luw/v8/index.jsp?topic=/com.ibm.db2.udb.doc/ad/tjvjcerr.htm
@@ -186,7 +186,7 @@ public class Db2SqlExecutor extends AbstractSqlExecutor {
             schemaName = matcher.group(1);
             tableName = matcher.group(2);
         } else {
-            throw new IllegalArgumentException("Unhandled error code for reorg message parsing: " + errorCode);
+            throw new IllegalArgumentException("Could not parse the schema/table names for error code " + errorCode + " and message: " + sqlErrorMC);
         }
         return Tuples.pair(new PhysicalSchema(schemaName), tableName);
     }
