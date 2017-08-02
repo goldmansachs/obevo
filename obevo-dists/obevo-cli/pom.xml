@@ -20,7 +20,7 @@
     <parent>
         <groupId>com.goldmansachs.obevo</groupId>
         <artifactId>obevo-dists</artifactId>
-        <version>6.2.2-SNAPSHOT</version>
+        <version>6.2.2</version>
     </parent>
     <artifactId>obevo-cli</artifactId>
 
