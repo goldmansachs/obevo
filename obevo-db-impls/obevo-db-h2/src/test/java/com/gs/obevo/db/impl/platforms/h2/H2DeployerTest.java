@@ -102,7 +102,7 @@ public class H2DeployerTest {
         assertEquals(4, results.size());
         this.validateResults(results.get(0), 1, 2, "AB,C", "2012-01-01 12:12:12.00000", null);
         this.validateResults(results.get(1), 2, 3, null, "2013-01-01 11:11:11.65432", 9);
-        this.validateResults(results.get(2), 3, 4, "ABC", null, 9);
+        this.validateResults(results.get(2), 3, 4, "AB禅禅C", null, 9);
         this.validateResults(results.get(3), 4, 4, "0006", null, 9);
         int result;
         result = this.jdbc.queryForInt(conn, "select count(*) from bogusSchema.VIEW1");

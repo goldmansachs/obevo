@@ -112,76 +112,72 @@ public class TableChangeParser extends AbstractDbChangeFileParser {
     }
 
     @Override
-    public ImmutableList<Change> value(final ChangeType tableChangeType, final FileObject file, final String schema, final TextMarkupDocumentSection packageMetadata) {
-        try {
-            LOG.debug("Attempting to read file {}", file);
+    public ImmutableList<Change> value(final ChangeType tableChangeType, final FileObject file, final String fileContent, final String nonTokenizedObjectName, final String schema, final TextMarkupDocumentSection packageMetadata) {
+        LOG.debug("Attempting to read file {}", file);
 
-            final TextMarkupDocument origDoc = readDocument(file, packageMetadata).getOne();
+        final TextMarkupDocument origDoc = readDocument(fileContent, packageMetadata).getOne();
 
-            final TextMarkupDocumentSection metadata = this.getOrCreateMetadataNode(origDoc);
+        final TextMarkupDocumentSection metadata = this.getOrCreateMetadataNode(origDoc);
 
-            String templateParamAttr = metadata.getAttr(ATTR_TEMPLATE_PARAMS);
+        String templateParamAttr = metadata.getAttr(ATTR_TEMPLATE_PARAMS);
 
-            // Handle a potential template object; this will return a dummy params list if this is not a template object
-            final ImmutableList<ImmutableMap<String, String>> templateParamsList = convertToParamList(templateParamAttr);
+        // Handle a potential template object; this will return a dummy params list if this is not a template object
+        final ImmutableList<ImmutableMap<String, String>> templateParamsList = convertToParamList(templateParamAttr);
 
-            ImmutableList<Pair<String, ImmutableList<Change>>> fileToChangePairs = templateParamsList.collect(new Function<MapIterable<String, String>, Pair<String, ImmutableList<Change>>>() {
-                @Override
-                public Pair<String, ImmutableList<Change>> valueOf(MapIterable<String, String> templateParams) {
+        ImmutableList<Pair<String, ImmutableList<Change>>> fileToChangePairs = templateParamsList.collect(new Function<MapIterable<String, String>, Pair<String, ImmutableList<Change>>>() {
+            @Override
+            public Pair<String, ImmutableList<Change>> valueOf(MapIterable<String, String> templateParams) {
 
-                    Tokenizer tokenizer = new Tokenizer(templateParams, "${", "}");
+                Tokenizer tokenizer = new Tokenizer(templateParams, "${", "}");
 
-                    final String objectName = tokenizer.tokenizeString(file.getName().getBaseName().split("\\.")[0]);
-                    final TextMarkupDocument doc = templateParams.notEmpty()
-                            ? readDocument(file, tokenizer.tokenizeString(file.getStringContent()), packageMetadata).getOne()
-                            : origDoc;  /// if no template params, then save some effort and don't bother re-reading the doc from the string
+                final String objectName = tokenizer.tokenizeString(nonTokenizedObjectName);
+                final TextMarkupDocument doc = templateParams.notEmpty()
+                        ? readDocument(tokenizer.tokenizeString(fileContent), packageMetadata).getOne()
+                        : origDoc;  /// if no template params, then save some effort and don't bother re-reading the doc from the string
 
-                    final ParseDbChange parseDbChange = new ParseDbChange(contentHashStrategy, tableChangeType);
+                final ParseDbChange parseDbChange = new ParseDbChange(contentHashStrategy, tableChangeType);
 
-                    final ImmutableList<ArtifactRestrictions> fileLevelRestrictions = new DbChangeRestrictionsReader().valueOf(metadata);
-                    ImmutableList<Change> changes = doc.getSections()
-                            .select(Predicates.attributeEqual(TextMarkupDocumentSection.TO_NAME, TextMarkupDocumentReader.TAG_CHANGE))
-                            .collect(new Function<TextMarkupDocumentSection, Change>() {
-                                private int i = 0;
+                final ImmutableList<ArtifactRestrictions> fileLevelRestrictions = new DbChangeRestrictionsReader().valueOf(metadata);
+                ImmutableList<Change> changes = doc.getSections()
+                        .select(Predicates.attributeEqual(TextMarkupDocumentSection.TO_NAME, TextMarkupDocumentReader.TAG_CHANGE))
+                        .collect(new Function<TextMarkupDocumentSection, Change>() {
+                            private int i = 0;
 
-                                @Override
-                                public Change valueOf(TextMarkupDocumentSection section) {
+                            @Override
+                            public Change valueOf(TextMarkupDocumentSection section) {
 
-                                    ChangeIncremental change = parseDbChange.value(section, schema, objectName, this.i++);
-                                    ImmutableList<ArtifactRestrictions> changeLevelRestrictions = new DbChangeRestrictionsReader().valueOf(section);
-                                    change.setRestrictions(mergeRestrictions(fileLevelRestrictions, changeLevelRestrictions));
-                                    change.setPermissionScheme(getPermissionSchemeValue(doc));
-                                    change.setFileLocation(file);
-                                    change.setMetadataSection(metadata);
+                                ChangeIncremental change = parseDbChange.value(section, schema, objectName, this.i++);
+                                ImmutableList<ArtifactRestrictions> changeLevelRestrictions = new DbChangeRestrictionsReader().valueOf(section);
+                                change.setRestrictions(mergeRestrictions(fileLevelRestrictions, changeLevelRestrictions));
+                                change.setPermissionScheme(getPermissionSchemeValue(doc));
+                                change.setFileLocation(file);
+                                change.setMetadataSection(metadata);
 
-                                    String dependenciesStr = section.getAttr(TextMarkupDocumentReader.ATTR_DEPENDENCIES);
-                                    if (dependenciesStr != null) {
-                                        change.setDependencies(Sets.immutable.with(dependenciesStr.split(",")).reject(StringPredicates.empty()));
-                                    }
-
-                                    String excludeDependenciesStr = section.getAttr(TextMarkupDocumentReader.ATTR_EXCLUDE_DEPENDENCIES);
-                                    if (excludeDependenciesStr != null) {
-                                        change.setExcludeDependencies(Sets.immutable.with(excludeDependenciesStr.split(",")).reject(StringPredicates.empty()));
-                                    }
-                                    return change;
+                                String dependenciesStr = section.getAttr(TextMarkupDocumentReader.ATTR_DEPENDENCIES);
+                                if (dependenciesStr != null) {
+                                    change.setDependencies(Sets.immutable.with(dependenciesStr.split(",")).reject(StringPredicates.empty()));
                                 }
-                            });
 
-                    return Tuples.pair(objectName, changes);
-                }
-            });
+                                String excludeDependenciesStr = section.getAttr(TextMarkupDocumentReader.ATTR_EXCLUDE_DEPENDENCIES);
+                                if (excludeDependenciesStr != null) {
+                                    change.setExcludeDependencies(Sets.immutable.with(excludeDependenciesStr.split(",")).reject(StringPredicates.empty()));
+                                }
+                                return change;
+                            }
+                        });
 
-            // Validate that if we had used templates, that it resulted in different file names
-            MutableSet<String> detemplatedObjectNames = fileToChangePairs.collect(Functions.<String>firstOfPair(), Sets.mutable.<String>empty());
-
-            if (detemplatedObjectNames.size() != templateParamsList.size()) {
-                throw new IllegalArgumentException("Expecting the usage of templates to result in a different file name per template set; expected " + templateParamsList.size() + " object names (from " + templateParamAttr + ") but found " + detemplatedObjectNames);
+                return Tuples.pair(objectName, changes);
             }
+        });
 
-            return fileToChangePairs.flatCollect(Functions.<ImmutableList<Change>>secondOfPair());
-        } catch (RuntimeException e) {
-            throw new IllegalArgumentException("Error while parsing file " + file + " of change type " + tableChangeType.getName() + "; please see the cause in the stack trace below: " + e.getMessage(), e);
+        // Validate that if we had used templates, that it resulted in different file names
+        MutableSet<String> detemplatedObjectNames = fileToChangePairs.collect(Functions.<String>firstOfPair(), Sets.mutable.<String>empty());
+
+        if (detemplatedObjectNames.size() != templateParamsList.size()) {
+            throw new IllegalArgumentException("Expecting the usage of templates to result in a different file name per template set; expected " + templateParamsList.size() + " object names (from " + templateParamAttr + ") but found " + detemplatedObjectNames);
         }
+
+        return fileToChangePairs.flatCollect(Functions.<ImmutableList<Change>>secondOfPair());
     }
 
     private ImmutableList<ImmutableMap<String, String>> convertToParamList(String templateParamAttr) {

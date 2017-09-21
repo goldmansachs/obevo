@@ -19,7 +19,6 @@ import com.gs.obevo.api.appdata.doc.TextMarkupDocument;
 import com.gs.obevo.api.appdata.doc.TextMarkupDocumentSection;
 import com.gs.obevo.api.platform.DeployMetrics;
 import com.gs.obevo.impl.DeployMetricsCollector;
-import com.gs.obevo.util.vfs.FileObject;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
@@ -59,15 +58,11 @@ public abstract class AbstractDbChangeFileParser implements DbChangeFileParser {
         return null;
     }
 
-    protected final ObjectBooleanPair<TextMarkupDocument> readDocument(FileObject file, TextMarkupDocumentSection packageMetadata) {
-        return readDocument(file, file.getStringContent(), packageMetadata);
-    }
-
-    protected final ObjectBooleanPair<TextMarkupDocument> readDocument(FileObject file, String fileContent, TextMarkupDocumentSection packageMetadata) {
+    protected final ObjectBooleanPair<TextMarkupDocument> readDocument(String fileContent, TextMarkupDocumentSection packageMetadata) {
         try {
             TextMarkupDocument doc = textMarkupDocumentReader.parseString(fileContent, packageMetadata);
             validateStructureNew(doc);
-            validateAttributes(doc, file);
+            validateAttributes(doc);
             return PrimitiveTuples.pair(doc, false);
         } catch (RuntimeException newExc) {
             if (backwardsCompatibleMode) {
@@ -89,7 +84,7 @@ public abstract class AbstractDbChangeFileParser implements DbChangeFileParser {
 
     protected abstract void validateStructureNew(TextMarkupDocument doc);
 
-    private void validateAttributes(TextMarkupDocument doc, FileObject file) {
+    private void validateAttributes(TextMarkupDocument doc) {
         ImmutableList<String> disallowedSections = doc.getSections().collect(TextMarkupDocumentSection.TO_NAME).select(Predicates.in(disallowedSectionNames));
 
         if (disallowedSections.notEmpty()) {
@@ -108,7 +103,7 @@ public abstract class AbstractDbChangeFileParser implements DbChangeFileParser {
                 errorMessages.add("Following toggles are not allowed in the " + section.getName() + " section: " + disallowedToggles);
             }
             if (errorMessages.notEmpty()) {
-                throw new IllegalArgumentException("Found " + errorMessages.size() + " errors in file " + file + " in the input: " + errorMessages.makeString(";;; "));
+                throw new IllegalArgumentException("Found " + errorMessages.size() + " errors in the input: " + errorMessages.makeString(";;; "));
             }
         }
     }

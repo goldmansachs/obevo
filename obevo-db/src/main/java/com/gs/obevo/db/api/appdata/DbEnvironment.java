@@ -27,10 +27,12 @@ import com.gs.obevo.db.api.platform.DbTranslationDialect;
 import com.gs.obevo.util.inputreader.Credential;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
+import org.eclipse.collections.api.map.ImmutableMap;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.Lists;
+import org.eclipse.collections.impl.factory.Maps;
 
 public class DbEnvironment extends Environment<DbPlatform> {
     private String dbHost;
@@ -62,6 +64,9 @@ public class DbEnvironment extends Environment<DbPlatform> {
     private boolean reorgCheckEnabled = true;
     private int metadataLineReaderVersion = DbPlatformConfiguration.getInstance().getFeatureToggleVersion("metadataLineReaderVersion");
     private int csvVersion = DbPlatformConfiguration.getInstance().getFeatureToggleVersion("csvVersion");
+    private String sourceEncoding = DbPlatformConfiguration.getInstance().getSourceEncoding();
+    private ImmutableMap<String, String> extraEnvAttrs;
+    private int legacyDirectoryStructureEnabledVersion = DbPlatformConfiguration.getInstance().getFeatureToggleVersion("legacyDirectoryStructureEnabled");
 
     public DbEnvironment() {
     }
@@ -102,6 +107,9 @@ public class DbEnvironment extends Environment<DbPlatform> {
         this.reorgCheckEnabled = env.reorgCheckEnabled;
         this.metadataLineReaderVersion = env.metadataLineReaderVersion;
         this.csvVersion = env.csvVersion;
+        this.sourceEncoding = env.sourceEncoding;
+        this.extraEnvAttrs = env.extraEnvAttrs;
+        this.legacyDirectoryStructureEnabledVersion = env.legacyDirectoryStructureEnabledVersion;
     }
 
     @Override
@@ -442,5 +450,30 @@ public class DbEnvironment extends Environment<DbPlatform> {
 
     public void setCsvVersion(int csvVersion) {
         this.csvVersion = csvVersion;
+    }
+
+    public String getSourceEncoding() {
+        return sourceEncoding;
+    }
+
+    public void setSourceEncoding(String sourceEncoding) {
+        this.sourceEncoding = sourceEncoding;
+    }
+
+    public ImmutableMap<String, String> getExtraEnvAttrs() {
+        return extraEnvAttrs == null ? Maps.immutable.<String, String>empty() : extraEnvAttrs;
+    }
+
+    public void setExtraEnvAttrs(ImmutableMap<String, String> extraEnvAttrs) {
+        this.extraEnvAttrs = extraEnvAttrs;
+    }
+
+    public boolean isLegacyDirectoryStructureEnabled() {
+        // 1 == legacy, 2 == new
+        return legacyDirectoryStructureEnabledVersion == 1;
+    }
+
+    public void setLegacyDirectoryStructureEnabledVersion(int legacyDirectoryStructureEnabledVersion) {
+        this.legacyDirectoryStructureEnabledVersion = legacyDirectoryStructureEnabledVersion;
     }
 }

@@ -48,6 +48,8 @@ public class TableChangeParserTest {
     @Rule
     public final ExpectedException thrown = ExpectedException.none();
 
+    private final String objectName = "MyObj";
+
     private final ChangeType viewChangeType = mock(ChangeType.class);
     private final ChangeType spChangeType = mock(ChangeType.class);
     private final ChangeType fkChangeType = mock(ChangeType.class);
@@ -65,7 +67,7 @@ public class TableChangeParserTest {
     @Test
     public void testTableChangeParse() throws Exception {
         TableChangeParser parser = new TableChangeParser(new EmptyContentHashStrategy(), fkChangeType, triggerChangeType);
-        FileObject file = file("position.ddl", "\n" +
+        String fileContent = "\n" +
                 "\n" +
                 "\n" +
                 "//// METADATA includeEnvs=q1 includePlatforms=DB2,SYBASE_ASE,HSQL\n" +
@@ -111,28 +113,28 @@ public class TableChangeParserTest {
                 "\n" +
                 "// ROLLBACK-IF-ALREADY-DEPLOYED\n" +
                 "myotherrollbackcommand\n" +
-                "\n");
+                "\n";
 
         ImmutableList<Change> changes = parser.value(
-                tableChangeType, file, "schema", null);
+                tableChangeType, null, fileContent, objectName, "schema", null);
 
         ImmutableList<ChangeIncremental> expected = Lists.immutable.
                 with(
-                        new ChangeIncremental(tableChangeType, "schema", "position", "chng1", 0, "create",
+                        new ChangeIncremental(tableChangeType, "schema", "MyObj", "chng1", 0, "create",
                                 "\nCREATE TABLE;")
                         ,
-                        new ChangeIncremental(fkChangeType, "schema", "position", "chng2", 1, "add fk",
+                        new ChangeIncremental(fkChangeType, "schema", "MyObj", "chng2", 1, "add fk",
                                 "ADD FK1\r\n  only pick up this part if at start of line // // CHANGE whatever (disabling this check)")
-                        , new ChangeIncremental(fkChangeType, "schema", "position", "chng3", 2,
+                        , new ChangeIncremental(fkChangeType, "schema", "MyObj", "chng3", 2,
                                 "\r\n\r\nad", "\r\n\r\nADD FK2")
-                        , new ChangeIncremental(tableChangeType, "schema", "position", "blank1NoLine", 3, "", "")
-                        , new ChangeIncremental(tableChangeType, "schema", "position", "blank2WithLine", 4,
+                        , new ChangeIncremental(tableChangeType, "schema", "MyObj", "blank1NoLine", 3, "", "")
+                        , new ChangeIncremental(tableChangeType, "schema", "MyObj", "blank2WithLine", 4,
                                 "\r\n", "\r\n")
-                        , new ChangeIncremental(triggerChangeType, "schema", "position", "trigger1", 5, "create",
+                        , new ChangeIncremental(triggerChangeType, "schema", "MyObj", "trigger1", 5, "create",
                                 "CREATE TRIGGER ABC123")
-                        , new ChangeIncremental(tableChangeType, "schema", "position", "chng4", 6, "  alte",
+                        , new ChangeIncremental(tableChangeType, "schema", "MyObj", "chng4", 6, "  alte",
                                 "  ALTER TABLE position ADD quantity DOUBLE")
-                        , new ChangeIncremental(tableChangeType, "schema", "position", "chng5Rollback", 7,
+                        , new ChangeIncremental(tableChangeType, "schema", "MyObj", "chng5Rollback", 7,
                                 "mychan", "mychange", "myrollbackcommand", true)
                                 .withRestrictions(
                                         Lists.immutable.of(
@@ -140,7 +142,7 @@ public class TableChangeParserTest {
                                                 new ArtifactPlatformRestrictions(UnifiedSet.<String>newSet(), UnifiedSet.newSetWith("HSQL"))
                                         )
                                 )
-                        , new ChangeIncremental(tableChangeType, "schema", "position", "chng5Rollback", 8,
+                        , new ChangeIncremental(tableChangeType, "schema", "MyObj", "chng5Rollback", 8,
                                 "mychan", "mychange", "myrollbackcommand", true)
                                 .withRestrictions(
                                         Lists.immutable.of(
@@ -148,9 +150,9 @@ public class TableChangeParserTest {
                                                 new ArtifactPlatformRestrictions(UnifiedSet.newSetWith("DB2", "SYBASE_ASE", "HSQL"), UnifiedSet.<String>newSet())
                                         )
                                 )
-                        , new ChangeIncremental(tableChangeType, "schema", "position", "chng6Inactive", 9,
+                        , new ChangeIncremental(tableChangeType, "schema", "MyObj", "chng6Inactive", 9,
                                 " myina", "myinactive change", null, false)
-                        , new ChangeIncremental(tableChangeType, "schema", "position",
+                        , new ChangeIncremental(tableChangeType, "schema", "MyObj",
                                 "chng7InactiveWithRollback", 10, "inroll", "inroll change", "myotherrollbackcommand",
                                 false)
                 );
@@ -176,13 +178,12 @@ public class TableChangeParserTest {
     @Test
     public void testTemplate() throws Exception {
         TableChangeParser parser = new TableChangeParser(new EmptyContentHashStrategy(), fkChangeType, triggerChangeType);
-        FileObject file = file("MyTemplate${suffix}.ddl", "//// METADATA templateParams=\"suffix=1;suffix=2\"\n" +
+        String fileContent = "//// METADATA templateParams=\"suffix=1;suffix=2\"\n" +
                 "//// CHANGE name=chng1\ncreate1\n" +
                 "//// CHANGE name=chng2\ncreate2\n" +
-                ""
-        );
+                "";
 
-        ImmutableList<Change> changes = parser.value(tableChangeType, file, "schema", null);
+        ImmutableList<Change> changes = parser.value(tableChangeType, null, fileContent, "MyTemplate${suffix}", "schema", null);
         assertEquals(4, changes.size());
         assertEquals(2, changes.count(Predicates.attributeEqual(SortableDependency.TO_OBJECT_NAME, "MyTemplate1")));
         assertEquals(2, changes.count(Predicates.attributeEqual(SortableDependency.TO_OBJECT_NAME, "MyTemplate2")));
@@ -191,185 +192,174 @@ public class TableChangeParserTest {
     @Test
     public void invalidNoContentAllowedInMetadata() throws Exception {
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectCause(new ThrowableMessageMatcher<Throwable>(containsString("First content of the file must be the")));
+        thrown.expect(new ThrowableMessageMatcher<Throwable>(containsString("First content of the file must be the")));
 
         TableChangeParser parser = new TableChangeParser(new EmptyContentHashStrategy(), fkChangeType, triggerChangeType);
-        FileObject file = file("mytest.changes.ddl", "contentNotAllowedHere\n" +
+        String fileContent = "contentNotAllowedHere\n" +
                 "//// METADATA\n" +
                 "invalid content\n" +
                 "//// CHANGE name=chng1\n" +
                 "CREATE TABLE;\n" +
-                ""
-        );
+                "";
 
-        parser.value(tableChangeType, file, "schema", null);
+        parser.value(tableChangeType, null, fileContent, objectName, "schema", null);
     }
 
     @Test
     public void invalidNoContentAllowedInPrologue1() throws Exception {
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectCause(new ThrowableMessageMatcher<Throwable>(containsString("First content of the file must be the")));
+        thrown.expect(new ThrowableMessageMatcher<Throwable>(containsString("First content of the file must be the")));
 
         TableChangeParser parser = new TableChangeParser(new EmptyContentHashStrategy(), fkChangeType, triggerChangeType);
-        FileObject file = file("mytest.changes.ddl", "contentNotAllowedHere\n" +
+        String fileContent = "contentNotAllowedHere\n" +
                 "//// METADATA\n" +
                 "//// CHANGE name=chng1\n" +
                 "CREATE TABLE;\n" +
-                ""
-        );
+                "";
 
-        parser.value(tableChangeType, file, "schema", null);
+        parser.value(tableChangeType, null, fileContent, objectName, "schema", null);
     }
 
     @Test
     public void invalidNoContentAllowedInPrologue2() throws Exception {
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectCause(new ThrowableMessageMatcher<Throwable>(containsString("First content of the file must be the")));
+        thrown.expect(new ThrowableMessageMatcher<Throwable>(containsString("First content of the file must be the")));
 
         TableChangeParser parser = new TableChangeParser(new EmptyContentHashStrategy(), fkChangeType, triggerChangeType);
-        FileObject file = file("mytest.changes.ddl", "contentNotAllowedHere\n" +
+        String fileContent = "contentNotAllowedHere\n" +
                 "//// CHANGE name=chng1\n" +
                 "CREATE TABLE;\n" +
-                ""
-        );
+                "";
 
-        parser.value(tableChangeType, file, "schema", null);
+        parser.value(tableChangeType, null, fileContent, objectName, "schema", null);
     }
 
     @Test
     public void invalidNoContentAllowedInPrologue3() throws Exception {
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectCause(new ThrowableMessageMatcher<Throwable>(containsString("No //// CHANGE sections found")));
+        thrown.expect(new ThrowableMessageMatcher<Throwable>(containsString("No //// CHANGE sections found")));
 
         TableChangeParser parser = new TableChangeParser(new EmptyContentHashStrategy(), fkChangeType, triggerChangeType);
-        FileObject file = file("mytest.changes.ddl", "contentNotAllowedHere\n" +
+        String fileContent = "contentNotAllowedHere\n" +
                 "CREATE TABLE;\n" +
-                ""
-        );
+                "";
 
-        parser.value(tableChangeType, file, "schema", null);
+        parser.value(tableChangeType, null, fileContent, objectName, "schema", null);
     }
 
     @Test
     public void noMetadataContentAllowedAfterFirstLine1() throws Exception {
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectCause(new ThrowableMessageMatcher<Throwable>(containsString("Instead, found this section in between")));
+        thrown.expect(new ThrowableMessageMatcher<Throwable>(containsString("Instead, found this section in between")));
 
         TableChangeParser parser = new TableChangeParser(new EmptyContentHashStrategy(), fkChangeType, triggerChangeType);
-        FileObject file = file("mytest.changes.ddl", "\n" +
+        String fileContent = "\n" +
                 "//// METADATA\n" +
                 "//// CHANGE name=chng1\n" +
                 "CREATE TABLE;\n" +
                 "//// METADATA\n" +
                 "//// CHANGE name=chng1\n" +
                 "CREATE TABLE;\n" +
-                ""
-        );
+                "";
 
-        parser.value(tableChangeType, file, "schema", null);
+        parser.value(tableChangeType, null, fileContent, objectName, "schema", null);
     }
 
     @Test
     public void noMetadataContentAllowedAfterFirstLine1_FineInBackwardsCompatibleMode() throws Exception {
         TableChangeParser parser = new TableChangeParser(new EmptyContentHashStrategy(), fkChangeType, triggerChangeType, true, new DeployMetricsCollectorImpl(), new TextMarkupDocumentReader(false));
-        FileObject file = file("mytest.changes.ddl", "\n" +
+        String fileContent = "\n" +
                 "//// METADATA\n" +
                 "//// CHANGE name=chng1\n" +
                 "CREATE TABLE;\n" +
                 "//// METADATA\n" +
                 "//// CHANGE name=chng1\n" +
                 "CREATE TABLE;\n" +
-                ""
-        );
+                "";
 
-        parser.value(tableChangeType, file, "schema", null);
+        parser.value(tableChangeType, null, fileContent, objectName, "schema", null);
     }
 
     @Test
     public void noMetadataContentAllowedAfterFirstLine2() throws Exception {
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectCause(new ThrowableMessageMatcher<Throwable>(containsString("Instead, found this section in between")));
+        thrown.expect(new ThrowableMessageMatcher<Throwable>(containsString("Instead, found this section in between")));
 
         TableChangeParser parser = new TableChangeParser(new EmptyContentHashStrategy(), fkChangeType, triggerChangeType);
-        FileObject file = file("mytest.changes.ddl", "\n" +
+        String fileContent = "\n" +
                 "//// CHANGE name=chng1\n" +
                 "CREATE TABLE;\n" +
                 "//// METADATA\n" +
-                ""
-        );
+                "";
 
-        parser.value(tableChangeType, file, "schema", null);
+        parser.value(tableChangeType, null, fileContent, objectName, "schema", null);
     }
 
     @Test
     public void noMetadataContentAllowedAfterFirstLine2_FineInBackwardsCompatibleMode() throws Exception {
         TableChangeParser parser = new TableChangeParser(new EmptyContentHashStrategy(), fkChangeType, triggerChangeType, true, new DeployMetricsCollectorImpl(), new TextMarkupDocumentReader(false));
-        FileObject file = file("mytest.changes.ddl", "\n" +
+        String fileContent = "\n" +
                 "//// CHANGE name=chng1\n" +
                 "CREATE TABLE;\n" +
                 "//// METADATA\n" +
-                ""
-        );
+                "";
 
-        parser.value(tableChangeType, file, "schema", null);
+        parser.value(tableChangeType, null, fileContent, objectName, "schema", null);
     }
 
     @Test
     public void noMetadataContentAllowedAfterFirstLine3() throws Exception {
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectCause(new ThrowableMessageMatcher<Throwable>(containsString("Instead, found this section in between")));
+        thrown.expect(new ThrowableMessageMatcher<Throwable>(containsString("Instead, found this section in between")));
 
         TableChangeParser parser = new TableChangeParser(new EmptyContentHashStrategy(), fkChangeType, triggerChangeType);
-        FileObject file = file("mytest.changes.ddl", "\n" +
+        String fileContent = "\n" +
                 "//// METADATA\n" +
                 "//// METADATA\n" +
                 "//// CHANGE name=chng1\n" +
                 "CREATE TABLE;\n" +
                 "//// METADATA\n" +
-                ""
-        );
+                "";
 
-        parser.value(tableChangeType, file, "schema", null);
+        parser.value(tableChangeType, null, fileContent, objectName, "schema", null);
     }
 
     @Test
     public void noMetadataContentAllowedAfterFirstLine3_FineInBackwardsCompatibleMode() throws Exception {
         TableChangeParser parser = new TableChangeParser(new EmptyContentHashStrategy(), fkChangeType, triggerChangeType, true, new DeployMetricsCollectorImpl(), new TextMarkupDocumentReader(false));
-        FileObject file = file("mytest.changes.ddl", "\n" +
+        String fileContent = "\n" +
                 "//// METADATA\n" +
                 "//// METADATA\n" +
                 "//// CHANGE name=chng1\n" +
                 "CREATE TABLE;\n" +
                 "//// METADATA\n" +
-                ""
-        );
+                "";
 
-        parser.value(tableChangeType, file, "schema", null);
+        parser.value(tableChangeType, null, fileContent, objectName, "schema", null);
     }
 
     @Test
     public void noContentAtAll1() throws Exception {
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectCause(new ThrowableMessageMatcher<Throwable>(containsString("No //// " + TextMarkupDocumentReader.TAG_CHANGE + " sections found; at least one is required")));
+        thrown.expect(new ThrowableMessageMatcher<Throwable>(containsString("No //// " + TextMarkupDocumentReader.TAG_CHANGE + " sections found; at least one is required")));
 
         TableChangeParser parser = new TableChangeParser(new EmptyContentHashStrategy(), fkChangeType, triggerChangeType);
-        FileObject file = file("mytest.changes.ddl", "");
+        String fileContent = "";
 
-        parser.value(tableChangeType, file, "schema", null);
+        parser.value(tableChangeType, null, fileContent, objectName, "schema", null);
     }
 
     @Test
     public void noContentAtAll2() throws Exception {
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectCause(new ThrowableMessageMatcher<Throwable>(containsString("No //// " + TextMarkupDocumentReader.TAG_CHANGE + " sections found; at least one is required")));
+        thrown.expect(new ThrowableMessageMatcher<Throwable>(containsString("No //// " + TextMarkupDocumentReader.TAG_CHANGE + " sections found; at least one is required")));
 
         TableChangeParser parser = new TableChangeParser(new EmptyContentHashStrategy(), fkChangeType, triggerChangeType);
-        FileObject file = file("mytest.changes.ddl", "\n" +
+        String fileContent = "\n" +
                 "//// METADATA\n" +
-                ""
-        );
+                "";
 
-        parser.value(tableChangeType, file, "schema", null);
+        parser.value(tableChangeType, null, fileContent, objectName, "schema", null);
     }
 
 
@@ -388,8 +378,8 @@ public class TableChangeParserTest {
     public void testDbChange() {
         ChangeIncremental change = (ChangeIncremental) new TableChangeParser(new EmptyContentHashStrategy(), fkChangeType, triggerChangeType)
                 .value(tableChangeType,
-                        file("position.sql", "//// CHANGE name=chng5Rollback applyGrants=true INACTIVE baselinedChanges=\"a,b,c\" \nmychange\n\n// ROLLBACK-IF-ALREADY-DEPLOYED\nmyrollbackcommand\n"),
-                        "schem", null).get(0);
+                        null, "//// CHANGE name=chng5Rollback applyGrants=true INACTIVE baselinedChanges=\"a,b,c\" \nmychange\n\n// ROLLBACK-IF-ALREADY-DEPLOYED\nmyrollbackcommand\n", objectName
+                        , "schem", null).get(0);
         assertEquals("schem", change.getSchema());
         assertEquals("chng5Rollback", change.getChangeName());
         assertEquals("mychange\n", change.getContent());
@@ -405,8 +395,8 @@ public class TableChangeParserTest {
     public void testDbChange2DiffValues() {
         ChangeIncremental change = (ChangeIncremental) new TableChangeParser(new EmptyContentHashStrategy(), fkChangeType, triggerChangeType)
                 .value(tableChangeType,
-                        file("position.sql", "//// CHANGE name=chng5Rollback INACTIVE baselinedChanges=\"a,b,c\" \nmychange\n\n// ROLLBACK-IF-ALREADY-DEPLOYED\nmyrollbackcommand\n"),
-                        "schem", null).get(0);
+                        null,"//// CHANGE name=chng5Rollback INACTIVE baselinedChanges=\"a,b,c\" \nmychange\n\n// ROLLBACK-IF-ALREADY-DEPLOYED\nmyrollbackcommand\n", objectName
+                        , "schem", null).get(0);
         assertEquals("schem", change.getSchema());
         assertEquals("chng5Rollback", change.getChangeName());
         assertEquals("mychange\n", change.getContent());

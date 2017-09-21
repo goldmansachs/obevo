@@ -73,69 +73,60 @@ public class RerunnableChangeParser extends AbstractDbChangeFileParser {
     }
 
     @Override
-    public ImmutableList<Change> value(ChangeType changeType, FileObject file, String schema, TextMarkupDocumentSection packageMetadata) {
-        try {
-            LOG.debug("Attempting to read file {}", file);
+    public ImmutableList<Change> value(ChangeType changeType, FileObject file, String fileContent, String objectName, String schema, TextMarkupDocumentSection packageMetadata) {
+        ObjectBooleanPair<TextMarkupDocument> docStatusPair = readDocument(fileContent, packageMetadata);
+        TextMarkupDocument doc = docStatusPair.getOne();
+        boolean backwardsCompatibleModeUsed = docStatusPair.getTwo();
 
-            // Use the text to the left of the first period in the file as the object name
-            String objectName = file.getName().getBaseName().split("\\.")[0];
+        TextMarkupDocumentSection mainSection = getMainSection(doc, backwardsCompatibleModeUsed);
+        String contentToUse = mainSection.getContent();
 
-            ObjectBooleanPair<TextMarkupDocument> docStatusPair = readDocument(file, packageMetadata);
-            TextMarkupDocument doc = docStatusPair.getOne();
-            boolean backwardsCompatibleModeUsed = docStatusPair.getTwo();
+        ChangeRerunnable change = new ChangeRerunnable(changeType
+                , schema
+                , objectName
+                , contentHashStrategy.hashContent(contentToUse)
+                , contentToUse);
 
-            TextMarkupDocumentSection mainSection = getMainSection(doc, backwardsCompatibleModeUsed);
-            String contentToUse = mainSection.getContent();
+        TextMarkupDocumentSection metadata = getOrCreateMetadataNode(doc);
 
-            ChangeRerunnable change = new ChangeRerunnable(changeType
-                    , schema
-                    , objectName
-                    , contentHashStrategy.hashContent(contentToUse)
-                    , contentToUse);
+        ImmutableList<ArtifactRestrictions> restrictions = new DbChangeRestrictionsReader().valueOf(metadata);
+        change.setRestrictions(restrictions);
 
-            TextMarkupDocumentSection metadata = getOrCreateMetadataNode(doc);
+        String dependenciesStr = metadata.getAttr(TextMarkupDocumentReader.ATTR_DEPENDENCIES);
+        String excludeDependenciesStr = metadata.getAttr(TextMarkupDocumentReader.ATTR_EXCLUDE_DEPENDENCIES);
+        String includeDependenciesStr = metadata.getAttr(TextMarkupDocumentReader.ATTR_INCLUDE_DEPENDENCIES);
 
-            ImmutableList<ArtifactRestrictions> restrictions = new DbChangeRestrictionsReader().valueOf(metadata);
-            change.setRestrictions(restrictions);
-
-            String dependenciesStr = metadata.getAttr(TextMarkupDocumentReader.ATTR_DEPENDENCIES);
-            String excludeDependenciesStr = metadata.getAttr(TextMarkupDocumentReader.ATTR_EXCLUDE_DEPENDENCIES);
-            String includeDependenciesStr = metadata.getAttr(TextMarkupDocumentReader.ATTR_INCLUDE_DEPENDENCIES);
-
-            if (dependenciesStr != null && (excludeDependenciesStr != null || includeDependenciesStr != null)) {
-                throw new IllegalArgumentException(String.format("Cannot specify the %1%s attribute with either the %2$s or %3$s attributes; either go w/ just %1$s or a combo of %2$s and %3$s or neither",
-                        TextMarkupDocumentReader.ATTR_DEPENDENCIES,
-                        TextMarkupDocumentReader.ATTR_EXCLUDE_DEPENDENCIES,
-                        TextMarkupDocumentReader.ATTR_INCLUDE_DEPENDENCIES));
-            }
-
-            if (dependenciesStr != null) {
-                change.setDependencies(Sets.immutable.with(dependenciesStr.split(",")).reject(StringPredicates.empty()));
-            } else {
-                if (excludeDependenciesStr != null) {
-                    change.setExcludeDependencies(Sets.immutable.with(excludeDependenciesStr.split(",")).reject(StringPredicates.empty()));
-                }
-                if (includeDependenciesStr != null) {
-                    change.setIncludeDependencies(Sets.immutable.with(includeDependenciesStr.split(",")).reject(StringPredicates.empty()));
-                }
-            }
-
-            String orderStr = metadata.getAttr(ATTR_ORDER);
-            if (orderStr != null) {
-                change.setOrder(Integer.valueOf(orderStr));
-            }
-
-            change.setPermissionScheme(getPermissionSchemeValue(doc));
-            change.setMetadataSection(doc.findSectionWithElementName(TextMarkupDocumentReader.TAG_METADATA));
-
-            TextMarkupDocumentSection dropCommandSection = doc.findSectionWithElementName(TextMarkupDocumentReader.TAG_DROP_COMMAND);
-            change.setDropContent(dropCommandSection != null ? dropCommandSection.getContent() : null);
-
-            change.setFileLocation(file);
-            return Lists.immutable.<Change>with(change);
-        } catch (RuntimeException e) {
-            throw new IllegalArgumentException("Error while parsing file " + file + " of change type " + changeType.getName() + "; please see the cause in the stack trace below: " + e.getMessage(), e);
+        if (dependenciesStr != null && (excludeDependenciesStr != null || includeDependenciesStr != null)) {
+            throw new IllegalArgumentException(String.format("Cannot specify the %1%s attribute with either the %2$s or %3$s attributes; either go w/ just %1$s or a combo of %2$s and %3$s or neither",
+                    TextMarkupDocumentReader.ATTR_DEPENDENCIES,
+                    TextMarkupDocumentReader.ATTR_EXCLUDE_DEPENDENCIES,
+                    TextMarkupDocumentReader.ATTR_INCLUDE_DEPENDENCIES));
         }
+
+        if (dependenciesStr != null) {
+            change.setDependencies(Sets.immutable.with(dependenciesStr.split(",")).reject(StringPredicates.empty()));
+        } else {
+            if (excludeDependenciesStr != null) {
+                change.setExcludeDependencies(Sets.immutable.with(excludeDependenciesStr.split(",")).reject(StringPredicates.empty()));
+            }
+            if (includeDependenciesStr != null) {
+                change.setIncludeDependencies(Sets.immutable.with(includeDependenciesStr.split(",")).reject(StringPredicates.empty()));
+            }
+        }
+
+        String orderStr = metadata.getAttr(ATTR_ORDER);
+        if (orderStr != null) {
+            change.setOrder(Integer.valueOf(orderStr));
+        }
+
+        change.setPermissionScheme(getPermissionSchemeValue(doc));
+        change.setMetadataSection(doc.findSectionWithElementName(TextMarkupDocumentReader.TAG_METADATA));
+
+        TextMarkupDocumentSection dropCommandSection = doc.findSectionWithElementName(TextMarkupDocumentReader.TAG_DROP_COMMAND);
+        change.setDropContent(dropCommandSection != null ? dropCommandSection.getContent() : null);
+
+        change.setFileLocation(file);
+        return Lists.immutable.<Change>with(change);
     }
 
     @Override

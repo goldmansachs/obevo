@@ -4,10 +4,14 @@
     <file url="file://$PROJECT_DIR$" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-bom" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-core" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-core/src/test/resources/vfs/FileObject/unicode-japanese.txt" charset="ISO-2022-JP" />
+    <file url="file://$PROJECT_DIR$/obevo-core/src/test/resources/vfs/FileObject/utf16try2.ddl" charset="UTF-16" />
+    <file url="file://$PROJECT_DIR$/obevo-core/src/test/resources/vfs/FileObject/utf8bom.txt" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-db" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-db-impls" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-db2" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-h2" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-h2/src/test/resources/platforms/h2/step1/SCHEMA1/table/TABLE_A.changes.ddl" charset="UTF-16" />
     <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-hsql" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-internal-test-helper" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-mssql" charset="UTF-8" />

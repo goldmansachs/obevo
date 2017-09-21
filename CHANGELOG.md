@@ -1,5 +1,12 @@
 # Change Log
 
+## 6.3.0
+
+### Bug Fixes
+
+#73: Allowing the encoding to be specified when reading files.
+
+
 ## 6.2.2
 
 ### Bug Fixes
