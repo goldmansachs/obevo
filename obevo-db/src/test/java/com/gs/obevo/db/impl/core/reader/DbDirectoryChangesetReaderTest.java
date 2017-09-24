@@ -125,7 +125,7 @@ public class DbDirectoryChangesetReaderTest {
         // ignored
         {
             DbEnvironment env = mock(DbEnvironment.class);
-            this.setupParser1(changeParser, sourcePath1, env);
+            this.setupParser1(changeParser, sourcePath1);
             this.setupParser2(changeParser, sourcePath2, env);
             when(env.getSourceDirs()).thenReturn(Lists.mutable.with(sourcePath1, sourcePath2));
             when(env.getSchemaNames()).thenReturn(Sets.immutable.with("schema1", "schema2"));
@@ -143,7 +143,7 @@ public class DbDirectoryChangesetReaderTest {
         // pass
         {
             DbEnvironment env = mock(DbEnvironment.class);
-            this.setupParser1(changeParser, sourcePath1, env);
+            this.setupParser1(changeParser, sourcePath1);
             this.setupParser2(changeParser, sourcePath2, env);
             when(env.getSourceDirs()).thenReturn(Lists.mutable.with(sourcePath1, sourcePath2));
             when(env.getName()).thenReturn(includeEnvName);
@@ -159,7 +159,7 @@ public class DbDirectoryChangesetReaderTest {
 
         // test 3 - specify the exclude env; neither condition passes in this case
         DbEnvironment env = mock(DbEnvironment.class);
-        this.setupParser1(changeParser, sourcePath1, env);
+        this.setupParser1(changeParser, sourcePath1);
         this.setupParser2(changeParser, sourcePath2, env);
         when(env.getSourceDirs()).thenReturn(Lists.mutable.with(sourcePath1, sourcePath2));
         when(env.getName()).thenReturn(includeEnvName);
@@ -176,46 +176,50 @@ public class DbDirectoryChangesetReaderTest {
         // assertThat(changes.get("schema2"), hasItems(expectedSchema2Changes));
     }
 
-    private void setupParser1(TableChangeParser changeParser, FileObject sourcePath, DbEnvironment env) {
-        when(changeParser.value(tableChangeType, sourcePath.resolveFile("schema1/sp/sp1.spc"), "schema1", null)).thenReturn(
+    private void setupParser1(TableChangeParser changeParser, FileObject sourcePath) {
+        addFileToChangeParserMock(changeParser, sourcePath.resolveFile("schema1/sp/sp1.spc"), "schema1",
                 Lists.immutable.with(this.sp1Change));
-        when(changeParser.value(tableChangeType, sourcePath.resolveFile("schema1/sp/sp2.ddl"), "schema1", null)).thenReturn(
+        addFileToChangeParserMock(changeParser, sourcePath.resolveFile("schema1/sp/sp2.ddl"), "schema1",
                 Lists.immutable.with(this.sp2Change));
-        when(changeParser.value(tableChangeType, sourcePath.resolveFile("schema1/sp/sptestexclude.spc"), "schema1", null)).thenReturn(
+        addFileToChangeParserMock(changeParser, sourcePath.resolveFile("schema1/sp/sptestexclude.spc"), "schema1",
                 Lists.immutable.with(this.sptestexclude));
-        when(changeParser.value(tableChangeType, sourcePath.resolveFile("schema1/sp/sptestinclude.spc"), "schema1", null)).thenReturn(
+        addFileToChangeParserMock(changeParser, sourcePath.resolveFile("schema1/sp/sptestinclude.spc"), "schema1",
                 Lists.immutable.with(this.sptestinclude));
-        when(changeParser.value(tableChangeType, sourcePath.resolveFile("schema1/view/view1.ddl"), "schema1", null)).thenReturn(
+        addFileToChangeParserMock(changeParser, sourcePath.resolveFile("schema1/view/view1.ddl"), "schema1",
                 Lists.immutable.with(this.view1Change));
-        when(changeParser.value(tableChangeType, sourcePath.resolveFile("schema1/view/view2.sql"), "schema1", null)).thenReturn(
+        addFileToChangeParserMock(changeParser, sourcePath.resolveFile("schema1/view/view2.sql"), "schema1",
                 Lists.immutable.with(this.view2Change));
-        when(changeParser.value(tableChangeType, sourcePath.resolveFile("schema2/sp/sp3.spc"), "schema2", null)).thenReturn(
+        addFileToChangeParserMock(changeParser, sourcePath.resolveFile("schema2/sp/sp3.spc"), "schema2",
                 Lists.immutable.with(this.sch2sp3Change));
-        when(changeParser.value(tableChangeType, sourcePath.resolveFile("schema2/sp/sp2.ddl"), "schema2", null)).thenReturn(
+        addFileToChangeParserMock(changeParser, sourcePath.resolveFile("schema2/sp/sp2.ddl"), "schema2",
                 Lists.immutable.with(this.sch2sp2Change));
-        when(changeParser.value(tableChangeType, sourcePath.resolveFile("schema2/view/view1.ddl"), "schema2", null)).thenReturn(
+        addFileToChangeParserMock(changeParser, sourcePath.resolveFile("schema2/view/view1.ddl"), "schema2",
                 Lists.immutable.with(this.sch2view1Change));
-        when(changeParser.value(tableChangeType, sourcePath.resolveFile("schema2/view/view3.sql"), "schema2", null)).thenReturn(
+        addFileToChangeParserMock(changeParser, sourcePath.resolveFile("schema2/view/view3.sql"), "schema2",
                 Lists.immutable.with(this.sch2view3Change));
     }
 
     private void setupParser2(TableChangeParser changeParser, FileObject sourcePath, DbEnvironment env) {
-        when(changeParser.value(tableChangeType, sourcePath.resolveFile("schema1/table/table.ddl"), "schema1", null)).thenReturn(
+        addFileToChangeParserMock(changeParser, sourcePath.resolveFile("schema1/table/table.ddl"), "schema1",
                 Lists.immutable.with(this.table1Change, this.table2Change, this.table3Change));
-        when(changeParser.value(tableChangeType, sourcePath.resolveFile("schema1/table/deletedtable.ddl"), "schema1", null)).thenReturn(
+        addFileToChangeParserMock(changeParser, sourcePath.resolveFile("schema1/table/deletedtable.ddl"), "schema1",
                 Lists.immutable.with(this.deltab1Change, this.deltab2Change, this.deltab3Change));
-        when(changeParser.value(tableChangeType, sourcePath.resolveFile("schema1/data/table.txt"), "schema1", null)).thenReturn(
+        addFileToChangeParserMock(changeParser, sourcePath.resolveFile("schema1/data/table.txt"), "schema1",
                 Lists.immutable.with(this.data1Change));
-        when(changeParser.value(tableChangeType, sourcePath.resolveFile("schema1/data/table2.csv"), "schema1", null)).thenReturn(
+        addFileToChangeParserMock(changeParser, sourcePath.resolveFile("schema1/data/table2.csv"), "schema1",
                 Lists.immutable.with(this.data2Change));
-        when(changeParser.value(tableChangeType, sourcePath.resolveFile("schema2/table/table.ddl"), "schema2", null)).thenReturn(
+        addFileToChangeParserMock(changeParser, sourcePath.resolveFile("schema2/table/table.ddl"), "schema2",
                 Lists.immutable.with(this.sch2table1Change));
-        when(changeParser.value(tableChangeType, sourcePath.resolveFile("schema2/table/table3.ddl"), "schema2", null)).thenReturn(
+        addFileToChangeParserMock(changeParser, sourcePath.resolveFile("schema2/table/table3.ddl"), "schema2",
                 Lists.immutable.with(this.sch2table3Change));
-        when(changeParser.value(tableChangeType, sourcePath.resolveFile("schema2/data/table.txt"), "schema2", null)).thenReturn(
+        addFileToChangeParserMock(changeParser, sourcePath.resolveFile("schema2/data/table.txt"), "schema2",
                 Lists.immutable.with(this.sch2data1Change));
-        when(changeParser.value(tableChangeType, sourcePath.resolveFile("schema2/data/table3.csv"), "schema2", null)).thenReturn(
+        addFileToChangeParserMock(changeParser, sourcePath.resolveFile("schema2/data/table3.csv"), "schema2",
                 Lists.immutable.with(this.sch2data3Change));
+    }
+
+    private void addFileToChangeParserMock(TableChangeParser changeParser, FileObject fileObject, String schema, ImmutableList<Change> changes) {
+        when(changeParser.value(tableChangeType, fileObject, fileObject.getStringContent(), fileObject.getName().getBaseName(), schema, null)).thenReturn(changes);
     }
 
     @Test

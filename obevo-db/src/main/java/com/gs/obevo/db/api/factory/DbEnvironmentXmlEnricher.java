@@ -279,14 +279,22 @@ public class DbEnvironmentXmlEnricher implements EnvironmentEnricher<DbEnvironme
             dbEnv.setChecksumDetectionEnabled(
                     envCfg.getBoolean("[@checksumDetectionEnabled]", sysCfg.getBoolean("[@checksumDetectionEnabled]", false))
             );
-            dbEnv.setMetadataLineReaderVersion(
-                    envCfg.getInt("[@metadataLineReaderVersion]", sysCfg.getInt("[@metadataLineReaderVersion]", dbPlatformConfiguration.getFeatureToggleVersion("metadataLineReaderVersion")))
-            );
-            dbEnv.setCsvVersion(
-                    envCfg.getInt("[@csvVersion]", sysCfg.getInt("[@csvVersion]", dbPlatformConfiguration.getFeatureToggleVersion("csvVersion")))
-            );
-            int legacyDirectoryStructureEnabledValue = envCfg.getInt("[@legacyDirectoryStructureEnabled]", sysCfg.getInt("[@legacyDirectoryStructureEnabled]", dbPlatformConfiguration.getFeatureToggleVersion("legacyDirectoryStructureEnabled")));
-            dbEnv.setLegacyDirectoryStructureEnabled(legacyDirectoryStructureEnabledValue == 1);  // 1 == legacy, 2 == new
+            Integer metadataLineReaderVersion = envCfg.getInteger("[@metadataLineReaderVersion]", sysCfg.getInteger("[@metadataLineReaderVersion]", null));
+            if (metadataLineReaderVersion != null) {
+                dbEnv.setMetadataLineReaderVersion(metadataLineReaderVersion);
+            }
+            Integer csvVersion = envCfg.getInteger("[@csvVersion]", sysCfg.getInteger("[@csvVersion]", null));
+            if (csvVersion != null) {
+                dbEnv.setCsvVersion(csvVersion);
+            }
+            String sourceEncoding = envCfg.getString("[@sourceEncoding]", sysCfg.getString("[@sourceEncoding]"));
+            if (sourceEncoding != null) {
+                dbEnv.setSourceEncoding(sourceEncoding);
+            }
+            Integer legacyDirectoryStructureEnabledVersion = envCfg.getInteger("[@legacyDirectoryStructureEnabled]", sysCfg.getInteger("[@legacyDirectoryStructureEnabled]", null));
+            if (legacyDirectoryStructureEnabledVersion != null) {
+                dbEnv.setLegacyDirectoryStructureEnabledVersion(legacyDirectoryStructureEnabledVersion);
+            }
 
 
             MutableMap<String, String> extraEnvAttrs = Maps.mutable.empty();

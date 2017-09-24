@@ -22,6 +22,6 @@ import com.gs.obevo.util.vfs.FileObject;
 import org.eclipse.collections.api.list.ImmutableList;
 
 interface DbChangeFileParser {
-    ImmutableList<Change> value(ChangeType changeType, FileObject file, String schema, TextMarkupDocumentSection packageMetadata);
+    ImmutableList<Change> value(ChangeType changeType, FileObject file, String fileContent, String objectName, String schema, TextMarkupDocumentSection packageMetadata);
 
 }

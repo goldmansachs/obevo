@@ -17,6 +17,7 @@ package com.gs.obevo.db.impl.core.reader;
 
 import com.gs.obevo.api.appdata.ArtifactRestrictions;
 import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.doc.TextMarkupDocumentSection;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.DeployMetrics;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
@@ -26,16 +27,21 @@ import com.gs.obevo.impl.OnboardingStrategy;
 import com.gs.obevo.util.VisibleForTesting;
 import com.gs.obevo.util.hash.OldWhitespaceAgnosticDbChangeHashStrategy;
 import com.gs.obevo.util.vfs.BasicFileSelector;
+import com.gs.obevo.util.vfs.CharsetStrategy;
+import com.gs.obevo.util.vfs.CharsetStrategyFactory;
 import com.gs.obevo.util.vfs.FileObject;
 import com.gs.obevo.util.vfs.NotFileFilter;
 import com.gs.obevo.util.vfs.TrueFileFilter;
 import com.gs.obevo.util.vfs.WildcardFileFilter;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.vfs2.FileFilter;
 import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.block.function.Function0;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.api.map.ConcurrentMutableMap;
 import org.eclipse.collections.api.multimap.MutableMultimap;
 import org.eclipse.collections.api.multimap.list.ImmutableListMultimap;
 import org.eclipse.collections.api.partition.list.PartitionImmutableList;
@@ -44,6 +50,7 @@ import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Sets;
+import org.eclipse.collections.impl.map.mutable.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +70,7 @@ public class DbDirectoryChangesetReader implements DbChangeReader {
 
     private final Function<String, String> convertDbObjectName;
     private final PackageMetadataReader packageMetadataReader;
+    private final ConcurrentMutableMap<FileObject, PackageMetadata> packageMetadataCache = new ConcurrentHashMap<>();
     private final DbChangeFileParser tableChangeParser;
     private final DbChangeFileParser baselineTableChangeParser;
     private final DbChangeFileParser rerunnableChangeParser;
@@ -272,19 +280,45 @@ public class DbDirectoryChangesetReader implements DbChangeReader {
         return files.flatCollect(new Function<FileObject, ImmutableList<Change>>() {
             @Override
             public ImmutableList<Change> valueOf(FileObject file) {
-                return changeParser.value(changeType, file, schema, packageMetadataReader.getPackageMetadata(file));
+                PackageMetadata packageMetadata = getPackageMetadata(file);
+                String encoding = null;
+                TextMarkupDocumentSection metadataSection = null;
+                if (packageMetadata != null) {
+                    encoding = packageMetadata.getFileToEncodingMap().get(file.getName().getBaseName());
+                    metadataSection = packageMetadata.getMetadataSection();
+                }
+                CharsetStrategy charsetStrategy = CharsetStrategyFactory.getCharsetStrategy(ObjectUtils.firstNonNull(encoding, env.getSourceEncoding()));
+                final String objectName = file.getName().getBaseName().split("\\.")[0];
+                try {
+                    LOG.debug("Attempting to read file {}", file);
+                    return changeParser.value(changeType, file, file.getStringContent(charsetStrategy), objectName, schema, metadataSection);
+                } catch (RuntimeException e) {
+                    throw new IllegalArgumentException("Error while parsing file " + file + " of change type " + changeType.getName() + "; please see the cause in the stack trace below: " + e.getMessage(), e);
+                }
             }
         });
     }
 
-    private ImmutableList<Change> findChanges(final ChangeType changeType, FileObject dir, final DbChangeFileParser changeParser,
-            FileFilter fileFilter, final String schema) {
-        return findFiles(dir, fileFilter).flatCollect(new Function<FileObject, ImmutableList<Change>>() {
+    private PackageMetadata getPackageMetadata(final FileObject file) {
+        return packageMetadataCache.getIfAbsentPut(file.getParent(), new Function0<PackageMetadata>() {
             @Override
-            public ImmutableList<Change> valueOf(FileObject file) {
-                return changeParser.value(changeType, file, schema, packageMetadataReader.getPackageMetadata(file));
+            public PackageMetadata value() {
+                FileObject packageMetadataFile = file.getParent().getChild("package-info.txt");
+
+                // we check for containsKey, as we may end up persisting null as the value in the map
+                if (packageMetadataFile == null || !packageMetadataFile.isReadable()) {
+                    return null;
+                } else {
+                    return packageMetadataReader.getPackageMetadata(packageMetadataFile.getStringContent(CharsetStrategyFactory.getCharsetStrategy(env.getSourceEncoding())));
+                }
             }
         });
+
+    }
+
+    private ImmutableList<Change> findChanges(final ChangeType changeType, FileObject dir, final DbChangeFileParser changeParser,
+            FileFilter fileFilter, final String schema) {
+        return parseChanges(changeType, findFiles(dir, fileFilter), changeParser, schema);
     }
 
     /**

@@ -15,35 +15,78 @@
  */
 package com.gs.obevo.db.impl.core.reader;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.Properties;
+
 import com.gs.obevo.api.appdata.doc.TextMarkupDocument;
 import com.gs.obevo.api.appdata.doc.TextMarkupDocumentSection;
-import com.gs.obevo.util.vfs.FileObject;
-import org.eclipse.collections.api.block.function.Function0;
-import org.eclipse.collections.api.map.ConcurrentMutableMap;
-import org.eclipse.collections.impl.map.mutable.ConcurrentHashMap;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import org.eclipse.collections.api.map.ImmutableMap;
+import org.eclipse.collections.api.map.MutableMap;
+import org.eclipse.collections.impl.block.factory.Predicates;
+import org.eclipse.collections.impl.block.factory.StringFunctions;
+import org.eclipse.collections.impl.block.factory.StringPredicates;
+import org.eclipse.collections.impl.factory.Maps;
 
+/**
+ * Class to parse the content of a string into {@link PackageMetadata}.
+ */
 public class PackageMetadataReader {
-    private final ConcurrentMutableMap<FileObject, TextMarkupDocumentSection> cache = new ConcurrentHashMap<FileObject, TextMarkupDocumentSection>();
     private final TextMarkupDocumentReader textMarkupDocumentReader;
 
     public PackageMetadataReader(TextMarkupDocumentReader textMarkupDocumentReader) {
         this.textMarkupDocumentReader = textMarkupDocumentReader;
     }
 
-    public TextMarkupDocumentSection getPackageMetadata(final FileObject file) {
-        return cache.getIfAbsentPut(file.getParent(), new Function0<TextMarkupDocumentSection>() {
-            @Override
-            public TextMarkupDocumentSection value() {
-                FileObject packageMetadataFile = file.getParent().getChild("package-info.txt");
+    public PackageMetadata getPackageMetadata(String fileContent) {
+        TextMarkupDocument textMarkupDocument = textMarkupDocumentReader.parseString(fileContent, null);
+        TextMarkupDocumentSection metadataSection = textMarkupDocument.findSectionWithElementName(TextMarkupDocumentReader.TAG_METADATA);
+        String packageMetadataContent = textMarkupDocument.getSections()
+                .select(Predicates.attributeIsNull(TextMarkupDocumentSection.TO_NAME))
+                .toReversed()
+                .collect(TextMarkupDocumentSection.TO_CONTENT)
+                .collect(StringFunctions.trim())
+                .detect(StringPredicates.notEmpty());
 
-                // we check for containsKey, as we may end up persisting null as the value in the map
-                if (packageMetadataFile == null || !packageMetadataFile.isReadable()) {
-                    return null;
-                } else {
-                    TextMarkupDocument textMarkupDocument = textMarkupDocumentReader.parseString(packageMetadataFile.getStringContent(), null);
-                    return textMarkupDocument.findSectionWithElementName(TextMarkupDocumentReader.TAG_METADATA);
+        ImmutableMap<String, String> sourceEncodingsMap = getSourceEncodings(getConfig(packageMetadataContent));
+
+        if (metadataSection != null || sourceEncodingsMap.notEmpty()) {
+            return new PackageMetadata(metadataSection, sourceEncodingsMap);
+        } else {
+            return null;
+        }
+    }
+
+    private Config getConfig(String configContent) {
+        if (configContent == null) {
+            return ConfigFactory.empty();
+        }
+
+        Properties props = new Properties();
+        try {
+            props.load(new StringReader(configContent));
+            return ConfigFactory.parseProperties(props);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private ImmutableMap<String, String> getSourceEncodings(Config metadataConfig) {
+        if (metadataConfig.hasPath("sourceEncodings")) {
+            Config sourceEncodings = metadataConfig.getConfig("sourceEncodings");
+
+            MutableMap<String, String> encodingsMap = Maps.mutable.empty();
+            for (String encoding : sourceEncodings.root().keySet()) {
+                String fileList = sourceEncodings.getString(encoding);
+                for (String file : fileList.split(",")) {
+                    encodingsMap.put(file, encoding);
                 }
             }
-        });
+
+            return encodingsMap.toImmutable();
+        }
+        return Maps.immutable.empty();
     }
 }

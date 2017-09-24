@@ -50,6 +50,9 @@
         <url>http://www.goldmansachs.com/</url>
     </organization>
 
+    <!--
+    Note on acceptable licenses to Apache products: https://www.apache.org/legal/resolved.html
+    -->
     <licenses>
         <license>
             <name>The Apache License, Version 2.0</name>
@@ -423,6 +426,7 @@
                         <exclude>**/*.ddl</exclude>
                         <exclude>**/*.spc</exclude>
                         <exclude>**/*.csv</exclude>
+                        <exclude>**/vfs/FileObject/*</exclude>
 
                         <!-- Excluding CATO files -->
                         <exclude>**/src/test/resources/csv-file.txt</exclude>

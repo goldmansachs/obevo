@@ -46,13 +46,11 @@ public class BaselineTableChangeParser implements DbChangeFileParser {
     }
 
     @Override
-    public ImmutableList<Change> value(final ChangeType defaultChangeType, final FileObject file, final String schema, TextMarkupDocumentSection packageMetadata) {
-        MutableList<String> sqls = MultiLineStringSplitter.createSplitterOnSpaceAndLine("GO").valueOf(file.getStringContent());
+    public ImmutableList<Change> value(final ChangeType defaultChangeType, final FileObject file, String fileContent, final String objectName, final String schema, TextMarkupDocumentSection packageMetadata) {
+        MutableList<String> sqls = MultiLineStringSplitter.createSplitterOnSpaceAndLine("GO").valueOf(fileContent);
         sqls = sqls.reject(Predicates.attributePredicate(StringFunctions.trim(), StringPredicates.empty()));
 
         MutableList<String> sortedSqls = this.sortSqls(sqls);
-
-        final String objectName = file.getName().getBaseName().split("\\.")[0];
 
         MutableList<Change> changes = sortedSqls.zipWithIndex().collect(
                 new Function<Pair<String, Integer>, Change>() {

@@ -36,7 +36,20 @@ public class BaselineTableChangeParserTest {
         BaselineTableChangeParser parser = new BaselineTableChangeParser(new OldWhitespaceAgnosticDbChangeHashStrategy(), fkChangeType, triggerChangeType);
 
         ImmutableList<Change> changes = parser.value(
-                tableChangeType, FileRetrievalMode.CLASSPATH.resolveSingleFileObject("reader/BaselineTableChangeParser/TABLE_A.baseline.ddl"), "schema", null);
+                tableChangeType, null, "CREATE TABLE TABLE_A (\n" +
+                        "\tA_ID    INT\tNOT NULL,\n" +
+                        "\tCOL2 INT NULL,\n" +
+                        "\tCOL3 INT NULL\n" +
+                        ")\n" +
+                        "GO\n" +
+                        "ALTER TABLE TABLE_A ADD PRIMARY KEY (A_ID)\n" +
+                        "GO\n" +
+                        "ALTER TABLE TABLE_A ADD FOREIGN KEY FK_B (B_ID) REFERENCES TABLE_B(B_ID)\n" +
+                        "GO\n" +
+                        "CREATE INDEX TABLE_A_IND ON TABLE_A(COL2, COL3)\n" +
+                        "GO\n" +
+                        "ALTER TABLE TABLE_A ADD COLUMN COL10 INT NULL\n" +
+                        "GO\n", "TABLE_A", "schema", null);
         assertEquals(5, changes.size());
 
         // ensure that the foreign key is detected and placed at the end, regardless of where it was in the original

@@ -31,6 +31,7 @@ This product depends on (links to) the following software:
   JCL 1.1.1 implemented over SLF4J under MIT License
   JGraphT - Core under Eclipse Public License (EPL) 1.0
   Joda time under Apache 2
+  juniversalchardet under Mozilla Public License 1.1 (MPL 1.1)
   Log4j under The Apache Software License, Version 2.0
   Microsoft JDBC Driver for SQL Server under MIT License
   obevo-core under The Apache License, Version 2.0

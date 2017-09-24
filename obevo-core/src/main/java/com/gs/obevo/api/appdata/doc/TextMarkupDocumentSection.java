@@ -33,6 +33,12 @@ public class TextMarkupDocumentSection {
             return arg0.getName();
         }
     };
+    public static final Function<TextMarkupDocumentSection, String> TO_CONTENT = new Function<TextMarkupDocumentSection, String>() {
+        @Override
+        public String valueOf(TextMarkupDocumentSection arg0) {
+            return arg0.getContent();
+        }
+    };
     private String name;
     private String content;
     private ImmutableMap<String, String> attrs;

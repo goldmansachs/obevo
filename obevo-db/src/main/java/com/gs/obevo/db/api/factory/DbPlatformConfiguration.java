@@ -15,15 +15,15 @@
  */
 package com.gs.obevo.db.api.factory;
 
+import com.gs.obevo.api.factory.PlatformConfiguration;
 import com.gs.obevo.api.platform.DeployerRuntimeException;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.map.ImmutableMap;
 import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.set.ImmutableSet;
-import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.factory.Sets;
@@ -31,26 +31,32 @@ import org.eclipse.collections.impl.set.mutable.SetAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DbPlatformConfiguration {
+public class DbPlatformConfiguration extends PlatformConfiguration {
     private static final Logger LOG = LoggerFactory.getLogger(DbPlatformConfiguration.class);
     private static final DbPlatformConfiguration INSTANCE = new DbPlatformConfiguration();
 
-    private final Config config;
     private final Config platformConfigs;
     private final ImmutableMap<String, String> dbPlatformMap;
     private final ImmutableSet<String> extraEnvAttrs;
     private final ImmutableMap<String, Integer> featureToggleVersions;
+    private final String sourceEncoding;
 
     public static DbPlatformConfiguration getInstance() {
         return INSTANCE;
     }
 
     private DbPlatformConfiguration() {
-        this.config = ConfigFactory.parseProperties(new PlatformConfigReader().readPlatformProperties("com/gs/obevo/db/config"));
-        this.platformConfigs = this.config.getConfig("db").getConfig("platforms");
+        super();
+        this.platformConfigs = this.getConfig().getConfig("db").getConfig("platforms");
         this.dbPlatformMap = getDbPlatformMap();
         this.extraEnvAttrs = createExtraEnvAttrs();
         this.featureToggleVersions = createFeatureToggleVersions();
+        this.sourceEncoding = this.getConfig().getString("sourceEncoding");
+    }
+
+    @Override
+    protected ImmutableList<String> getConfigPackages() {
+        return super.getConfigPackages().newWith("com/gs/obevo/db/config");
     }
 
     public DbPlatform valueOf(String dbPlatformStr) {
@@ -69,38 +75,8 @@ public class DbPlatformConfiguration {
         }
     }
 
-    public ImmutableSet<String> getExtraEnvAttrs() {
-        return extraEnvAttrs;
-    }
-
-    public int getFeatureToggleVersion(String featureToggleName) {
-        return featureToggleVersions.getIfAbsentValue(featureToggleName, 0);
-    }
-
-    protected ImmutableSet<String> createExtraEnvAttrs() {
-        if (!this.config.hasPath("extraEnvAttrs")) {
-            return Sets.immutable.empty();
-        }
-        final Config attrConfig = this.config.getConfig("extraEnvAttrs");
-        return SetAdapter.adapt(attrConfig.root().keySet()).collect(new Function<String, String>() {
-            @Override
-            public String valueOf(String attrNumber) {
-                return attrConfig.getConfig(attrNumber).getString("name");
-            }
-        }).toImmutable();
-    }
-
-    private ImmutableMap<String, Integer> createFeatureToggleVersions() {
-        if (!this.config.hasPath("featureToggles")) {
-            return Maps.immutable.empty();
-        }
-        final Config attrConfig = this.config.getConfig("featureToggles");
-        return SetAdapter.adapt(attrConfig.root().keySet()).toMap(Functions.<String>getPassThru(), new Function<String, Integer>() {
-            @Override
-            public Integer valueOf(String featureToggleName) {
-                return attrConfig.getConfig(featureToggleName).getInt("defaultVersion");
-            }
-        }).toImmutable();
+    public String getSourceEncoding() {
+        return sourceEncoding;
     }
 
     /**
@@ -121,5 +97,39 @@ public class DbPlatformConfiguration {
 
     public Config getPlatformConfig(String platformName) {
         return platformConfigs.getConfig(platformName);
+    }
+
+    public ImmutableSet<String> getExtraEnvAttrs() {
+        return extraEnvAttrs;
+    }
+
+    public int getFeatureToggleVersion(String featureToggleName) {
+        return featureToggleVersions.getIfAbsentValue(featureToggleName, 0);
+    }
+
+    protected ImmutableSet<String> createExtraEnvAttrs() {
+        if (!this.getConfig().hasPath("extraEnvAttrs")) {
+            return Sets.immutable.empty();
+        }
+        final Config attrConfig = this.getConfig().getConfig("extraEnvAttrs");
+        return SetAdapter.adapt(attrConfig.root().keySet()).collect(new Function<String, String>() {
+            @Override
+            public String valueOf(String attrNumber) {
+                return attrConfig.getConfig(attrNumber).getString("name");
+            }
+        }).toImmutable();
+    }
+
+    private ImmutableMap<String, Integer> createFeatureToggleVersions() {
+        if (!this.getConfig().hasPath("featureToggles")) {
+            return Maps.immutable.empty();
+        }
+        final Config attrConfig = this.getConfig().getConfig("featureToggles");
+        return SetAdapter.adapt(attrConfig.root().keySet()).toMap(Functions.<String>getPassThru(), new Function<String, Integer>() {
+            @Override
+            public Integer valueOf(String featureToggleName) {
+                return attrConfig.getConfig(featureToggleName).getInt("defaultVersion");
+            }
+        }).toImmutable();
     }
 }

@@ -54,7 +54,6 @@ public class Environment<T extends Platform> {
     private ImmutableSet<Schema> allSchemas = Sets.immutable.empty();
     private ImmutableMap<String, String> schemaNameOverrides = Maps.immutable.empty();
     private boolean rollbackDetectionEnabled = true;
-    private ImmutableMap<String, String> extraEnvAttrs;
 
     public static final Function<Environment, String> TO_NAME = new Function<Environment, String>() {
         @Override
@@ -62,7 +61,6 @@ public class Environment<T extends Platform> {
             return env.getName();
         }
     };
-    private boolean legacyDirectoryStructureEnabled;
 
     public void copyFieldsFrom(Environment<T> env) {
         this.name = env.name;
@@ -80,7 +78,6 @@ public class Environment<T extends Platform> {
         this.allSchemas = env.allSchemas;
         this.schemaNameOverrides = env.schemaNameOverrides;
         this.rollbackDetectionEnabled = env.rollbackDetectionEnabled;
-        this.extraEnvAttrs = env.extraEnvAttrs;
     }
 
     public String getName() {
@@ -306,21 +303,5 @@ public class Environment<T extends Platform> {
 
     public void setRollbackDetectionEnabled(boolean rollbackDetectionEnabled) {
         this.rollbackDetectionEnabled = rollbackDetectionEnabled;
-    }
-
-    public void setExtraEnvAttrs(ImmutableMap<String, String> extraEnvAttrs) {
-        this.extraEnvAttrs = extraEnvAttrs;
-    }
-
-    public ImmutableMap<String, String> getExtraEnvAttrs() {
-        return extraEnvAttrs == null ? Maps.immutable.<String, String>empty() : extraEnvAttrs;
-    }
-
-    public boolean isLegacyDirectoryStructureEnabled() {
-        return legacyDirectoryStructureEnabled;
-    }
-
-    public void setLegacyDirectoryStructureEnabled(boolean legacyDirectoryStructureEnabled) {
-        this.legacyDirectoryStructureEnabled = legacyDirectoryStructureEnabled;
     }
 }

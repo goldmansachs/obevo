@@ -15,13 +15,22 @@
  */
 package com.gs.obevo.util.vfs;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import com.gs.obevo.util.IOUtilsDA;
+import com.gs.obevo.util.VisibleForTesting;
+import com.sun.org.apache.xerces.internal.dom.DeepNodeListImpl;
+import org.apache.commons.io.ByteOrderMark;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileSelector;
@@ -45,6 +54,8 @@ public class FileObject implements org.apache.commons.vfs2.FileObject {
             return fileObject == null ? null : new FileObject(fileObject);
         }
     };
+
+    private static final int MAX_BOM_LOOKAHEAD = Math.max(Math.max(ByteOrderMark.UTF_8.length(), ByteOrderMark.UTF_16BE.length()), ByteOrderMark.UTF_16LE.length());
 
     private final org.apache.commons.vfs2.FileObject fileObject;
 
@@ -312,7 +323,66 @@ public class FileObject implements org.apache.commons.vfs2.FileObject {
     }
 
     public String getStringContent() {
-        return IOUtilsDA.toString(getURLDa());
+        return getStringContent(CharsetStrategyFactory.getCharsetStrategy(Charset.defaultCharset()));
+    }
+
+    public String getStringContent(CharsetStrategy charsetStrategy) {
+        byte[] contentBytes = getContentBytes();
+        Charset charset = charsetStrategy.determineCharset(contentBytes);
+        if (charset == null) {
+            charset = Charset.defaultCharset();
+        }
+        return new String(filterBomByteIfUtf(charset, contentBytes), charset);
+    }
+
+    /**
+     * Get the detected charset. Only for use in testing to validate what data we read.
+     */
+    @VisibleForTesting
+    Charset getDetectedCharset() {
+        return CharsetStrategyFactory.getDetectCharsetStrategy().determineCharset(getContentBytes());
+    }
+
+    private byte[] getContentBytes() {
+        try (InputStream inputStream = getURLDa().openStream()) {
+            return IOUtils.toByteArray(inputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Remove BOM character from the bytes if needed for UTF8.
+     *
+     * We must remove the BOM ourselves per the following JDK bugs.
+     * http://bugs.java.com/view_bug.do?bug_id=4508058
+     * http://bugs.java.com/view_bug.do?bug_id=6378911
+     *
+     */
+    private byte[] filterBomByteIfUtf(Charset charset, byte[] bytes) {
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
+        try {
+            if (charset != null) {
+                // only try to remove the BOM if the input charset is UTF
+                BOMInputStream bomChecker = null;
+                if (charset.equals(StandardCharsets.UTF_8)) {
+                    bomChecker = new BOMInputStream(inputStream, ByteOrderMark.UTF_8);
+                } else if (charset.equals(StandardCharsets.UTF_16LE)) {
+                    bomChecker = new BOMInputStream(inputStream, ByteOrderMark.UTF_16LE);
+                } else if (charset.equals(StandardCharsets.UTF_16BE)) {
+                    bomChecker = new BOMInputStream(inputStream, ByteOrderMark.UTF_16BE);
+                }
+
+                inputStream.mark(MAX_BOM_LOOKAHEAD);
+                if (bomChecker != null && !bomChecker.hasBOM()) {
+                    inputStream.reset();  // hasBOM will advance the input stream. Move it back if the BOM didn't exist
+                    // Note - BOMInputStream can't actually be used to read in data; hence, we operate on the original inputStream
+                }
+            }
+            return IOUtils.toByteArray(inputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
