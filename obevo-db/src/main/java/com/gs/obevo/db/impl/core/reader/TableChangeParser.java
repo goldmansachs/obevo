@@ -162,6 +162,12 @@ public class TableChangeParser extends AbstractDbChangeFileParser {
                                 if (excludeDependenciesStr != null) {
                                     change.setExcludeDependencies(Sets.immutable.with(excludeDependenciesStr.split(",")).reject(StringPredicates.empty()));
                                 }
+
+                                String includeDependenciesStr = metadata.getAttr(TextMarkupDocumentReader.ATTR_INCLUDE_DEPENDENCIES);
+                                if (includeDependenciesStr != null) {
+                                    change.setIncludeDependencies(Sets.immutable.with(includeDependenciesStr.split(",")).reject(StringPredicates.empty()));
+                                }
+
                                 return change;
                             }
                         });
