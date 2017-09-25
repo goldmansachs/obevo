@@ -23,12 +23,10 @@ import com.gs.obevo.db.impl.platforms.oracle.OracleDbPlatform;
 import com.gs.obevo.db.impl.platforms.oracle.OracleParamReader;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
 import org.apache.commons.dbutils.QueryRunner;
-import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
-@Ignore("Ignoring until we open source due to lack of permissions internally; also that we cannot drop package bodies yet in the OracleDeployIT until we support them first-class")
 public class OracleDbMetadataManagerIT extends AbstractDbMetadataManagerIT {
     @Parameterized.Parameters
     public static Collection<Object[]> params() {
@@ -62,24 +60,16 @@ public class OracleDbMetadataManagerIT extends AbstractDbMetadataManagerIT {
         return name.toUpperCase();
     }
 
+    // TODO fix this support once we properly implement PACKAGE BODY
     @Override
-    protected boolean isViewSupported() {
-        return false;  // not supporting for now until proper environment is obtained
+    protected OverLoadSupport isSpOverloadSupported() {
+        return OverLoadSupport.COMBINED_OBJECT;
     }
 
-    @Override
-    protected boolean isStoredProcedureSupported() {
-        return false;  // not supporting for now; will get initial deployment out for teams
-    }
-
+    // TODO fix this support once we properly implement PACKAGE BODY
     @Override
     protected boolean isFunctionSupported() {
-        return false;  // not supporting for now; will get initial deployment out for teams
-    }
-
-    @Override
-    protected boolean isSequenceSupported() {
-        return false;  // not supporting for now; will get initial deployment out for teams
+        return false;
     }
 
     @Override
@@ -114,12 +104,12 @@ public class OracleDbMetadataManagerIT extends AbstractDbMetadataManagerIT {
 
     @Override
     protected String get_SP1() {
-        return "CREATE PROCEDURE SP1 () LANGUAGE SQL DYNAMIC RESULT SETS 1 BEGIN ATOMIC -- ensure that SP comment remains DELETE FROM TABLE_A; END";
+        return "CREATE OR REPLACE EDITIONABLE PROCEDURE \"DBDEPLOY03\".\"SP1\" IS BEGIN -- ensure that SP comment remains DELETE FROM TABLE_A; END;";
     }
 
     @Override
     protected String get_FUNC1() {
-        return "CREATE FUNCTION FUNC1 () RETURNS integer language SQL NOT deterministic NO EXTERNAL ACTION READS SQL DATA -- ensure that func comment remains RETURN VALUES (1)";
+        return "CREATE OR REPLACE EDITIONABLE FUNCTION \"DBDEPLOY03\".\"FUNC1\" RETURN integer IS BEGIN -- ensure that func comment remains RETURN 1; END;";
     }
 
     @Override

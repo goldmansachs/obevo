@@ -42,7 +42,7 @@ import schemacrawler.tools.databaseconnector.DatabaseConnectorRegistry;
 
 public abstract class AbstractMetadataDialect implements DbMetadataDialect {
     @Override
-    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn) {
+    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, String schemaName) {
         try {
             DatabaseConnectorRegistry registry = new DatabaseConnectorRegistry();
             DatabaseConnector databaseConnector = registry.lookupDatabaseConnector(conn);
@@ -100,11 +100,6 @@ public abstract class AbstractMetadataDialect implements DbMetadataDialect {
 
     @Override
     public ImmutableCollection<DaRule> searchRules(DaSchema schema, Connection conn) throws SQLException {
-        return Lists.immutable.empty();
-    }
-
-    @Override
-    public ImmutableCollection<DaSequence> searchSequences(DaSchema schema, Connection conn) throws SQLException {
         return Lists.immutable.empty();
     }
 

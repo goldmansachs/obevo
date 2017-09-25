@@ -26,8 +26,6 @@ import java.util.Map;
 import com.gs.obevo.dbmetadata.api.DaRoutine;
 import com.gs.obevo.dbmetadata.api.DaRoutineType;
 import com.gs.obevo.dbmetadata.api.DaSchema;
-import com.gs.obevo.dbmetadata.api.DaSequence;
-import com.gs.obevo.dbmetadata.api.DaSequenceImpl;
 import com.gs.obevo.dbmetadata.impl.DaRoutinePojoImpl;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.MapListHandler;
@@ -40,6 +38,7 @@ import org.eclipse.collections.impl.list.mutable.ListAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import schemacrawler.schema.RoutineType;
+import schemacrawler.schemacrawler.DatabaseSpecificOverrideOptionsBuilder;
 import schemacrawler.schemacrawler.SchemaCrawlerOptions;
 
 public class Db2MetadataDialect extends AbstractMetadataDialect {
@@ -86,22 +85,42 @@ public class Db2MetadataDialect extends AbstractMetadataDialect {
     }
 
     @Override
-    public ImmutableCollection<DaSequence> searchSequences(final DaSchema schema, Connection conn) throws SQLException {
-        QueryRunner query = new QueryRunner();
+    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, String schemaName) {
+        DatabaseSpecificOverrideOptionsBuilder dbSpecificOptionsBuilder = super.getDbSpecificOptionsBuilder(conn, schemaName);
 
         // SEQTYPE <> 'I' is for identity columns; we don't want that when pulling user defined sequences
-        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(query.query(conn,
-                "select SEQNAME SEQUENCE_NAME from syscat.SEQUENCES\n" +
-                        "where SEQSCHEMA = '" + schema.getName() + "' AND SEQTYPE <> 'I'\n",
-                new MapListHandler()
-        )).toImmutable();
+        dbSpecificOptionsBuilder.withInformationSchemaViews().withSequencesSql(
+                "SELECT\n" +
+                        "  NULLIF(1, 1)\n" +
+                        "    AS SEQUENCE_CATALOG,\n" +
+                        "  STRIP(SYSCAT.SEQUENCES.SEQSCHEMA)\n" +
+                        "    AS SEQUENCE_SCHEMA,\n" +
+                        "  STRIP(SYSCAT.SEQUENCES.SEQNAME)\n" +
+                        "    AS SEQUENCE_NAME,\n" +
+                        "  INCREMENT,\n" +
+                        "  MINVALUE AS MINIMUM_VALUE,\n" +
+                        "  MAXVALUE AS MAXIMUM_VALUE,\n" +
+                        "  CASE WHEN CYCLE = 'Y' THEN 'YES' ELSE 'NO' END AS CYCLE_OPTION,\n" +
+                        "  SEQID,\n" +
+                        "  SEQTYPE,\n" +
+                        "  START,\n" +
+                        "  NEXTCACHEFIRSTVALUE,\n" +
+                        "  CACHE,\n" +
+                        "  ORDER,\n" +
+                        "  CREATE_TIME,\n" +
+                        "  ALTER_TIME,\n" +
+                        "  REMARKS\n" +
+                        "FROM\n" +
+                        "  SYSCAT.SEQUENCES\n" +
+                        "WHERE SEQSCHEMA = '" + schemaName + "' AND SEQTYPE <> 'I'\n" +
+                        //"  SYSCAT.SEQUENCES.ORIGIN = 'U'\n" +
+                        "ORDER BY\n" +
+                        "  SYSCAT.SEQUENCES.SEQSCHEMA,\n" +
+                        "  SYSCAT.SEQUENCES.SEQNAME\n" +
+                        "WITH UR\n"
+                );
 
-        return maps.collect(new Function<Map<String, Object>, DaSequence>() {
-            @Override
-            public DaSequence valueOf(Map<String, Object> map) {
-                return new DaSequenceImpl((String) map.get("SEQUENCE_NAME"), schema);
-            }
-        });
+        return dbSpecificOptionsBuilder;
     }
 
     private String clobToString(Clob clob) {

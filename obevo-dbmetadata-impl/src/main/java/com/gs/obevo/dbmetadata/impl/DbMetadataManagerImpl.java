@@ -47,6 +47,7 @@ import schemacrawler.schema.Schema;
 import schemacrawler.schemacrawler.DatabaseSpecificOverrideOptions;
 import schemacrawler.schemacrawler.DatabaseSpecificOverrideOptionsBuilder;
 import schemacrawler.schemacrawler.ExcludeAll;
+import schemacrawler.schemacrawler.IncludeAll;
 import schemacrawler.schemacrawler.RegularExpressionInclusionRule;
 import schemacrawler.schemacrawler.SchemaCrawlerException;
 import schemacrawler.schemacrawler.SchemaCrawlerOptions;
@@ -108,15 +109,18 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
             // Standard works for our use cases (e.g. columns, indices, pks)
             options.setSchemaInfoLevel(toInfoLevel(schemaInfoLevel));
 
-            DatabaseSpecificOverrideOptionsBuilder dbSpecificOptionsBuilder = dbMetadataDialect.getDbSpecificOptionsBuilder(conn);
+            DatabaseSpecificOverrideOptionsBuilder dbSpecificOptionsBuilder = dbMetadataDialect.getDbSpecificOptionsBuilder(conn, schemaName);
             DatabaseSpecificOverrideOptions dbSpecificOptions = dbSpecificOptionsBuilder.toOptions();
-            this.enrichSchemaCrawlerOptions(conn, options, dbSpecificOptions, schemaName, tableName, procedureName);
+            this.enrichSchemaCrawlerOptions(conn, options, schemaName, tableName, procedureName);
 
             if (tableName == null && procedureName != null && !searchAllTables) {
                 options.setTableInclusionRule(new ExcludeAll());
             }
             if (procedureName == null && tableName != null && !searchAllProcedures) {
                 options.setRoutineInclusionRule(new ExcludeAll());
+            }
+            if (schemaInfoLevel.isRetrieveSequences()) {
+                options.setSequenceInclusionRule(new IncludeAll());
             }
 
             LOG.debug("Starting query for DB metadata for {}/{}/{}/{}", tableName, procedureName,
@@ -171,14 +175,11 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
             ImmutableCollection<DaRule> rules = schemaInfoLevel.isRetrieveRules()
                     ? dbMetadataDialect.searchRules(schema, conn)
                     : Lists.immutable.<DaRule>empty();
-            ImmutableCollection<DaSequence> sequences = schemaInfoLevel.isRetrieveSequences()
-                    ? dbMetadataDialect.searchSequences(schema, conn)
-                    : Lists.immutable.<DaSequence>empty();
             ImmutableCollection<DaUserType> userTypes = schemaInfoLevel.isRetrieveUserDefinedColumnDataTypes()
                     ? dbMetadataDialect.searchUserTypes(schema, conn)
                     : Lists.immutable.<DaUserType>empty();
 
-            return new DaCatalogImpl(database, schemaStrategy, sequences, userTypes, rules, ruleBindings, extraRoutines, constraintIndices, extraViewInfo, routineOverrideValue);
+            return new DaCatalogImpl(database, schemaStrategy, userTypes, rules, ruleBindings, extraRoutines, constraintIndices, extraViewInfo, routineOverrideValue);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } catch (SchemaCrawlerException e) {
@@ -217,6 +218,9 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
         otherInfoLevel.setRetrieveRoutines(schemaInfoLevel.isRetrieveRoutines());
         otherInfoLevel.setRetrieveRoutineInformation(schemaInfoLevel.isRetrieveRoutineDetails());
         otherInfoLevel.setRetrieveRoutineColumns(schemaInfoLevel.isRetrieveRoutineDetails());
+
+        // sequences
+        otherInfoLevel.setRetrieveSequenceInformation(schemaInfoLevel.isRetrieveSequences());
 
         // user types
         otherInfoLevel.setRetrieveUserDefinedColumnDataTypes(schemaInfoLevel.isRetrieveUserDefinedColumnDataTypes());  // TODO see if this takes care of domains
@@ -279,7 +283,7 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
         return database.getRoutines();
     }
 
-    private void enrichSchemaCrawlerOptions(Connection conn, SchemaCrawlerOptions options, DatabaseSpecificOverrideOptions databaseSpecificOverrideOptions, String schemaName, String tableName,
+    private void enrichSchemaCrawlerOptions(Connection conn, SchemaCrawlerOptions options, String schemaName, String tableName,
             String procedureName) {
         this.dbMetadataDialect.customEdits(options, conn, schemaName);
 

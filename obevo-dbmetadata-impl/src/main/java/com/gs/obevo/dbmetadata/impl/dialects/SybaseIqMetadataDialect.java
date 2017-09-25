@@ -35,7 +35,7 @@ public class SybaseIqMetadataDialect extends AbstractMetadataDialect {
     }
 
     @Override
-    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn) {
+    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, String schemaName) {
         if (odbcDriverUsed) {
             return new SybaseIqOdbcDatabaseConnector().getDatabaseSpecificOverrideOptionsBuilder();
         } else {

@@ -69,7 +69,7 @@ import schemacrawler.schemacrawler.SchemaCrawlerOptions;
  */
 public class SybaseAseMetadataDialect extends AbstractMetadataDialect {
     @Override
-    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn) {
+    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, String schemaName) {
         return new DatabaseSpecificOverrideOptionsBuilder();
     }
 

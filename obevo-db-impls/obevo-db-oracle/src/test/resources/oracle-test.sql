@@ -61,15 +61,15 @@ GO
 -- G O
 
 -- need to ignore Oracle views for now due to bad testing environment
---CREATE VIEW VIEW1 AS SELECT * FROM METADATA_TEST_TABLE
+CREATE VIEW VIEW1 AS SELECT * FROM METADATA_TEST_TABLE
 -- my comment
--- G O
+GO
 
 
 create table INVALID_TABLE (a INT)
 GO
---create view INVALID_VIEW AS SELECT * FROM INVALID_TABLE
--- G O
+create view INVALID_VIEW AS SELECT * FROM INVALID_TABLE
+GO
 DROP TABLE INVALID_TABLE
 GO
 
