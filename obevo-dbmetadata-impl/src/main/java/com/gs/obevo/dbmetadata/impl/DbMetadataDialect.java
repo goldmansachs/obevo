@@ -22,7 +22,6 @@ import com.gs.obevo.dbmetadata.api.DaRoutine;
 import com.gs.obevo.dbmetadata.api.DaRoutineType;
 import com.gs.obevo.dbmetadata.api.DaRule;
 import com.gs.obevo.dbmetadata.api.DaSchema;
-import com.gs.obevo.dbmetadata.api.DaSequence;
 import com.gs.obevo.dbmetadata.api.DaUserType;
 import com.gs.obevo.dbmetadata.api.RuleBinding;
 import org.eclipse.collections.api.collection.ImmutableCollection;
@@ -32,7 +31,7 @@ import schemacrawler.schemacrawler.DatabaseSpecificOverrideOptionsBuilder;
 import schemacrawler.schemacrawler.SchemaCrawlerOptions;
 
 public interface DbMetadataDialect {
-    DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn);
+    DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, String schemaName);
 
     /**
      * Initializes the metadata class and the incoming options variable.
@@ -64,8 +63,6 @@ public interface DbMetadataDialect {
     ImmutableCollection<ExtraRerunnableInfo> searchExtraViewInfo(DaSchema schema, String tableName, Connection conn) throws SQLException;
 
     ImmutableCollection<DaRule> searchRules(DaSchema schema, Connection conn) throws SQLException;
-
-    ImmutableCollection<DaSequence> searchSequences(DaSchema schema, Connection conn) throws SQLException;
 
     ImmutableCollection<DaUserType> searchUserTypes(DaSchema schema, Connection conn) throws SQLException;
 

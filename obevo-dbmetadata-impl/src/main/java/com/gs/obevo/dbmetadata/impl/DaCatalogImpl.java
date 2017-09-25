@@ -32,6 +32,7 @@ import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.collection.mutable.CollectionAdapter;
 import schemacrawler.schema.Catalog;
 import schemacrawler.schema.Routine;
+import schemacrawler.schema.Sequence;
 import schemacrawler.schema.Table;
 import schemacrawler.schema.View;
 
@@ -42,14 +43,12 @@ public class DaCatalogImpl implements DaCatalog {
     private final MapIterable<String, ExtraRerunnableInfo> extraViewInfoMap;
     private final DaRoutineType routineOverrideValue;
     private final SchemaStrategy schemaStrategy;
-    private final ImmutableCollection<DaSequence> sequences;
     private final ImmutableCollection<DaUserType> userTypes;
     private final ImmutableCollection<DaRule> rules;
     private final ImmutableCollection<RuleBinding> ruleBindings;
 
-    public DaCatalogImpl(Catalog delegate, SchemaStrategy schemaStrategy, ImmutableCollection<DaSequence> sequences, ImmutableCollection<DaUserType> userTypes, ImmutableCollection<DaRule> rules, ImmutableCollection<RuleBinding> ruleBindings, ImmutableCollection<DaRoutine> extraRoutines, Multimap<String, ExtraIndexInfo> extraIndexes, ImmutableCollection<ExtraRerunnableInfo> extraViewInfo, DaRoutineType routineOverrideValue) {
+    public DaCatalogImpl(Catalog delegate, SchemaStrategy schemaStrategy, ImmutableCollection<DaUserType> userTypes, ImmutableCollection<DaRule> rules, ImmutableCollection<RuleBinding> ruleBindings, ImmutableCollection<DaRoutine> extraRoutines, Multimap<String, ExtraIndexInfo> extraIndexes, ImmutableCollection<ExtraRerunnableInfo> extraViewInfo, DaRoutineType routineOverrideValue) {
         this.delegate = Validate.notNull(delegate);
-        this.sequences = sequences;
         this.userTypes = userTypes;
         this.rules = rules;
         this.ruleBindings = ruleBindings;
@@ -89,7 +88,12 @@ public class DaCatalogImpl implements DaCatalog {
 
     @Override
     public ImmutableCollection<DaSequence> getSequences() {
-        return sequences;
+        return CollectionAdapter.adapt(delegate.getSequences()).collect(new Function<Sequence, DaSequence>() {
+            @Override
+            public DaSequence valueOf(Sequence object) {
+                return new DaSequence6Impl(object, schemaStrategy);
+            }
+        }).toImmutable();
     }
 
     @Override

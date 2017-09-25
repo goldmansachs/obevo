@@ -16,21 +16,11 @@
 package com.gs.obevo.dbmetadata.impl.dialects;
 
 import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Map;
 
 import com.gs.obevo.dbmetadata.api.DaRoutineType;
-import com.gs.obevo.dbmetadata.api.DaSchema;
-import com.gs.obevo.dbmetadata.api.DaSequence;
-import com.gs.obevo.dbmetadata.api.DaSequenceImpl;
-import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.dbutils.handlers.MapListHandler;
-import org.eclipse.collections.api.block.function.Function;
-import org.eclipse.collections.api.collection.ImmutableCollection;
-import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.impl.factory.Lists;
-import org.eclipse.collections.impl.list.mutable.ListAdapter;
 import schemacrawler.schema.RoutineType;
+import schemacrawler.schemacrawler.DatabaseSpecificOverrideOptionsBuilder;
 import schemacrawler.schemacrawler.SchemaCrawlerOptions;
 
 public class PostgresqlMetadataDialect extends AbstractMetadataDialect {
@@ -42,22 +32,27 @@ public class PostgresqlMetadataDialect extends AbstractMetadataDialect {
     }
 
     @Override
-    public ImmutableCollection<DaSequence> searchSequences(final DaSchema schema, Connection conn) throws SQLException {
-        QueryRunner query = new QueryRunner();
+    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, String schemaName) {
+        DatabaseSpecificOverrideOptionsBuilder dbSpecificOptionsBuilder = super.getDbSpecificOptionsBuilder(conn, schemaName);
 
-        // SEQTYPE <> 'I' is for identity columns; we don't want that when pulling user defined sequences
-        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(query.query(conn,
-                "select sequence_name as sequence_name\n" +
-                        "from information_schema.sequences where sequence_schema = '" + schema.getName() + "'\n",
-                new MapListHandler()
-        )).toImmutable();
+        dbSpecificOptionsBuilder.withInformationSchemaViews().withSequencesSql(
+                "SELECT\n" +
+                        "  NULL AS SEQUENCE_CATALOG,\n" +
+                        "  SEQUENCE_SCHEMA,\n" +
+                        "  SEQUENCE_NAME,\n" +
+                        "  INCREMENT,\n" +
+                        "  MINIMUM_VALUE,\n" +
+                        "  MAXIMUM_VALUE,\n" +
+                        "  CYCLE_OPTION\n" +
+                        "FROM\n" +
+                        "  INFORMATION_SCHEMA.SEQUENCES\n" +
+                        "WHERE SEQUENCE_SCHEMA = '" + schemaName + "'\n" +
+                        "ORDER BY\n" +
+                        "  SEQUENCE_CATALOG,\n" +
+                        "  SEQUENCE_SCHEMA,\n" +
+                        "  SEQUENCE_NAME\n");
 
-        return maps.collect(new Function<Map<String, Object>, DaSequence>() {
-            @Override
-            public DaSequence valueOf(Map<String, Object> map) {
-                return new DaSequenceImpl((String) map.get("sequence_name"), schema);
-            }
-        });
+        return dbSpecificOptionsBuilder;
     }
 
     @Override

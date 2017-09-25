@@ -221,14 +221,12 @@ public abstract class AbstractDbMetadataManagerIT {
     }
 
     @Test
-    @Ignore
     public void testSpecificTableLookup() throws Exception {
         DaTable table = mgr.getTableInfo(getSchemaName(), "TABLE_A", new DaSchemaInfoLevel().setRetrieveTableAndColumnDetails());
         verify_TABLE_A(table, "TABLE_A");
     }
 
     @Test
-    @Ignore
     public void testSpecificRoutineLookup() throws Exception {
         if (isStoredProcedureSupported()) {
             DaRoutine sp = mgr.getProcedureInfo(getSchemaName(), "SP1", new DaSchemaInfoLevel().setRetrieveRoutineDetails(true)).getFirst();
@@ -271,8 +269,8 @@ public abstract class AbstractDbMetadataManagerIT {
             assertEquals(getSchemaName(), routine.getSchema().getName());
             assertEquals(DaRoutineType.procedure, routine.getRoutineType());
             // TODO Fix in GITHUB#7 - this is not yet supported properly
-//            assertThat(routine.getDefinition(), equalToIgnoringWhiteSpace(get_SP_WITH_OVERLOAD_3()));
             assertThat(routine.getSpecificName(), not(isEmptyString()));
+//            assertThat(routine.getDefinition(), equalToIgnoringWhiteSpace(get_SP_WITH_OVERLOAD_3()));
         }
     }
 
@@ -301,8 +299,8 @@ public abstract class AbstractDbMetadataManagerIT {
             if (!isOnlySpSupported()) {
                 assertEquals(DaRoutineType.function, routine.getRoutineType());
             }
-            assertThat(routine.getDefinition(), equalToIgnoringWhiteSpace(get_FUNC_WITH_OVERLOAD_3()));
             assertThat(routine.getSpecificName(), not(isEmptyString()));
+            assertThat(routine.getDefinition(), equalToIgnoringWhiteSpace(get_FUNC_WITH_OVERLOAD_3()));
         }
     }
 
