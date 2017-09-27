@@ -118,8 +118,7 @@ public class DbEnvironmentCleaner implements EnvironmentCleaner {
                                 "ALTER TABLE " + table.getName() + " DROP CONSTRAINT " + foreignKey.getName()));
                     }
 
-                    cleanCommands.add(new DbCleanCommand(physicalSchema, tableType, table.getName(),
-                            "DROP " + tableType + " " + table.getName()));
+                    cleanCommands.add(new DbCleanCommand(physicalSchema, tableType, table.getName()));
 
                     return cleanCommands;
                 }
@@ -252,6 +251,7 @@ public class DbEnvironmentCleaner implements EnvironmentCleaner {
                     );
                     dbChangeIncremental.setDrop(true);
                     dbChangeIncremental.setManuallyCodedDrop(cleanCommand.getObjectType().getName().equals(ChangeType.FOREIGN_KEY_STR));
+                    dbChangeIncremental.setForceDropForEnvCleaning(true);
                     dbChangeIncremental.setEnvironment(env);
                     dbChangeIncremental.setChangeTypeBehavior(changeTypeBehaviorRegistry.getChangeTypeBehavior(cleanCommand.getObjectType().getName()));
 

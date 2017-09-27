@@ -17,12 +17,14 @@ package com.gs.obevo.impl.changetypes;
 
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.ChangeIncremental;
+import com.gs.obevo.api.appdata.ObjectKey;
 import com.gs.obevo.api.platform.ChangeCommand;
 import com.gs.obevo.api.platform.ChangePair;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.ChangeTypeCommandCalculator;
 import com.gs.obevo.impl.DeployMetricsCollector;
 import com.gs.obevo.impl.changecalc.ChangeCommandFactory;
+import com.gs.obevo.impl.command.AlreadyDroppedTableWarning;
 import com.gs.obevo.impl.command.BaselineChangeCommand;
 import com.gs.obevo.impl.command.HashMismatchWarning;
 import com.gs.obevo.impl.command.IncompleteBaselineWarning;
@@ -39,12 +41,17 @@ import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.ListIterable;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.MutableMap;
+import org.eclipse.collections.api.multimap.Multimap;
 import org.eclipse.collections.api.multimap.list.MutableListMultimap;
+import org.eclipse.collections.api.partition.PartitionIterable;
 import org.eclipse.collections.api.partition.list.PartitionMutableList;
+import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.set.MutableSet;
+import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.block.factory.HashingStrategies;
 import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.Lists;
+import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.eclipse.collections.impl.map.strategy.mutable.UnifiedMapWithHashingStrategy;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
@@ -69,11 +76,19 @@ public class IncrementalChangeTypeCommandCalculator implements ChangeTypeCommand
     @Override
     public ImmutableList<ChangeCommand> calculateCommands(ChangeType changeType, RichIterable<ChangePair> changePairs, RichIterable<Change> unused, final boolean rollback, final boolean initAllowedOnHashExceptions) {
         final MutableList<ChangeCommand> changeset = Lists.mutable.empty();
+
+        ImmutableSet<ObjectKey> dropObjectKeys = getDroppedTableChangesThatAreAlreadyRemoved(changePairs);
+
+        PartitionIterable<ChangePair> dropObjectPartition = changePairs.partition(Predicates.attributeIn(ChangePair.TO_OBJECT_KEY, dropObjectKeys));
+        for (ChangePair changePair : dropObjectPartition.getSelected()) {
+            changeset.add(new AlreadyDroppedTableWarning(changePair.getSourceChange()));
+        }
+
         final MutableList<ChangeIncremental> deployChanges = Lists.mutable.empty();
         final MutableList<ChangeIncremental> newBaselines = Lists.mutable.empty();
         final MutableList<ChangeIncremental> baselinedDrops = Lists.mutable.empty();
 
-        changePairs.forEach(new Procedure<ChangePair>() {
+        dropObjectPartition.getRejected().forEach(new Procedure<ChangePair>() {
             @Override
             public void value(ChangePair changePair) {
                 // TODO make this a bit more OO, e.g. avoid the casting if possible
@@ -126,8 +141,10 @@ public class IncrementalChangeTypeCommandCalculator implements ChangeTypeCommand
                             if (incrementalSource.isDrop()) {
                                 // don't order this as a drop explicitly - put it in the right order
                                 if (!incrementalSource.isManuallyCodedDrop()) {
+                                    // for table drops
                                     changeset.add(changeCommandFactory.createRemove(incrementalSource).withDrop(!incrementalSource.isKeepIncrementalOrder()));
                                 } else {
+                                    // typically set for drops of foreign keys in the EnvironmentCleaner
                                     changeset.add(changeCommandFactory.createDeployCommand(incrementalSource).withDrop(true));
                                 }
                             } else {
@@ -199,6 +216,29 @@ public class IncrementalChangeTypeCommandCalculator implements ChangeTypeCommand
         }
 
         return changeset.toImmutable();
+    }
+
+    /**
+     * Use case: a table file has all of its changes to be deployed but the last one is a DROP_TABLE. This implies
+     * that the object had previously been undeployed and is now safe for removal from the source codebase.
+     */
+    private ImmutableSet<ObjectKey> getDroppedTableChangesThatAreAlreadyRemoved(RichIterable<ChangePair> changePairs) {
+        MutableSet<ObjectKey> dropOnlyObjectKeys = Sets.mutable.empty();
+
+        Multimap<ObjectKey, ChangePair> changePairsByObjectName = changePairs.groupBy(ChangePair.TO_OBJECT_KEY);
+        for (Pair<ObjectKey, RichIterable<ChangePair>> stringRichIterablePair : changePairsByObjectName.keyMultiValuePairsView()) {
+            ObjectKey objectKey = stringRichIterablePair.getOne();
+            RichIterable<ChangePair> objectChangePairs = stringRichIterablePair.getTwo();
+            if (objectChangePairs.allSatisfy(Predicates.attributeNotNull(ChangePair.TO_SOURCE_CHANGE).and(Predicates.attributeIsNull(ChangePair.TO_DEPLOYED_CHANGE)))) {
+                RichIterable<Change> sourceChanges = objectChangePairs.collect(ChangePair.TO_SOURCE_CHANGE);
+                Change lastChange = sourceChanges.maxBy(Change.TO_ORDER_WITHIN_OBJECT);
+                if (((ChangeIncremental)lastChange).isDrop() && !((ChangeIncremental)lastChange).isForceDropForEnvCleaning()) {
+                    dropOnlyObjectKeys.add(objectKey);
+                }
+            }
+        }
+
+        return dropOnlyObjectKeys.toImmutable();
     }
 
     private ListIterable<ChangeCommand> handleBaselineChanges(MutableList<ChangeIncremental> newBaselines, MutableList<ChangeIncremental> baselinedDrops) {

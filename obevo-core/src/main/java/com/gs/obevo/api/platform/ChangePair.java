@@ -16,6 +16,8 @@
 package com.gs.obevo.api.platform;
 
 import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ObjectKey;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.eclipse.collections.api.block.function.Function;
 
 public class ChangePair {
@@ -33,31 +35,39 @@ public class ChangePair {
         this.sourceChange = sourceChange;
     }
 
-    public static final Function<ChangePair, String> TO_SCHEMA = new Function<ChangePair, String>() {
+    public static final Function<ChangePair, ObjectKey> TO_OBJECT_KEY = new Function<ChangePair, ObjectKey>() {
         @Override
-        public String valueOf(ChangePair object) {
-            return object.getSchema();
+        public ObjectKey valueOf(ChangePair object) {
+            return object.getObjectKey();
         }
     };
 
-    public String getSchema() {
+    public ObjectKey getObjectKey() {
+        return new ObjectKey(getSchema(), getChangeType(), getObjectName());
+    }
+
+    private String getSchema() {
         return this.getArtifact().getSchema();
     }
 
-    public static final Function<ChangePair, String> TO_OBJECT_NAME = new Function<ChangePair, String>() {
-        @Override
-        public String valueOf(ChangePair object) {
-            return object.getObjectName();
-        }
-    };
+    private ChangeType getChangeType() {
+        return this.getArtifact().getChangeType();
+    }
 
-    public String getObjectName() {
+    private String getObjectName() {
         return this.getArtifact().getObjectName();
     }
 
     private Change getArtifact() {
         return deployedChange == null ? sourceChange : deployedChange;
     }
+
+    public static final Function<ChangePair, Change> TO_SOURCE_CHANGE = new Function<ChangePair, Change>() {
+        @Override
+        public Change valueOf(ChangePair object) {
+            return object.getSourceChange();
+        }
+    };
 
     public Change getSourceChange() {
         return sourceChange;
@@ -75,6 +85,13 @@ public class ChangePair {
         this.sourceChange = sourceChange;
     }
 
+    public static final Function<ChangePair, Change> TO_DEPLOYED_CHANGE = new Function<ChangePair, Change>() {
+        @Override
+        public Change valueOf(ChangePair object) {
+            return object.getDeployedChange();
+        }
+    };
+
     public Change getDeployedChange() {
         return deployedChange;
     }
@@ -86,5 +103,13 @@ public class ChangePair {
                             + deployedChange.getDisplayString() + "\nvs: " + this.deployedChange.getDisplayString());
         }
         this.deployedChange = deployedChange;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("sourceChange", sourceChange)
+                .append("deployedChange", deployedChange)
+                .toString();
     }
 }
