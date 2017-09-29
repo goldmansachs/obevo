@@ -41,6 +41,12 @@ public class ChangeIncremental extends Change {
     private transient boolean manuallyCodedDrop;
     private MutableCollection<String> baselinedChanges;
     private String parallelGroup;
+    /**
+     * Whether the table drop should be forced. By default, it is false, allowing the IncrementalChangeTypeCommandCalculator
+     * to not actually execute the full object SQL for regular deploys. But for cleaning the environment, we must force
+     * the change.
+     */
+    private transient boolean forceDropForEnvCleaning;
 
     public MutableCollection<String> getBaselinedChanges() {
         return this.baselinedChanges;
@@ -169,5 +175,13 @@ public class ChangeIncremental extends Change {
 
     public void setParallelGroup(String parallelGroup) {
         this.parallelGroup = parallelGroup;
+    }
+
+    public boolean isForceDropForEnvCleaning() {
+        return forceDropForEnvCleaning;
+    }
+
+    public void setForceDropForEnvCleaning(boolean forceDropForEnvCleaning) {
+        this.forceDropForEnvCleaning = forceDropForEnvCleaning;
     }
 }

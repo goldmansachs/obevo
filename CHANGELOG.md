@@ -5,6 +5,10 @@
 ### Bug Fixes
 
 #73: Allowing the encoding to be specified when reading files.
+#72: Fixing JDBC URL creation for MS SQL Server
+#77: Adding includeDependencies attribute to TableChangeParser
+Fixed the Sequence retrieval in DBMetadataManager to use the SchemaCrawler implementation; along the way, fixed Oracle metadata tests
+#45: Ensure that an undeployed file w/ DROP_TABLE is not redeployed
 
 
 ## 6.2.2
