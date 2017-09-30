@@ -64,7 +64,9 @@ public class RerunnableDbChangeTypeBehavior extends AbstractDbChangeTypeBehavior
 
     @Override
     public void deploy(Change change) {
-        dropObject(change, true);
+        if (!change.isCreateOrReplace()) {
+            dropObject(change, true);
+        }
         super.deploy(change);
     }
 

@@ -16,6 +16,7 @@
 package com.gs.obevo.api.appdata;
 
 import java.sql.Timestamp;
+import java.util.regex.Pattern;
 
 import com.gs.obevo.api.appdata.doc.TextMarkupDocumentSection;
 import com.gs.obevo.api.platform.ChangeAuditDao;
@@ -32,6 +33,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.set.MutableSet;
@@ -41,6 +43,7 @@ import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 
 public abstract class Change implements Restrictable, SortableDependency, SortableDependencyGroup, TextDependencyExtractable {
     public static final int DEFAULT_CHANGE_ORDER = 500;  // only used to control relative order changes (e.g. within a given class of changes like stored procs)
+    private static final Pattern CREATE_OR_REPLACE_PATTERN = Pattern.compile("(?i)create\\s+or\\s+replace");
 
     public static final Function<Change, String> TO_SCHEMA = new Function<Change, String>() {
         @Override
@@ -111,6 +114,13 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
         }
     };
 
+    public static final Predicate<Change> IS_CREATE_OR_REPLACE = new Predicate<Change>() {
+        @Override
+        public boolean accept(Change each) {
+            return each.isCreateOrReplace();
+        }
+    };
+
     private transient ObjectKey objectKey;
     private transient ChangeKey changeKey;
     private String changeName;
@@ -148,6 +158,7 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
     private Timestamp timeUpdated;
     private Timestamp timeInserted;
     private String changeset;
+    private boolean createOrReplace;
 
     public void setEnvironment(Environment environment) {
         this.environment = environment;
@@ -607,5 +618,16 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
     @Override
     public ImmutableSet<SortableDependency> getComponents() {
         return Sets.immutable.<SortableDependency>with(this);
+    }
+
+    public boolean isCreateOrReplace() {
+        if (content == null) {
+            return false;
+        }
+        return CREATE_OR_REPLACE_PATTERN.matcher(content).find();
+    }
+
+    public void setCreateOrReplace(boolean createOrReplace) {
+        this.createOrReplace = createOrReplace;
     }
 }
