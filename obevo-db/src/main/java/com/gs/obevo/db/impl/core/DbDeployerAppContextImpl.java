@@ -89,12 +89,30 @@ public abstract class DbDeployerAppContextImpl implements DbDeployerAppContext {
     protected Credential credential;
     private File workDir;
     protected DbEnvironment env;
-    private boolean failOnSetupException = true;
+    private boolean strictSetupEnvInfra = DbDeployerAppContext.STRICT_SETUP_ENV_INFRA_DEFAULT;
     protected ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry;
+
+    /**
+     * Renamed.
+     * @deprecated Renamed to {@link #isStrictSetupEnvInfra()}
+     */
+    @Deprecated
+    public boolean isFailOnSetupException() {
+        return isStrictSetupEnvInfra();
+    }
+
+    private boolean isStrictSetupEnvInfra() {
+        return strictSetupEnvInfra;
+    }
 
     @Override
     public DbDeployerAppContext setFailOnSetupException(boolean failOnSetupException) {
-        this.failOnSetupException = failOnSetupException;
+        return setStrictSetupEnvInfra(failOnSetupException);
+    }
+
+    @Override
+    public DbDeployerAppContext setStrictSetupEnvInfra(boolean strictSetupEnvInfra) {
+        this.strictSetupEnvInfra = strictSetupEnvInfra;
         return this;
     }
 
@@ -493,12 +511,12 @@ public abstract class DbDeployerAppContextImpl implements DbDeployerAppContext {
     }
 
     public DbDeployerAppContext setupEnvInfra() {
-        return setupEnvInfra(isFailOnSetupException());
+        return setupEnvInfra(isStrictSetupEnvInfra());
     }
 
     @Override
-    public DbDeployerAppContext setupEnvInfra(boolean failOnSetupException) {
-        getEnvironmentInfraSetup().setupEnvInfra(failOnSetupException);
+    public DbDeployerAppContext setupEnvInfra(boolean strictSetupEnvInfra) {
+        getEnvironmentInfraSetup().setupEnvInfra(strictSetupEnvInfra);
         return this;
     }
 
@@ -541,9 +559,5 @@ public abstract class DbDeployerAppContextImpl implements DbDeployerAppContext {
     @Override
     public DeployMetrics getDeployMetrics() {
         return deployStatsTracker().getMetrics();
-    }
-
-    public boolean isFailOnSetupException() {
-        return failOnSetupException;
     }
 }

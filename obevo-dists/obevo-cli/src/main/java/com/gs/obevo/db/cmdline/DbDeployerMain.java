@@ -45,8 +45,8 @@ public class DbDeployerMain extends AbstractMain<DbEnvironment, DbDeployerAppCon
     public void start(DbDeployerAppContext ctxt, DeployerArgs args) {
         DbEnvironment env = ctxt.getEnvironment();
 
-        LOG.info("Setting up the the environment infrastructure for {}; will {} on setup exception", env.getName(), args.isLenientSetupEnvInfra() ? "warn" : "fail");
-        ctxt.setupEnvInfra(!args.isLenientSetupEnvInfra());
+        LOG.info("Setting up the the environment infrastructure for {}; will {} on setup exception", env.getName(), args.isStrictSetupEnvInfra() ? "fail" : "warn");
+        ctxt.setupEnvInfra(args.isStrictSetupEnvInfra());
 
         if (args.shouldExecuteClean()) {
             this.checkIfCleanBuildShouldProceed(env, args.isNoPrompt());

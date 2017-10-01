@@ -50,7 +50,13 @@ public class DeployerArgs {
     private String[] changesets;
     private boolean allChangesets;
     private String productVersion;
+    /**
+     * No longer used.
+     * @deprecated see {@link #strictSetupEnvInfra}
+     */
+    @Deprecated
     private boolean lenientSetupEnvInfra = false;
+    private boolean strictSetupEnvInfra = false;
 
     @Argument(value = "env", required = false)
     public void setEnvNames(String[] envNames) {
@@ -347,12 +353,29 @@ public class DeployerArgs {
         this.productVersion = productVersion;
     }
 
+    /**
+     * No longer used, as this is lenient by default.
+     * @deprecated See {@link #isStrictSetupEnvInfra()}
+     */
     public boolean isLenientSetupEnvInfra() {
         return lenientSetupEnvInfra;
     }
 
-    @Argument(value = "lenientSetupEnvInfra", description = "Whether the environment setup should fail in case of missing groups/users")
+    /**
+     * No longer used, as this is lenient by default.
+     * @deprecated See {@link #isStrictSetupEnvInfra()}
+     */
+    @Argument(value = "lenientSetupEnvInfra", description = "Deprecated - the setupEnvironmentInfra command is now lenient by default. See the -strictSetupEnvInfra option instead if you'd like it strict")
     public void setLenientSetupEnvInfra(boolean lenientSetupEnvInfra) {
         this.lenientSetupEnvInfra = lenientSetupEnvInfra;
+    }
+
+    public boolean isStrictSetupEnvInfra() {
+        return strictSetupEnvInfra;
+    }
+
+    @Argument(value = "strictSetupEnvInfra", description = "Include this option to fail in case of missing groups/users; default is to log a warning")
+    public void setStrictSetupEnvInfra(boolean strictSetupEnvInfra) {
+        this.strictSetupEnvInfra = strictSetupEnvInfra;
     }
 }
