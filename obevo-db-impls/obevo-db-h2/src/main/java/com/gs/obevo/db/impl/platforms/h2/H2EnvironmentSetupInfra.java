@@ -50,7 +50,7 @@ public class H2EnvironmentSetupInfra implements EnvironmentInfraSetup<DbEnvironm
             conn = ds.getConnection();
             // now setup the base infrastructure (schemas + roles)
             for (PhysicalSchema schema : env.getPhysicalSchemas()) {
-                DaCatalog schemaInfo = this.dbMetadataManager.getDatabase(schema.getPhysicalName());
+                DaCatalog schemaInfo = this.dbMetadataManager.getDatabaseOptional(schema.getPhysicalName());
                 if (schemaInfo == null) {
                     jdbc.update(conn, "CREATE SCHEMA " + schema.getPhysicalName());
                 }

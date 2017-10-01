@@ -35,9 +35,10 @@ import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.block.factory.HashingStrategies;
 import org.eclipse.collections.impl.block.factory.Predicates;
+import org.eclipse.collections.impl.factory.HashingStrategySets;
 import org.eclipse.collections.impl.factory.Lists;
+import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.list.mutable.ListAdapter;
-import org.eclipse.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrategy;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.traverse.BreadthFirstIterator;
@@ -116,7 +117,7 @@ public class RerunnableChangeTypeCommandCalculator implements ChangeTypeCommandC
         MutableList<Change> fullChanges = Lists.mutable.empty();
 
         if (changeType.isDependentObjectRecalculationRequired()) {
-            fullChanges.addAll(getObjectChangesRequiringRecompilation(changeType, rerunnableObjectInfo, fromSourceList));
+            fullChanges.addAll(getObjectChangesRequiringRecompilation(changeType, fromSourceList, rerunnableObjectInfo.getChangedObjects().reject(Change.IS_CREATE_OR_REPLACE)));
         }
 
         fullChanges.addAll(rerunnableObjectInfo.getChangedObjects());
@@ -136,19 +137,21 @@ public class RerunnableChangeTypeCommandCalculator implements ChangeTypeCommandC
      * e.g. to add db objects to the change list to facilitate cases where it depends on another SP that is
      * changing, and so the dependent SP needs to get re-created also
      */
-    private MutableSet<Change> getObjectChangesRequiringRecompilation(ChangeType changeType, RerunnableObjectInfo rerunnableObjectInfo, RichIterable<Change> fromSourceList) {
+    private MutableSet<Change> getObjectChangesRequiringRecompilation(ChangeType changeType, RichIterable<Change> fromSourceList, MutableCollection<Change> changedObjects) {
+        if (fromSourceList.isEmpty()) {
+            return Sets.mutable.empty();
+        }
         // do not log errors as info or above here when creating the graph as we know that we don't have the full graph
         LOG.debug("START BLOCK: Ignore any 'Invalid change found?' errors in this block of code");
         DirectedGraph<Change, DefaultEdge> graph = enricher.createDependencyGraph(fromSourceList.select(Predicates.attributeEqual(Change.TO_CHANGE_TYPE, changeType)), false);
         LOG.debug("END BLOCK: Ignore any 'Invalid change found?' errors in this block of code");
 
-        MutableCollection<Change> changesForType = rerunnableObjectInfo.getChangedObjects().select(
+        MutableCollection<Change> changesForType = changedObjects.select(
                 Predicates.attributeEqual(Change.TO_CHANGE_TYPE, changeType));
         MutableMap<String, Change> changesForTypeMap = changesForType.toMap(
                 Change.objectName(), Functions.<Change>getPassThru());
 
-        MutableSet<Change> newChangesToAdd = UnifiedSetWithHashingStrategy.newSet(HashingStrategies
-                .fromFunction(Change.objectName()));
+        MutableSet<Change> newChangesToAdd = HashingStrategySets.mutable.of(HashingStrategies.fromFunction(Change.objectName()));
         for (Change change : changesForType) {
             BreadthFirstIterator<Change, DefaultEdge> dependencyIterator = new BreadthFirstIterator<Change, DefaultEdge>(graph, change);
 

@@ -29,7 +29,19 @@ import com.gs.obevo.dbmetadata.api.DbMetadataManager;
 import org.eclipse.collections.api.list.ImmutableList;
 
 public interface DbDeployerAppContext extends DeployerAppContext<DbEnvironment, DbDeployerAppContext> {
+    boolean STRICT_SETUP_ENV_INFRA_DEFAULT = false;
+
+    /**
+     * Sets whether to fail the command if the environment setup fails for certain operations (true) or to log a warning (false).
+     * @deprecated Renamed to {@link #setStrictSetupEnvInfra(boolean)}
+     */
+    @Deprecated
     DbDeployerAppContext setFailOnSetupException(boolean failOnSetupException);
+
+    /**
+     * Sets whether to fail the command if the environment setup fails for certain operations (true) or to log a warning (false).
+     */
+    DbDeployerAppContext setStrictSetupEnvInfra(boolean strictSetupEnvInfra);
 
     DbEnvironment getEnvironment();
 
@@ -61,7 +73,7 @@ public interface DbDeployerAppContext extends DeployerAppContext<DbEnvironment, 
 
     DbDeployerAppContext setupEnvInfra();
 
-    DbDeployerAppContext setupEnvInfra(boolean failOnSetupException);
+    DbDeployerAppContext setupEnvInfra(boolean strictSetupEnvInfra);
 
     DbDeployerAppContext cleanEnvironment();
 

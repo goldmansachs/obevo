@@ -99,7 +99,7 @@ public class HsqlEnvironmentSetupInfra implements EnvironmentInfraSetup<DbEnviro
     }
 
     private boolean isSchemaAlreadySetup(PhysicalSchema physicalSchema) {
-        DaCatalog schemaInfo = this.dbMetadataManager.getDatabase(physicalSchema.getPhysicalName());
+        DaCatalog schemaInfo = this.dbMetadataManager.getDatabaseOptional(physicalSchema.getPhysicalName());
         return schemaInfo != null;
     }
 
