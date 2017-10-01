@@ -28,14 +28,23 @@ public interface DbMetadataManager {
     /**
      * Returns the metadata for a whole catalog. Info level (e.g. for specific object types or for detail-level) can be
      * configured via the parameters.
+     *
+     * @throws IllegalArgumentException if the schema does not exist
      */
     DaCatalog getDatabase(String physicalSchema, DaSchemaInfoLevel schemaInfoLevel, boolean searchAllTables,
             boolean searchAllProcedures);
 
     /**
      * Returns a DaCatalog reference if that catalog exists - this serves as a quick "exists" check on that catalog.
+     * @deprecated Use {@link #getDatabaseOptional(String)}, as it is more clearly named.
      */
+    @Deprecated
     DaCatalog getDatabase(String physicalSchema);
+
+    /**
+     * Returns a DaCatalog reference if that catalog exists - this serves as a quick "exists" check on that catalog.
+     */
+    DaCatalog getDatabaseOptional(String physicalSchema);
 
     DaTable getTableInfo(String physicalSchema, String tableName);
 

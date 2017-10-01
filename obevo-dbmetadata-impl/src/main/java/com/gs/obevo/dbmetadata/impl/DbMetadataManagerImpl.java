@@ -27,7 +27,6 @@ import com.gs.obevo.dbmetadata.api.DaRoutineType;
 import com.gs.obevo.dbmetadata.api.DaRule;
 import com.gs.obevo.dbmetadata.api.DaSchema;
 import com.gs.obevo.dbmetadata.api.DaSchemaInfoLevel;
-import com.gs.obevo.dbmetadata.api.DaSequence;
 import com.gs.obevo.dbmetadata.api.DaTable;
 import com.gs.obevo.dbmetadata.api.DaUserType;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
@@ -125,17 +124,13 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
 
             LOG.debug("Starting query for DB metadata for {}/{}/{}/{}", tableName, procedureName,
                     searchAllTables ? "searching all tables" : "", searchAllProcedures ? "searching all procedures" : "");
-            final SchemaCrawler schemaCrawler = new SchemaCrawler(conn, dbSpecificOptions);
 
             final Catalog database;
             try {
+                final SchemaCrawler schemaCrawler = new SchemaCrawler(conn, dbSpecificOptions);
                 database = schemaCrawler.crawl(options);
             } catch (SchemaCrawlerException e) {
-                if ("No matching schemas found".equals(e.getMessage())) {
-                    return null;  // This is to match SchemaCrawler 9.6 behavior; need to check w/ them on this
-                } else {
-                    throw e;
-                }
+                throw new IllegalArgumentException("Could not lookup schema " + schemaName + ": " + e.getMessage(), e);
             }
 
             LOG.debug("Ending query for DB metadata for {}/{}/{}/{}", tableName, procedureName,
@@ -181,8 +176,6 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
 
             return new DaCatalogImpl(database, schemaStrategy, userTypes, rules, ruleBindings, extraRoutines, constraintIndices, extraViewInfo, routineOverrideValue);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (SchemaCrawlerException e) {
             throw new RuntimeException(e);
         } finally {
             DbUtils.closeQuietly(conn);
@@ -240,13 +233,14 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
 
     @Override
     public DaCatalog getDatabase(String physicalSchema) {
+        return getDatabaseOptional(physicalSchema);
+    }
+
+    @Override
+    public DaCatalog getDatabaseOptional(String physicalSchema) {
         try {
             return this.getDatabase(new DaSchemaInfoLevel(), physicalSchema, null, null, false, false);
         } catch (IllegalArgumentException exc) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Kludge to catch the exception here if the schema is not found so that we return null, " +
-                        "per the contract of this method", exc);
-            }
             return null;
         }
     }
