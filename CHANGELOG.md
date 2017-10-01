@@ -9,6 +9,9 @@
 #77: Adding includeDependencies attribute to TableChangeParser
 Fixed the Sequence retrieval in DBMetadataManager to use the SchemaCrawler implementation; along the way, fixed Oracle metadata tests
 #45: Ensure that an undeployed file w/ DROP_TABLE is not redeployed
+#4: If users specify "create or replace" in SQL, then that should not force it to be dropped on rerunnable objects
+#76: Clearer error message if schema was not found
+#80: Defaulting lenient environment setups to true
 
 
 ## 6.2.2
