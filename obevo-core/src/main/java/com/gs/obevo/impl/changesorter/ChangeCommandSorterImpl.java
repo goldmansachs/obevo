@@ -15,6 +15,8 @@
  */
 package com.gs.obevo.impl.changesorter;
 
+import java.util.Comparator;
+
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.Platform;
@@ -32,6 +34,7 @@ import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.ListIterable;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.partition.PartitionIterable;
+import org.eclipse.collections.impl.block.factory.Comparators;
 import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.Lists;
@@ -131,7 +134,9 @@ public class ChangeCommandSorterImpl implements ChangeCommandSorter {
                 }
             });
         } else {
-            rerunnableDrops.toSortedListBy(DbCommandSortKey.TO_OBJECT_NAME).forEachWithIndex(new ObjectIntProcedure<DbCommandSortKey>() {
+            // Sort by the object type to facilitate any dependencies that would naturally occur, e.g. for packages vs. package bodies in Oracle
+            Comparator<DbCommandSortKey> dropKeyComparator = Comparators.fromFunctions(Functions.chain(DbCommandSortKey.TO_CHANGE_TYPE, ChangeType.TO_DEPLOY_ORDER_PRIORITY), DbCommandSortKey.TO_OBJECT_NAME);
+            rerunnableDrops.toSortedList(dropKeyComparator).forEachWithIndex(new ObjectIntProcedure<DbCommandSortKey>() {
                 @Override
                 public void value(DbCommandSortKey dbCommandSortKey, int order) {
                     dbCommandSortKey.setOrder(order);

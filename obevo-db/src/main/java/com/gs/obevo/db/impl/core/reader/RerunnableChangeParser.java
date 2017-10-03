@@ -28,6 +28,7 @@ import com.gs.obevo.util.hash.OldWhitespaceAgnosticDbChangeHashStrategy;
 import com.gs.obevo.util.vfs.FileObject;
 import org.eclipse.collections.api.bag.MutableBag;
 import org.eclipse.collections.api.list.ImmutableList;
+import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.api.tuple.primitive.ObjectBooleanPair;
 import org.eclipse.collections.impl.block.factory.Predicates;
@@ -81,13 +82,35 @@ public class RerunnableChangeParser extends AbstractDbChangeFileParser {
         TextMarkupDocumentSection mainSection = getMainSection(doc, backwardsCompatibleModeUsed);
         String contentToUse = mainSection.getContent();
 
+        MutableList<Change> sections = Lists.mutable.empty();
+
+        TextMarkupDocumentSection dropCommandSection = doc.findSectionWithElementName(TextMarkupDocumentReader.TAG_DROP_COMMAND);
+        TextMarkupDocumentSection metadata = getOrCreateMetadataNode(doc);
+        String permissionScheme = getPermissionSchemeValue(doc);
+        ChangeRerunnable change = createRerunnableChange(changeType, file, objectName, schema, contentToUse, metadata, permissionScheme);
+        change.setDropContent(dropCommandSection != null ? dropCommandSection.getContent() : null);
+        sections.add(change);
+
+        TextMarkupDocumentSection bodySection = doc.findSectionWithElementName(TextMarkupDocumentReader.TAG_BODY);
+        if (bodySection != null) {
+            ChangeType bodyChangeType = changeType.getBodyChangeType();
+            if (bodyChangeType == null) {
+                throw new IllegalArgumentException("Cannot specify a //// " + TextMarkupDocumentReader.TAG_BODY + " section for an object type without a body type configured: ["+ changeType + "]");
+            }
+            ChangeRerunnable bodyChange = createRerunnableChange(bodyChangeType, file, objectName, schema, bodySection.getContent(), bodySection, permissionScheme);
+            bodyChange.setChangeName("body");
+            sections.add(bodyChange);
+        }
+
+        return sections.toImmutable();
+    }
+
+    private ChangeRerunnable createRerunnableChange(ChangeType changeType, FileObject file, String objectName, String schema, String contentToUse, TextMarkupDocumentSection metadata, String permissionScheme) {
         ChangeRerunnable change = new ChangeRerunnable(changeType
                 , schema
                 , objectName
                 , contentHashStrategy.hashContent(contentToUse)
                 , contentToUse);
-
-        TextMarkupDocumentSection metadata = getOrCreateMetadataNode(doc);
 
         ImmutableList<ArtifactRestrictions> restrictions = new DbChangeRestrictionsReader().valueOf(metadata);
         change.setRestrictions(restrictions);
@@ -119,20 +142,17 @@ public class RerunnableChangeParser extends AbstractDbChangeFileParser {
             change.setOrder(Integer.valueOf(orderStr));
         }
 
-        change.setPermissionScheme(getPermissionSchemeValue(doc));
-        change.setMetadataSection(doc.findSectionWithElementName(TextMarkupDocumentReader.TAG_METADATA));
-
-        TextMarkupDocumentSection dropCommandSection = doc.findSectionWithElementName(TextMarkupDocumentReader.TAG_DROP_COMMAND);
-        change.setDropContent(dropCommandSection != null ? dropCommandSection.getContent() : null);
+        change.setPermissionScheme(permissionScheme);
+        change.setMetadataSection(metadata);
 
         change.setFileLocation(file);
-        return Lists.immutable.<Change>with(change);
+        return change;
     }
 
     @Override
     protected void validateStructureOld(TextMarkupDocument doc) {
         final MutableSet<String> foundSections = doc.getSections().collect(TextMarkupDocumentSection.TO_NAME).toSet().reject(Predicates.isNull());
-        final MutableSet<String> expectedSections = Sets.mutable.with(TextMarkupDocumentReader.TAG_METADATA, TextMarkupDocumentReader.TAG_DROP_COMMAND);
+        final MutableSet<String> expectedSections = Sets.mutable.with(TextMarkupDocumentReader.TAG_METADATA, TextMarkupDocumentReader.TAG_BODY, TextMarkupDocumentReader.TAG_DROP_COMMAND);
         final MutableSet<String> extraSections = foundSections.difference(expectedSections);
         if (extraSections.notEmpty()) {
             throw new IllegalArgumentException("Unexpected sections found: " + extraSections + "; only expecting: " + expectedSections);
@@ -141,14 +161,14 @@ public class RerunnableChangeParser extends AbstractDbChangeFileParser {
 
     @Override
     protected void validateStructureNew(TextMarkupDocument doc) {
-        String allowedSectionString = Sets.immutable.with(TextMarkupDocumentReader.TAG_METADATA, TextMarkupDocumentReader.TAG_DROP_COMMAND).collect(StringFunctions.prepend("//// ")).makeString(", ");
+        String allowedSectionString = Sets.immutable.with(TextMarkupDocumentReader.TAG_METADATA, TextMarkupDocumentReader.TAG_BODY, TextMarkupDocumentReader.TAG_DROP_COMMAND).collect(StringFunctions.prepend("//// ")).makeString(", ");
 
         ImmutableList<TextMarkupDocumentSection> docSections = doc.getSections();
         if (docSections.isEmpty()) {
             throw new IllegalArgumentException("No content defined");
         }
 
-        ImmutableList<TextMarkupDocumentSection> disallowedSections = docSections.reject(Predicates.attributeIn(TextMarkupDocumentSection.TO_NAME, Sets.immutable.with(null, TextMarkupDocumentReader.TAG_METADATA, TextMarkupDocumentReader.TAG_DROP_COMMAND)));
+        ImmutableList<TextMarkupDocumentSection> disallowedSections = docSections.reject(Predicates.attributeIn(TextMarkupDocumentSection.TO_NAME, Sets.immutable.with(null, TextMarkupDocumentReader.TAG_METADATA, TextMarkupDocumentReader.TAG_DROP_COMMAND, TextMarkupDocumentReader.TAG_BODY)));
         if (disallowedSections.notEmpty()) {
             throw new IllegalArgumentException("Only allowed 1 content section and at most 1 of these [" + allowedSectionString + "]; instead, found these disallowed sections: " + disallowedSections);
         }

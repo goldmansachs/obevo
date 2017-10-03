@@ -55,12 +55,12 @@ public class OracleDeployIT {
         getAppContext.valueOf(1)
                 .setupEnvInfra()
                 .cleanEnvironment()
-                .deploy();
+                .deploy()
+                ;
 
         // ensuring that we can modify
         DbDeployerAppContext dbDeployerAppContext = getAppContext.valueOf(2);
         dbDeployerAppContext
-                .cleanEnvironment()
                 .setupEnvInfra()
                 .deploy();
 

@@ -42,6 +42,7 @@ import org.eclipse.collections.impl.tuple.Tuples;
 public class TextMarkupDocumentReader {
     public static final String TAG_CHANGE = "CHANGE";
     public static final String TAG_METADATA = "METADATA";
+    public static final String TAG_BODY = "BODY";
     public static final String TAG_DROP_COMMAND = "DROP_COMMAND";
     public static final String TAG_ROLLBACK = "ROLLBACK";  // not yet used elsewhere, unlike the
     // rollbackIfAlreadyDeployed
@@ -58,7 +59,7 @@ public class TextMarkupDocumentReader {
     public static final String EXCLUDE_PLATFORMS = "excludePlatforms";
     public static final String TAG_PERM_SCHEME = "permissionScheme";
 
-    private final ImmutableList<String> firstLevelElements = Lists.immutable.with(TAG_CHANGE, TAG_DROP_COMMAND, TAG_METADATA);
+    private final ImmutableList<String> firstLevelElements = Lists.immutable.with(TAG_CHANGE, TAG_DROP_COMMAND, TAG_METADATA, TAG_BODY);
     private final ImmutableList<String> singleLineElements = Lists.immutable.with(TAG_METADATA);
     private final ImmutableList<String> secondLevelElements = Lists.immutable.with(TAG_ROLLBACK_IF_ALREADY_DEPLOYED, TAG_ROLLBACK);
 

@@ -18,6 +18,7 @@ package com.gs.obevo.db.impl.platforms.oracle;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.DeployerAppContext;
 import com.gs.obevo.db.api.appdata.GrantTargetType;
+import com.gs.obevo.db.api.platform.DbChangeType;
 import com.gs.obevo.db.api.platform.DbChangeTypeImpl;
 import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
 import com.gs.obevo.db.impl.platforms.AbstractDbPlatform;
@@ -49,9 +50,11 @@ public class OracleDbPlatform extends AbstractDbPlatform {
 
     @Override
     protected ImmutableList<ChangeType> initializeChangeTypes() {
+        DbChangeType packageBodyType = DbChangeTypeImpl.newDbChangeType(ChangeType.PACKAGE_BODY, true, 60, "PACKAGE BODY").setDirectoryName("package_body").build();
+        DbChangeType packageType = DbChangeTypeImpl.newDbChangeType(ChangeType.PACKAGE_STR, true, 11, "PACKAGE").setDirectoryName("packages").setBodyChangeType(packageBodyType).build();
         return super.initializeChangeTypes().toList()
-                .with(DbChangeTypeImpl.newDbChangeType(ChangeType.PACKAGE_STR, true, 11, "PACKAGE").setDirectoryName("packages").build())
-                .with(DbChangeTypeImpl.newDbChangeType(ChangeType.PACKAGE_BODY, true, 60, "PACKAGE BODY").setDirectoryName("package_body").build())
+                .with(packageType)
+                .with(packageBodyType)
                 .toImmutable();
     }
 

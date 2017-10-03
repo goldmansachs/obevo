@@ -16,6 +16,7 @@
 package com.gs.obevo.dbmetadata.impl;
 
 import com.gs.obevo.dbmetadata.api.DaCatalog;
+import com.gs.obevo.dbmetadata.api.DaPackage;
 import com.gs.obevo.dbmetadata.api.DaRoutine;
 import com.gs.obevo.dbmetadata.api.DaRoutineType;
 import com.gs.obevo.dbmetadata.api.DaRule;
@@ -46,8 +47,9 @@ public class DaCatalogImpl implements DaCatalog {
     private final ImmutableCollection<DaUserType> userTypes;
     private final ImmutableCollection<DaRule> rules;
     private final ImmutableCollection<RuleBinding> ruleBindings;
+    private final ImmutableCollection<DaPackage> packages;
 
-    public DaCatalogImpl(Catalog delegate, SchemaStrategy schemaStrategy, ImmutableCollection<DaUserType> userTypes, ImmutableCollection<DaRule> rules, ImmutableCollection<RuleBinding> ruleBindings, ImmutableCollection<DaRoutine> extraRoutines, Multimap<String, ExtraIndexInfo> extraIndexes, ImmutableCollection<ExtraRerunnableInfo> extraViewInfo, DaRoutineType routineOverrideValue) {
+    public DaCatalogImpl(Catalog delegate, SchemaStrategy schemaStrategy, ImmutableCollection<DaUserType> userTypes, ImmutableCollection<DaRule> rules, ImmutableCollection<RuleBinding> ruleBindings, ImmutableCollection<DaRoutine> extraRoutines, Multimap<String, ExtraIndexInfo> extraIndexes, ImmutableCollection<ExtraRerunnableInfo> extraViewInfo, DaRoutineType routineOverrideValue, ImmutableCollection<DaPackage> packages) {
         this.delegate = Validate.notNull(delegate);
         this.userTypes = userTypes;
         this.rules = rules;
@@ -57,6 +59,7 @@ public class DaCatalogImpl implements DaCatalog {
         this.extraViewInfoMap = extraViewInfo.toMap(ExtraRerunnableInfo.TO_NAME, Functions.<ExtraRerunnableInfo>getPassThru());
         this.routineOverrideValue = routineOverrideValue;
         this.schemaStrategy = schemaStrategy;
+        this.packages = packages;
     }
 
     @Override
@@ -108,5 +111,10 @@ public class DaCatalogImpl implements DaCatalog {
     @Override
     public ImmutableCollection<RuleBinding> getRuleBindings() {
         return ruleBindings;
+    }
+
+    @Override
+    public ImmutableCollection<DaPackage> getPackages() {
+        return packages;
     }
 }

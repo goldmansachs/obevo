@@ -90,7 +90,7 @@ public class DbEnvironmentCleaner implements EnvironmentCleaner {
 
         cleanCommands.withAll(getRoutineDrops(database, physicalSchema));
         cleanCommands.withAll(getTableDrops(database, physicalSchema));
-        cleanCommands.withAll(getRoutineDrops(database, physicalSchema));
+        cleanCommands.withAll(getObjectDrops(database.getPackages(), ChangeType.PACKAGE_STR, physicalSchema));
         cleanCommands.withAll(getObjectDrops(database.getSequences(), ChangeType.SEQUENCE_STR, physicalSchema));
         if (env.getPlatform().hasChangeType(ChangeType.RULE_STR)) {
             cleanCommands.withAll(getObjectDrops(database.getRules(), ChangeType.RULE_STR, physicalSchema));
@@ -146,6 +146,10 @@ public class DbEnvironmentCleaner implements EnvironmentCleaner {
     }
 
     private ImmutableCollection<DbCleanCommand> getObjectDrops(ImmutableCollection<? extends DaNamedObject> dbObjects, String changeTypeName, final PhysicalSchema physicalSchema) {
+        if (!env.getPlatform().hasChangeType(changeTypeName)) {
+            return Lists.immutable.empty();
+        }
+
         final ChangeType type = env.getPlatform().getChangeType(changeTypeName);
 
         return dbObjects.collect(new Function<DaNamedObject, DbCleanCommand>() {

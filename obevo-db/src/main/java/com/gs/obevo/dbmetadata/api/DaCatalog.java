@@ -29,4 +29,6 @@ public interface DaCatalog {
     ImmutableCollection<DaSequence> getSequences();
 
     ImmutableCollection<DaUserType> getUserTypes();
+
+    ImmutableCollection<DaPackage> getPackages();
 }

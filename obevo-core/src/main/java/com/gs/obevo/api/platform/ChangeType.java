@@ -133,4 +133,10 @@ public interface ChangeType {
      * @return
      */
     boolean isDependentObjectRecalculationRequired();
+
+    /**
+     * For rerunnable objects, returns the object type to use if a body is declared, e.g. for an Oracle package and its
+     * corresponding package body.
+     */
+    ChangeType getBodyChangeType();
 }
