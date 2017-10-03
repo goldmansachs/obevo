@@ -24,13 +24,28 @@
 package com.gs.obevo.dbmetadata.impl.dialects;
 
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Map;
 
+import com.gs.obevo.dbmetadata.api.DaPackage;
+import com.gs.obevo.dbmetadata.api.DaSchema;
+import com.gs.obevo.dbmetadata.impl.DaPackagePojoImpl;
+import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.handlers.MapListHandler;
+import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.collection.ImmutableCollection;
+import org.eclipse.collections.api.list.ImmutableList;
+import org.eclipse.collections.impl.list.mutable.ListAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import schemacrawler.schemacrawler.DatabaseSpecificOverrideOptionsBuilder;
 
 /**
  * Oracle DBMS metadata dialect.
  */
 public class OracleMetadataDialect extends AbstractMetadataDialect {
+    private static final Logger LOG = LoggerFactory.getLogger(OracleMetadataDialect.class);
+
     @Override
     public String getSchemaExpression(String schemaName) {
         return schemaName;
@@ -63,10 +78,43 @@ public class OracleMetadataDialect extends AbstractMetadataDialect {
                 "  AND NOT REGEXP_LIKE(PROCEDURES.OWNER, '^APEX_[0-9]{6}$')\n" +
                 "  AND NOT REGEXP_LIKE(PROCEDURES.OWNER, '^FLOWS_[0-9]{5,6}$')\n" +
                 "  AND REGEXP_LIKE(PROCEDURES.OWNER, '${schemas}')\n" +
-//                "  AND PROCEDURES.AUTHID = 'CURRENT_USER'\n" +
                 "ORDER BY\n" +
                 "  ROUTINE_SCHEMA,\n" +
                 "  ROUTINE_NAME\n");
         return dbSpecificOptionsBuilder;
+    }
+
+    @Override
+    public ImmutableCollection<DaPackage> searchPackages(final DaSchema schema, String procedureName, Connection conn) throws SQLException {
+        QueryRunner query = new QueryRunner();  // using queryRunner so that we can reuse the connection
+
+        String procedureClause = procedureName == null ? "" : " AND OBJECT_NAME = '" + procedureName + "'";
+        final String sql = "SELECT OBJECT_NAME, OBJECT_TYPE FROM ALL_OBJECTS\n" +
+                "WHERE OBJECT_TYPE IN ('PACKAGE')\n" +
+                "AND OWNER = '" + schema.getName() + "'\n" +
+                procedureClause;
+        LOG.debug("Executing package metadata query SQL: {}", sql);
+
+        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(query.query(conn,
+                sql,
+                new MapListHandler()
+        )).toImmutable();
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Results:");
+            for (Map<String, Object> map : maps) {
+                LOG.debug("ROW: {}", map.toString());
+            }
+        }
+
+        return maps.collect(new Function<Map<String, Object>, DaPackage>() {
+            @Override
+            public DaPackage valueOf(Map<String, Object> map) {
+                return new DaPackagePojoImpl(
+                        (String) map.get("OBJECT_NAME"),
+                        schema
+                );
+            }
+        });
     }
 }

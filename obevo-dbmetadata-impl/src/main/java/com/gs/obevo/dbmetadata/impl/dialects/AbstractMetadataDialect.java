@@ -18,11 +18,11 @@ package com.gs.obevo.dbmetadata.impl.dialects;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import com.gs.obevo.dbmetadata.api.DaPackage;
 import com.gs.obevo.dbmetadata.api.DaRoutine;
 import com.gs.obevo.dbmetadata.api.DaRoutineType;
 import com.gs.obevo.dbmetadata.api.DaRule;
 import com.gs.obevo.dbmetadata.api.DaSchema;
-import com.gs.obevo.dbmetadata.api.DaSequence;
 import com.gs.obevo.dbmetadata.api.DaUserType;
 import com.gs.obevo.dbmetadata.api.RuleBinding;
 import com.gs.obevo.dbmetadata.impl.DbMetadataDialect;
@@ -105,6 +105,11 @@ public abstract class AbstractMetadataDialect implements DbMetadataDialect {
 
     @Override
     public ImmutableCollection<DaUserType> searchUserTypes(DaSchema schema, Connection conn) throws SQLException {
+        return Lists.immutable.empty();
+    }
+
+    @Override
+    public ImmutableCollection<DaPackage> searchPackages(DaSchema schema, String packageName, Connection conn) throws SQLException {
         return Lists.immutable.empty();
     }
 

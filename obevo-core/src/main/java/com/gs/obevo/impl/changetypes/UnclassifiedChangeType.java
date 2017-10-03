@@ -61,4 +61,9 @@ public class UnclassifiedChangeType implements ChangeType {
     public boolean isDependentObjectRecalculationRequired() {
         return false;
     }
+
+    @Override
+    public ChangeType getBodyChangeType() {
+        return null;
+    }
 }

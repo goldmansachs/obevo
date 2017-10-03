@@ -22,6 +22,7 @@ import java.util.logging.Level;
 import javax.sql.DataSource;
 
 import com.gs.obevo.dbmetadata.api.DaCatalog;
+import com.gs.obevo.dbmetadata.api.DaPackage;
 import com.gs.obevo.dbmetadata.api.DaRoutine;
 import com.gs.obevo.dbmetadata.api.DaRoutineType;
 import com.gs.obevo.dbmetadata.api.DaRule;
@@ -173,8 +174,11 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
             ImmutableCollection<DaUserType> userTypes = schemaInfoLevel.isRetrieveUserDefinedColumnDataTypes()
                     ? dbMetadataDialect.searchUserTypes(schema, conn)
                     : Lists.immutable.<DaUserType>empty();
+            ImmutableCollection<DaPackage> packages = schemaInfoLevel.isRetrieveRoutines()
+                    ? dbMetadataDialect.searchPackages(schema, procedureName, conn)
+                    : Lists.immutable.<DaPackage>empty();
 
-            return new DaCatalogImpl(database, schemaStrategy, userTypes, rules, ruleBindings, extraRoutines, constraintIndices, extraViewInfo, routineOverrideValue);
+            return new DaCatalogImpl(database, schemaStrategy, userTypes, rules, ruleBindings, extraRoutines, constraintIndices, extraViewInfo, routineOverrideValue, packages);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {

@@ -20,6 +20,7 @@ import com.gs.obevo.api.platform.ChangeType;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.test.Verify;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.internal.matchers.ThrowableMessageMatcher;
@@ -28,6 +29,7 @@ import org.junit.rules.ExpectedException;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class RerunnableChangeParserTest {
     @Rule
@@ -46,7 +48,7 @@ public class RerunnableChangeParserTest {
         Verify.assertSize(1, changes);
         Change change = changes.get(0);
 
-        assertEquals("MyObj", change.getObjectName());
+        assertEquals(objectName, change.getObjectName());
         assertEquals("\nmycontent", change.getContent());
         assertEquals(null, change.getDropContent());
     }
@@ -66,10 +68,35 @@ public class RerunnableChangeParserTest {
         Verify.assertSize(1, changes);
         Change change = changes.get(0);
 
-        assertEquals("MyObj", change.getObjectName());
+        assertEquals(objectName, change.getObjectName());
         assertEquals("mycontent\nline2", change.getContent());
         assertEquals(Sets.immutable.with("abc", "123"), change.getDependencies());
         assertEquals("mydrop", change.getDropContent());
+    }
+
+    @Test
+    public void readFileWithBody() throws Exception {
+        RerunnableChangeParser parser = new RerunnableChangeParser();
+        String fileContent =
+                "main\n" +
+                "//// BODY\n" +
+                "body content\n" +
+                "";
+
+        ChangeType mainChangeType = mock(ChangeType.class);
+        ChangeType bodyChangeType = mock(ChangeType.class);
+        when(mainChangeType.getBodyChangeType()).thenReturn(bodyChangeType);
+        ImmutableList<Change> changes = parser.value(mainChangeType, null, fileContent, objectName, "schema", null);
+        Verify.assertSize(2, changes);
+
+        Change c1 = changes.get(0);
+        assertEquals(objectName, c1.getObjectName());
+        assertEquals("main", c1.getContent());
+
+        Change c2 = changes.get(1);
+        assertEquals(objectName, c2.getObjectName());
+        assertEquals("body", c2.getChangeName());
+        assertEquals("body content", c2.getContent());
     }
 
     @Test

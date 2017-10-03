@@ -28,8 +28,9 @@ public class ChangeTypeImpl implements ChangeType {
     private final boolean enrichableForDependenciesInText;
     private final boolean dependentObjectRecalculationRequired;
     private final String directoryName;
+    private final ChangeType bodyChangeType;
 
-    protected ChangeTypeImpl(String name, boolean rerunnable, int deployOrderPriority, String directoryNameOld, boolean enrichableForDependenciesInText, boolean dependentObjectRecalculationRequired, String directoryName) {
+    protected ChangeTypeImpl(String name, boolean rerunnable, int deployOrderPriority, String directoryNameOld, boolean enrichableForDependenciesInText, boolean dependentObjectRecalculationRequired, String directoryName, ChangeType bodyChangeType) {
         this.name = name;
         this.rerunnable = rerunnable;
         this.deployOrderPriority = deployOrderPriority;
@@ -37,6 +38,7 @@ public class ChangeTypeImpl implements ChangeType {
         this.directoryNameOld = directoryNameOld;
         this.enrichableForDependenciesInText = enrichableForDependenciesInText;
         this.dependentObjectRecalculationRequired = dependentObjectRecalculationRequired;
+        this.bodyChangeType = bodyChangeType;
     }
 
     public static ChangeTypeImplBuilder newChangeType(String name, boolean rerunnable, int deployOrderPriority) {
@@ -78,6 +80,11 @@ public class ChangeTypeImpl implements ChangeType {
         return dependentObjectRecalculationRequired;
     }
 
+    @Override
+    public ChangeType getBodyChangeType() {
+        return bodyChangeType;
+    }
+
     protected ChangeTypeBehavior getChangeTypeBehavior() {
         return changeTypeBehavior;
     }
@@ -90,6 +97,7 @@ public class ChangeTypeImpl implements ChangeType {
         private String directoryNameOld = null;
         private boolean enrichableForDependenciesInText = true;
         private boolean dependentObjectRecalculationRequired = true;
+        private ChangeType bodyChangeType;
 
         protected ChangeTypeImplBuilder(String name, boolean rerunnable, int deployOrderPriority) {
             this.name = name;
@@ -121,8 +129,13 @@ public class ChangeTypeImpl implements ChangeType {
             return this;
         }
 
+        public ChangeTypeImplBuilder setBodyChangeType(ChangeType bodyChangeType) {
+            this.bodyChangeType = bodyChangeType;
+            return this;
+        }
+
         public ChangeTypeImpl build() {
-            return new ChangeTypeImpl(name, rerunnable, deployOrderPriority, directoryNameOld, enrichableForDependenciesInText, dependentObjectRecalculationRequired, directoryName);
+            return new ChangeTypeImpl(name, rerunnable, deployOrderPriority, directoryNameOld, enrichableForDependenciesInText, dependentObjectRecalculationRequired, directoryName, bodyChangeType);
         }
     }
 

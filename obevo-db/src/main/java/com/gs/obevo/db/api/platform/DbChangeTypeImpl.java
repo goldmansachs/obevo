@@ -25,8 +25,8 @@ public class DbChangeTypeImpl extends ChangeTypeImpl implements DbChangeType {
     private final String grantObjectQualifier;
     private final String defaultObjectKeyword;
 
-    protected DbChangeTypeImpl(String name, boolean rerunnable, int deployOrderPriority, String directoryNameOld, boolean enrichableForDependenciesInText, boolean dependentObjectRecalculationRequired, String grantObjectQualifier, String defaultObjectKeyword, String directoryName) {
-        super(name, rerunnable, deployOrderPriority, directoryNameOld, enrichableForDependenciesInText, dependentObjectRecalculationRequired, directoryName);
+    protected DbChangeTypeImpl(String name, boolean rerunnable, int deployOrderPriority, String directoryNameOld, boolean enrichableForDependenciesInText, boolean dependentObjectRecalculationRequired, String grantObjectQualifier, String defaultObjectKeyword, String directoryName, ChangeType bodyChangeType) {
+        super(name, rerunnable, deployOrderPriority, directoryNameOld, enrichableForDependenciesInText, dependentObjectRecalculationRequired, directoryName, bodyChangeType);
         this.grantObjectQualifier = grantObjectQualifier;
         this.defaultObjectKeyword = defaultObjectKeyword;
     }
@@ -63,6 +63,7 @@ public class DbChangeTypeImpl extends ChangeTypeImpl implements DbChangeType {
         private boolean enrichableForDependenciesInText = true;
         private boolean dependentObjectRecalculationRequired = true;
         private String grantObjectQualifier = "";
+        private ChangeType bodyChangeType;
 
         protected DbChangeTypeBuilder(String name, boolean rerunnable, int deployOrderPriority, String defaultObjectKeyword) {
             this.name = name;
@@ -127,8 +128,13 @@ public class DbChangeTypeImpl extends ChangeTypeImpl implements DbChangeType {
             return this;
         }
 
+        public DbChangeTypeBuilder setBodyChangeType(ChangeType bodyChangeType) {
+            this.bodyChangeType = bodyChangeType;
+            return this;
+        }
+
         public DbChangeType build() {
-            return new DbChangeTypeImpl(name, rerunnable, deployOrderPriority, directoryNameOld, enrichableForDependenciesInText, dependentObjectRecalculationRequired, grantObjectQualifier, defaultObjectKeyword, directoryName);
+            return new DbChangeTypeImpl(name, rerunnable, deployOrderPriority, directoryNameOld, enrichableForDependenciesInText, dependentObjectRecalculationRequired, grantObjectQualifier, defaultObjectKeyword, directoryName, bodyChangeType);
         }
     }
 }

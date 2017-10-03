@@ -95,7 +95,7 @@ public class RerunnableDbChangeTypeBehavior extends AbstractDbChangeTypeBehavior
                 view = (DaView) table;
             } else {
                 throw new IllegalStateException("Invalid code here - should not have gotten to this point; what " +
-                        "kind of object?");
+                        "kind of object? " + table);
             }
 
             return view.getDefinition();

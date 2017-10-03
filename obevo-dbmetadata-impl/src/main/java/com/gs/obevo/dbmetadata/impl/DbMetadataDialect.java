@@ -18,6 +18,7 @@ package com.gs.obevo.dbmetadata.impl;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import com.gs.obevo.dbmetadata.api.DaPackage;
 import com.gs.obevo.dbmetadata.api.DaRoutine;
 import com.gs.obevo.dbmetadata.api.DaRoutineType;
 import com.gs.obevo.dbmetadata.api.DaRule;
@@ -57,6 +58,8 @@ public interface DbMetadataDialect {
     ImmutableCollection<RuleBinding> getRuleBindings(DaSchema schema, Connection conn);
 
     ImmutableCollection<DaRoutine> searchExtraRoutines(DaSchema schema, String procedureName, Connection conn) throws SQLException;
+
+    ImmutableCollection<DaPackage> searchPackages(DaSchema schema, String packageName, Connection conn) throws SQLException;
 
     ImmutableCollection<ExtraIndexInfo> searchExtraConstraintIndices(DaSchema schema, String tableName, Connection conn) throws SQLException;
 

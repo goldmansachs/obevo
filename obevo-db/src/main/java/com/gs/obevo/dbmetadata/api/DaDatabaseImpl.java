@@ -57,4 +57,9 @@ public class DaDatabaseImpl implements DaCatalog {
     public ImmutableCollection<DaUserType> getUserTypes() {
         return Lists.immutable.empty();
     }
+
+    @Override
+    public ImmutableCollection<DaPackage> getPackages() {
+        return Lists.immutable.empty();
+    }
 }
