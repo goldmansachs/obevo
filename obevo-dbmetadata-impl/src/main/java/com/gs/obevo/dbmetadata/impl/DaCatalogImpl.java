@@ -21,6 +21,7 @@ import com.gs.obevo.dbmetadata.api.DaRoutine;
 import com.gs.obevo.dbmetadata.api.DaRoutineType;
 import com.gs.obevo.dbmetadata.api.DaRule;
 import com.gs.obevo.dbmetadata.api.DaSequence;
+import com.gs.obevo.dbmetadata.api.DaSynonym;
 import com.gs.obevo.dbmetadata.api.DaTable;
 import com.gs.obevo.dbmetadata.api.DaUserType;
 import com.gs.obevo.dbmetadata.api.RuleBinding;
@@ -34,6 +35,7 @@ import org.eclipse.collections.impl.collection.mutable.CollectionAdapter;
 import schemacrawler.schema.Catalog;
 import schemacrawler.schema.Routine;
 import schemacrawler.schema.Sequence;
+import schemacrawler.schema.Synonym;
 import schemacrawler.schema.Table;
 import schemacrawler.schema.View;
 
@@ -116,5 +118,15 @@ public class DaCatalogImpl implements DaCatalog {
     @Override
     public ImmutableCollection<DaPackage> getPackages() {
         return packages;
+    }
+
+    @Override
+    public ImmutableCollection<DaSynonym> getSynonyms() {
+        return CollectionAdapter.adapt(delegate.getSynonyms()).collect(new Function<Synonym, DaSynonym>() {
+            @Override
+            public DaSynonym valueOf(Synonym object) {
+                return new DaSynonym6Impl(object, schemaStrategy);
+            }
+        }).toImmutable();
     }
 }

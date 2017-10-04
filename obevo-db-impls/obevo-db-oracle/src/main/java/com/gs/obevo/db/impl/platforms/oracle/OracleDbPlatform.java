@@ -50,9 +50,11 @@ public class OracleDbPlatform extends AbstractDbPlatform {
 
     @Override
     protected ImmutableList<ChangeType> initializeChangeTypes() {
-        DbChangeType packageBodyType = DbChangeTypeImpl.newDbChangeType(ChangeType.PACKAGE_BODY, true, 60, "PACKAGE BODY").setDirectoryName("package_body").build();
-        DbChangeType packageType = DbChangeTypeImpl.newDbChangeType(ChangeType.PACKAGE_STR, true, 11, "PACKAGE").setDirectoryName("packages").setBodyChangeType(packageBodyType).build();
+        DbChangeType synonymType = DbChangeTypeImpl.newDbChangeType(ChangeType.SYNONYM_STR, true, 11, "SYNONYM").setDirectoryName("synonym").build();
+        DbChangeType packageBodyType = DbChangeTypeImpl.newDbChangeType(ChangeType.PACKAGE_BODY, true, 60, "PACKAGE BODY").setDirectoryName("routinepackagebody").build();
+        DbChangeType packageType = DbChangeTypeImpl.newDbChangeType(ChangeType.PACKAGE_STR, true, 11, "PACKAGE").setDirectoryName("routinepackage").setBodyChangeType(packageBodyType).build();
         return super.initializeChangeTypes().toList()
+                .with(synonymType)
                 .with(packageType)
                 .with(packageBodyType)
                 .toImmutable();

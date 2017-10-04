@@ -73,6 +73,11 @@ public class OracleDbMetadataManagerIT extends AbstractDbMetadataManagerIT {
     }
 
     @Override
+    protected boolean isSynonymSupported() {
+        return true;
+    }
+
+    @Override
     protected String get_SP_WITH_OVERLOAD_1() {
         return "CREATE PROCEDURE SP_WITH_OVERLOAD () LANGUAGE SQL DYNAMIC RESULT SETS 1 BEGIN ATOMIC DELETE FROM TABLE_A; END";
     }

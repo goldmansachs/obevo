@@ -30,6 +30,7 @@ import com.gs.obevo.dbmetadata.api.DaRule;
 import com.gs.obevo.dbmetadata.api.DaSchema;
 import com.gs.obevo.dbmetadata.api.DaSchemaInfoLevel;
 import com.gs.obevo.dbmetadata.api.DaSequence;
+import com.gs.obevo.dbmetadata.api.DaSynonym;
 import com.gs.obevo.dbmetadata.api.DaTable;
 import com.gs.obevo.dbmetadata.api.DaUserType;
 import com.gs.obevo.dbmetadata.api.DaView;
@@ -152,6 +153,18 @@ public abstract class AbstractDbMetadataManagerIT {
         if (isSequenceSupported()) {
             ImmutableMultimap<String, DaSequence> sequencesByName = database.getSequences().groupBy(DaNamedObject.TO_NAME);
             verify_REGULAR_SEQUENCE(sequencesByName, "REGULAR_SEQUENCE");
+        }
+
+        if (isSynonymSupported()) {
+            ImmutableMultimap<String, DaSynonym> synonymsByName = database.getSynonyms().groupBy(DaNamedObject.TO_NAME);
+
+            ImmutableCollection<DaSynonym> synTableA = synonymsByName.get(convertName("SYN_TABLE_A"));
+            Verify.assertSize(1, synTableA);
+            assertEquals(convertName("SYN_TABLE_A"), synTableA.getFirst().getName());
+
+            ImmutableCollection<DaSynonym> synView1 = synonymsByName.get(convertName("SYN_VIEW1"));
+            Verify.assertSize(1, synView1);
+            assertEquals(convertName("SYN_VIEW1"), synView1.getFirst().getName());
         }
 
         if (isRuleSupported()) {
@@ -494,6 +507,10 @@ public abstract class AbstractDbMetadataManagerIT {
 
     protected boolean isSequenceSupported() {
         return true;
+    }
+
+    protected boolean isSynonymSupported() {
+        return false;
     }
 
     protected OverLoadSupport isSpOverloadSupported() {

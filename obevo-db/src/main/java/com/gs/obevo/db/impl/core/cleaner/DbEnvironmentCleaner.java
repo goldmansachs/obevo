@@ -92,12 +92,9 @@ public class DbEnvironmentCleaner implements EnvironmentCleaner {
         cleanCommands.withAll(getTableDrops(database, physicalSchema));
         cleanCommands.withAll(getObjectDrops(database.getPackages(), ChangeType.PACKAGE_STR, physicalSchema));
         cleanCommands.withAll(getObjectDrops(database.getSequences(), ChangeType.SEQUENCE_STR, physicalSchema));
-        if (env.getPlatform().hasChangeType(ChangeType.RULE_STR)) {
-            cleanCommands.withAll(getObjectDrops(database.getRules(), ChangeType.RULE_STR, physicalSchema));
-        }
-        if (env.getPlatform().hasChangeType(ChangeType.USERTYPE_STR)) {
-            cleanCommands.withAll(getObjectDrops(database.getUserTypes(), ChangeType.USERTYPE_STR, physicalSchema));
-        }
+        cleanCommands.withAll(getObjectDrops(database.getSynonyms(), ChangeType.SYNONYM_STR, physicalSchema));
+        cleanCommands.withAll(getObjectDrops(database.getRules(), ChangeType.RULE_STR, physicalSchema));
+        cleanCommands.withAll(getObjectDrops(database.getUserTypes(), ChangeType.USERTYPE_STR, physicalSchema));
 
         return cleanCommands.toList().toImmutable();
     }

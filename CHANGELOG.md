@@ -2,6 +2,12 @@
 
 ## 6.3.0
 
+### Functionality Improvements
+
+#42 Oracle package and package body support
+#74 Oracle synonym support
+
+
 ### Bug Fixes
 
 #73: Allowing the encoding to be specified when reading files.
