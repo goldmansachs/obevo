@@ -383,15 +383,19 @@ sp_rename 'OrigTable', 'NewTable']]></source>
         <section name="Defining Rerunnable Object Changes (Stored Procedures, Views, Functions, ...)">
             <p>This spans the following object types (and this would be the directory structure you'd apply for each)
             </p>
-            <ul>
-                <li>/sp (stored procedures)</li>
-                <li>/view</li>
-                <li>/function</li>
-                <li>/sequence</li>
-                <li>/rule (Sybase ASE)</li>
-                <li>/default (Sybase ASE)</li>
-                <li>/usertype</li>
-            </ul>
+            <table>
+                <tr><th>Object Type</th><th>Directory</th><th>Vendor-specific Notes</th></tr>
+                <tr><td>Stored Procedures</td><td>/sp</td><td></td></tr>
+                <tr><td>Views</td><td>/view</td><td></td></tr>
+                <tr><td>Functions</td><td>/function</td><td></td></tr>
+                <tr><td>Sequences</td><td>/sequence</td><td></td></tr>
+                <tr><td>Triggers</td><td>/trigger</td><td></td></tr>
+                <tr><td>User Types</td><td>/usertype</td><td>Only Sybase ASE and MS SQL Server</td></tr>
+                <tr><td>Rule</td><td>/rule</td><td>Only Sybase ASE and MS SQL Server</td></tr>
+                <tr><td>Default</td><td>/default</td><td>Only Sybase ASE and MS SQL Server</td></tr>
+                <tr><td>Packages + Package Bodies</td><td>/routinepackage</td><td>Only for Oracle</td></tr>
+                <tr><td>Synonyms</td><td>/synonym</td><td>Currently only for Oracle; other vendors will be supported later</td></tr>
+            </table>
             <p>Here is an example:</p>
             <source><![CDATA[CREATE PROCEDURE SP1 ()
 LANGUAGE SQL DYNAMIC RESULT SETS 1
