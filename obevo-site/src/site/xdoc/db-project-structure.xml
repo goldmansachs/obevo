@@ -427,6 +427,38 @@ GO]]></source>
 
                 <p>Obevo will take care of dropping each of the instances as needed</p>
             </subsection>
+            <subsection name="Objects with BODY components, e.g. Oracle packages">
+                <p>Some database objects, such as <a href="https://docs.oracle.com/cd/B19306_01/appdev.102/b14261/packages.htm">Oracle packages</a>,
+                are defined across two SQL statements: a declaration of the object signature, and its implementation.</p>
+                <p>The implementation can be more complex, esp. with referring to other objects, and so we would not want
+                to force the two to be deployed in sequence.</p>
+                <p>Hence, we allow the file content to be split in two using the "//// BODY" line; the content preceding
+                that line is the signature, and afterward the implementation body. See below for an example:</p>
+                <source><![CDATA[CREATE OR REPLACE PACKAGE MY_EXAMPLE_PACKAGE
+AS
+    FUNCTION MY_FUNC1 return integer;
+    FUNCTION MY_FUNC2(var1 IN integer) return integer;
+END;
+GO
+
+//// BODY
+CREATE OR REPLACE PACKAGE BODY MY_EXAMPLE_PACKAGE
+AS
+    FUNCTION MY_FUNC1
+    RETURN integer IS
+    BEGIN
+        RETURN 1;
+    END;
+
+    FUNCTION MY_FUNC2 (var1 IN integer)
+    RETURN integer IS
+    BEGIN
+        RETURN 1;
+    END;
+END;
+GO
+]]></source>
+            </subsection>
         </section>
         <section name="DB Object Deployment Order">
             <p>A key tenet of Obevo is to not require excessive overhead on developers to define the order of

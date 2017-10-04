@@ -169,6 +169,7 @@ public class DbEnvironmentCleaner implements EnvironmentCleaner {
         int tryCount = 0;
         while (true) {
             tryCount++;
+            LOG.info("Attempting to clean objects from environment");
             final Pair<Boolean, MutableList<Exception>> clearResults = clearEnvironmentInternal(noPrompt);
             if (!clearResults.getOne()) {
                 throw new DeployerRuntimeException("Could not clean schema; remaining exceptions: " + clearResults.getTwo().collect(TO_EXCEPTION_STACK_TRACE));
