@@ -383,15 +383,19 @@ sp_rename 'OrigTable', 'NewTable']]></source>
         <section name="Defining Rerunnable Object Changes (Stored Procedures, Views, Functions, ...)">
             <p>This spans the following object types (and this would be the directory structure you'd apply for each)
             </p>
-            <ul>
-                <li>/sp (stored procedures)</li>
-                <li>/view</li>
-                <li>/function</li>
-                <li>/sequence</li>
-                <li>/rule (Sybase ASE)</li>
-                <li>/default (Sybase ASE)</li>
-                <li>/usertype</li>
-            </ul>
+            <table>
+                <tr><th>Object Type</th><th>Directory</th><th>Vendor-specific Notes</th></tr>
+                <tr><td>Stored Procedures</td><td>/sp</td><td></td></tr>
+                <tr><td>Views</td><td>/view</td><td></td></tr>
+                <tr><td>Functions</td><td>/function</td><td></td></tr>
+                <tr><td>Sequences</td><td>/sequence</td><td></td></tr>
+                <tr><td>Triggers</td><td>/trigger</td><td></td></tr>
+                <tr><td>User Types</td><td>/usertype</td><td>Only Sybase ASE and MS SQL Server</td></tr>
+                <tr><td>Rule</td><td>/rule</td><td>Only Sybase ASE and MS SQL Server</td></tr>
+                <tr><td>Default</td><td>/default</td><td>Only Sybase ASE and MS SQL Server</td></tr>
+                <tr><td>Packages + Package Bodies</td><td>/routinepackage</td><td>Only for Oracle</td></tr>
+                <tr><td>Synonyms</td><td>/synonym</td><td>Currently only for Oracle; other vendors will be supported later</td></tr>
+            </table>
             <p>Here is an example:</p>
             <source><![CDATA[CREATE PROCEDURE SP1 ()
 LANGUAGE SQL DYNAMIC RESULT SETS 1
@@ -422,6 +426,38 @@ GO]]></source>
                 </p>
 
                 <p>Obevo will take care of dropping each of the instances as needed</p>
+            </subsection>
+            <subsection name="Objects with BODY components, e.g. Oracle packages">
+                <p>Some database objects, such as <a href="https://docs.oracle.com/cd/B19306_01/appdev.102/b14261/packages.htm">Oracle packages</a>,
+                are defined across two SQL statements: a declaration of the object signature, and its implementation.</p>
+                <p>The implementation can be more complex, esp. with referring to other objects, and so we would not want
+                to force the two to be deployed in sequence.</p>
+                <p>Hence, we allow the file content to be split in two using the "//// BODY" line; the content preceding
+                that line is the signature, and afterward the implementation body. See below for an example:</p>
+                <source><![CDATA[CREATE OR REPLACE PACKAGE MY_EXAMPLE_PACKAGE
+AS
+    FUNCTION MY_FUNC1 return integer;
+    FUNCTION MY_FUNC2(var1 IN integer) return integer;
+END;
+GO
+
+//// BODY
+CREATE OR REPLACE PACKAGE BODY MY_EXAMPLE_PACKAGE
+AS
+    FUNCTION MY_FUNC1
+    RETURN integer IS
+    BEGIN
+        RETURN 1;
+    END;
+
+    FUNCTION MY_FUNC2 (var1 IN integer)
+    RETURN integer IS
+    BEGIN
+        RETURN 1;
+    END;
+END;
+GO
+]]></source>
             </subsection>
         </section>
         <section name="DB Object Deployment Order">

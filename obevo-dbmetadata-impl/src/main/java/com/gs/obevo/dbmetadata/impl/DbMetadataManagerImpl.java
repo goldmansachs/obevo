@@ -122,6 +122,9 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
             if (schemaInfoLevel.isRetrieveSequences()) {
                 options.setSequenceInclusionRule(new IncludeAll());
             }
+            if (schemaInfoLevel.isRetrieveSynonyms()) {
+                options.setSynonymInclusionRule(new IncludeAll());
+            }
 
             LOG.debug("Starting query for DB metadata for {}/{}/{}/{}", tableName, procedureName,
                     searchAllTables ? "searching all tables" : "", searchAllProcedures ? "searching all procedures" : "");
@@ -226,7 +229,7 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
         otherInfoLevel.setRetrieveTriggerInformation(false);  // will implement this later
 
         // synonyms
-        otherInfoLevel.setRetrieveSynonymInformation(false);  // will implement this later
+        otherInfoLevel.setRetrieveSynonymInformation(schemaInfoLevel.isRetrieveSynonyms());
 
         // not yet pulling in privileges; may choose to do this bulk (i.e. flag for privileges pulls in privileges for all object types
         otherInfoLevel.setRetrieveTablePrivileges(false);

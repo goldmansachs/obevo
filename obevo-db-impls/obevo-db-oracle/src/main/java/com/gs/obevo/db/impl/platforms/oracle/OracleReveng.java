@@ -28,6 +28,8 @@ import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
@@ -41,6 +43,7 @@ import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
 import com.gs.obevo.db.impl.core.util.MultiLineStringSplitter;
 import com.gs.obevo.util.inputreader.Credential;
 import org.apache.commons.io.IOUtils;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.block.procedure.Procedure2;
 import org.eclipse.collections.api.list.ImmutableList;
@@ -81,9 +84,24 @@ public class OracleReveng extends AbstractDdlReveng {
     }
 
     static ImmutableList<RevengPattern> getRevengPatterns() {
-        String schemaNameSubPattern = getSchemaObjectPattern(QUOTE, QUOTE);
+        final String schemaNameSubPattern = getSchemaObjectPattern(QUOTE, QUOTE);
         String schemaSysNamePattern = getSchemaObjectWithPrefixPattern(QUOTE, QUOTE, "SYS_");
         NamePatternType namePatternType = NamePatternType.TWO;
+
+        // need this function to split the package and package body lines, as the Oracle reveng function combines them together
+        Function<String, LineParseOutput> prependBodyLineToPackageBody = new Function<String, LineParseOutput>() {
+            private final Pattern packageBodyPattern = Pattern.compile("(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)package\\s+body\\s+" + schemaNameSubPattern, Pattern.DOTALL);
+
+            @Override
+            public LineParseOutput valueOf(String object) {
+                Matcher matcher = packageBodyPattern.matcher(object);
+                if (matcher.find()) {
+                    String output = object.substring(0, matcher.start()) + "\n//// BODY\n" + object.substring(matcher.start());
+                    return new LineParseOutput(output);
+                }
+                return new LineParseOutput(object);
+            }
+        };
         return Lists.immutable.with(
                 new AbstractDdlReveng.RevengPattern(ChangeType.SEQUENCE_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)?sequence\\s+" + schemaNameSubPattern).withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
                 new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+table\\s+" + schemaNameSubPattern).withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
@@ -93,7 +111,8 @@ public class OracleReveng extends AbstractDdlReveng {
                 new AbstractDdlReveng.RevengPattern(ChangeType.FUNCTION_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)?(?:force\\s+)?(?:editionable\\s+)?function\\s+" + schemaNameSubPattern),
                 new AbstractDdlReveng.RevengPattern(ChangeType.VIEW_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)?(?:force\\s+)?(?:editionable\\s+)?view\\s+" + schemaNameSubPattern),
                 new AbstractDdlReveng.RevengPattern(ChangeType.SP_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)procedure\\s+" + schemaNameSubPattern),
-                new AbstractDdlReveng.RevengPattern(ChangeType.PACKAGE_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)package\\s+" + schemaNameSubPattern),
+                new AbstractDdlReveng.RevengPattern(ChangeType.PACKAGE_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)package\\s+" + schemaNameSubPattern).withPostProcessSql(prependBodyLineToPackageBody),
+                new AbstractDdlReveng.RevengPattern(ChangeType.SYNONYM_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)synonym\\s+" + schemaNameSubPattern),
                 new AbstractDdlReveng.RevengPattern(ChangeType.TRIGGER_STR, namePatternType, "(?i)create\\s+or\\s+replace\\s+trigger\\s+" + schemaNameSubPattern)
         );
     }
@@ -118,7 +137,7 @@ public class OracleReveng extends AbstractDdlReveng {
 
             MutableList<Map<String, Object>> maps = jdbc.queryForList(conn,
                     "SELECT CASE WHEN OBJECT_TYPE = 'TABLE' THEN 1 WHEN OBJECT_TYPE = 'INDEX' THEN 2 ELSE 3 END SORT_ORDER,\n" +
-                            "    OBJECT_TYPE,\n" +
+                    "    OBJECT_TYPE,\n" +
                             "    dbms_metadata.get_ddl(REPLACE(object_type,' ','_'), object_name, owner) || ';' AS object_ddl\n" +
                             "FROM DBA_OBJECTS WHERE OWNER = '" + args.getDbSchema() + "' AND OBJECT_TYPE NOT IN ('PACKAGE BODY', 'LOB','MATERIALIZED VIEW', 'TABLE PARTITION')\n" +
                             "ORDER BY 1");

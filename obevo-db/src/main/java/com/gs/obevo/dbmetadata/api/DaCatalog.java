@@ -31,4 +31,6 @@ public interface DaCatalog {
     ImmutableCollection<DaUserType> getUserTypes();
 
     ImmutableCollection<DaPackage> getPackages();
+
+    ImmutableCollection<DaSynonym> getSynonyms();
 }

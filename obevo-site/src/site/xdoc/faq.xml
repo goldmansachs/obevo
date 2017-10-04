@@ -24,9 +24,7 @@
     </properties>
     <body>
         <section name="FAQ">
-            <p>Please see the
-                <a href="${product.url}">wiki page</a>
-            </p>
+            <p>Coming Soon</p>
         </section>
     </body>
 </document>

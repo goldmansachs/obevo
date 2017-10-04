@@ -28,6 +28,7 @@ public class DaSchemaInfoLevel {
     private boolean retrieveRoutines;
     private boolean retrieveRoutineDetails;
     private boolean retrieveSequences;
+    private boolean retrieveSynonyms;
     private boolean retrieveRules;
     private boolean retrieveRuleBindings;
     private boolean retrieveUserDefinedColumnDataTypes;  // todo see if it works for us
@@ -47,6 +48,7 @@ public class DaSchemaInfoLevel {
         this.setRetrieveSequences(true);
         this.setRetrieveRules(true);
         this.setRetrieveRuleBindings(true);
+        this.setRetrieveSynonyms(true);
         return this;
     }
 
@@ -140,6 +142,15 @@ public class DaSchemaInfoLevel {
 
     public DaSchemaInfoLevel setRetrieveSequences(boolean retrieveSequences) {
         this.retrieveSequences = retrieveSequences;
+        return this;
+    }
+
+    public boolean isRetrieveSynonyms() {
+        return retrieveSynonyms;
+    }
+
+    public DaSchemaInfoLevel setRetrieveSynonyms(boolean retrieveSynonyms) {
+        this.retrieveSynonyms = retrieveSynonyms;
         return this;
     }
 

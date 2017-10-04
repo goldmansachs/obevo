@@ -45,7 +45,7 @@ public class OracleRevengIT {
 
     @Test
     public void testRedeploy() {
-        File outputDir = new File("./target/outputReveng");
+        File outputDir = new File("./target/outputReveng/final");
         DbEnvironment prod = DbEnvironmentFactory.getInstance().readOneFromSourcePath(outputDir.getPath(), "prod");
         prod.setCleanBuildAllowed(true);
         prod.buildAppContext("deploybuilddbo", "deploybuilddb0")

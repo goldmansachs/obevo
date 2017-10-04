@@ -43,8 +43,6 @@ public interface ChangeType {
      * DB trigger objects. This will be the new rerunnable ChangeType.
      */
     String TRIGGER_STR = "TRIGGER2";  // must be named trigger2 while the old name exists
-    String PACKAGE_STR = "PACKAGE";  // must be named trigger2 while the old name exists
-    String PACKAGE_BODY = "PACKAGE_BODY";  // must be named trigger2 while the old name exists
     /**
      * DB trigger objects. This is the old incrementable change type
      *
@@ -52,6 +50,11 @@ public interface ChangeType {
      */
     @Deprecated
     String TRIGGER_INCREMENTAL_OLD_STR = "TRIGGER";  // need to keep the old name for backwards-compatibility
+
+    String SYNONYM_STR = "SYNONYM";
+    String PACKAGE_STR = "PACKAGE";
+    String PACKAGE_BODY = "PACKAGE_BODY";
+
     String MIGRATION_STR = "MIGRATION";
     String VIEW_STR = "VIEW";
     String SP_STR = "SP";
