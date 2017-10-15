@@ -1,7 +1,7 @@
 # Contributing to Obevo
 
 This file contains information about reporting issues as well as contributing code. Make sure
-you read our [Contributor Covenant Code of Conduct](CONTRIBUTOR_COVENANT.md) before you
+you read our [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md) before you
 start participating.
 
 For code contributions, read the [BUILD.md](BUILD.md) instructions. If you're considering a larger piece of

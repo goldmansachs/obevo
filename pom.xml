@@ -413,7 +413,9 @@
                         <exclude>**/BUILD.md</exclude>
                         <exclude>**/CHANGELOG.md</exclude>
                         <exclude>**/CONTRIBUTING.md</exclude>
-                        <exclude>**/CONTRIBUTOR_COVENANT.md</exclude>
+                        <exclude>**/CODE_OF_CONDUCT.md</exclude>
+                        <exclude>**/ISSUE_TEMPLATE.md</exclude>
+                        <exclude>**/PULL_REQUEST_TEMPLATE.md</exclude>
                         <exclude>**/LICENSE.txt</exclude>
                         <exclude>**/NOTICE.txt</exclude>
                         <exclude>**/NOTICE.template.txt</exclude>
