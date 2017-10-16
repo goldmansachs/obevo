@@ -287,7 +287,7 @@ public class DbDirectoryChangesetReader implements DbChangeReader {
                     encoding = packageMetadata.getFileToEncodingMap().get(file.getName().getBaseName());
                     metadataSection = packageMetadata.getMetadataSection();
                 }
-                CharsetStrategy charsetStrategy = CharsetStrategyFactory.getCharsetStrategy(ObjectUtils.firstNonNull(encoding, env.getSourceEncoding()));
+                CharsetStrategy charsetStrategy = CharsetStrategyFactory.getCharsetStrategy(ObjectUtils.defaultIfNull(encoding, env.getSourceEncoding()));
                 final String objectName = file.getName().getBaseName().split("\\.")[0];
                 try {
                     LOG.debug("Attempting to read file {}", file);

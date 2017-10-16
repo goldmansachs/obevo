@@ -15,6 +15,7 @@
  */
 package com.gs.obevo.db.impl.core.changetypes;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.appdata.Grant;
@@ -42,7 +43,7 @@ public class GrantChangeParser {
         this.artifactTranslators = artifactTranslators;
     }
 
-    ImmutableList<String> generateGrantChanges(RichIterable<Permission> permsToApply, final DbChangeType changeType, final String mainObjectName, RichIterable<String> objectNames, final boolean specific) {
+    ImmutableList<String> generateGrantChanges(RichIterable<Permission> permsToApply, final DbChangeType changeType, final PhysicalSchema physicalSchema, final String mainObjectName, RichIterable<String> objectNames, final boolean specific) {
         final MutableList<String> changes = Lists.mutable.empty();
 
         for (Permission perm : permsToApply) {
@@ -54,7 +55,7 @@ public class GrantChangeParser {
                         @Override
                         public void value(GrantTargetType grantTargetType, String grantTarget) {
                             for (String privilege : grant.getPrivileges()) {
-                                changes.add(createGrant(env, privilege, changeType, objectName, grantTargetType, grantTarget, specific));
+                                changes.add(createGrant(env, privilege, changeType, physicalSchema, objectName, grantTargetType, grantTarget, specific));
                             }
                         }
                     });
@@ -71,9 +72,9 @@ public class GrantChangeParser {
     }
 
     private String createGrant(DbEnvironment env, String grant,
-            ChangeType changeType, String objectName,
+            ChangeType changeType, PhysicalSchema physicalSchema, String objectName,
             GrantTargetType grantTargetType, String grantTarget, boolean specific) {
-        String content = generateGrantSql(env.getPlatform(), grant, changeType, objectName,
+        String content = generateGrantSql(env.getPlatform(), grant, changeType, env.getPlatform().getSubschemaPrefix(physicalSchema) + objectName,
                 grantTargetType, grantTarget, specific);
 
         for (PrepareDbChange artifactTranslator : this.artifactTranslators) {
@@ -84,10 +85,10 @@ public class GrantChangeParser {
 
     private static String generateGrantSql(DbPlatform dialect, String grant, ChangeType objectType, String objectName,
             GrantTargetType grantTargetType, String grantTarget, boolean specific) {
-        return String.format("GRANT %1$s ON %6$s%2$s %3$s TO %4$s %5$s", grant,
+        return String.format("GRANT %1$s ON %6$s %2$s %3$s TO %4$s %5$s", grant,
                 ((DbChangeType) objectType).getGrantObjectQualifier(), objectName,
                 dialect.getGrantTargetTypeStr(grantTargetType, grantTarget), grantTarget,
-                specific ? "SPECIFIC " : ""
+                specific ? "SPECIFIC" : ""
         );
     }
 }

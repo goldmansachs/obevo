@@ -15,5 +15,10 @@
  */
 package com.gs.obevo.dbmetadata.api;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
+
 public interface DaSchema extends DaNamedObject {
+    String getSubschemaName();
+
+    PhysicalSchema toPhysicalSchema();
 }

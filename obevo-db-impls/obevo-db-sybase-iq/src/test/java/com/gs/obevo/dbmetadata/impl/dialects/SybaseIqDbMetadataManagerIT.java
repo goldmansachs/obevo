@@ -19,6 +19,7 @@ import java.util.Collection;
 
 import javax.sql.DataSource;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.db.impl.platforms.sybaseiq.IqDbPlatform;
 import com.gs.obevo.db.impl.platforms.sybaseiq.SybaseIqParamReader;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
@@ -33,8 +34,8 @@ public class SybaseIqDbMetadataManagerIT extends AbstractDbMetadataManagerIT {
         return SybaseIqParamReader.getParamReader().getJdbcDsAndSchemaParams();
     }
 
-    public SybaseIqDbMetadataManagerIT(DataSource dataSource, String schemaName) {
-        super(dataSource, schemaName);
+    public SybaseIqDbMetadataManagerIT(DataSource dataSource, PhysicalSchema physicalSchema) {
+        super(dataSource, physicalSchema);
     }
 
     @Override

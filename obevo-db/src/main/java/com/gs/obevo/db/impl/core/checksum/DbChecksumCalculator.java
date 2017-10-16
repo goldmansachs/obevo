@@ -58,7 +58,7 @@ public class DbChecksumCalculator {
         MutableList<ChecksumEntry> checksums = Lists.mutable.empty();
 
         String pkContent = table.getPrimaryKey() != null ? table.getPrimaryKey().toString() : "";
-        ChecksumEntry tableChecksum = ChecksumEntry.createFromText(new PhysicalSchema(table.getSchema().getName()), ChangeType.TABLE_STR, table.getName(), "primaryKey", pkContent);
+        ChecksumEntry tableChecksum = ChecksumEntry.createFromText(table.getSchema().toPhysicalSchema(), ChangeType.TABLE_STR, table.getName(), "primaryKey", pkContent);
         checksums.add(tableChecksum);
 
         for (DaColumn column : table.getColumns()) {
@@ -72,14 +72,14 @@ public class DbChecksumCalculator {
         MutableList<ChecksumEntry> checksums = Lists.mutable.empty();
 
         String tableContent = view.getDefinition();
-        ChecksumEntry tableChecksum = ChecksumEntry.createFromText(new PhysicalSchema(view.getSchema().getName()), ChangeType.VIEW_STR, view.getName(), null, tableContent);
+        ChecksumEntry tableChecksum = ChecksumEntry.createFromText(view.getSchema().toPhysicalSchema(), ChangeType.VIEW_STR, view.getName(), null, tableContent);
         checksums.add(tableChecksum);
         return checksums.toImmutable();
     }
 
     private ChecksumEntry getColumnChecksum(DaTable table, DaColumn column) {
         String columnText = column.getColumnDataType().toString() + ":" + column.isNullable();
-        return ChecksumEntry.createFromText(new PhysicalSchema(table.getSchema().getName()), ChangeType.TABLE_STR, table.getName(), column.getName(), columnText);
+        return ChecksumEntry.createFromText(table.getSchema().toPhysicalSchema(), ChangeType.TABLE_STR, table.getName(), column.getName(), columnText);
     }
 
     private ImmutableCollection<ChecksumEntry> getRoutineChecksums(DaRoutine routine) {
@@ -88,7 +88,7 @@ public class DbChecksumCalculator {
         String objectType = routine.getRoutineType() == DaRoutineType.procedure ? ChangeType.SP_STR : ChangeType.FUNCTION_STR;
 
         return Lists.immutable.with(
-                ChecksumEntry.createFromText(new PhysicalSchema(routine.getSchema().getName()), objectType, routine.getName(), routine.getSpecificName(), contentToChecksum)
+                ChecksumEntry.createFromText(routine.getSchema().toPhysicalSchema(), objectType, routine.getName(), routine.getSpecificName(), contentToChecksum)
         );
     }
 }

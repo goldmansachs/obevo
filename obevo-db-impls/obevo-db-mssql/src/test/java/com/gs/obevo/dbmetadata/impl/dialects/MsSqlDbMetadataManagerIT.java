@@ -19,6 +19,7 @@ import java.util.Collection;
 
 import javax.sql.DataSource;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.db.impl.platforms.mssql.MsSqlDbPlatform;
 import com.gs.obevo.db.impl.platforms.mssql.MsSqlParamReader;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
@@ -33,8 +34,8 @@ public class MsSqlDbMetadataManagerIT extends AbstractDbMetadataManagerIT {
         return MsSqlParamReader.getParamReader().getJdbcDsAndSchemaParams();
     }
 
-    public MsSqlDbMetadataManagerIT(DataSource dataSource, String schemaName) {
-        super(dataSource, schemaName);
+    public MsSqlDbMetadataManagerIT(DataSource dataSource, PhysicalSchema physicalSchema) {
+        super(dataSource, physicalSchema);
     }
 
     @Override
@@ -67,44 +68,48 @@ public class MsSqlDbMetadataManagerIT extends AbstractDbMetadataManagerIT {
         return name;
     }
 
+    private String getSubschemaString() {
+        return getPhysicalSchema().getSubschema() != null ? getPhysicalSchema().getSubschema() + "." : "";
+    }
+
     @Override
     protected String get_VIEW1() {
-        return "CREATE VIEW VIEW1 AS SELECT * FROM METADATA_TEST_TABLE -- my comment";
+        return "CREATE VIEW " + getSubschemaString() + "VIEW1 AS SELECT * FROM " + getSubschemaString() + "METADATA_TEST_TABLE -- my comment";
     }
 
     @Override
     protected String get_INVALID_VIEW() {
-        return "create view INVALID_VIEW AS SELECT * FROM INVALID_TABLE";
+        return "create view " + getSubschemaString() + "INVALID_VIEW AS SELECT * FROM " + getSubschemaString() + "INVALID_TABLE";
     }
 
     @Override
     protected String get_SP1() {
-        return "CREATE PROCEDURE SP1 AS -- ensure that SP comment remains DELETE FROM TABLE_A DELETE FROM TABLE_A";
+        return "CREATE PROCEDURE " + getSubschemaString() + "SP1 AS -- ensure that SP comment remains DELETE FROM " + getSubschemaString() + "TABLE_A DELETE FROM " + getSubschemaString() + "TABLE_A";
     }
 
     @Override
     protected String get_FUNC1() {
-        return "CREATE FUNCTION FUNC1() RETURNS INT AS BEGIN -- ensure that func comment remains RETURN 10 END";
+        return "CREATE FUNCTION " + getSubschemaString() + "FUNC1() RETURNS INT AS BEGIN -- ensure that func comment remains RETURN 10 END";
     }
 
     @Override
     protected String get_FUNC_WITH_OVERLOAD_3() {
-        return "-- NOTE - no function overloads supported in ASE CREATE FUNCTION FUNC_WITH_OVERLOAD (@var1 INT, @INVALSTR VARCHAR(32)) RETURNS INT AS BEGIN RETURN 10 END";
+        return "-- NOTE - no function overloads supported in ASE CREATE FUNCTION " + getSubschemaString() + "FUNC_WITH_OVERLOAD (@var1 INT, @INVALSTR VARCHAR(32)) RETURNS INT AS BEGIN RETURN 10 END";
     }
 
     @Override
     protected String get_SP_WITH_OVERLOAD_1() {
-        return "CREATE PROCEDURE SP_WITH_OVERLOAD AS DELETE FROM TABLE_A";
+        return "CREATE PROCEDURE " + getSubschemaString() + "SP_WITH_OVERLOAD AS DELETE FROM " + getSubschemaString() + "TABLE_A";
     }
 
     @Override
     protected String get_SP_WITH_OVERLOAD_2() {
-        return "CREATE PROCEDURE SP_WITH_OVERLOAD;2 (@INVAL INT) AS DELETE FROM TABLE_A DELETE FROM TABLE_A";
+        return "CREATE PROCEDURE " + getSubschemaString() + "SP_WITH_OVERLOAD;2 (@INVAL INT) AS DELETE FROM " + getSubschemaString() + "TABLE_A DELETE FROM " + getSubschemaString() + "TABLE_A";
     }
 
     @Override
     protected String get_SP_WITH_OVERLOAD_3() {
-        return "CREATE PROCEDURE SP_WITH_OVERLOAD AS DELETE FROM TABLE_A DELETE FROM TABLE_A DELETE FROM TABLE_A DELETE FROM TABLE_A";
+        return "CREATE PROCEDURE " + getSubschemaString() + "SP_WITH_OVERLOAD AS DELETE FROM TABLE_A DELETE FROM " + getSubschemaString() + "TABLE_A DELETE FROM " + getSubschemaString() + "TABLE_A DELETE FROM " + getSubschemaString() + "TABLE_A";
     }
 
     @Override
@@ -119,7 +124,9 @@ public class MsSqlDbMetadataManagerIT extends AbstractDbMetadataManagerIT {
 
     @Override
     protected boolean isRuleBindingSupported() {
-        return true;
+        // rule binding is only supporte
+        // d for the default schema
+        return getPhysicalSchema().getSubschema() == null;
     }
 
     @Override

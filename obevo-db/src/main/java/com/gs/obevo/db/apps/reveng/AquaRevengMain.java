@@ -181,10 +181,9 @@ public class AquaRevengMain {
     }
 
     private MutableList<File> preprocessSchemaTokens(MutableList<File> files, String dbSchema, final File interimFolder, DbPlatform dbPlatform) {
-        String schemaSeparatorRegex = dbPlatform.getSchemaSeparator().replace(".", "\\.");
-        if (schemaSeparatorRegex.equals("\\.\\.")) {
-            schemaSeparatorRegex = "\\.(?:dbo)?\\.";  // adding DBO to help w/ Sybase ASE; we should make this code more polymorphic
-        }
+        // adding DBO to help w/ Sybase ASE; we should make this code more polymorphic
+        String schemaSeparatorRegex = dbPlatform.isSubschemaSupported() ? "\\.(?:dbo)?\\." : "\\.";
+
         final Pattern dbSchemaPattern = Pattern.compile(String.format("(?i)%1$s%2$s(\\w+)", dbSchema, schemaSeparatorRegex));
         return files.collect(new Function<File, File>() {
             @Override

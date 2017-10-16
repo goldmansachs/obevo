@@ -84,7 +84,7 @@ public class DbEnvironmentCleaner implements EnvironmentCleaner {
     }
 
     private ImmutableList<DbCleanCommand> getDropStatements(PhysicalSchema physicalSchema) {
-        DaCatalog database = this.dbMetadataManager.getDatabase(physicalSchema.getPhysicalName(), new DaSchemaInfoLevel().setRetrieveAllObjectsMinimum().setRetrieveTableForeignKeys(true), true, true);
+        DaCatalog database = this.dbMetadataManager.getDatabase(physicalSchema, new DaSchemaInfoLevel().setRetrieveAllObjectsMinimum().setRetrieveTableForeignKeys(true), true, true);
 
         MutableSet<DbCleanCommand> cleanCommands = Sets.mutable.empty();
 

@@ -14,14 +14,12 @@
 -- under the License.
 --
 
-/* This is a use case from Costar */
 create table #MyTemp (
     FieldA varchar(32),
     FieldB int
 )
 GO
-create proc SpWithTemp (@MaxCount  int) as
---$Header: /home/cvs/gdtech/costar/src/db/procs/DelExcessSelectTrades.eqd,v 1.2 2010/08/13 18:15:51 jayava Exp $
+create proc ${oats_subschemaSuffixed}SpWithTemp (@MaxCount  int) as
 begin
     select * from #MyTemp
 end

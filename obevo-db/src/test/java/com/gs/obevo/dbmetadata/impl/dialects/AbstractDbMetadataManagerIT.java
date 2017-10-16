@@ -15,12 +15,13 @@
  */
 package com.gs.obevo.dbmetadata.impl.dialects;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
+import com.gs.obevo.db.testutil.TestTemplateUtil;
 import com.gs.obevo.dbmetadata.api.DaCatalog;
 import com.gs.obevo.dbmetadata.api.DaForeignKey;
 import com.gs.obevo.dbmetadata.api.DaNamedObject;
@@ -37,13 +38,17 @@ import com.gs.obevo.dbmetadata.api.DaView;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
 import com.gs.obevo.dbmetadata.api.RuleBinding;
 import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.eclipse.collections.api.collection.ImmutableCollection;
+import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.multimap.ImmutableMultimap;
 import org.eclipse.collections.api.multimap.Multimap;
 import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.block.factory.Predicates;
+import org.eclipse.collections.impl.factory.Lists;
+import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.test.Verify;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -69,16 +74,20 @@ public abstract class AbstractDbMetadataManagerIT {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractDbMetadataManagerIT.class);
 
     private final DataSource dataSource;
-    private final String schemaName;
+    private final PhysicalSchema physicalSchema;
     private DbMetadataManager mgr;
 
-    public AbstractDbMetadataManagerIT(DataSource dataSource, String schemaName) {
+    public AbstractDbMetadataManagerIT(DataSource dataSource, PhysicalSchema physicalSchema) {
         this.dataSource = dataSource;
-        this.schemaName = schemaName;
+        this.physicalSchema = physicalSchema;
+    }
+
+    protected PhysicalSchema getPhysicalSchema() {
+        return physicalSchema;
     }
 
     protected final String getSchemaName() {
-        return schemaName;
+        return physicalSchema.getPhysicalName();
     }
 
     protected final DataSource getDataSource() {
@@ -109,7 +118,13 @@ public abstract class AbstractDbMetadataManagerIT {
 
         setCurrentSchema(jdbc);
 
-        for (String sql : splitSql(getDropSqlFile())) {
+        String subschema = getPhysicalSchema().getSubschema() != null ? getPhysicalSchema().getSubschema() + "." : "";
+
+        StringWriter sw = new StringWriter();
+        MutableMap<String, Object> params = Maps.mutable.<String, Object>with("subschema", subschema);
+
+        TestTemplateUtil.getInstance().writeTemplate(getDropSqlFile(), params, sw);
+        for (String sql : splitSql(sw.toString())) {
             try {
                 jdbc.update(sql);
             } catch (Exception ignore) {
@@ -117,14 +132,16 @@ public abstract class AbstractDbMetadataManagerIT {
             }
         }
 
-        for (String sql : splitSql(getAddSqlFile())) {
+        sw = new StringWriter();
+        TestTemplateUtil.getInstance().writeTemplate(getAddSqlFile(), params, sw);
+        for (String sql : splitSql(sw.toString())) {
             jdbc.update(sql);
         }
     }
 
     @Test
     public void testGetAllTablesAndViewsAndRoutines() throws Exception {
-        DaCatalog database = mgr.getDatabase(getSchemaName(), new DaSchemaInfoLevel().setMaximum(), true, true);
+        DaCatalog database = mgr.getDatabase(getPhysicalSchema(), new DaSchemaInfoLevel().setMaximum(), true, true);
         ImmutableCollection<DaTable> tables = database.getTables();
         Multimap<String, DaTable> tablesByName = tables.groupBy(DaNamedObject.TO_NAME);
 
@@ -235,18 +252,18 @@ public abstract class AbstractDbMetadataManagerIT {
 
     @Test
     public void testSpecificTableLookup() throws Exception {
-        DaTable table = mgr.getTableInfo(getSchemaName(), "TABLE_A", new DaSchemaInfoLevel().setRetrieveTableAndColumnDetails());
+        DaTable table = mgr.getTableInfo(getPhysicalSchema(), "TABLE_A", new DaSchemaInfoLevel().setRetrieveTableAndColumnDetails());
         verify_TABLE_A(table, "TABLE_A");
     }
 
     @Test
     public void testSpecificRoutineLookup() throws Exception {
         if (isStoredProcedureSupported()) {
-            DaRoutine sp = mgr.getProcedureInfo(getSchemaName(), "SP1", new DaSchemaInfoLevel().setRetrieveRoutineDetails(true)).getFirst();
+            DaRoutine sp = mgr.getRoutineInfo(getPhysicalSchema(), "SP1", new DaSchemaInfoLevel().setRetrieveRoutineDetails(true)).getFirst();
             verify_SP1(sp, "SP1");
         }
         if (isFunctionSupported()) {
-            DaRoutine func = mgr.getProcedureInfo(getSchemaName(), "FUNC1", new DaSchemaInfoLevel().setRetrieveRoutineDetails(true)).getFirst();
+            DaRoutine func = mgr.getRoutineInfo(getPhysicalSchema(), "FUNC1", new DaSchemaInfoLevel().setRetrieveRoutineDetails(true)).getFirst();
             verify_FUNC1(func, "FUNC1");
         }
     }
@@ -458,21 +475,9 @@ public abstract class AbstractDbMetadataManagerIT {
         assertEquals(convertName("A2_ID"), fk.getColumnReferences().get(1).getPrimaryKeyColumn().getName());
     }
 
-    public static String[] splitSql(String filePath) throws Exception {
-        String sqlContent = pathToString(filePath);
+    public static String[] splitSql(String sqlContent) throws Exception {
         Pattern splitter = Pattern.compile("(?i)^GO$", Pattern.MULTILINE);
         return splitter.split(sqlContent);
-    }
-
-    private static String pathToString(String path) {
-        InputStream is = AbstractDbMetadataManagerIT.class.getClassLoader().getResourceAsStream(path);
-        try {
-            return IOUtils.toString(is);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(is);
-        }
     }
 
     enum OverLoadSupport {

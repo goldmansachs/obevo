@@ -132,7 +132,7 @@ public class SameSchemaChangeAuditDao implements ChangeAuditDao {
 
     private void init(Connection conn, String schema) {
         PhysicalSchema physicalSchema = env.getPhysicalSchema(schema);
-        DaTable artifactTable = this.dbMetadataManager.getTableInfo(physicalSchema.getPhysicalName(), dbChangeTable, new DaSchemaInfoLevel().setRetrieveTableColumns(true));
+        DaTable artifactTable = this.dbMetadataManager.getTableInfo(physicalSchema, dbChangeTable, new DaSchemaInfoLevel().setRetrieveTableColumns(true));
         JdbcHelper jdbc = sqlExecutor.getJdbcTemplate();
         if (artifactTable == null) {
             String auditTableSql = get5_1Sql(physicalSchema);
@@ -149,39 +149,41 @@ public class SameSchemaChangeAuditDao implements ChangeAuditDao {
             // We will still grant this here to make up for the existing DBs that did not have the grants given
             DbChangeTypeBehavior tableChangeType = (DbChangeTypeBehavior)changeTypeBehaviorRegistry.getChangeTypeBehavior(ChangeType.TABLE_STR);
 
+            String schemaPlusTable = env.getPlatform().getSubschemaPrefix(physicalSchema) + dbChangeTable;
+
             // Here, we detect if we are on an older version of the table due to missing columns (added for version
             // 3.9.0). If we find the
             // columns are missing, we will add them and backfill
             if (artifactTable.getColumn(deployUserIdColumn) == null) {
-                jdbc.execute(conn, String.format("alter table %s ADD %s %s %s", dbChangeTable,
+                jdbc.execute(conn, String.format("alter table %s ADD %s %s %s", schemaPlusTable,
                         deployUserIdColumn, "VARCHAR(32)", env.getPlatform().getNullMarkerForCreateTable()));
-                jdbc.execute(conn, String.format("UPDATE %s SET %s = %s", dbChangeTable,
+                jdbc.execute(conn, String.format("UPDATE %s SET %s = %s", schemaPlusTable,
                         deployUserIdColumn, "'backfill'"));
             }
             if (artifactTable.getColumn(timeUpdatedColumn) == null) {
-                jdbc.execute(conn, String.format("alter table %s ADD %s %s %s", dbChangeTable,
+                jdbc.execute(conn, String.format("alter table %s ADD %s %s %s", schemaPlusTable,
                         timeUpdatedColumn, env.getPlatform().getTimestampType(), env.getPlatform()
                                 .getNullMarkerForCreateTable()));
                 jdbc.execute(
-                        conn, String.format("UPDATE %s SET %s = %s", dbChangeTable, timeUpdatedColumn, "'"
+                        conn, String.format("UPDATE %s SET %s = %s", schemaPlusTable, timeUpdatedColumn, "'"
                                 + TIMESTAMP_FORMAT.print(new DateTime()) + "'"));
             }
             if (artifactTable.getColumn(timeInsertedColumn) == null) {
-                jdbc.execute(conn, String.format("alter table %s ADD %s %s %s", dbChangeTable,
+                jdbc.execute(conn, String.format("alter table %s ADD %s %s %s", schemaPlusTable,
                         timeInsertedColumn, env.getPlatform().getTimestampType(), env.getPlatform()
                                 .getNullMarkerForCreateTable()));
-                jdbc.execute(conn, String.format("UPDATE %s SET %s = %s", dbChangeTable, timeInsertedColumn, timeUpdatedColumn));
+                jdbc.execute(conn, String.format("UPDATE %s SET %s = %s", schemaPlusTable, timeInsertedColumn, timeUpdatedColumn));
             }
             if (artifactTable.getColumn(rollbackContentColumn) == null) {
-                jdbc.execute(conn, String.format("alter table %s ADD %s %s %s", dbChangeTable,
+                jdbc.execute(conn, String.format("alter table %s ADD %s %s %s", schemaPlusTable,
                         rollbackContentColumn, env.getPlatform().getTextType(), env.getPlatform().getNullMarkerForCreateTable()));
                 // for the 3.12.0 release, we will also update the METADATA changeType value to STATICDATA
                 jdbc.execute(conn, String.format("UPDATE %1$s SET %2$s='%3$s' WHERE %2$s='%4$s'",
-                        dbChangeTable, changeTypeColumn, ChangeType.STATICDATA_STR,
+                        schemaPlusTable, changeTypeColumn, ChangeType.STATICDATA_STR,
                         OLD_STATICDATA_CHANGETYPE));
             }
             if (artifactTable.getColumn(insertDeployExecutionIdColumn) == null) {
-                jdbc.execute(conn, String.format("alter table %s ADD %s %s %s", dbChangeTable,
+                jdbc.execute(conn, String.format("alter table %s ADD %s %s %s", schemaPlusTable,
                         insertDeployExecutionIdColumn, env.getPlatform().getBigIntType(), env.getPlatform().getNullMarkerForCreateTable()));
 
                 // If this column doesn't exist, it means we've just moved to the version w/ the DeployExecution table.
@@ -189,12 +191,12 @@ public class SameSchemaChangeAuditDao implements ChangeAuditDao {
                 DeployExecution deployExecution = new DeployExecutionImpl("backfill", "backfill", schema, "0.0.0", getCurrentTimestamp(), false, false, null, "backfill", Sets.immutable.<DeployExecutionAttribute>empty());
                 deployExecution.setStatus(DeployExecutionStatus.SUCCEEDED);
                 deployExecutionDao.persistNewSameContext(conn, deployExecution, physicalSchema);
-                jdbc.execute(conn, String.format("UPDATE %s SET %s = %s", dbChangeTable, insertDeployExecutionIdColumn, deployExecution.getId()));
+                jdbc.execute(conn, String.format("UPDATE %s SET %s = %s", schemaPlusTable, insertDeployExecutionIdColumn, deployExecution.getId()));
             }
             if (artifactTable.getColumn(updateDeployExecutionIdColumn) == null) {
-                jdbc.execute(conn, String.format("alter table %s ADD %s %s %s", dbChangeTable,
+                jdbc.execute(conn, String.format("alter table %s ADD %s %s %s", schemaPlusTable,
                         updateDeployExecutionIdColumn, env.getPlatform().getBigIntType(), env.getPlatform().getNullMarkerForCreateTable()));
-                jdbc.execute(conn, String.format("UPDATE %s SET %s = %s", dbChangeTable, updateDeployExecutionIdColumn, insertDeployExecutionIdColumn));
+                jdbc.execute(conn, String.format("UPDATE %s SET %s = %s", schemaPlusTable, updateDeployExecutionIdColumn, insertDeployExecutionIdColumn));
             }
         }
     }
@@ -306,7 +308,7 @@ public class SameSchemaChangeAuditDao implements ChangeAuditDao {
                     @Override
                     public MutableList<Change> safeValueOf(Connection conn) throws Exception {
                         JdbcHelper jdbcTemplate = sqlExecutor.getJdbcTemplate();
-                        final DaTable artifactTable = dbMetadataManager.getTableInfo(physicalSchema.getPhysicalName(),
+                        final DaTable artifactTable = dbMetadataManager.getTableInfo(physicalSchema,
                                 dbChangeTable, new DaSchemaInfoLevel().setRetrieveTableColumns(true));
 
                         if (artifactTable == null) {

@@ -88,7 +88,7 @@ public class RerunnableDbChangeTypeBehavior extends AbstractDbChangeTypeBehavior
     @Override
     public String getDefinitionFromEnvironment(Change drop) {
         if (drop.getChangeType().getName().equals(ChangeType.VIEW_STR)) {
-            DaTable table = this.dbMetadataManager.getTableInfo(drop.getPhysicalSchema().getPhysicalName(),
+            DaTable table = this.dbMetadataManager.getTableInfo(drop.getPhysicalSchema(),
                     drop.getObjectName(), new DaSchemaInfoLevel().setRetrieveViewDetails(true));
             DaView view;
             if (table instanceof DaView) {
@@ -100,8 +100,8 @@ public class RerunnableDbChangeTypeBehavior extends AbstractDbChangeTypeBehavior
 
             return view.getDefinition();
         } else if (drop.getChangeType().getName().equals(ChangeType.FUNCTION_STR)) {
-            ImmutableCollection<DaRoutine> procedures = this.dbMetadataManager.getProcedureInfo(
-                    drop.getPhysicalSchema().getPhysicalName(),
+            ImmutableCollection<DaRoutine> procedures = this.dbMetadataManager.getRoutineInfo(
+                    drop.getPhysicalSchema(),
                     drop.getObjectName(),
                     new DaSchemaInfoLevel().setRetrieveRoutineDetails(true)
             );

@@ -21,6 +21,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.dbmetadata.api.DaRoutine;
 import com.gs.obevo.dbmetadata.api.DaRoutineType;
 import com.gs.obevo.dbmetadata.api.DaRule;
@@ -36,6 +37,7 @@ import com.gs.obevo.dbmetadata.impl.SchemaStrategy;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.MapListHandler;
+import org.apache.commons.lang3.ObjectUtils;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.collection.ImmutableCollection;
@@ -59,7 +61,7 @@ import schemacrawler.schemacrawler.SchemaCrawlerOptions;
  */
 public class MsSqlMetadataDialect extends AbstractMetadataDialect {
     @Override
-    public void customEdits(SchemaCrawlerOptions options, Connection conn, String schemaName) {
+    public void customEdits(SchemaCrawlerOptions options, Connection conn) {
         // MS SQL driver supports SP metadata, but not functions. As a result, we must disable SchemaCrawler's own
         // lookups entirely and use our own query. (SchemaCrawler's inherent behavior for the SQL only adds to existing
         // routine data, not loading in entire new ones).
@@ -80,22 +82,22 @@ public class MsSqlMetadataDialect extends AbstractMetadataDialect {
     }
 
     @Override
-    public String getSchemaExpression(String schemaName) {
-        // Start w/ the catalog name, then take any word string for the second part (i.e. schema name like dbo or DACT_RO)
-        return schemaName + "\\.[^(sys)|(INFORMATION_SCHEMA)]\\w*";
+    public String getSchemaExpression(PhysicalSchema physicalSchema) {
+        String subschema = ObjectUtils.defaultIfNull(physicalSchema.getSubschema(), "dbo");
+        return physicalSchema.getPhysicalName() + "\\." + subschema;
     }
 
     @Override
-    public void validateDatabase(Catalog database, final String schema) {
+    public void validateDatabase(Catalog database, final PhysicalSchema physicalSchema) {
         MutableCollection<Schema> schemasWithIncorrectCatalog = CollectionAdapter.adapt(database.getSchemas()).reject(new Predicate<Schema>() {
             @Override
             public boolean accept(Schema each) {
-                return each.getCatalogName().equals(schema);
+                return each.getCatalogName().equals(physicalSchema.getPhysicalName());
             }
         });
 
         if (schemasWithIncorrectCatalog.notEmpty()) {
-            throw new IllegalArgumentException("Returned ASE schemas should be in " + schema + " catalog; however, these were not: " + schemasWithIncorrectCatalog);
+            throw new IllegalArgumentException("Returned ASE schemas should be in " + physicalSchema.getPhysicalName() + " catalog; however, these were not: " + schemasWithIncorrectCatalog);
         }
     }
 
@@ -106,12 +108,16 @@ public class MsSqlMetadataDialect extends AbstractMetadataDialect {
         String sql = "select tab.name 'object', rul.name 'rule', " +
                 "'sp_bindrule ' + rul.name + ', ''' + tab.name + '.' + col.name + '''' 'sql'\n" +
                 "from " + schemaName + "..syscolumns col, " + schemaName + "..sysobjects rul, " + schemaName + "..sysobjects tab\n" +
+                "    , sys.schemas sch\n" +
                 "where col.domain = rul.id and col.id = tab.id and tab.type='U' and col.domain <> 0\n" +
+                "    and tab.uid = sch.schema_id and sch.name = '" + schema.getSubschemaName() + "'\n" +
                 "union\n" +
                 "select obj.name 'object', rul.name 'rule', " +
                 "'sp_bindrule ' + rul.name + ', ' + obj.name 'sql'\n" +
                 "from " + schemaName + "..systypes obj, " + schemaName + "..sysobjects rul\n" +
-                "where obj.domain = rul.id and obj.domain <> 0\n";
+                "    , sys.schemas sch\n" +
+                "where obj.domain = rul.id and obj.domain <> 0\n" +
+                "    and obj.uid = sch.schema_id and sch.name = '" + schema.getSubschemaName() + "'\n";
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
@@ -148,6 +154,7 @@ public class MsSqlMetadataDialect extends AbstractMetadataDialect {
                 "    OBJECT_DEFINITION(OBJECT_ID(ROUTINE_CATALOG + '.' + ROUTINE_SCHEMA + '.' + ROUTINE_NAME)) AS ROUTINE_DEFINITION" +
                 " FROM INFORMATION_SCHEMA.ROUTINES" +
                 " WHERE ROUTINE_CATALOG = '" + schema.getName() + "'" +
+                " AND ROUTINE_SCHEMA = '" + schema.getSubschemaName() + "'" +
                 nameClause;
         QueryRunner qr = new QueryRunner();  // using queryRunner so that we can reuse the connection
         ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(qr.query(conn, query, new MapListHandler())).toImmutable();
@@ -172,17 +179,17 @@ public class MsSqlMetadataDialect extends AbstractMetadataDialect {
         QueryRunner query = new QueryRunner();  // using queryRunner so that we can reuse the connection
 
         // Do not use ANSI JOIN as it does not work in Sybase 11.x - the SQL below works across all versions
-        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(query.query(conn,
-                "SELECT rul.name as RULE_NAME\n" +
-                        "FROM " + schema.getName() + "..sysobjects rul\n" +
-                        "WHERE rul.type = 'R'\n" +
-                        "and not exists (\n" +
-                        "\t-- Ensure that the entry is not attached to a table; otherwise, it is a regular table constraint, and will already be dropped when the table is dropped\n" +
-                        "\tselect 1 from " + schema.getName() + "..sysconstraints c\n" +
-                        "\twhere c.constid = rul.id\n" +
-                        ")\n",
-                new MapListHandler()
-        )).toImmutable();
+        String sql = "SELECT rul.name as RULE_NAME\n" +
+                "FROM " + schema.getName() + "..sysobjects rul\n" +
+                "    , sys.schemas sch\n" +
+                "WHERE rul.type = 'R'\n" +
+                "    and rul.uid = sch.schema_id and sch.name = '" + schema.getSubschemaName() + "' " +
+                "and not exists (\n" +
+                "\t-- Ensure that the entry is not attached to a table; otherwise, it is a regular table constraint, and will already be dropped when the table is dropped\n" +
+                "\tselect 1 from " + schema.getName() + "..sysconstraints c\n" +
+                "\twhere c.constid = rul.id\n" +
+                ")\n";
+        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(query.query(conn, sql, new MapListHandler())).toImmutable();
 
         return maps.collect(new Function<Map<String, Object>, DaRule>() {
             @Override
@@ -196,12 +203,11 @@ public class MsSqlMetadataDialect extends AbstractMetadataDialect {
     public ImmutableCollection<DaUserType> searchUserTypes(final DaSchema schema, Connection conn) throws SQLException {
         QueryRunner query = new QueryRunner();
 
-        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(query.query(conn,
-                "SELECT DOMAIN_NAME as USER_TYPE_NAME " +
-                        "FROM INFORMATION_SCHEMA.DOMAINS " +
-                        "WHERE DOMAIN_CATALOG = '" + schema.getName() + "'",
-                new MapListHandler()
-        )).toImmutable();
+        String sql = "SELECT DOMAIN_NAME as USER_TYPE_NAME " +
+                "FROM INFORMATION_SCHEMA.DOMAINS " +
+                "WHERE DOMAIN_CATALOG = '" + schema.getName() + "' " +
+                "AND DOMAIN_SCHEMA = '" + schema.getSubschemaName() + "'";
+        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(query.query(conn, sql, new MapListHandler())).toImmutable();
 
         return maps.collect(new Function<Map<String, Object>, DaUserType>() {
             @Override

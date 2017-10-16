@@ -76,7 +76,8 @@ public class CsvStaticDataWriter {
         if (args.getDriverClass() != null) {
             env.setDriverClassName(args.getDriverClass());
         }
-        final Schema schema = new Schema(args.getDbSchema());
+        final PhysicalSchema physicalSchema = PhysicalSchema.parseFromString(args.getDbSchema());
+        final Schema schema = new Schema(physicalSchema.getPhysicalName());  // use the physical name as the schema name for the reverse-engineering
         env.setSchemas(Sets.immutable.with(schema));
 
         Credential credential = credentialReader.getCredential(args.getUsername(), args.getPassword(), false, null, null,
@@ -97,8 +98,8 @@ public class CsvStaticDataWriter {
             System.out.println("Working on table " + table + " at " + new Date());
 
             CSVFormat csvFormat = CsvReaderDataSource.getCsvFormat(env.getDataDelimiter(), env.getNullToken()).withQuoteMode(QuoteMode.NON_NUMERIC);
-            mw.writeTable(env.getPlatform(), new PhysicalSchema(schema.getName()), table.trim(),
-                    new File(args.getOutputDir(), env.getPlatform().getChangeType(ChangeType.STATICDATA_STR).getDirectoryName()),
+            mw.writeTable(env.getPlatform(), physicalSchema, table.trim(),
+                    new File(args.getOutputPath(), env.getPlatform().getChangeType(ChangeType.STATICDATA_STR).getDirectoryName()),
                     args.getUpdateTimeColumns(), csvFormat);
         }
     }
@@ -111,7 +112,7 @@ public class CsvStaticDataWriter {
     private void writeTable(DbPlatform dbtype, PhysicalSchema schema, String tableName, File directory,
             MutableSet<String> updateTimeColumns, final CSVFormat csvFormat) {
         directory.mkdirs();
-        DaTable table = this.metadataManager.getTableInfo(schema.getPhysicalName(), tableName, new DaSchemaInfoLevel().setRetrieveTableColumns(true));
+        DaTable table = this.metadataManager.getTableInfo(schema, tableName, new DaSchemaInfoLevel().setRetrieveTableColumns(true));
         if (table == null) {
             System.out.println("No data found for table " + tableName);
             return;

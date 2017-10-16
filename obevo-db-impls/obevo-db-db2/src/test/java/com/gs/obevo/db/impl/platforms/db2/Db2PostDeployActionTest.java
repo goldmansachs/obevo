@@ -21,6 +21,7 @@ import java.util.Collection;
 
 import javax.sql.DataSource;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.appdata.Schema;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.impl.core.jdbc.DataAccessException;
@@ -52,21 +53,21 @@ public class Db2PostDeployActionTest {
     }
 
     private final DataSource dataSource;
-    private final String schemaName;
+    private final PhysicalSchema physicalSchema;
     private Db2SqlExecutor sqlExecutor;
     private Db2PostDeployAction db2PostDeployAction;
     private DbEnvironment env;
     private DeployMetricsCollector metricsCollector;
 
-    public Db2PostDeployActionTest(DataSource dataSource, String schemaName) {
+    public Db2PostDeployActionTest(DataSource dataSource, PhysicalSchema physicalSchema) {
         this.dataSource = dataSource;
-        this.schemaName = schemaName;
+        this.physicalSchema = physicalSchema;
     }
 
     @Before
     public void setup() {
         this.env = new DbEnvironment();
-        this.env.setSchemas(Sets.immutable.with(new Schema(schemaName)));
+        this.env.setSchemas(Sets.immutable.with(new Schema(physicalSchema.getPhysicalName())));
 
         this.sqlExecutor = new Db2SqlExecutor(dataSource, env);
 
@@ -76,7 +77,7 @@ public class Db2PostDeployActionTest {
 
     @Test
     public void checkForInvalidViews() throws Exception {
-        sqlExecutor.executeWithinContext(env.getPhysicalSchema(schemaName), new Procedure<Connection>() {
+        sqlExecutor.executeWithinContext(physicalSchema, new Procedure<Connection>() {
             @Override
             public void value(Connection conn) {
                 // Setup the invalid objects
@@ -110,7 +111,7 @@ public class Db2PostDeployActionTest {
 
     @After
     public void teardown() {
-        sqlExecutor.executeWithinContext(env.getPhysicalSchema(schemaName), new Procedure<Connection>() {
+        sqlExecutor.executeWithinContext(physicalSchema, new Procedure<Connection>() {
             @Override
             public void value(Connection conn) {
                 try {

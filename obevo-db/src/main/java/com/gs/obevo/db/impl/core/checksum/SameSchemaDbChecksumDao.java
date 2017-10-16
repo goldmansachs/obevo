@@ -132,7 +132,7 @@ public class SameSchemaDbChecksumDao implements DbChecksumDao {
     }
 
     private DaTable getChecksumTable(PhysicalSchema physicalSchema) {
-        return this.dbMetadataManager.getTableInfo(physicalSchema.getPhysicalName(), checksumTableName, new DaSchemaInfoLevel().setRetrieveTables(true));
+        return this.dbMetadataManager.getTableInfo(physicalSchema, checksumTableName, new DaSchemaInfoLevel().setRetrieveTables(true));
     }
 
     @Override

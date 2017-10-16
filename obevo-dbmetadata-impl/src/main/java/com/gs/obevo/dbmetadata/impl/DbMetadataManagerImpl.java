@@ -17,10 +17,12 @@ package com.gs.obevo.dbmetadata.impl;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.logging.Level;
 
 import javax.sql.DataSource;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.dbmetadata.api.DaCatalog;
 import com.gs.obevo.dbmetadata.api.DaPackage;
 import com.gs.obevo.dbmetadata.api.DaRoutine;
@@ -78,9 +80,16 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
     }
 
     @Override
+    @Deprecated
     public DaCatalog getDatabase(String physicalSchema, DaSchemaInfoLevel schemaInfoLevel, boolean searchAllTables,
-            boolean searchAllProcedures) {
-        return this.getDatabase(schemaInfoLevel, physicalSchema, null, null, searchAllTables, searchAllProcedures);
+            boolean searchAllRoutines) {
+        return this.getDatabase(new PhysicalSchema(physicalSchema), schemaInfoLevel, searchAllTables, searchAllRoutines);
+    }
+
+    @Override
+    public DaCatalog getDatabase(PhysicalSchema physicalSchema, DaSchemaInfoLevel schemaInfoLevel, boolean searchAllTables,
+            boolean searchAllRoutines) {
+        return this.getDatabase(physicalSchema, schemaInfoLevel, searchAllTables, searchAllRoutines, null, null);
     }
 
     /**
@@ -89,29 +98,27 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
      *
      * @param searchAllProcedures @return
      */
-    private DaCatalog getDatabase(DaSchemaInfoLevel schemaInfoLevel, String schemaName, String tableName,
-            String procedureName, boolean searchAllTables, boolean searchAllProcedures) {
+    private DaCatalog getDatabase(PhysicalSchema physicalSchema, DaSchemaInfoLevel schemaInfoLevel, boolean searchAllTables, boolean searchAllProcedures, String tableName,
+            String procedureName) {
         // Many of the DB metadata drivers like IQ/ASE/DB2 don't support the function metadata lookups and
         // schemacrawler complains (though the library still does the job). We set the log level here to avoid
         // excessive log messages
         java.util.logging.Logger.getLogger("schemacrawler").setLevel(Level.SEVERE);
 
-        Validate.notNull(schemaName, "Schema must be specified");
+        Validate.notNull(physicalSchema, "physicalSchema must be specified");
         Connection conn = null;
         try {
             conn = this.ds.getConnection();
-            if (schemaName != null) {
-                this.dbMetadataDialect.setSchemaOnConnection(conn, schemaName);
-            }
+            this.dbMetadataDialect.setSchemaOnConnection(conn, physicalSchema.getPhysicalName());
 
             SchemaCrawlerOptions options = new SchemaCrawlerOptions();
             // Set what details are required in the schema - this affects the time taken to crawl the schema
             // Standard works for our use cases (e.g. columns, indices, pks)
             options.setSchemaInfoLevel(toInfoLevel(schemaInfoLevel));
 
-            DatabaseSpecificOverrideOptionsBuilder dbSpecificOptionsBuilder = dbMetadataDialect.getDbSpecificOptionsBuilder(conn, schemaName);
+            DatabaseSpecificOverrideOptionsBuilder dbSpecificOptionsBuilder = dbMetadataDialect.getDbSpecificOptionsBuilder(conn, physicalSchema);
             DatabaseSpecificOverrideOptions dbSpecificOptions = dbSpecificOptionsBuilder.toOptions();
-            this.enrichSchemaCrawlerOptions(conn, options, schemaName, tableName, procedureName);
+            this.enrichSchemaCrawlerOptions(conn, options, physicalSchema, tableName, procedureName);
 
             if (tableName == null && procedureName != null && !searchAllTables) {
                 options.setTableInclusionRule(new ExcludeAll());
@@ -134,13 +141,13 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
                 final SchemaCrawler schemaCrawler = new SchemaCrawler(conn, dbSpecificOptions);
                 database = schemaCrawler.crawl(options);
             } catch (SchemaCrawlerException e) {
-                throw new IllegalArgumentException("Could not lookup schema " + schemaName + ": " + e.getMessage(), e);
+                throw new IllegalArgumentException("Could not lookup schema " + physicalSchema + ": " + e.getMessage(), e);
             }
 
             LOG.debug("Ending query for DB metadata for {}/{}/{}/{}", tableName, procedureName,
                     searchAllTables ? "searching all tables" : "", searchAllProcedures ? "searching all procedures" : "");
 
-            this.dbMetadataDialect.validateDatabase(database, schemaName);
+            this.dbMetadataDialect.validateDatabase(database, physicalSchema);
 
             SchemaStrategy schemaStrategy = dbMetadataDialect.getSchemaStrategy();
             Schema schemaReference = database.getSchemas().isEmpty() ? null : database.getSchemas().iterator().next();
@@ -244,22 +251,40 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
     }
 
     @Override
+    @Deprecated
     public DaCatalog getDatabaseOptional(String physicalSchema) {
+        return getDatabaseOptional(new PhysicalSchema(physicalSchema));
+    }
+
+    @Override
+    public DaCatalog getDatabaseOptional(PhysicalSchema physicalSchema) {
         try {
-            return this.getDatabase(new DaSchemaInfoLevel(), physicalSchema, null, null, false, false);
+            return this.getDatabase(physicalSchema, new DaSchemaInfoLevel(), false, false, null, null);
         } catch (IllegalArgumentException exc) {
             return null;
         }
     }
 
     @Override
+    @Deprecated
     public DaTable getTableInfo(String physicalSchema, String tableName) {
+        return this.getTableInfo(new PhysicalSchema(physicalSchema), tableName);
+    }
+
+    @Override
+    public DaTable getTableInfo(PhysicalSchema physicalSchema, String tableName) {
         return this.getTableInfo(physicalSchema, tableName, new DaSchemaInfoLevel().setRetrieveTableAndColumnDetails());
     }
 
     @Override
+    @Deprecated
     public DaTable getTableInfo(String physicalSchema, String tableName, DaSchemaInfoLevel schemaInfoLevel) {
-        DaCatalog database = this.getDatabase(schemaInfoLevel, physicalSchema, tableName, null, false, false);
+        return this.getTableInfo(new PhysicalSchema(physicalSchema), tableName, schemaInfoLevel);
+    }
+
+    @Override
+    public DaTable getTableInfo(PhysicalSchema physicalSchema, String tableName, DaSchemaInfoLevel schemaInfoLevel) {
+        DaCatalog database = this.getDatabase(physicalSchema, schemaInfoLevel, false, false, tableName, null);
 
         switch (database.getTables().size()) {
         case 0:
@@ -273,34 +298,40 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
     }
 
     @Override
+    @Deprecated
     public ImmutableCollection<DaRoutine> getProcedureInfo(String physicalSchema, String procedureName) {
-        return getProcedureInfo(physicalSchema, procedureName, new DaSchemaInfoLevel().setRetrieveRoutineDetails(true));
+        return getRoutineInfo(new PhysicalSchema(physicalSchema), procedureName);
     }
 
     @Override
+    public ImmutableCollection<DaRoutine> getRoutineInfo(PhysicalSchema physicalSchema, String routineName) {
+        return getRoutineInfo(physicalSchema, routineName, new DaSchemaInfoLevel().setRetrieveRoutineDetails(true));
+    }
+
+    @Override
+    @Deprecated
     public ImmutableCollection<DaRoutine> getProcedureInfo(String physicalSchema, String procedureName, DaSchemaInfoLevel schemaInfoLevel) {
+        return getRoutineInfo(new PhysicalSchema(physicalSchema), procedureName, schemaInfoLevel);
+    }
+
+    @Override
+    public ImmutableCollection<DaRoutine> getRoutineInfo(PhysicalSchema physicalSchema, String routineName, DaSchemaInfoLevel schemaInfoLevel) {
         schemaInfoLevel.setRetrieveRoutines(true);  // Ensure that this one is populated at minimum
-        DaCatalog database = this.getDatabase(schemaInfoLevel, physicalSchema, null, procedureName, false, false);
+        DaCatalog database = this.getDatabase(physicalSchema, schemaInfoLevel, false, false, null, routineName);
         return database.getRoutines();
     }
 
-    private void enrichSchemaCrawlerOptions(Connection conn, SchemaCrawlerOptions options, String schemaName, String tableName,
+    private void enrichSchemaCrawlerOptions(Connection conn, SchemaCrawlerOptions options, PhysicalSchema physicalSchema, String tableName,
             String procedureName) {
-        this.dbMetadataDialect.customEdits(options, conn, schemaName);
+        this.dbMetadataDialect.customEdits(options, conn);
 
-        // 1) Add (?i) to allow for case-insensitive searches for schemas
-        // 2) for the inclusion rules, we put .*\\.? in front to account for some of the default prefixes that the
-        // dbs include
-        // e.g. hsql puts PUBLIC., h2 and iq put the database name (which is unrelated to the schema name)
-
-        if (schemaName != null && this.dbMetadataDialect.getSchemaExpression(schemaName) != null) {
-            options.setSchemaInclusionRule(new RegularExpressionInclusionRule(this.dbMetadataDialect.getSchemaExpression(schemaName)));
-        }
+        String schemaExpression = Objects.requireNonNull(this.dbMetadataDialect.getSchemaExpression(physicalSchema), "Schema expression was not returned for schema " + physicalSchema + " by " + dbMetadataDialect);
+        options.setSchemaInclusionRule(new RegularExpressionInclusionRule(schemaExpression));
         if (tableName != null) {
-            options.setTableInclusionRule(new RegularExpressionInclusionRule(this.dbMetadataDialect.getTableExpression(schemaName, tableName)));
+            options.setTableInclusionRule(new RegularExpressionInclusionRule(this.dbMetadataDialect.getTableExpression(physicalSchema, tableName)));
         }
         if (procedureName != null) {
-            options.setRoutineInclusionRule(new RegularExpressionInclusionRule(this.dbMetadataDialect.getRoutineExpression(schemaName, procedureName)));
+            options.setRoutineInclusionRule(new RegularExpressionInclusionRule(this.dbMetadataDialect.getRoutineExpression(physicalSchema, procedureName)));
         }
     }
 }

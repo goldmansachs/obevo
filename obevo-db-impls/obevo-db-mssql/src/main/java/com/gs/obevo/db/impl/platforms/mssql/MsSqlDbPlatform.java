@@ -19,6 +19,7 @@ import java.sql.Connection;
 
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder;
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.DeployerAppContext;
 import com.gs.obevo.db.api.appdata.GrantTargetType;
@@ -30,6 +31,7 @@ import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
 import com.gs.obevo.db.apps.reveng.ChangeEntry;
 import com.gs.obevo.db.impl.core.reader.TextMarkupDocumentReader;
 import com.gs.obevo.db.impl.platforms.AbstractDbPlatform;
+import org.apache.commons.lang3.ObjectUtils;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.impl.block.factory.Functions;
@@ -88,8 +90,24 @@ public class MsSqlDbPlatform extends AbstractDbPlatform {
     }
 
     @Override
+    public String getSchemaPrefix(PhysicalSchema schema) {
+        return schema.getPhysicalName() + "." + ObjectUtils.defaultIfNull(schema.getSubschema(), "") + ".";
+    }
+
+    @Override
+    public String getSubschemaPrefix(PhysicalSchema schema) {
+        return schema.getSubschema() != null ? schema.getSubschema() + "." : "";
+    }
+
+    @Override
+    @Deprecated
     public String getSchemaSeparator() {
         return "..";
+    }
+
+    @Override
+    public boolean isSubschemaSupported() {
+        return true;
     }
 
     @Override

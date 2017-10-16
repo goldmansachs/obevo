@@ -14,72 +14,78 @@
 -- under the License.
 --
 
-CREATE DEFAULT DateDefault AS '01Jan1972'
+<#if !(subschema?has_content)>
+CREATE DEFAULT ${subschema}DateDefault AS '01Jan1972'
 GO
-CREATE RULE booleanRule
+</#if>
+CREATE RULE ${subschema}booleanRule
 as @booleanValue in (1, 0)
 go
-CREATE RULE booleanRule2
+CREATE RULE ${subschema}booleanRule2
 as @booleanValue in (1, 0)
 go
 
-sp_addtype N'MyType', N'tinyint', N'not null'
+CREATE TYPE ${subschema}MyType FROM tinyint NOT NULL
 GO
-sp_addtype N'MyType2', N'tinyint', N'not null'
-GO
-
-create table METADATA_TEST_TABLE (afield int, bfield int)
+CREATE TYPE ${subschema}MyType2 FROM tinyint NOT NULL
 GO
 
-create table TABLE_A (
+create table ${subschema}METADATA_TEST_TABLE (afield int, bfield int)
+GO
+
+create table ${subschema}TABLE_A (
     A_ID INT NOT NULL,
     A2_ID INT,
     PRIMARY KEY (A_ID)
 )
 GO
 
-create table TEST_TYPES (
+create table ${subschema}TEST_TYPES (
 	idField INT NOT NULL,
 	stringDateField DATE NULL,
 	myBooleanCol INT NULL,
-	myTypeField MyType NULL,
-	myTypeField2 MyType2 NULL,
+	myTypeField ${subschema}MyType NULL,
+	myTypeField2 ${subschema}MyType2 NULL,
 	CONSTRAINT PK PRIMARY KEY (idField)
 )
 GO
-sp_bindefault 'DateDefault', 'TEST_TYPES.stringDateField'
+
+-- not applicable for user
+<#if !(subschema?has_content)>
+sp_bindefault '${subschema}DateDefault', 'TEST_TYPES.stringDateField'
 GO
-sp_bindrule booleanRule, 'TEST_TYPES.myBooleanCol'
+sp_bindrule ${subschema}booleanRule, 'TEST_TYPES.myBooleanCol'
 GO
+</#if>
 
 
-create table TABLE_A_MULTICOL_PK (
+create table ${subschema}TABLE_A_MULTICOL_PK (
     A1_ID INT NOT NULL,
     A2_ID INT NOT NULL,
     VAL3 INT,
     PRIMARY KEY (A1_ID, A2_ID)
 )
 GO
-create table TABLE_B_WITH_MULTICOL_FK (
+create table ${subschema}TABLE_B_WITH_MULTICOL_FK (
     B_ID INT NOT NULL,
     OTHER_A1_ID INT,
     OTHER_A2_ID INT,
     PRIMARY KEY (B_ID)
 )
 GO
-ALTER TABLE TABLE_B_WITH_MULTICOL_FK ADD CONSTRAINT FK_A_MULTICOL FOREIGN KEY (OTHER_A1_ID, OTHER_A2_ID) REFERENCES TABLE_A_MULTICOL_PK(A1_ID, A2_ID)
+ALTER TABLE ${subschema}TABLE_B_WITH_MULTICOL_FK ADD CONSTRAINT FK_A_MULTICOL FOREIGN KEY (OTHER_A1_ID, OTHER_A2_ID) REFERENCES ${subschema}TABLE_A_MULTICOL_PK(A1_ID, A2_ID)
 GO
 
-create table TABLE_B_WITH_FK (
+create table ${subschema}TABLE_B_WITH_FK (
     B_ID INT NOT NULL,
     OTHER_A_ID INT,
     PRIMARY KEY (B_ID)
 )
 GO
-ALTER TABLE TABLE_B_WITH_FK ADD CONSTRAINT FK_A FOREIGN KEY (OTHER_A_ID) REFERENCES TABLE_A(A_ID)
+ALTER TABLE ${subschema}TABLE_B_WITH_FK ADD CONSTRAINT FK_A FOREIGN KEY (OTHER_A_ID) REFERENCES ${subschema}TABLE_A(A_ID)
 GO
 
-create table TABLE_GENERATED_ID (
+create table ${subschema}TABLE_GENERATED_ID (
 	GEN_ID    BIGINT IDENTITY NOT NULL,
 	FIELD1  INT
 )
@@ -87,20 +93,20 @@ GO
 
 
 
-CREATE VIEW VIEW1 AS SELECT * FROM METADATA_TEST_TABLE
+CREATE VIEW ${subschema}VIEW1 AS SELECT * FROM ${subschema}METADATA_TEST_TABLE
 -- my comment
 GO
 
 
-create table INVALID_TABLE (a INT)
+create table ${subschema}INVALID_TABLE (a INT)
 GO
-create view INVALID_VIEW AS SELECT * FROM INVALID_TABLE
+create view ${subschema}INVALID_VIEW AS SELECT * FROM ${subschema}INVALID_TABLE
 GO
-DROP TABLE INVALID_TABLE
+DROP TABLE ${subschema}INVALID_TABLE
 GO
 
 
-CREATE FUNCTION FUNC1()
+CREATE FUNCTION ${subschema}FUNC1()
 RETURNS INT
 AS
 BEGIN
@@ -111,7 +117,7 @@ GO
 
 
 -- NOTE - no function overloads supported in ASE
-CREATE FUNCTION FUNC_WITH_OVERLOAD (@var1 INT, @INVALSTR VARCHAR(32))
+CREATE FUNCTION ${subschema}FUNC_WITH_OVERLOAD (@var1 INT, @INVALSTR VARCHAR(32))
 RETURNS INT AS
 BEGIN
 RETURN 10
@@ -119,29 +125,29 @@ END
 GO
 
 
-CREATE PROCEDURE SP1
+CREATE PROCEDURE ${subschema}SP1
 AS
     -- ensure that SP comment remains
-    DELETE FROM TABLE_A
-    DELETE FROM TABLE_A
+    DELETE FROM ${subschema}TABLE_A
+    DELETE FROM ${subschema}TABLE_A
 GO
 
-CREATE PROCEDURE SP_WITH_OVERLOAD
+CREATE PROCEDURE ${subschema}SP_WITH_OVERLOAD
 AS
-    DELETE FROM TABLE_A
+    DELETE FROM ${subschema}TABLE_A
 GO
 
-CREATE PROCEDURE SP_WITH_OVERLOAD;2 (@INVAL INT)
+CREATE PROCEDURE ${subschema}SP_WITH_OVERLOAD;2 (@INVAL INT)
 AS
-    DELETE FROM TABLE_A
-    DELETE FROM TABLE_A
+    DELETE FROM ${subschema}TABLE_A
+    DELETE FROM ${subschema}TABLE_A
 
 GO
 
-CREATE PROCEDURE SP_WITH_OVERLOAD;4 (@INVAL INT, @INVALSTR VARCHAR(32))
+CREATE PROCEDURE ${subschema}SP_WITH_OVERLOAD;4 (@INVAL INT, @INVALSTR VARCHAR(32))
 AS
-    DELETE FROM TABLE_A
-    DELETE FROM TABLE_A
-    DELETE FROM TABLE_A
-    DELETE FROM TABLE_A
+    DELETE FROM ${subschema}TABLE_A
+    DELETE FROM ${subschema}TABLE_A
+    DELETE FROM ${subschema}TABLE_A
+    DELETE FROM ${subschema}TABLE_A
 GO

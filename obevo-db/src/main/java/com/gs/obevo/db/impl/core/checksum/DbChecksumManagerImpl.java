@@ -46,7 +46,7 @@ public class DbChecksumManagerImpl implements DbChecksumManager {
         MutableList<ChecksumBreak> checksumBreaks = Lists.mutable.empty();
 
         for (PhysicalSchema physicalSchema : physicalSchemas) {
-            DaCatalog catalog = dbMetadataManager.getDatabase(physicalSchema.getPhysicalName(), new DaSchemaInfoLevel().setMaximum(), true, true);
+            DaCatalog catalog = dbMetadataManager.getDatabase(physicalSchema, new DaSchemaInfoLevel().setMaximum(), true, true);
 
             ImmutableCollection<ChecksumEntry> newChecksums = checksumCalculator.getChecksums(catalog)
                     .select(checksumEntryInclusionPredicate);

@@ -52,7 +52,6 @@ public class Db2ReOrgStatementExecutorIT {
     }
 
     private final DataSource db2DataSource;
-    private final String schemaName;
 
     private final PhysicalSchema physicalSchema;
     private Db2SqlExecutor executor;
@@ -60,17 +59,16 @@ public class Db2ReOrgStatementExecutorIT {
     private JdbcHelper db2JdbcTemplate;
     private DbEnvironment environment;
 
-    public Db2ReOrgStatementExecutorIT(DataSource db2DataSource, String schemaName) {
+    public Db2ReOrgStatementExecutorIT(DataSource db2DataSource, PhysicalSchema physicalSchema) {
         this.db2DataSource = db2DataSource;
-        this.schemaName = schemaName;
-        this.physicalSchema = new PhysicalSchema(schemaName);
+        this.physicalSchema = physicalSchema;
     }
 
     private void setupExecutor(boolean autoReorg) {
         this.db2JdbcTemplate = new JdbcHelper();
 
         this.environment = new DbEnvironment();
-        this.environment.setSchemas(Sets.immutable.with(new Schema(schemaName)));
+        this.environment.setSchemas(Sets.immutable.with(new Schema(physicalSchema.getPhysicalName())));
         this.environment.setAutoReorgEnabled(autoReorg);
         this.executor = new Db2SqlExecutor(db2DataSource, this.environment);
 
@@ -194,7 +192,7 @@ public class Db2ReOrgStatementExecutorIT {
                 }
 
                 // Assert the columns which are available in table A
-                String columnListSql = "select colname from syscat.COLUMNS where tabschema = '" + schemaName + "' AND tabname = 'A'";
+                String columnListSql = "select colname from syscat.COLUMNS where tabschema = '" + physicalSchema.getPhysicalName() + "' AND tabname = 'A'";
                 List<String> columnsInTableA = db2JdbcTemplate.query(conn, columnListSql,
                         new ColumnListHandler<String>());
                 assertEquals(expectedColumns, Sets.mutable.withAll(columnsInTableA));
@@ -222,7 +220,7 @@ public class Db2ReOrgStatementExecutorIT {
             expectedColumns = Lists.mutable.with("A", "B", "C", "D", "E");
         }
         // Assert the columns which are available in table A
-        String columnListSql = "select colname from syscat.COLUMNS where tabschema = '" + schemaName + "' AND tabname = '"
+        String columnListSql = "select colname from syscat.COLUMNS where tabschema = '" + physicalSchema.getPhysicalName() + "' AND tabname = '"
                 + tableName + "'";
         List<String> columnsInTableA = this.db2JdbcTemplate.query(conn, columnListSql,
                 new ColumnListHandler<String>());

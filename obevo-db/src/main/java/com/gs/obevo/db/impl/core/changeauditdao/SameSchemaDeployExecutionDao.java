@@ -168,22 +168,22 @@ public class SameSchemaDeployExecutionDao implements DeployExecutionDao {
             tableChangeType.applyGrants(conn, physicalSchema, deployExecutionAttributeTableName, Lists.immutable.with(new Permission("artifactTable",
                     Lists.immutable.with(new Grant(Lists.immutable.with("SELECT"), Multimaps.immutable.list.with(GrantTargetType.PUBLIC, "PUBLIC"))))));
         } else {
-            DaTable executionTable = this.dbMetadataManager.getTableInfo(physicalSchema.getPhysicalName(), deployExecutionTableName, new DaSchemaInfoLevel().setRetrieveTables(true).setRetrieveTableColumns(true));
+            DaTable executionTable = this.dbMetadataManager.getTableInfo(physicalSchema, deployExecutionTableName, new DaSchemaInfoLevel().setRetrieveTables(true).setRetrieveTableColumns(true));
 
             if (executionTable.getColumn(productVersionColName) == null) {
                 // add the column if missing
-                jdbc.execute(conn, String.format("ALTER TABLE %s ADD %s %s %s", deployExecutionTableName,
+                jdbc.execute(conn, String.format("ALTER TABLE %s%s ADD %s %s %s", platform.getSubschemaPrefix(physicalSchema), deployExecutionTableName,
                         productVersionColName, "VARCHAR(255)", platform.getNullMarkerForCreateTable()));
-                backfillProductVersionColumn(conn);
+                backfillProductVersionColumn(conn, physicalSchema);
             }
 
             if (executionTable.getColumn(dbSchemaColName) == null) {
                 // add the column if missing
-                jdbc.execute(conn, String.format("ALTER TABLE %s ADD %s %s %s", deployExecutionTableName,
+                jdbc.execute(conn, String.format("ALTER TABLE %s%s ADD %s %s %s", platform.getSubschemaPrefix(physicalSchema), deployExecutionTableName,
                         dbSchemaColName, "VARCHAR(255)", platform.getNullMarkerForCreateTable()));
 
                 // let's now try to backfill the column, but it's tricky as we may be missing some information
-                backfillDbSchemaColumn(conn);
+                backfillDbSchemaColumn(conn, physicalSchema);
             }
 
         }
@@ -274,7 +274,7 @@ public class SameSchemaDeployExecutionDao implements DeployExecutionDao {
     }
 
     private DaTable getTable(PhysicalSchema physicalSchema, String tableName) {
-        return this.dbMetadataManager.getTableInfo(physicalSchema.getPhysicalName(), tableName, new DaSchemaInfoLevel().setRetrieveTables(true));
+        return this.dbMetadataManager.getTableInfo(physicalSchema, tableName, new DaSchemaInfoLevel().setRetrieveTables(true));
     }
 
     @Override
@@ -382,7 +382,7 @@ public class SameSchemaDeployExecutionDao implements DeployExecutionDao {
             return Lists.immutable.empty();
         }
 
-        DaTable tableInfo = this.dbMetadataManager.getTableInfo(physicalSchema.getPhysicalName(), deployExecutionTableName, new DaSchemaInfoLevel().setRetrieveTables(true).setRetrieveTableColumns(true));
+        DaTable tableInfo = this.dbMetadataManager.getTableInfo(physicalSchema, deployExecutionTableName, new DaSchemaInfoLevel().setRetrieveTables(true).setRetrieveTableColumns(true));
 
         MutableList<String> mainWhereClauses = Lists.mutable.empty();
         MutableList<String> attrWhereClauses = Lists.mutable.empty();
@@ -450,25 +450,25 @@ public class SameSchemaDeployExecutionDao implements DeployExecutionDao {
         return deployExecutionAttributeTableName;
     }
 
-    private void backfillProductVersionColumn(Connection conn) {
+    private void backfillProductVersionColumn(Connection conn, PhysicalSchema physicalSchema) {
         // backfill the product version column from conduit, if available
         List<Map<String, Object>> idVersions = jdbc.queryForList(conn, String.format("SELECT %1$s, %2$s FROM %3$s WHERE %4$s = 'conduit.version.name'",
-                deployExecutionIdColName, attrValueColName, deployExecutionAttributeTableName, attrNameColName
+                deployExecutionIdColName, attrValueColName, platform.getSubschemaPrefix(physicalSchema) + deployExecutionAttributeTableName, attrNameColName
         ));
         for (Map<String, Object> idVersion : idVersions) {
             long id = platform.getLongValue(idVersion.get(deployExecutionIdColName)).longValue();
             String version = (String) idVersion.get(attrValueColName);
-            jdbc.execute(conn, "UPDATE " + deployExecutionTableName + " " +
+            jdbc.execute(conn, "UPDATE " + platform.getSchemaPrefix(physicalSchema) + deployExecutionTableName + " " +
                     "SET " + productVersionColName + " = '" + version + "' " +
                     "WHERE " + idColName + " = " + id);
         }
     }
 
-    private void backfillDbSchemaColumn(Connection conn) {
+    private void backfillDbSchemaColumn(Connection conn, PhysicalSchema physicalSchema) {
         // first, get a mapping of all the IDs to DB schemas from the artifactdeployment table. Note that technically
         // we may have lost information as rows can get updated in place, but we'll make do here
         final MutableSetMultimap<Long, String> execIdToSchemaMap = Multimaps.mutable.set.empty();
-        for (Map<String, Object> tempExecIdToSchemaMap : jdbc.queryForList(conn, "SELECT DISTINCT INSERTDEPLOYID, UPDATEDEPLOYID, DBSCHEMA FROM ARTIFACTDEPLOYMENT")) {
+        for (Map<String, Object> tempExecIdToSchemaMap : jdbc.queryForList(conn, "SELECT DISTINCT INSERTDEPLOYID, UPDATEDEPLOYID, DBSCHEMA FROM " + platform.getSubschemaPrefix(physicalSchema) + "ARTIFACTDEPLOYMENT")) {
             Long insertDeployId = platform.getLongValue(tempExecIdToSchemaMap.get("INSERTDEPLOYID"));
             Long updateDeployId = platform.getLongValue(tempExecIdToSchemaMap.get("UPDATEDEPLOYID"));
             String dbSchema = (String) tempExecIdToSchemaMap.get("DBSCHEMA");
@@ -486,14 +486,14 @@ public class SameSchemaDeployExecutionDao implements DeployExecutionDao {
         if (dbSchemas.size() == 1) {
             // If we only found 1 schema in ARTIFACTDEPLOYMENT, then we can assume that all the IDs in ARTIFACTEXECUTION
             // also belonged to that schema. So we go w/ the simple update
-            jdbc.execute(conn, "UPDATE " + deployExecutionTableName + " " +
+            jdbc.execute(conn, "UPDATE " + platform.getSubschemaPrefix(physicalSchema) + deployExecutionTableName + " " +
                     "SET " + dbSchemaColName + " = '" + dbSchemas.getFirst() + "' ");
         } else if (dbSchemas.size() > 1) {
             // If not, then we need to look a bit deeper to try to match the ID to a schema
 
             // First compare based on the version name (hoping that all the deployments of a version are traced back to only
             MutableListMultimap<String, Long> versionToIdsMap = Multimaps.mutable.list.empty();
-            for (Map<String, Object> idToVersionMap : jdbc.queryForList(conn, "SELECT " + idColName + ", " + productVersionColName + " FROM " + deployExecutionTableName)) {
+            for (Map<String, Object> idToVersionMap : jdbc.queryForList(conn, "SELECT " + idColName + ", " + productVersionColName + " FROM " + platform.getSubschemaPrefix(physicalSchema) + deployExecutionTableName)) {
                 versionToIdsMap.put((String) idToVersionMap.get(productVersionColName), platform.getLongValue(idToVersionMap.get(idColName)).longValue());
             }
 
@@ -513,7 +513,7 @@ public class SameSchemaDeployExecutionDao implements DeployExecutionDao {
 
                     if (versionSchemas.size() == 1) {
                         // If we just had 1 schema for all the versions, then do the simple update
-                        jdbc.execute(conn, "UPDATE " + deployExecutionTableName + " " +
+                        jdbc.execute(conn, "UPDATE " + platform.getSubschemaPrefix(physicalSchema) + deployExecutionTableName + " " +
                                 "SET " + dbSchemaColName + " = '" + versionSchemas.getFirst() + "' " +
                                 "WHERE " + idColName + " = " + id
                         );
@@ -531,7 +531,7 @@ public class SameSchemaDeployExecutionDao implements DeployExecutionDao {
                             schemaToSet = "NOSCHEMA";
                         }
 
-                        jdbc.execute(conn, "UPDATE " + deployExecutionTableName + " " +
+                        jdbc.execute(conn, "UPDATE " + platform.getSubschemaPrefix(physicalSchema) + deployExecutionTableName + " " +
                                 "SET " + dbSchemaColName + " = '" + schemaToSet + "' " +
                                 "WHERE " + idColName + " = " + id
                         );

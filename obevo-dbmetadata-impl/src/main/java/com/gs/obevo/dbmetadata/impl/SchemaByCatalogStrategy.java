@@ -28,4 +28,9 @@ public class SchemaByCatalogStrategy implements SchemaStrategy {
     public String getSchemaName(Schema schema) {
         return schema.getCatalogName();
     }
+
+    @Override
+    public String getSubschemaName(Schema schema) {
+        return schema.getName();
+    }
 }
