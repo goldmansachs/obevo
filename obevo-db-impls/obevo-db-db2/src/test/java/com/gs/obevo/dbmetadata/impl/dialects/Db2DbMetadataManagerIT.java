@@ -19,6 +19,7 @@ import java.util.Collection;
 
 import javax.sql.DataSource;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.db.impl.platforms.db2.Db2DbPlatform;
 import com.gs.obevo.db.impl.platforms.db2.Db2ParamReader;
 import com.gs.obevo.dbmetadata.api.DaTable;
@@ -38,8 +39,8 @@ public class Db2DbMetadataManagerIT extends AbstractDbMetadataManagerIT {
         return Db2ParamReader.getParamReader().getJdbcDsAndSchemaParams();
     }
 
-    public Db2DbMetadataManagerIT(DataSource dataSource, String schemaName) {
-        super(dataSource, schemaName);
+    public Db2DbMetadataManagerIT(DataSource dataSource, PhysicalSchema physicalSchema) {
+        super(dataSource, physicalSchema);
     }
 
     protected DbMetadataManager createMetadataManager() {

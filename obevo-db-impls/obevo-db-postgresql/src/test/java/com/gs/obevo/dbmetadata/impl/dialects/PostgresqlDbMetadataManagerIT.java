@@ -19,6 +19,7 @@ import java.util.Collection;
 
 import javax.sql.DataSource;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.db.impl.platforms.postgresql.PostgreSqlDbPlatform;
 import com.gs.obevo.db.impl.platforms.postgresql.PostgreSqlParamReader;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
@@ -33,8 +34,8 @@ public class PostgresqlDbMetadataManagerIT extends AbstractDbMetadataManagerIT {
         return PostgreSqlParamReader.getParamReader().getJdbcDsAndSchemaParams();
     }
 
-    public PostgresqlDbMetadataManagerIT(DataSource dataSource, String schemaName) {
-        super(dataSource, schemaName);
+    public PostgresqlDbMetadataManagerIT(DataSource dataSource, PhysicalSchema physicalSchema) {
+        super(dataSource, physicalSchema);
     }
 
     @Override

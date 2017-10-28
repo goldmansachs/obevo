@@ -188,6 +188,6 @@ public class Db2SqlExecutor extends AbstractSqlExecutor {
         } else {
             throw new IllegalArgumentException("Could not parse the schema/table names for error code " + errorCode + " and message: " + sqlErrorMC);
         }
-        return Tuples.pair(new PhysicalSchema(schemaName), tableName);
+        return Tuples.pair(PhysicalSchema.parseFromString(schemaName), tableName);
     }
 }

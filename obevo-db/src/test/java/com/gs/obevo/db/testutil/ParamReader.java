@@ -23,12 +23,14 @@ import java.util.Collection;
 
 import javax.sql.DataSource;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.factory.DbEnvironmentFactory;
 import com.gs.obevo.db.api.platform.DbDeployerAppContext;
 import com.gs.obevo.db.impl.core.jdbc.JdbcDataSourceFactory;
 import com.gs.obevo.util.inputreader.Credential;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigValueFactory;
 import org.apache.commons.lang3.SystemUtils;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.function.primitive.IntToObjectFunction;
@@ -68,6 +70,7 @@ public class ParamReader {
             public Config valueOf(String envName) {
                 return instanceConfig.getConfig(envName)
                         .withFallback(defaultConfig)
+                        .withValue("envName", ConfigValueFactory.fromAnyRef(envName))
                         .resolve();
             }
         }).toList();
@@ -117,7 +120,7 @@ public class ParamReader {
         return getSysConfigs().collect(new Function<Config, Object[]>() {
             @Override
             public Object[] valueOf(Config config) {
-                final String schema = config.getString("schema");
+                final PhysicalSchema schema = PhysicalSchema.parseFromString(config.getString("schema"));
 
                 return new Object[] {getJdbcDs(config, numConnections), schema};
             }
@@ -183,6 +186,7 @@ public class ParamReader {
                 File outputTemplate = File.createTempFile("obevo-system-config", ".xml", obevoTempDir);
                 MutableMap<String, Object> params = Maps.mutable.empty();
                 params.put("sourceDir", stepPath);
+                params.put("envName", config.getString("envName"));
                 if (config.hasPath("jdbcUrl")) {
                     params.put("jdbcUrl", config.getString("jdbcUrl"));
                 }

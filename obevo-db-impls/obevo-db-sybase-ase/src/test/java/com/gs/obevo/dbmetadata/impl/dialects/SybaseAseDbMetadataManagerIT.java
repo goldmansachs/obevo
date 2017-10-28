@@ -19,6 +19,7 @@ import java.util.Collection;
 
 import javax.sql.DataSource;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.db.impl.platforms.sybasease.AseDbPlatform;
 import com.gs.obevo.db.impl.platforms.sybasease.AseParamReader;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
@@ -33,8 +34,8 @@ public class SybaseAseDbMetadataManagerIT extends AbstractDbMetadataManagerIT {
         return AseParamReader.getParamReader().getJdbcDsAndSchemaParams();
     }
 
-    public SybaseAseDbMetadataManagerIT(DataSource dataSource, String schemaName) {
-        super(dataSource, schemaName);
+    public SybaseAseDbMetadataManagerIT(DataSource dataSource, PhysicalSchema physicalSchema) {
+        super(dataSource, physicalSchema);
     }
 
     @Override

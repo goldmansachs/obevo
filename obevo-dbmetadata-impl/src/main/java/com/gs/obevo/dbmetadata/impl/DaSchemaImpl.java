@@ -15,6 +15,7 @@
  */
 package com.gs.obevo.dbmetadata.impl;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.dbmetadata.api.DaSchema;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -33,6 +34,16 @@ public class DaSchemaImpl implements DaSchema {
     @Override
     public String getName() {
         return schemaStrategy.getSchemaName(schema);
+    }
+
+    @Override
+    public String getSubschemaName() {
+        return schemaStrategy.getSubschemaName(schema);
+    }
+
+    @Override
+    public PhysicalSchema toPhysicalSchema() {
+        return new PhysicalSchema(getName(), getSubschemaName());
     }
 
     @Override

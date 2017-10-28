@@ -195,13 +195,24 @@ public abstract class AbstractDbPlatform implements DbPlatform {
     }
 
     @Override
+    @Deprecated
     public String getSchemaSeparator() {
         return ".";
     }
 
     @Override
     public String getSchemaPrefix(PhysicalSchema schema) {
-        return schema.getPhysicalName() + getSchemaSeparator();
+        return schema.getPhysicalName() + ".";
+    }
+
+    @Override
+    public String getSubschemaPrefix(PhysicalSchema schema) {
+        return "";
+    }
+
+    @Override
+    public boolean isSubschemaSupported() {
+        return false;
     }
 
     @Override

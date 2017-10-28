@@ -16,6 +16,7 @@
 package com.gs.obevo.db.impl.core.reader;
 
 import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.appdata.Schema;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.util.Tokenizer;
@@ -30,7 +31,12 @@ public class PrepareDbChangeForDb implements PrepareDbChange {
                 .withKeyValue("dbSchemaPrefix", env.getDbSchemaPrefix());
 
         for (Schema schema : env.getSchemas()) {
-            tokens.put(schema.getName() + "_physicalName", env.getPhysicalSchema(schema.getName()).getPhysicalName());
+            PhysicalSchema physicalSchema = env.getPhysicalSchema(schema.getName());
+            tokens.put(schema.getName() + "_physicalName", physicalSchema.getPhysicalName());
+            if (env.getPlatform() != null) {
+                tokens.put(schema.getName() + "_schemaSuffixed", env.getPlatform().getSchemaPrefix(physicalSchema));
+                tokens.put(schema.getName() + "_subschemaSuffixed", env.getPlatform().getSubschemaPrefix(physicalSchema));
+            }
         }
 
         if (env.getDefaultTablespace() != null) {

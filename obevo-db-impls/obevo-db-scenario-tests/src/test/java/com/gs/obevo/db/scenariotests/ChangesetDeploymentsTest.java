@@ -15,6 +15,7 @@
  */
 package com.gs.obevo.db.scenariotests;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.platform.MainDeployerArgs;
 import com.gs.obevo.db.api.factory.DbEnvironmentFactory;
 import com.gs.obevo.db.api.platform.DbDeployerAppContext;
@@ -72,7 +73,7 @@ public class ChangesetDeploymentsTest {
 
     private void checkForIndex(DbDeployerAppContext dbDeployerAppContext, final String tableName, String indexName, boolean shouldExist) {
         final DbMetadataManager dbMetadataManager = dbDeployerAppContext.getDbMetadataManager();
-        DaTable tableInfo = dbMetadataManager.getTableInfo("SCHEMA1", tableName, new DaSchemaInfoLevel().setRetrieveTableIndexes(true));
+        DaTable tableInfo = dbMetadataManager.getTableInfo(new PhysicalSchema("SCHEMA1"), tableName, new DaSchemaInfoLevel().setRetrieveTableIndexes(true));
 
         DaIndex index = tableInfo.getIndices().detect(Predicates.attributeEqual(DaIndex.TO_NAME, indexName));
         assertEquals("Index " + indexName + " should exist==" + shouldExist, shouldExist, index != null);

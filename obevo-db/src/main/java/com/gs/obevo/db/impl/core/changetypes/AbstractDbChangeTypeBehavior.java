@@ -101,7 +101,7 @@ public abstract class AbstractDbChangeTypeBehavior implements DbChangeTypeBehavi
     @Override
     public void applyGrants(Connection conn, PhysicalSchema schema, String objectName, RichIterable<Permission> permsToApply) {
         Pair<Boolean, RichIterable<String>> qualifiedObjectNames = getQualifiedObjectNames(conn, schema, objectName);
-        ImmutableList<String> grants = this.grantChangeParser.generateGrantChanges(permsToApply, dbChangeType, objectName, qualifiedObjectNames.getTwo(), qualifiedObjectNames.getOne());
+        ImmutableList<String> grants = this.grantChangeParser.generateGrantChanges(permsToApply, dbChangeType, schema, objectName, qualifiedObjectNames.getTwo(), qualifiedObjectNames.getOne());
 
         LOG.info(String.format("Applying grants on db object [%s]: found %d total SQL statements to apply",
                 objectName, grants.size()));
@@ -166,7 +166,7 @@ public abstract class AbstractDbChangeTypeBehavior implements DbChangeTypeBehavi
         if (defaultObjectKeyword == null) {
             return "";
         } else {
-            return "DROP " + defaultObjectKeyword + " " + change.getObjectName();
+            return "DROP " + defaultObjectKeyword + " " + env.getPlatform().getSubschemaPrefix(change.getPhysicalSchema()) + change.getObjectName();
         }
     }
 

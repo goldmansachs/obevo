@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.dbmetadata.api.DaSchema;
 import com.gs.obevo.dbmetadata.api.DaUserType;
 import com.gs.obevo.dbmetadata.api.DaUserTypeImpl;
@@ -34,13 +35,13 @@ import schemacrawler.server.hsqldb.HyperSQLDatabaseConnector;
 public class HsqlMetadataDialect extends AbstractMetadataDialect {
 
     @Override
-    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, String schemaName) {
+    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema) {
         return new HyperSQLDatabaseConnector().getDatabaseSpecificOverrideOptionsBuilder();
     }
 
     @Override
-    public String getSchemaExpression(String schemaName) {
-        return "(?i).*\\.?" + schemaName;
+    public String getSchemaExpression(PhysicalSchema physicalSchema) {
+        return "(?i).*\\.?" + physicalSchema.getPhysicalName();
     }
 
     @Override

@@ -147,7 +147,7 @@ public class CsvStaticDataDeployer {
 
     public final StaticDataChangeRows getStaticDataChangesForTable(DbEnvironment env, Change artifact) {
         DaTable table = Validate.notNull(
-                this.metadataManager.getTableInfo(artifact.getPhysicalSchema().getPhysicalName(), artifact.getObjectName(), new DaSchemaInfoLevel()
+                this.metadataManager.getTableInfo(artifact.getPhysicalSchema(), artifact.getObjectName(), new DaSchemaInfoLevel()
                                 .setRetrieveTables(true)
                                 .setRetrieveTableColumns(true)
                                 .setRetrieveTableCheckConstraints(true)

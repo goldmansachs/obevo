@@ -225,7 +225,7 @@ public class Environment<T extends Platform> {
     public String getPhysicalSchemaPrefixInternal(String schema) {
         Validate.isTrue(getAllSchemas().collect(Schema.TO_NAME).contains(schema),
                 "Schema does not exist in the environment. Requested schema: " + schema
-                        + "; available schemas: " + Environment.this.getSchemaNames().makeString(","));
+                        + "; available schemas: " + getSchemaNames().makeString(","));
 
         return ObjectUtils.defaultIfNull(this.schemaNameOverrides.get(schema), schema);
     }
@@ -271,9 +271,10 @@ public class Environment<T extends Platform> {
         @Override
         public PhysicalSchema valueOf(String schema) {
             // do not append the suffix from the getDeployer metadata if an override is specified
-            String prefix = Environment.this.schemaNameOverrides.containsKey(schema) ? "" : Environment.this.getDbSchemaPrefix();
-            String suffix = Environment.this.schemaNameOverrides.containsKey(schema) ? "" : Environment.this.getDbSchemaSuffix();
-            return new PhysicalSchema(prefix + Environment.this.getPhysicalSchemaPrefixInternal(schema) + suffix);
+            String prefix = Environment.this.schemaNameOverrides.containsKey(schema) ? "" : getDbSchemaPrefix();
+            String suffix = Environment.this.schemaNameOverrides.containsKey(schema) ? "" : getDbSchemaSuffix();
+            PhysicalSchema physicalSchemaTemp = PhysicalSchema.parseFromString(getPhysicalSchemaPrefixInternal(schema));
+            return new PhysicalSchema(prefix + physicalSchemaTemp.getPhysicalName() + suffix, physicalSchemaTemp.getSubschema());
         }
     };
 

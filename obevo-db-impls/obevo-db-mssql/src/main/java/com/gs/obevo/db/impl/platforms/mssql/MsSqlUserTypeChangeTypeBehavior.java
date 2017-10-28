@@ -41,6 +41,6 @@ public class MsSqlUserTypeChangeTypeBehavior extends RerunnableDbChangeTypeBehav
 
     @Override
     protected String generateDropChangeRaw(Connection conn, Change change) {
-        return String.format("sp_droptype N'%s'", change.getObjectName());
+        return "DROP TYPE" + " " + getDbPlatform().getSubschemaPrefix(change.getPhysicalSchema()) + change.getObjectName();
     }
 }

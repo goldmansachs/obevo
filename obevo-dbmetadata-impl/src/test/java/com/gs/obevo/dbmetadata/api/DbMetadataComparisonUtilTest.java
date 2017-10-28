@@ -15,6 +15,7 @@
  */
 package com.gs.obevo.dbmetadata.api;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.dbmetadata.impl.DbMetadataDialect;
 import com.gs.obevo.dbmetadata.impl.DbMetadataManagerImpl;
 import com.gs.obevo.dbmetadata.impl.dialects.H2MetadataDialect;
@@ -28,7 +29,8 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class DbMetadataComparisonUtilTest {
-    private static final String schema = "schemaCompareTest";
+    private static final PhysicalSchema schema = new PhysicalSchema("schemaCompareTest");
+    private static final String schemaStr = schema.getPhysicalName();
     private static final String table = "MYTEST";
     private static final DbMetadataDialect dbMetadataDialect = new H2MetadataDialect();
 
@@ -41,13 +43,13 @@ public class DbMetadataComparisonUtilTest {
     public void setup() throws Exception {
         this.ds = new BasicDataSource();
         this.ds.setDriverClassName(org.h2.Driver.class.getName());
-        this.ds.setUrl(String.format("jdbc:h2:mem:%s;DB_CLOSE_DELAY=-1", schema));
+        this.ds.setUrl(String.format("jdbc:h2:mem:%s;DB_CLOSE_DELAY=-1", schemaStr));
         this.ds.setUsername("sa");
         this.ds.setPassword("");
 
         this.jdbc = new QueryRunner(this.ds);
-        this.jdbc.update("DROP SCHEMA IF EXISTS " + schema);
-        this.jdbc.update("CREATE SCHEMA " + schema);
+        this.jdbc.update("DROP SCHEMA IF EXISTS " + schemaStr);
+        this.jdbc.update("CREATE SCHEMA " + schemaStr);
 
         this.metadataManager = new DbMetadataManagerImpl(dbMetadataDialect, this.ds);
         this.dbMetadataComparisonUtil = new DbMetadataComparisonUtil();
@@ -55,8 +57,8 @@ public class DbMetadataComparisonUtilTest {
 
     @Test
     public void testTableStaySame() throws Exception {
-        this.jdbc.update("DROP TABLE IF EXISTS " + schema + "." + table);
-        this.jdbc.update("CREATE TABLE " + schema + "." + table + " (\n" +
+        this.jdbc.update("DROP TABLE IF EXISTS " + schemaStr + "." + table);
+        this.jdbc.update("CREATE TABLE " + schemaStr + "." + table + " (\n" +
                 "AID    INT NOT NULL,\n" +
                 "BID    INT NOT NULL,\n" +
                 "STRINGFIELD VARCHAR(30)\tNULL,\n" +
@@ -69,8 +71,8 @@ public class DbMetadataComparisonUtilTest {
         DaTable tableLeft = this.metadataManager.getTableInfo(schema, DbMetadataComparisonUtilTest.table,
                 new DaSchemaInfoLevel().setMaximum());
 
-        this.jdbc.update("DROP TABLE IF EXISTS " + schema + "." + table);
-        this.jdbc.update("CREATE TABLE " + schema + "." + table + " (\n" +
+        this.jdbc.update("DROP TABLE IF EXISTS " + schemaStr + "." + table);
+        this.jdbc.update("CREATE TABLE " + schemaStr + "." + table + " (\n" +
                 "AID    INT NOT NULL,\n" +
                 "BID    INT NOT NULL,\n" +
                 "STRINGFIELD VARCHAR(30)\tNULL,\n" +
@@ -87,8 +89,8 @@ public class DbMetadataComparisonUtilTest {
 
     @Test
     public void testTableChanges() throws Exception {
-        this.jdbc.update("DROP TABLE IF EXISTS " + schema + "." + table);
-        this.jdbc.update("CREATE TABLE " + schema + "." + table + " (\n" +
+        this.jdbc.update("DROP TABLE IF EXISTS " + schemaStr + "." + table);
+        this.jdbc.update("CREATE TABLE " + schemaStr + "." + table + " (\n" +
                 "AID    INT NOT NULL,\n" +
                 "B_TYPE_CHANGE    INT NOT NULL,\n" +
                 "STRING_LENCHANGE VARCHAR(30)\tNULL,\n" +
@@ -101,8 +103,8 @@ public class DbMetadataComparisonUtilTest {
         DaTable tableLeft = this.metadataManager.getTableInfo(schema, DbMetadataComparisonUtilTest.table,
                 new DaSchemaInfoLevel().setMaximum());
 
-        this.jdbc.update("DROP TABLE IF EXISTS " + schema + "." + table);
-        this.jdbc.update("CREATE TABLE " + schema + "." + table + " (\n" +
+        this.jdbc.update("DROP TABLE IF EXISTS " + schemaStr + "." + table);
+        this.jdbc.update("CREATE TABLE " + schemaStr + "." + table + " (\n" +
                 "AID_NAMECHANGE    INT NOT NULL,\n" +
                 "B_TYPE_CHANGE    BIGINT NOT NULL,\n" +
                 "STRING_LENCHANGE VARCHAR(60)\tNULL,\n" +

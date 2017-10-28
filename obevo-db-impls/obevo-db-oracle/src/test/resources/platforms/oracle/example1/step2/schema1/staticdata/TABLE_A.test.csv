@@ -1,4 +1,4 @@
-//// METADATA includeEnvs=test
+//// METADATA includeEnvs=test*
 A_ID,B_ID,STRING_FIELD,TIMESTAMP_FIELD,C_ID
 2,3,fasdfasd,2013-02-02 11:11:11.65432,9
 3,4,ABC,,9

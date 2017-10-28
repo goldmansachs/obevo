@@ -14,6 +14,6 @@
 -- under the License.
 --
 
-CREATE RULE booleanRule2
+CREATE RULE ${oats_subschemaSuffixed}booleanRule2
 as @booleanValue in (1, 0)
 go

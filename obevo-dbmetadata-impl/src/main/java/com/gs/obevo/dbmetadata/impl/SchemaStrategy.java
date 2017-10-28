@@ -22,4 +22,5 @@ import schemacrawler.schema.Schema;
  */
 public interface SchemaStrategy {
     String getSchemaName(Schema schema);
+    String getSubschemaName(Schema schema);
 }

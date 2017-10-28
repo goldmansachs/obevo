@@ -24,6 +24,7 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.appdata.Schema;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.platform.DbDeployerAppContext;
@@ -197,11 +198,12 @@ public class H2DeployerTest {
         DbMetadataManager dbMetadataManager = new H2DbPlatform().getDbMetadataManager();
         dbMetadataManager.setDataSource(context.getDataSource());
 
-        assertNotNull("Should create tables that were defined in tables/views params", dbMetadataManager.getTableInfo("bogusSchema", "TABLE_B"));
-        assertNotNull("Should create tables that were defined in tables/views params", dbMetadataManager.getTableInfo("bogusSchema", "VIEW2"));
+        PhysicalSchema bogusSchema = new PhysicalSchema("bogusSchema");
+        assertNotNull("Should create tables that were defined in tables/views params", dbMetadataManager.getTableInfo(bogusSchema, "TABLE_B"));
+        assertNotNull("Should create tables that were defined in tables/views params", dbMetadataManager.getTableInfo(bogusSchema, "VIEW2"));
 
-        assertNull("Should not create tables that were defined in tables/views params", dbMetadataManager.getTableInfo("bogusSchema", "TABLE_C"));
-        assertNull("Should not create tables that were defined in tables/views params", dbMetadataManager.getTableInfo("bogusSchema", "VIEW4"));
+        assertNull("Should not create tables that were defined in tables/views params", dbMetadataManager.getTableInfo(bogusSchema, "TABLE_C"));
+        assertNull("Should not create tables that were defined in tables/views params", dbMetadataManager.getTableInfo(bogusSchema, "VIEW4"));
     }
 
     @Test

@@ -15,7 +15,6 @@
  */
 package com.gs.obevo.impl.graph;
 
-import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.platform.ChangeType;
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.eclipse.collections.api.RichIterable;
@@ -76,7 +75,7 @@ public class GraphEnricherImpl implements GraphEnricher {
                     for (String dependency : change.getDependencies()) {
                         T dependencyVertex = null;
                         for (ChangeIndex<T> changeIndex : changeIndexes) {
-                            dependencyVertex = changeIndex.retrieve(new PhysicalSchema(change.getObjectKey().getSchema()), dependency);
+                            dependencyVertex = changeIndex.retrieve(change.getObjectKey().getSchema(), dependency);
                             if (dependencyVertex != null) {
                                 if (LOG.isTraceEnabled()) {
                                     LOG.trace("Discovered dependency from {} to {} using index {}",
@@ -169,7 +168,7 @@ public class GraphEnricherImpl implements GraphEnricher {
 
     private interface ChangeIndex<T> {
         void add(T change);
-        T retrieve(PhysicalSchema schema, String dependency);
+        T retrieve(String schema, String dependency);
     }
 
 
@@ -182,7 +181,7 @@ public class GraphEnricherImpl implements GraphEnricher {
         @Override
         public void add(T changeGroup) {
             for (SortableDependency change : changeGroup.getComponents()) {
-                T existingChange = retrieve(new PhysicalSchema(change.getObjectKey().getSchema()), convertDbObjectName.valueOf(change.getObjectKey().getObjectName()));
+                T existingChange = retrieve(change.getObjectKey().getSchema(), convertDbObjectName.valueOf(change.getObjectKey().getObjectName()));
                 // TODO getFirst is not ideal here
                 if (existingChange == null || existingChange.getComponents().getFirst().getOrderWithinObject() < change.getOrderWithinObject()) {
                     // only keep the latest (why latest vs earliest?)
@@ -192,8 +191,8 @@ public class GraphEnricherImpl implements GraphEnricher {
         }
 
         @Override
-        public T retrieve(PhysicalSchema schema, String dependency) {
-            return (T) schemaToObjectMap.get(schema.getPhysicalName(), convertDbObjectName.valueOf(dependency));
+        public T retrieve(String schema, String dependency) {
+            return (T) schemaToObjectMap.get(schema, convertDbObjectName.valueOf(dependency));
         }
     }
 
@@ -203,7 +202,7 @@ public class GraphEnricherImpl implements GraphEnricher {
         @Override
         public void add(T changeGroup) {
             for (SortableDependency change : changeGroup.getComponents()) {
-                T existingChange = retrieve(new PhysicalSchema(change.getObjectKey().getSchema()), convertDbObjectName.valueOf(change.getObjectKey().getObjectName()));
+                T existingChange = retrieve(change.getObjectKey().getSchema(), convertDbObjectName.valueOf(change.getObjectKey().getObjectName()));
                 // TODO getFirst is not ideal here
                 if (existingChange == null || existingChange.getComponents().getFirst().getOrderWithinObject() < change.getOrderWithinObject()) {
                     // only keep the latest (why latest vs earliest?)
@@ -213,7 +212,7 @@ public class GraphEnricherImpl implements GraphEnricher {
         }
 
         @Override
-        public T retrieve(PhysicalSchema schema, String dependency) {
+        public T retrieve(String schema, String dependency) {
             return objectMap.get(convertDbObjectName.valueOf(dependency));
         }
     }
@@ -229,8 +228,8 @@ public class GraphEnricherImpl implements GraphEnricher {
         }
 
         @Override
-        public T retrieve(PhysicalSchema schema, String dependency) {
-            return (T) schemaToObjectMap.get(schema.getPhysicalName(), convertDbObjectName.valueOf(dependency));
+        public T retrieve(String schema, String dependency) {
+            return (T) schemaToObjectMap.get(schema, convertDbObjectName.valueOf(dependency));
         }
     }
 
@@ -245,7 +244,7 @@ public class GraphEnricherImpl implements GraphEnricher {
         }
 
         @Override
-        public T retrieve(PhysicalSchema schema, String dependency) {
+        public T retrieve(String schema, String dependency) {
             return objectMap.get(convertDbObjectName.valueOf(dependency));
         }
     }

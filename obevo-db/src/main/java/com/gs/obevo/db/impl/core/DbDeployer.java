@@ -118,7 +118,7 @@ public class DbDeployer extends MainDeployer<DbPlatform, DbEnvironment> {
         return env.getPhysicalSchemas().allSatisfy(new Predicate<PhysicalSchema>() {
             @Override
             public boolean accept(PhysicalSchema each) {
-                return dbMetadataManager.getTableInfo(each.getPhysicalName(), getArtifactDeployerDao().getAuditContainerName(), new DaSchemaInfoLevel().setRetrieveTables(true)) != null;
+                return dbMetadataManager.getTableInfo(each, getArtifactDeployerDao().getAuditContainerName(), new DaSchemaInfoLevel().setRetrieveTables(true)) != null;
             }
         });
     }
@@ -127,7 +127,7 @@ public class DbDeployer extends MainDeployer<DbPlatform, DbEnvironment> {
         return env.getPhysicalSchemas().flatCollect(new Function<PhysicalSchema, Iterable<DaTable>>() {
             @Override
             public Iterable<DaTable> valueOf(PhysicalSchema physicalSchema) {
-                DaCatalog database = dbMetadataManager.getDatabase(physicalSchema.getPhysicalName(), new DaSchemaInfoLevel().setRetrieveTables(true), true, false);
+                DaCatalog database = dbMetadataManager.getDatabase(physicalSchema, new DaSchemaInfoLevel().setRetrieveTables(true), true, false);
                 return database.getTables().reject(DaTable.IS_VIEW);
             }
         });

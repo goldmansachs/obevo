@@ -21,6 +21,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.dbmetadata.api.DaRoutine;
 import com.gs.obevo.dbmetadata.api.DaRoutineType;
 import com.gs.obevo.dbmetadata.api.DaRule;
@@ -38,6 +39,7 @@ import com.gs.obevo.dbmetadata.impl.SchemaStrategy;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.MapListHandler;
+import org.apache.commons.lang3.ObjectUtils;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.function.Function2;
@@ -69,12 +71,12 @@ import schemacrawler.schemacrawler.SchemaCrawlerOptions;
  */
 public class SybaseAseMetadataDialect extends AbstractMetadataDialect {
     @Override
-    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, String schemaName) {
+    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema) {
         return new DatabaseSpecificOverrideOptionsBuilder();
     }
 
     @Override
-    public void customEdits(SchemaCrawlerOptions options, Connection conn, String schemaName) {
+    public void customEdits(SchemaCrawlerOptions options, Connection conn) {
         options.getSchemaInfoLevel().setRetrieveDatabaseInfo(false);  // Fails for Sybase when connections are retrieved using Sybase's native JDBC pools
 
         // Sybase driver supports SP metadata, but not functions. As a result, we must disable SchemaCrawler's own
@@ -97,22 +99,22 @@ public class SybaseAseMetadataDialect extends AbstractMetadataDialect {
     }
 
     @Override
-    public String getSchemaExpression(String schemaName) {
-        // Start w/ the catalog name, then take any word string for the second part (i.e. schema name like dbo or DACT_RO)
-        return schemaName + "\\.\\w*";
+    public String getSchemaExpression(PhysicalSchema physicalSchema) {
+        String subschema = ObjectUtils.defaultIfNull(physicalSchema.getSubschema(), "dbo");
+        return physicalSchema.getPhysicalName() + "\\." + subschema;
     }
 
     @Override
-    public void validateDatabase(Catalog database, final String schema) {
+    public void validateDatabase(Catalog database, final PhysicalSchema physicalSchema) {
         MutableCollection<Schema> schemasWithIncorrectCatalog = CollectionAdapter.adapt(database.getSchemas()).reject(new Predicate<Schema>() {
             @Override
             public boolean accept(Schema each) {
-                return each.getCatalogName().equals(schema);
+                return each.getCatalogName().equals(physicalSchema.getPhysicalName());
             }
         });
 
         if (schemasWithIncorrectCatalog.notEmpty()) {
-            throw new IllegalArgumentException("Returned ASE schemas should be in " + schema + " catalog; however, these were not: " + schemasWithIncorrectCatalog);
+            throw new IllegalArgumentException("Returned ASE schemas should be in " + physicalSchema.getPhysicalName() + " catalog; however, these were not: " + schemasWithIncorrectCatalog);
         }
     }
 

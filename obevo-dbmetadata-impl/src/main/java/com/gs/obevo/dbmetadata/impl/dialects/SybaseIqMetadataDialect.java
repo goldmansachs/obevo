@@ -18,6 +18,7 @@ package com.gs.obevo.dbmetadata.impl.dialects;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import org.eclipse.collections.impl.factory.Lists;
 import schemacrawler.schema.RoutineType;
 import schemacrawler.schemacrawler.DatabaseSpecificOverrideOptionsBuilder;
@@ -27,7 +28,7 @@ public class SybaseIqMetadataDialect extends AbstractMetadataDialect {
     private boolean odbcDriverUsed;
 
     @Override
-    public void customEdits(SchemaCrawlerOptions options, Connection conn, String schemaName) {
+    public void customEdits(SchemaCrawlerOptions options, Connection conn) {
         this.odbcDriverUsed = checkIfOdbcDriver(conn);
 
         // IQ only officially supports procedures. Function syntax is supported, but is still counted as a procedure in its metadata
@@ -35,7 +36,7 @@ public class SybaseIqMetadataDialect extends AbstractMetadataDialect {
     }
 
     @Override
-    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, String schemaName) {
+    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema) {
         if (odbcDriverUsed) {
             return new SybaseIqOdbcDatabaseConnector().getDatabaseSpecificOverrideOptionsBuilder();
         } else {
@@ -44,11 +45,11 @@ public class SybaseIqMetadataDialect extends AbstractMetadataDialect {
     }
 
     @Override
-    public String getSchemaExpression(String schemaName) {
+    public String getSchemaExpression(PhysicalSchema physicalSchema) {
         if (odbcDriverUsed) {
-            return schemaName;
+            return physicalSchema.getPhysicalName();
         } else {
-            return ".*\\." + schemaName;
+            return ".*\\." + physicalSchema.getPhysicalName();
         }
     }
 

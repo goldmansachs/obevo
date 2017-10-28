@@ -1,6 +1,6 @@
 //// METADATA DISABLE_QUOTED_IDENTIFIERS
 //// CHANGE name=init
-CREATE TABLE TestTable
+CREATE TABLE ${oats_subschemaSuffixed}TestTable
 (
 	idField INT NOT NULL,
 	stringField VARCHAR(100),
@@ -13,33 +13,37 @@ CREATE TABLE TestTable
 	CONSTRAINT TestTable_PK PRIMARY KEY (idField)
 )
 GO
+
+//// CHANGE name=bindings excludeEnvs=test%schema
+-- excluding these from schema-based envs as these object types are not supported
 sp_bindefault 'DateDefault', 'TestTable.stringDateField'
 GO
 sp_bindrule booleanRule, 'TestTable.myBooleanCol'
 GO
 
-CREATE INDEX IND1 ON TestTable(stringField)
+//// CHANGE name=indexes
+CREATE INDEX IND1 ON ${oats_subschemaSuffixed}TestTable(stringField)
 GO
-DROP INDEX TestTable.IND1
+DROP INDEX ${oats_subschemaSuffixed}TestTable.IND1
 GO
-CREATE INDEX IND1 ON TestTable(stringField)
+CREATE INDEX IND1 ON ${oats_subschemaSuffixed}TestTable(stringField)
 GO
 
 //// CHANGE name=modify
-ALTER TABLE TestTable ADD myNewCol2 INT NULL
+ALTER TABLE ${oats_subschemaSuffixed}TestTable ADD myNewCol2 INT NULL
 GO
 
 //// CHANGE name=rename excludeEnvs="unittest*"
-sp_rename 'TestTable.myNewCol2', 'myNewCol'
+sp_rename '${oats_subschemaSuffixed}TestTable.myNewCol2', 'myNewCol'
 GO
 
 //// CHANGE name=rename includeEnvs="unittest*"
-ALTER TABLE TestTable ALTER COLUMN myNewCol2 RENAME TO myNewCol
+ALTER TABLE ${oats_subschemaSuffixed}TestTable ALTER COLUMN myNewCol2 RENAME TO myNewCol
 GO
 
 //// CHANGE TRIGGER name=trigger1
-create trigger TestTableTrigger1
-on TestTable
+create trigger ${oats_subschemaSuffixed}TestTableTrigger1
+on ${oats_subschemaSuffixed}TestTable
 for insert
 as
 print "Added!"

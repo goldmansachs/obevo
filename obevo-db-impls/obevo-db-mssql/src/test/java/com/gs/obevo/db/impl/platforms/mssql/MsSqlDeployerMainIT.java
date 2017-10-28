@@ -56,20 +56,21 @@ public class MsSqlDeployerMainIT {
                 .setupEnvInfra()
                 .deploy();
 
-        this.validateStep1(step1Context.getDataSource(), step1Context.getEnvironment().getPhysicalSchema("oats"), new JdbcHelper());
+        String physicalSchemaStr = step1Context.getEnvironment().getPlatform().getSchemaPrefix(step1Context.getEnvironment().getPhysicalSchema("oats"));
+        this.validateStep1(step1Context.getDataSource(), physicalSchemaStr, new JdbcHelper());
 
         DbDeployerAppContext step2Context = getAppContext.valueOf(2);
         step2Context
                 .setupEnvInfra()
                 .deploy();
-        this.validateStep2(step2Context.getDataSource(), step2Context.getEnvironment().getPhysicalSchema("oats"), new JdbcHelper());
+        this.validateStep2(step2Context.getDataSource(), physicalSchemaStr, new JdbcHelper());
     }
 
-    private void validateStep1(DataSource ds, PhysicalSchema physicalSchema, JdbcHelper jdbc) throws Exception {
+    private void validateStep1(DataSource ds, String physicalSchemaStr, JdbcHelper jdbc) throws Exception {
         List<Map<String, Object>> results;
         Connection conn = ds.getConnection();
         try {
-            results = jdbc.queryForList(conn, "select * from " + physicalSchema.getPhysicalName() + "..TestTable order by idField");
+            results = jdbc.queryForList(conn, "select * from " + physicalSchemaStr + "TestTable order by idField");
         } finally {
             DbUtils.closeQuietly(conn);
         }
@@ -81,11 +82,11 @@ public class MsSqlDeployerMainIT {
         this.validateResultRow(results.get(3), 4, "str4", 0);
     }
 
-    private void validateStep2(DataSource ds, PhysicalSchema physicalSchema, JdbcHelper jdbc) throws Exception {
+    private void validateStep2(DataSource ds, String physicalSchemaStr, JdbcHelper jdbc) throws Exception {
         List<Map<String, Object>> results;
         Connection conn = ds.getConnection();
         try {
-            results = jdbc.queryForList(conn, "select * from " + physicalSchema.getPhysicalName() + "..TestTable order by idField");
+            results = jdbc.queryForList(conn, "select * from " + physicalSchemaStr + "TestTable order by idField");
         } finally {
             DbUtils.closeQuietly(conn);
         }

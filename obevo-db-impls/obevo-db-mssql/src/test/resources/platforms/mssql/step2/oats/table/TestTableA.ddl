@@ -1,5 +1,5 @@
 //// CHANGE name=init
-CREATE TABLE TestTableA  (
+CREATE TABLE ${oats_subschemaSuffixed}TestTableA  (
     id int NOT NULL,
 	tId 	int NULL,
 	test	varchar(25) NULL,
@@ -8,11 +8,11 @@ CREATE TABLE TestTableA  (
 	)
 GO
 -- define this fk pointing to a table earlier in the alphabet to ensure that hsql drop fks will work (due to case-insensitivity). Yes, we need a separate test around the drop table statements...
-ALTER TABLE TestTableA ADD FOREIGN KEY (fk) REFERENCES TestTable(idField)
+ALTER TABLE ${oats_subschemaSuffixed}TestTableA ADD FOREIGN KEY (fk) REFERENCES ${oats_subschemaSuffixed}TestTable(idField)
 GO
-CREATE INDEX IND1 ON TestTableA(test)
+CREATE INDEX IND1 ON ${oats_subschemaSuffixed}TestTableA(test)
 GO
-DROP INDEX TestTableA.IND1
+DROP INDEX ${oats_subschemaSuffixed}TestTableA.IND1
 GO
-CREATE INDEX IND1 ON TestTableA(test)
+CREATE INDEX IND1 ON ${oats_subschemaSuffixed}TestTableA(test)
 GO

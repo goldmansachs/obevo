@@ -201,7 +201,7 @@ public class Db2PostDeployAction implements PostDeployAction<DbEnvironment> {
         private String objecttype;
 
         public PhysicalSchema getPhysicalSchema() {
-            return new PhysicalSchema(this.schema);
+            return PhysicalSchema.parseFromString(this.schema);
         }
 
         public String getSchema() {

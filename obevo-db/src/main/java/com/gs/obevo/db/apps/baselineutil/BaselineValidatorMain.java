@@ -85,7 +85,7 @@ public class BaselineValidatorMain {
                         Functions.<PhysicalSchema>getPassThru(), new Function<PhysicalSchema, ImmutableCollection<DaTable>>() {
                             @Override
                             public ImmutableCollection<DaTable> valueOf(PhysicalSchema object) {
-                                DaCatalog database = metadataManager.getDatabase(object.getPhysicalName(),
+                                DaCatalog database = metadataManager.getDatabase(object,
                                         new DaSchemaInfoLevel().setRetrieveTableAndColumnDetails(), true, false);
                                 return database.getTables().reject(DaTable.IS_VIEW);
                             }
@@ -103,7 +103,7 @@ public class BaselineValidatorMain {
                         Functions.<PhysicalSchema>getPassThru(), new Function<PhysicalSchema, ImmutableCollection<DaTable>>() {
                             @Override
                             public ImmutableCollection<DaTable> valueOf(PhysicalSchema object) {
-                                DaCatalog database = metadataManager.getDatabase(object.getPhysicalName(),
+                                DaCatalog database = metadataManager.getDatabase(object,
                                         new DaSchemaInfoLevel().setRetrieveTableAndColumnDetails(), true, false);
                                 return database.getTables().reject(DaTable.IS_VIEW);
                             }

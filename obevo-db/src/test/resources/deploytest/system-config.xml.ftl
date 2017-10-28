@@ -26,7 +26,7 @@
 </#list>
     </schemas>
     <environments>
-        <dbEnvironment name="test" cleanBuildAllowed="true"
+        <dbEnvironment name="test_${envName}" cleanBuildAllowed="true"
                        <#if dbDataSourceName??>dbDataSourceName="${dbDataSourceName}"<#elseif dbServer??>dbServer="${dbServer}"<#elseif jdbcUrl??>jdbcUrl="${jdbcUrl}"</#if>
                        <#if driver??>driverClass="${driver}"</#if>
         <#list (envattrs!{})?keys as envattr>

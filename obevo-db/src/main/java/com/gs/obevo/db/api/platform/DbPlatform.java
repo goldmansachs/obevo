@@ -42,9 +42,33 @@ public interface DbPlatform extends Platform {
      */
     boolean isDuplicateCheckRequiredForReverseEngineering();
 
+    /**
+     * Returns the token that separates the schema from the object name.
+     * @deprecated No longer used; use {@link #getSchemaPrefix(PhysicalSchema)} instead.
+     * @since 6.0.0
+     */
+    @Deprecated
     String getSchemaSeparator();
 
+    /**
+     * Determines whether this platform uses catalog + schema, or just a schema.
+     * @since 6.4.0
+     */
+    boolean isSubschemaSupported();
+
+    /**
+     * Returns the schema and subschema (if applicable) for the given schema with the appropriate separators appended.
+     * @since 6.0.0
+     */
     String getSchemaPrefix(PhysicalSchema schema);
+
+    /**
+     * Returns the subschema section of the given PhysicalSchema with the separator appended, or a blank string in case
+     * the subschema doesn't apply. Used for cases where we don't want to assume the schema is prefixed (for backwards-compatibility
+     * reasons), while still supporting the subschema use case.
+     * @since 6.4.0
+     */
+    String getSubschemaPrefix(PhysicalSchema schema);
 
     String getNullMarkerForCreateTable();
 

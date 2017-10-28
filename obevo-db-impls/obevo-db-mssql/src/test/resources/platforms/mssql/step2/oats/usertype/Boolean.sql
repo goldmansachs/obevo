@@ -14,9 +14,10 @@
 -- under the License.
 --
 
-//// METADATA excludeEnvs="unittest*"
+//// METADATA excludeEnvs="unittest*,test%schema"
+-- excluding these from schema-based envs as these object types are not supported
 -- boolean already exists in the in-mem db environments
-sp_addtype N'Boolean', N'tinyint', N'not null'
+CREATE TYPE Boolean FROM tinyint NOT NULL
 GO
 sp_bindrule booleanRule, Boolean
 GO

@@ -93,7 +93,7 @@ public class TableSyncher {
             public TableSyncSide valueOf(DbMergeInfo dbMergeInfo) {
                 DataSource ds = ds(dbMergeInfo.getDriverClassName(), dbMergeInfo.getUrl(), dbMergeInfo.getUsername(),
                         dbMergeInfo.getPassword());
-                return new TableSyncSide(ds, new PhysicalSchema(dbMergeInfo.getPhysicalSchema()));
+                return new TableSyncSide(ds, PhysicalSchema.parseFromString(dbMergeInfo.getPhysicalSchema()));
             }
         });
 
@@ -137,7 +137,7 @@ public class TableSyncher {
             DbMetadataManager metadataManager = dbPlatform.getDbMetadataManager();
             metadataManager.setDataSource(side.getDataSource());
 
-            DaCatalog database = metadataManager.getDatabase(side.getSchema().getPhysicalName(), new DaSchemaInfoLevel().setRetrieveTableAndColumnDetails(), true, false);
+            DaCatalog database = metadataManager.getDatabase(side.getSchema(), new DaSchemaInfoLevel().setRetrieveTableAndColumnDetails(), true, false);
             return database.getTables().reject(DaTable.IS_VIEW);
         }
 

@@ -49,9 +49,9 @@
 
     <profiles>
         <profile>
-            <id>amazon-personal-build</id>
+            <id>amazon-build</id>
             <properties>
-                <dbCredsFile>amazon-personal-oracle-creds.properties</dbCredsFile>
+                <dbCredsFile>amazon-oracle-creds.properties</dbCredsFile>
             </properties>
 
             <dependencies>

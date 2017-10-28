@@ -17,6 +17,7 @@ package com.gs.obevo.dbmetadata.impl.dialects;
 
 import java.sql.Connection;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.dbmetadata.api.DaRoutineType;
 import org.eclipse.collections.impl.factory.Lists;
 import schemacrawler.schema.RoutineType;
@@ -25,15 +26,15 @@ import schemacrawler.schemacrawler.SchemaCrawlerOptions;
 
 public class PostgresqlMetadataDialect extends AbstractMetadataDialect {
     @Override
-    public void customEdits(SchemaCrawlerOptions options, Connection conn, String schemaName) {
+    public void customEdits(SchemaCrawlerOptions options, Connection conn) {
         // postgresql only supports FUNCTIONs in its syntax, not PROCEDUREs. However, the metadata still comes
         // back as procedure. We override the metadata value using the getRoutineOverrideValue method.
         options.setRoutineTypes(Lists.immutable.with(RoutineType.procedure).castToList());
     }
 
     @Override
-    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, String schemaName) {
-        DatabaseSpecificOverrideOptionsBuilder dbSpecificOptionsBuilder = super.getDbSpecificOptionsBuilder(conn, schemaName);
+    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema) {
+        DatabaseSpecificOverrideOptionsBuilder dbSpecificOptionsBuilder = super.getDbSpecificOptionsBuilder(conn, physicalSchema);
 
         dbSpecificOptionsBuilder.withInformationSchemaViews().withSequencesSql(
                 "SELECT\n" +
@@ -46,7 +47,7 @@ public class PostgresqlMetadataDialect extends AbstractMetadataDialect {
                         "  CYCLE_OPTION\n" +
                         "FROM\n" +
                         "  INFORMATION_SCHEMA.SEQUENCES\n" +
-                        "WHERE SEQUENCE_SCHEMA = '" + schemaName + "'\n" +
+                        "WHERE SEQUENCE_SCHEMA = '" + physicalSchema.getPhysicalName() + "'\n" +
                         "ORDER BY\n" +
                         "  SEQUENCE_CATALOG,\n" +
                         "  SEQUENCE_SCHEMA,\n" +
@@ -56,8 +57,8 @@ public class PostgresqlMetadataDialect extends AbstractMetadataDialect {
     }
 
     @Override
-    public String getSchemaExpression(String schemaName) {
-        return "(?i)" + schemaName;
+    public String getSchemaExpression(PhysicalSchema physicalSchema) {
+        return "(?i)" + physicalSchema.getPhysicalName();
     }
 
     /**

@@ -15,15 +15,35 @@
  */
 package com.gs.obevo.dbmetadata.api;
 
+import java.util.Objects;
+
+import com.gs.obevo.api.appdata.PhysicalSchema;
+
 public class DaSchemaImpl implements DaSchema {
     private final String name;
+    private final String subschemaName;
 
     public DaSchemaImpl(String name) {
-        this.name = name;
+        this(name, null);
+    }
+
+    public DaSchemaImpl(String name, String subschemaName) {
+        this.name = Objects.requireNonNull(name, "schema name must be populated");
+        this.subschemaName = subschemaName;
     }
 
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String getSubschemaName() {
+        return subschemaName;
+    }
+
+    @Override
+    public PhysicalSchema toPhysicalSchema() {
+        return new PhysicalSchema(getName(), getSubschemaName());
     }
 }

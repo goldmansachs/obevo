@@ -81,12 +81,22 @@ public class DbEnvironmentXmlEnricherTest1DbPlatform implements DbPlatform {
     }
 
     @Override
+    public boolean isSubschemaSupported() {
+        return false;
+    }
+
+    @Override
     public String getSchemaSeparator() {
         return null;
     }
 
     @Override
     public String getSchemaPrefix(PhysicalSchema schema) {
+        return null;
+    }
+
+    @Override
+    public String getSubschemaPrefix(PhysicalSchema schema) {
         return null;
     }
 

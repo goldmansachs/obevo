@@ -27,6 +27,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.dbmetadata.api.DaPackage;
 import com.gs.obevo.dbmetadata.api.DaSchema;
 import com.gs.obevo.dbmetadata.impl.DaPackagePojoImpl;
@@ -47,13 +48,13 @@ public class OracleMetadataDialect extends AbstractMetadataDialect {
     private static final Logger LOG = LoggerFactory.getLogger(OracleMetadataDialect.class);
 
     @Override
-    public String getSchemaExpression(String schemaName) {
-        return schemaName;
+    public String getSchemaExpression(PhysicalSchema physicalSchema) {
+        return physicalSchema.getPhysicalName();
     }
 
     @Override
-    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, String schemaName) {
-        DatabaseSpecificOverrideOptionsBuilder dbSpecificOptionsBuilder = super.getDbSpecificOptionsBuilder(conn, schemaName);
+    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema) {
+        DatabaseSpecificOverrideOptionsBuilder dbSpecificOptionsBuilder = super.getDbSpecificOptionsBuilder(conn, physicalSchema);
 
         // we needed to remove the "PROCEDURES.AUTHID" caluse from the query in SchemaCrawler - see https://github.com/sualeh/SchemaCrawler/blob/master/schemacrawler-oracle/src/main/resources/oracle.information_schema/ROUTINES.sql
         dbSpecificOptionsBuilder.getInformationSchemaViewsBuilder().withRoutinesSql("SELECT /*+ PARALLEL(AUTO) */\n" +

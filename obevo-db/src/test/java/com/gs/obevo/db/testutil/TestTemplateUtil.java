@@ -52,18 +52,22 @@ public class TestTemplateUtil {
     }
 
     public void writeTemplate(String templatePath, Map<String, Object> params, File outputFile) {
-        Writer fileWriter = null;
+        try (Writer writer = new FileWriter(outputFile)){
+            writeTemplate(templatePath, params, writer);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void writeTemplate(String templatePath, Map<String, Object> params, Writer writer) {
         try {
             Template template = templateConfig.getTemplate(templatePath);
-            fileWriter = new FileWriter(outputFile);
 
-            template.process(params, fileWriter);
+            template.process(params, writer);
         } catch (TemplateException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(fileWriter);
         }
     }
 

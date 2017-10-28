@@ -14,4 +14,4 @@
 -- under the License.
 --
 
-CREATE DEFAULT DateDefault AS '01Jan1972'
+CREATE DEFAULT ${oats_subschemaSuffixed}DateDefault AS '01Jan1972'

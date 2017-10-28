@@ -18,6 +18,7 @@ package com.gs.obevo.dbmetadata.impl.dialects;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.dbmetadata.api.DaPackage;
 import com.gs.obevo.dbmetadata.api.DaRoutine;
 import com.gs.obevo.dbmetadata.api.DaRoutineType;
@@ -42,7 +43,7 @@ import schemacrawler.tools.databaseconnector.DatabaseConnectorRegistry;
 
 public abstract class AbstractMetadataDialect implements DbMetadataDialect {
     @Override
-    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, String schemaName) {
+    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema) {
         try {
             DatabaseConnectorRegistry registry = new DatabaseConnectorRegistry();
             DatabaseConnector databaseConnector = registry.lookupDatabaseConnector(conn);
@@ -53,7 +54,7 @@ public abstract class AbstractMetadataDialect implements DbMetadataDialect {
     }
 
     @Override
-    public void customEdits(SchemaCrawlerOptions options, Connection conn, String schemaName) {
+    public void customEdits(SchemaCrawlerOptions options, Connection conn) {
     }
 
     @Override
@@ -61,21 +62,21 @@ public abstract class AbstractMetadataDialect implements DbMetadataDialect {
     }
 
     @Override
-    public void validateDatabase(Catalog database, String schema) {
+    public void validateDatabase(Catalog database, PhysicalSchema physicalSchema) {
         if (database.getSchemas().size() != 1) {
-            throw new IllegalArgumentException("Should find 1 schema only for schema " + schema + "; found "
+            throw new IllegalArgumentException("Should find 1 schema only for schema " + physicalSchema + "; found "
                     + CollectionAdapter.adapt(database.getSchemas()).makeString(", "));
         }
     }
 
     @Override
-    public final String getTableExpression(String schemaName, String tableName) {
-        return getSchemaExpression(schemaName) + "\\." + tableName;
+    public final String getTableExpression(PhysicalSchema physicalSchema, String tableName) {
+        return getSchemaExpression(physicalSchema) + "\\." + tableName;
     }
 
     @Override
-    public final String getRoutineExpression(String schemaName, String procedureName) {
-        return getSchemaExpression(schemaName) + "\\." + procedureName;
+    public final String getRoutineExpression(PhysicalSchema physicalSchema, String procedureName) {
+        return getSchemaExpression(physicalSchema) + "\\." + procedureName;
     }
 
     @Override

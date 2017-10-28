@@ -18,6 +18,7 @@ package com.gs.obevo.dbmetadata.impl;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.dbmetadata.api.DaPackage;
 import com.gs.obevo.dbmetadata.api.DaRoutine;
 import com.gs.obevo.dbmetadata.api.DaRoutineType;
@@ -32,28 +33,27 @@ import schemacrawler.schemacrawler.DatabaseSpecificOverrideOptionsBuilder;
 import schemacrawler.schemacrawler.SchemaCrawlerOptions;
 
 public interface DbMetadataDialect {
-    DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, String schemaName);
+    DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema);
 
     /**
      * Initializes the metadata class and the incoming options variable.
      * @param options The options object to be edited.
      * @param conn The connection to use to help w/ seting the options. Optional to use
-     * @param schemaName The schema name to access the metadata for. Optional to use; applicable mainly for performance.
      */
-    void customEdits(SchemaCrawlerOptions options, Connection conn, String schemaName);
+    void customEdits(SchemaCrawlerOptions options, Connection conn);
 
     /**
      * Sets the schema on the connection. This is needed prior to the schemacrawler calls for some DBMS types.
      */
     void setSchemaOnConnection(Connection conn, String schema);
 
-    String getSchemaExpression(String schemaName);
+    String getSchemaExpression(PhysicalSchema physicalSchema);
 
-    String getTableExpression(String schemaName, String tableName);
+    String getTableExpression(PhysicalSchema physicalSchema, String tableName);
 
-    String getRoutineExpression(String schemaName, String procedureName);
+    String getRoutineExpression(PhysicalSchema physicalSchema, String procedureName);
 
-    void validateDatabase(Catalog database, String schema);
+    void validateDatabase(Catalog database, PhysicalSchema physicalSchema);
 
     ImmutableCollection<RuleBinding> getRuleBindings(DaSchema schema, Connection conn);
 

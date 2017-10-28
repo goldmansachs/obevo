@@ -23,6 +23,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.dbmetadata.api.DaRoutine;
 import com.gs.obevo.dbmetadata.api.DaRoutineType;
 import com.gs.obevo.dbmetadata.api.DaSchema;
@@ -45,8 +46,8 @@ public class Db2MetadataDialect extends AbstractMetadataDialect {
     private static final Logger LOG = LoggerFactory.getLogger(Db2MetadataDialect.class);
 
     @Override
-    public String getSchemaExpression(String schemaName) {
-        return "(?i)" + schemaName;
+    public String getSchemaExpression(PhysicalSchema physicalSchema) {
+        return "(?i)" + physicalSchema.getPhysicalName();
     }
 
     @Override
@@ -85,8 +86,8 @@ public class Db2MetadataDialect extends AbstractMetadataDialect {
     }
 
     @Override
-    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, String schemaName) {
-        DatabaseSpecificOverrideOptionsBuilder dbSpecificOptionsBuilder = super.getDbSpecificOptionsBuilder(conn, schemaName);
+    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema) {
+        DatabaseSpecificOverrideOptionsBuilder dbSpecificOptionsBuilder = super.getDbSpecificOptionsBuilder(conn, physicalSchema);
 
         // SEQTYPE <> 'I' is for identity columns; we don't want that when pulling user defined sequences
         dbSpecificOptionsBuilder.withInformationSchemaViews().withSequencesSql(
@@ -112,7 +113,7 @@ public class Db2MetadataDialect extends AbstractMetadataDialect {
                         "  REMARKS\n" +
                         "FROM\n" +
                         "  SYSCAT.SEQUENCES\n" +
-                        "WHERE SEQSCHEMA = '" + schemaName + "' AND SEQTYPE <> 'I'\n" +
+                        "WHERE SEQSCHEMA = '" + physicalSchema.getPhysicalName() + "' AND SEQTYPE <> 'I'\n" +
                         //"  SYSCAT.SEQUENCES.ORIGIN = 'U'\n" +
                         "ORDER BY\n" +
                         "  SYSCAT.SEQUENCES.SEQSCHEMA,\n" +
@@ -141,8 +142,8 @@ public class Db2MetadataDialect extends AbstractMetadataDialect {
     }
 
     @Override
-    public void customEdits(SchemaCrawlerOptions options, Connection conn, String schemaName) {
-        super.customEdits(options, conn, schemaName);
+    public void customEdits(SchemaCrawlerOptions options, Connection conn) {
+        super.customEdits(options, conn);
 
         // DB2 driver doesn't support function lookups; hence, we limit it here to avoid the error message and use the searchExtraRoutines method instead to pull them in.
         options.setRoutineTypes(Lists.immutable.with(RoutineType.procedure).castToList());

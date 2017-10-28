@@ -17,12 +17,13 @@ package com.gs.obevo.dbmetadata.impl.dialects;
 
 import java.sql.Connection;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import schemacrawler.schemacrawler.ExcludeAll;
 import schemacrawler.schemacrawler.SchemaCrawlerOptions;
 
 public class H2MetadataDialect extends AbstractMetadataDialect {
     @Override
-    public void customEdits(SchemaCrawlerOptions options, Connection conn, String schemaName) {
+    public void customEdits(SchemaCrawlerOptions options, Connection conn) {
         // Do not retrieve H2 functions, as versions starting with 1.4.x will complain
         // Notably, versions before that would throw a MethodNotImplementedError, which SchemaCrawler is smart enough to catch and ignore
         // However, 1.4.x throws a RuntimeException, not a SQLFeatureNotSupportedException, and so it bombs the process
@@ -32,7 +33,7 @@ public class H2MetadataDialect extends AbstractMetadataDialect {
     }
 
     @Override
-    public String getSchemaExpression(String schemaName) {
-        return "(?i).+\\." + schemaName;
+    public String getSchemaExpression(PhysicalSchema physicalSchema) {
+        return "(?i).+\\." + physicalSchema.getPhysicalName();
     }
 }
