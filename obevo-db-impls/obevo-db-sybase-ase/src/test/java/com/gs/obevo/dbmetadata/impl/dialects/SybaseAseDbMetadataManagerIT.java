@@ -74,42 +74,42 @@ public class SybaseAseDbMetadataManagerIT extends AbstractDbMetadataManagerIT {
 
     @Override
     protected String get_VIEW1() {
-        return "/* Adaptive Server has expanded all '*' elements in the following statement */ CREATE VIEW VIEW1 AS SELECT METADATA_TEST_TABLE.afield, METADATA_TEST_TABLE.bfield FROM METADATA_TEST_TABLE -- my comment";
+        return "/* Adaptive Server has expanded all '*' elements in the following statement */ CREATE VIEW " + getSubschemaString() + "VIEW1 AS SELECT " + getSubschemaString() + "METADATA_TEST_TABLE.afield, " + getSubschemaString() + "METADATA_TEST_TABLE.bfield FROM " + getSubschemaString() + "METADATA_TEST_TABLE -- my comment";
     }
 
     @Override
     protected String get_INVALID_VIEW() {
-        return "/* Adaptive Server has expanded all '*' elements in the following statement */ create view INVALID_VIEW AS SELECT INVALID_TABLE.a FROM INVALID_TABLE";
+        return "/* Adaptive Server has expanded all '*' elements in the following statement */ create view " + getSubschemaString() + "INVALID_VIEW AS SELECT " + getSubschemaString() + "INVALID_TABLE.a FROM " + getSubschemaString() + "INVALID_TABLE";
     }
 
     @Override
     protected String get_SP1() {
-        return "CREATE PROCEDURE SP1 AS -- ensure that SP comment remains DELETE FROM TABLE_A DELETE FROM TABLE_A";
+        return "CREATE PROCEDURE " + getSubschemaString() + "SP1 AS -- ensure that SP comment remains DELETE FROM " + getSubschemaString() + "TABLE_A DELETE FROM " + getSubschemaString() + "TABLE_A";
     }
 
     @Override
     protected String get_FUNC1() {
-        return "CREATE FUNCTION FUNC1 RETURNS INT AS -- ensure that func comment remains RETURN 10";
+        return "CREATE FUNCTION " + getSubschemaString() + "FUNC1 RETURNS INT AS -- ensure that func comment remains RETURN 10";
     }
 
     @Override
     protected String get_FUNC_WITH_OVERLOAD_3() {
-        return "CREATE FUNCTION FUNC_WITH_OVERLOAD (@var1 INT, @INVALSTR VARCHAR(32)) RETURNS INT AS RETURN 10";
+        return "CREATE FUNCTION " + getSubschemaString() + "FUNC_WITH_OVERLOAD (@var1 INT, @INVALSTR VARCHAR(32)) RETURNS INT AS RETURN 10";
     }
 
     @Override
     protected String get_SP_WITH_OVERLOAD_1() {
-        return "CREATE PROCEDURE SP_WITH_OVERLOAD AS DELETE FROM TABLE_A DELETE FROM TABLE_A";
+        return "CREATE PROCEDURE " + getSubschemaString() + "SP_WITH_OVERLOAD AS DELETE FROM " + getSubschemaString() + "TABLE_A";
     }
 
     @Override
     protected String get_SP_WITH_OVERLOAD_2() {
-        return "CREATE PROCEDURE SP_WITH_OVERLOAD;2 (@INVAL INT) AS DELETE FROM TABLE_A DELETE FROM TABLE_A";
+        return "CREATE PROCEDURE " + getSubschemaString() + "SP_WITH_OVERLOAD;2 (@INVAL INT) AS DELETE FROM " + getSubschemaString() + "TABLE_A DELETE FROM " + getSubschemaString() + "TABLE_A";
     }
 
     @Override
     protected String get_SP_WITH_OVERLOAD_3() {
-        return "CREATE PROCEDURE SP_WITH_OVERLOAD;4 (@INVAL INT, @INVALSTR VARCHAR(32)) AS DELETE FROM TABLE_A DELETE FROM TABLE_A";
+        return "CREATE PROCEDURE " + getSubschemaString() + "SP_WITH_OVERLOAD;4 (@INVAL INT, @INVALSTR VARCHAR(32)) AS" + " DELETE FROM " + getSubschemaString() + "TABLE_A" + " DELETE FROM " + getSubschemaString() + "TABLE_A" + " DELETE FROM " + getSubschemaString() + "TABLE_A" + " DELETE FROM " + getSubschemaString() + "TABLE_A";
     }
 
     @Override
@@ -124,16 +124,19 @@ public class SybaseAseDbMetadataManagerIT extends AbstractDbMetadataManagerIT {
 
     @Override
     protected boolean isRuleBindingSupported() {
-        return true;
+        // rule binding is only supported for the default schema
+        return getPhysicalSchema().getSubschema() == null;
     }
 
     @Override
     protected boolean isRuleSupported() {
-        return true;
+        // rule is only supported for the default schema
+        return getPhysicalSchema().getSubschema() == null;
     }
 
     @Override
     protected boolean isUserTypeSupported() {
-        return true;
+        // user type is only supported for the default schema
+        return getPhysicalSchema().getSubschema() == null;
     }
 }

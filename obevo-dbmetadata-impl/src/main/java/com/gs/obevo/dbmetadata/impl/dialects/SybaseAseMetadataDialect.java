@@ -86,16 +86,8 @@ public class SybaseAseMetadataDialect extends AbstractMetadataDialect {
     }
 
     @Override
-    public void setSchemaOnConnection(Connection conn, String schema) {
-        PreparedStatement ps = null;
-        try {
-            ps = conn.prepareStatement("use " + schema);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            DbUtils.closeQuietly(ps);
-        }
+    public void setSchemaOnConnection(Connection conn, PhysicalSchema physicalSchema) {
+        executeUpdate(conn, "use " + physicalSchema.getPhysicalName());
     }
 
     @Override
@@ -125,12 +117,16 @@ public class SybaseAseMetadataDialect extends AbstractMetadataDialect {
         String sql = "select tab.name 'object', rul.name 'rule', " +
                 "'sp_bindrule ' || rul.name || ', ''' || tab.name || '.' || col.name || '''' 'sql'\n" +
                 "from " + schemaName + "..syscolumns col, " + schemaName + "..sysobjects rul, " + schemaName + "..sysobjects tab\n" +
+                "    , " + schemaName + "..sysusers sch\n" +
                 "where col.domain = rul.id and col.id = tab.id and tab.type='U' and col.domain <> 0\n" +
+                "    and tab.uid = sch.uid and sch.name = '" + schema.getSubschemaName() + "'\n" +
                 "union\n" +
                 "select obj.name 'object', rul.name 'rule', " +
                 "'sp_bindrule ' || rul.name || ', ' || obj.name 'sql'\n" +
                 "from " + schemaName + "..systypes obj, " + schemaName + "..sysobjects rul\n" +
-                "where obj.domain = rul.id and obj.domain <> 0\n";
+                "    , " + schemaName + "..sysusers sch\n" +
+                "where obj.domain = rul.id and obj.domain <> 0\n" +
+                "    and obj.uid = sch.uid and sch.name = '" + schema.getSubschemaName() + "'\n";
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
@@ -162,8 +158,12 @@ public class SybaseAseMetadataDialect extends AbstractMetadataDialect {
         String tableClause = tableName == null ? "" : " AND tab.name = '" + tableName + "'";
         ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(query.query(conn,
                 "select tab.name TABLE_NAME, ind.name INDEX_NAME, status2 & 8 IS_CONSTRAINT, status2 & 512 IS_CLUSTERED " +
-                        "from " + schema.getName() + "..sysindexes ind, " + schema.getName() + "..sysobjects tab " +
-                        "where ind.id = tab.id " + tableClause,
+                        "from " + schema.getName() + "..sysindexes ind" +
+                        ", " + schema.getName() + "..sysobjects tab " +
+                        ", " + schema.getName() + "..sysusers sch " +
+                        "where ind.id = tab.id " +
+                        "and tab.uid = sch.uid and sch.name = '" + schema.getSubschemaName() + "'\n" +
+                        tableClause,
                 new MapListHandler()
         )).toImmutable();
 
@@ -185,9 +185,11 @@ public class SybaseAseMetadataDialect extends AbstractMetadataDialect {
         String query = String.format("select obj.name name, com.number number, colid2 colid2, colid colid, text text\n" +
                 "from %1$s..syscomments com\n" +
                 ", %1$s..sysobjects obj\n" +
+                "    , " + schema.getName() + "..sysusers sch\n" +
                 "where com.id = obj.id\n" +
                 "and com.texttype = 0\n" +
                 "and obj.type in ('V')\n" +
+                "and obj.uid = sch.uid and sch.name = '" + schema.getSubschemaName() + "'\n" +
                 "order by com.id, number, colid2, colid\n", schema.getName());
         QueryRunner qr = new QueryRunner();  // using queryRunner so that we can reuse the connection
         ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(qr.query(conn, query, new MapListHandler())).toImmutable();
@@ -233,7 +235,9 @@ public class SybaseAseMetadataDialect extends AbstractMetadataDialect {
         ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(query.query(conn,
                 "SELECT rul.name as RULE_NAME\n" +
                         "FROM " + schema.getName() + "..sysobjects rul\n" +
+                        "    , " + schema.getName() + "..sysusers sch\n" +
                         "WHERE rul.type = 'R'\n" +
+                        "    and rul.uid = sch.uid and sch.name = '" + schema.getSubschemaName() + "' " +
                         "and not exists (\n" +
                         "\t-- Ensure that the entry is not attached to a table; otherwise, it is a regular table constraint, and will already be dropped when the table is dropped\n" +
                         "\tselect 1 from " + schema.getName() + "..sysconstraints c\n" +
@@ -257,8 +261,10 @@ public class SybaseAseMetadataDialect extends AbstractMetadataDialect {
         ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(query.query(conn,
                 "SELECT s1.name as USER_TYPE_NAME\n" +
                         "FROM " + schema.getName() + "..systypes s1\n" +
-                        "WHERE s1.usertype>100",
-                new MapListHandler()
+                        "    , " + schema.getName() + "..sysusers sch\n" +
+                        "WHERE s1.usertype>100 " +
+                        "AND s1.uid = sch.uid and sch.name = '" + schema.getSubschemaName() + "' "
+                , new MapListHandler()
         )).toImmutable();
 
         return maps.collect(new Function<Map<String, Object>, DaUserType>() {
@@ -276,8 +282,10 @@ public class SybaseAseMetadataDialect extends AbstractMetadataDialect {
         String query = String.format("select obj.name name, obj.type type, com.number number, colid2 colid2, colid colid, text text\n" +
                 "from %1$s..syscomments com\n" +
                 ", %1$s..sysobjects obj\n" +
+                "    , " + schema.getName() + "..sysusers sch\n" +
                 "where com.id = obj.id\n" +
                 "and com.texttype = 0\n" +
+                "and obj.uid = sch.uid and sch.name = '" + schema.getSubschemaName() + "'\n" +
                 "and obj.type in ('SF', 'P')\n" +
                 nameClause +
                 "order by com.id, number, colid2, colid\n", schema.getName());

@@ -1,4 +1,3 @@
-//// METADATA DISABLE_QUOTED_IDENTIFIERS
 //// CHANGE name=change0
 CREATE TABLE TestTable(
 	[idField] [int] NOT NULL,
@@ -26,11 +25,6 @@ GO
 EXEC sys.sp_bindrule @rulename=N'booleanRule', @objname=N'TestTable.[myBooleanCol]' , @futureonly='futureonly'
 GO
 
-//// CHANGE name=change3
-SET ANSI_PADDING ON
-
-GO
-
 //// CHANGE INDEX name=IND1
 CREATE NONCLUSTERED INDEX [IND1] ON TestTable
 (
@@ -38,14 +32,6 @@ CREATE NONCLUSTERED INDEX [IND1] ON TestTable
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
 
-//// CHANGE name=change4
-create trigger TestTableTrigger1
-on TestTable
-for insert
-as
-print "Added!"
-GO
-
-//// CHANGE name=change5
+//// CHANGE name=change3
 ALTER TABLE TestTable ENABLE TRIGGER [TestTableTrigger1]
 GO

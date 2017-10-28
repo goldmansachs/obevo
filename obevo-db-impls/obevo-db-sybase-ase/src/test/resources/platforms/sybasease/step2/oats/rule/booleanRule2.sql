@@ -14,6 +14,8 @@
 -- under the License.
 --
 
+//// METADATA excludeEnvs="test%schema"
+-- excluding these from schema-based envs as these object types are not supported
 CREATE RULE booleanRule2
 as @booleanValue in (1, 0)
 go

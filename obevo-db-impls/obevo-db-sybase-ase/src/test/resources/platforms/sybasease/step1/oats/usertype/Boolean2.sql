@@ -14,6 +14,8 @@
 -- under the License.
 --
 
+//// METADATA excludeEnvs="test%schema"
+-- excluding these from schema-based envs as these object types are not supported with schemas
 sp_addtype N'Boolean2', N'tinyint', N'not null'
 GO
 sp_bindrule booleanRule2, Boolean2

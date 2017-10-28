@@ -1,6 +1,7 @@
 <dbSystemConfig type="MSSQL">
     <schemas>
         <schema name="myschema01" />
+        <schema name="myschema01_schema1" />
     </schemas>
     <environments>
         <!-- Your production database that you reverse-engineered from; do NOT deploy to this environment for your testing!
@@ -19,11 +20,13 @@
                         <dbEnvironment dbSchemaSuffix="_dev" ...>
             will result in the physical schema being:
                 myschema01 ==> myschema01_dev
+                myschema01_schema1 ==> myschema01_schema1_dev
 
             2) Use the schemaOverrides element below to define the physical schema name directly
 
             <schemaOverrides>
                 <schemaOverride schema="myschema01" overrideValue="yourmyschema01InDev"/>
+                <schemaOverride schema="myschema01_schema1" overrideValue="yourmyschema01_schema1InDev"/>
             </schemaOverrides>
 
             DELETE THIS COMMENT AFTER FINISHING ONBOARDING -->

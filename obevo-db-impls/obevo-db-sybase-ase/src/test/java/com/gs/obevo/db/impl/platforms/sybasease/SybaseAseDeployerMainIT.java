@@ -25,6 +25,7 @@ import javax.sql.DataSource;
 import com.gs.obevo.api.appdata.DeployExecution;
 import com.gs.obevo.api.appdata.DeployExecutionAttribute;
 import com.gs.obevo.api.appdata.DeployExecutionAttributeImpl;
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.platform.MainDeployerArgs;
 import com.gs.obevo.db.api.platform.DbDeployerAppContext;
 import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
@@ -67,8 +68,12 @@ public class SybaseAseDeployerMainIT {
                 .cleanEnvironment()
                 .setupEnvInfra()
                 .deploy(args1);
-        this.validateStep1(ds, new JdbcHelper());
+
         String schema = "oats";
+        PhysicalSchema physicalSchema = context1.getEnvironment().getPhysicalSchema(schema);
+        String schemaPrefix = context1.getEnvironment().getPlatform().getSchemaPrefix(physicalSchema);
+
+        this.validateStep1(ds, new JdbcHelper(), schemaPrefix);
         DeployExecution execution1 = context1.getDeployExecutionDao().getLatestDeployExecution(schema);
         verifyExecution1(execution1);
 
@@ -81,7 +86,7 @@ public class SybaseAseDeployerMainIT {
                 .reason("try2");
         DbDeployerAppContext context2 = getAppContext.valueOf(2);
         context2.setupEnvInfra().deploy(args2);
-        this.validateStep2(ds, new JdbcHelper());
+        this.validateStep2(ds, new JdbcHelper(), schemaPrefix);
         DeployExecution execution2 = context2.getDeployExecutionDao().getLatestDeployExecution(schema);
         verifyExecution2(execution2);
 
@@ -104,11 +109,11 @@ public class SybaseAseDeployerMainIT {
                 execution2.getAttributes());
     }
 
-    public static void validateStep1(DataSource ds, JdbcHelper jdbc) throws Exception {
+    public static void validateStep1(DataSource ds, JdbcHelper jdbc, String schemaPrefix) throws Exception {
         List<Map<String, Object>> results;
         Connection conn = ds.getConnection();
         try {
-            results = jdbc.queryForList(conn, "select * from TestTable order by idField");
+            results = jdbc.queryForList(conn, "select * from " + schemaPrefix + "TestTable order by idField");
         } finally {
             DbUtils.closeQuietly(conn);
         }
@@ -120,11 +125,11 @@ public class SybaseAseDeployerMainIT {
         validateResultRow(results.get(3), 4, "str4", 0);
     }
 
-    public static void validateStep2(DataSource ds, JdbcHelper jdbc) throws Exception {
+    public static void validateStep2(DataSource ds, JdbcHelper jdbc, String schemaPrefix) throws Exception {
         List<Map<String, Object>> results;
         Connection conn = ds.getConnection();
         try {
-            results = jdbc.queryForList(conn, "select * from TestTable order by idField");
+            results = jdbc.queryForList(conn, "select * from " + schemaPrefix + "TestTable order by idField");
         } finally {
             DbUtils.closeQuietly(conn);
         }

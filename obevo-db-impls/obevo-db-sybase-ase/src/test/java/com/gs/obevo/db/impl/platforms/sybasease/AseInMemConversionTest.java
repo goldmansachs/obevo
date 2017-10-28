@@ -46,12 +46,14 @@ public class AseInMemConversionTest {
 
         DataSource ds = JdbcDataSourceFactory.createFromJdbcUrl(
                 org.h2.Driver.class,
-                dbEnv.getJdbcUrl() + ";SCHEMA=oats",
+                dbEnv.getJdbcUrl(),
                 new Credential(dbEnv.getDefaultUserId(), dbEnv.getDefaultPassword())
         );
 
         JdbcHelper jdbc = new JdbcHelper();
-        SybaseAseDeployerMainIT.validateStep1(ds, jdbc);
+
+        String schemaPrefix = dbEnv.getPlatform().getSchemaPrefix(dbEnv.getPhysicalSchema("oats"));
+        SybaseAseDeployerMainIT.validateStep1(ds, jdbc, schemaPrefix);
 
         UnitTestDbBuilder.newBuilder()
                 .setSourcePath("platforms/sybasease/step2/system-config-inmem.xml")
@@ -60,7 +62,7 @@ public class AseInMemConversionTest {
                 .setDbServer("mytest")
                 .buildContext().setupAndCleanAndDeploy();
 
-        SybaseAseDeployerMainIT.validateStep2(ds, jdbc);
+        SybaseAseDeployerMainIT.validateStep2(ds, jdbc, schemaPrefix);
     }
 
     @Test
@@ -78,12 +80,13 @@ public class AseInMemConversionTest {
 
         DataSource ds = JdbcDataSourceFactory.createFromJdbcUrl(
                 org.hsqldb.jdbcDriver.class,
-                dbEnv.getJdbcUrl() + ";SCHEMA=oats",
+                dbEnv.getJdbcUrl(),
                 new Credential(dbEnv.getDefaultUserId(), dbEnv.getDefaultPassword())
         );
 
         JdbcHelper jdbc = new JdbcHelper();
-        SybaseAseDeployerMainIT.validateStep1(ds, jdbc);
+        String schemaPrefix = dbEnv.getPlatform().getSchemaPrefix(dbEnv.getPhysicalSchema("oats"));
+        SybaseAseDeployerMainIT.validateStep1(ds, jdbc, schemaPrefix);
 
         UnitTestDbBuilder.newBuilder()
                 .setSourcePath("platforms/sybasease/step2/system-config-inmem.xml")
@@ -92,6 +95,6 @@ public class AseInMemConversionTest {
                 .setDbServer("mytest")
                 .buildContext().setupAndCleanAndDeploy();
 
-        SybaseAseDeployerMainIT.validateStep2(ds, jdbc);
+        SybaseAseDeployerMainIT.validateStep2(ds, jdbc, schemaPrefix);
     }
 }

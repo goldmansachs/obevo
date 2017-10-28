@@ -68,10 +68,6 @@ public class MsSqlDbMetadataManagerIT extends AbstractDbMetadataManagerIT {
         return name;
     }
 
-    private String getSubschemaString() {
-        return getPhysicalSchema().getSubschema() != null ? getPhysicalSchema().getSubschema() + "." : "";
-    }
-
     @Override
     protected String get_VIEW1() {
         return "CREATE VIEW " + getSubschemaString() + "VIEW1 AS SELECT * FROM " + getSubschemaString() + "METADATA_TEST_TABLE -- my comment";
@@ -124,8 +120,7 @@ public class MsSqlDbMetadataManagerIT extends AbstractDbMetadataManagerIT {
 
     @Override
     protected boolean isRuleBindingSupported() {
-        // rule binding is only supporte
-        // d for the default schema
+        // rule binding is only supported for the default schema
         return getPhysicalSchema().getSubschema() == null;
     }
 

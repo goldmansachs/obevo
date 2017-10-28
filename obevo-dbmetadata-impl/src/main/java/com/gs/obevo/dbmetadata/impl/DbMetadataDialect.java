@@ -45,7 +45,7 @@ public interface DbMetadataDialect {
     /**
      * Sets the schema on the connection. This is needed prior to the schemacrawler calls for some DBMS types.
      */
-    void setSchemaOnConnection(Connection conn, String schema);
+    void setSchemaOnConnection(Connection conn, PhysicalSchema physicalSchema);
 
     String getSchemaExpression(PhysicalSchema physicalSchema);
 
