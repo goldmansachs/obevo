@@ -16,6 +16,7 @@
 package com.gs.obevo.dbmetadata.impl.dialects;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.gs.obevo.api.appdata.PhysicalSchema;
@@ -58,7 +59,18 @@ public abstract class AbstractMetadataDialect implements DbMetadataDialect {
     }
 
     @Override
-    public void setSchemaOnConnection(Connection conn, String schema) {
+    public void setSchemaOnConnection(Connection conn, PhysicalSchema physicalSchema) {
+    }
+
+    /**
+     * Executes the given update statement on the connection - convenience method for subclasses.
+     */
+    protected void executeUpdate(Connection conn, String sql) {
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

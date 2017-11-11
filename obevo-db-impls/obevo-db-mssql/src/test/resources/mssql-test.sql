@@ -52,9 +52,9 @@ GO
 
 -- not applicable for user
 <#if !(subschema?has_content)>
-sp_bindefault '${subschema}DateDefault', 'TEST_TYPES.stringDateField'
+sp_bindefault 'DateDefault', 'TEST_TYPES.stringDateField'
 GO
-sp_bindrule ${subschema}booleanRule, 'TEST_TYPES.myBooleanCol'
+sp_bindrule booleanRule, 'TEST_TYPES.myBooleanCol'
 GO
 </#if>
 

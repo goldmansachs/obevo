@@ -1,5 +1,5 @@
 //// CHANGE name=init
-CREATE TABLE DefaultColTest  (
+CREATE TABLE ${oats_subschemaSuffixed}DefaultColTest  (
 	id 	int IDENTITY NOT NULL,
 	default_str	varchar(25) DEFAULT '123' NULL,
 	default_nn_str	varchar(25) DEFAULT '123' NOT NULL,
@@ -8,5 +8,5 @@ CREATE TABLE DefaultColTest  (
 	default_date2	datetime DEFAULT 'Jan 20 2005' NULL
 	) LOCK DATAROWS
 GO
-ALTER TABLE DefaultColTest ADD CONSTRAINT PK_DefaultColTest PRIMARY KEY (id)
+ALTER TABLE ${oats_subschemaSuffixed}DefaultColTest ADD CONSTRAINT PK_DefaultColTest PRIMARY KEY (id)
 GO

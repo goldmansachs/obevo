@@ -90,6 +90,10 @@ public abstract class AbstractDbMetadataManagerIT {
         return physicalSchema.getPhysicalName();
     }
 
+    protected String getSubschemaString() {
+        return getPhysicalSchema().getSubschema() != null ? getPhysicalSchema().getSubschema() + "." : "";
+    }
+
     protected final DataSource getDataSource() {
         return dataSource;
     }
@@ -126,6 +130,7 @@ public abstract class AbstractDbMetadataManagerIT {
         TestTemplateUtil.getInstance().writeTemplate(getDropSqlFile(), params, sw);
         for (String sql : splitSql(sw.toString())) {
             try {
+                LOG.debug("Executing drop: {}", sql);
                 jdbc.update(sql);
             } catch (Exception ignore) {
                 LOG.info("Ignoring error here for dropping tables (simplest way to do this), {}", ignore.getMessage());
@@ -135,6 +140,7 @@ public abstract class AbstractDbMetadataManagerIT {
         sw = new StringWriter();
         TestTemplateUtil.getInstance().writeTemplate(getAddSqlFile(), params, sw);
         for (String sql : splitSql(sw.toString())) {
+            LOG.debug("Executing update: {}", sql);
             jdbc.update(sql);
         }
     }

@@ -109,7 +109,7 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
         Connection conn = null;
         try {
             conn = this.ds.getConnection();
-            this.dbMetadataDialect.setSchemaOnConnection(conn, physicalSchema.getPhysicalName());
+            this.dbMetadataDialect.setSchemaOnConnection(conn, physicalSchema);
 
             SchemaCrawlerOptions options = new SchemaCrawlerOptions();
             // Set what details are required in the schema - this affects the time taken to crawl the schema

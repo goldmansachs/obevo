@@ -52,10 +52,12 @@ import org.eclipse.collections.api.multimap.set.MutableSetMultimap;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.block.factory.Predicates;
+import org.eclipse.collections.impl.block.factory.StringPredicates;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.factory.Multimaps;
 import org.eclipse.collections.impl.factory.Sets;
+import org.eclipse.collections.impl.tuple.Tuples;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -203,42 +205,265 @@ public abstract class AbstractDdlReveng {
      */
     protected abstract File printInstructions(PrintStream out, AquaRevengArgs args);
 
-    private void revengMain(File file, AquaRevengArgs args) {
-        String schema = args.getDbSchema();
+    private void revengMain(File inputPath, final AquaRevengArgs args) {
 
-        boolean generateBaseline = args.isGenerateBaseline();
-
-        MutableList<ChangeEntry> changeEntries = Lists.mutable.empty();
-
-        final MutableList<String> dataLines;
-        if (file.isFile()) {
-            dataLines = FileUtilsCobra.readLines(file);
+        final MutableList<File> files;
+        if (inputPath.isFile()) {
+            files = Lists.mutable.of(inputPath);
         } else {
-            final MutableList<File> files = Lists.mutable.empty();
+            files = Lists.mutable.empty();
             try {
-                Files.walkFileTree(file.toPath(), new SimpleFileVisitor<Path>() {
+                Files.walkFileTree(inputPath.toPath(), new SimpleFileVisitor<Path>() {
                     @Override
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                        files.add(file.toFile());
+                        File fileObj = file.toFile();
+                        if (fileObj.isFile()) {
+                            files.add(fileObj);
+                        }
                         return super.visitFile(file, attrs);
                     }
                 });
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            dataLines = files
-                    .select(new Predicate<File>() {
-                        @Override
-                        public boolean accept(File file) {
-                            return file.isFile();
-                        }
-                    }).flatCollect(new Function<File, Iterable<String>>() {
-                        @Override
-                        public Iterable<String> valueOf(File file) {
-                            return FileUtilsCobra.readLines(file);
-                        }
-                    });
         }
+
+
+
+        MutableList<FileProcessingContext> fileProcessingContexts = files.collect(new Function<File, FileProcessingContext>() {
+            @Override
+            public FileProcessingContext valueOf(File file) {
+                MutableList<String> sqlSnippets = getSqlSnippets(file);
+
+                final MutableList<Pair<String, RevengPatternOutput>> snippetPatternMatchPairs = sqlSnippets
+                        .collect(PATTERN_MATCH_SNIPPET)
+                        .reject(new Predicate<Pair<String, RevengPatternOutput>>() {
+                            @Override
+                            public boolean accept(Pair<String, RevengPatternOutput> each) {
+                                RevengPatternOutput patternMatch = each.getTwo();
+                                return !skipSchemaValidation && patternMatch != null && patternMatch.getSchema() != null && patternMatch.getSubSchema() == null && !patternMatch.getSchema().equalsIgnoreCase(args.getDbSchema());
+                            }
+                        })
+                        ;
+                return new FileProcessingContext(file, snippetPatternMatchPairs);
+            }
+        });
+
+        final SchemaObjectReplacer schemaObjectReplacer = new SchemaObjectReplacer();
+        for (FileProcessingContext fileProcessingContext : fileProcessingContexts) {
+            for (Pair<String, RevengPatternOutput> snippetPatternMatchPair : fileProcessingContext.getSnippetPatternMatchPairs()) {
+                schemaObjectReplacer.addPatternMatch(snippetPatternMatchPair.getTwo());
+            }
+        }
+
+        final MutableList<ChangeEntry> changeEntries = fileProcessingContexts.flatCollect(new Function<FileProcessingContext, Iterable<ChangeEntry>>() {
+            @Override
+            public Iterable<ChangeEntry> valueOf(FileProcessingContext fileProcessingContext) {
+                String schema = getObjectSchema(args.getDbSchema(), fileProcessingContext.getFile().getName());
+
+                return revengFile(schemaObjectReplacer, fileProcessingContext.getSnippetPatternMatchPairs(), schema);
+            }
+        });
+
+        new RevengWriter().write(platform, changeEntries, new File(args.getOutputPath(), "final"), args.isGenerateBaseline(), RevengWriter.defaultShouldOverwritePredicate(), args.getJdbcUrl(), args.getDbHost(), args.getDbPort(), args.getDbServer(), args.getExcludeObjects());
+    }
+
+    /**
+     * Returns the schema name to use for the given file. This implementation can vary depending on the DBMS type.
+     */
+    protected String getObjectSchema(String inputSchema, String fileName) {
+        return inputSchema;
+    }
+
+    private static class FileProcessingContext {
+        private final File file;
+        private final MutableList<Pair<String, RevengPatternOutput>> snippetPatternMatchPairs;
+
+        public FileProcessingContext(File file, MutableList<Pair<String, RevengPatternOutput>> snippetPatternMatchPairs) {
+            this.file = file;
+            this.snippetPatternMatchPairs = snippetPatternMatchPairs;
+        }
+
+        public File getFile() {
+            return file;
+        }
+
+        public MutableList<Pair<String, RevengPatternOutput>> getSnippetPatternMatchPairs() {
+            return snippetPatternMatchPairs;
+        }
+    }
+
+    private MutableList<ChangeEntry> revengFile(SchemaObjectReplacer schemaObjectReplacer, MutableList<Pair<String, RevengPatternOutput>> snippetPatternMatchPairs, String inputSchema) {
+        final MutableList<ChangeEntry> changeEntries = Lists.mutable.empty();
+
+        MutableMap<String, AtomicInteger> countByObject = Maps.mutable.empty();
+
+        int selfOrder = 0;
+        String candidateObject = "UNKNOWN";
+        ChangeType candidateObjectType = UnclassifiedChangeType.INSTANCE;
+        for (Pair<String, RevengPatternOutput> snippetPatternMatchPair : snippetPatternMatchPairs) {
+            String sqlSnippet = snippetPatternMatchPair.getOne();
+            try {
+                sqlSnippet = removeQuotesFromProcxmode(sqlSnippet);  // sybase ASE
+
+                RevengPattern chosenRevengPattern = null;
+                String secondaryName = null;
+                RevengPatternOutput patternMatch = snippetPatternMatchPair.getTwo();
+                if (patternMatch != null) {
+                    chosenRevengPattern = patternMatch.getRevengPattern();
+                    candidateObject = patternMatch.getPrimaryName();
+                    if (patternMatch.getSecondaryName() != null) {
+                        secondaryName = patternMatch.getSecondaryName();
+                    }
+                    candidateObjectType = platform.getChangeType(patternMatch.getRevengPattern().getChangeType());
+                }
+
+                // Ignore other schemas that may have been found in your parsing (came up during HSQLDB use case)
+
+                sqlSnippet = schemaObjectReplacer.replaceSnippet(sqlSnippet);
+
+                AtomicInteger objectOrder2 = countByObject.getIfAbsentPut(candidateObject, new Function0<AtomicInteger>() {
+                    @Override
+                    public AtomicInteger value() {
+                        return new AtomicInteger(0);
+                    }
+                });
+
+                if (secondaryName == null) {
+                    secondaryName = "change" + objectOrder2.getAndIncrement();
+                }
+                RevEngDestination destination = new RevEngDestination(inputSchema, candidateObjectType, candidateObject, false);
+
+                String annotation = chosenRevengPattern != null ? chosenRevengPattern.getAnnotation() : null;
+                MutableList<Function<String, LineParseOutput>> postProcessSqls = chosenRevengPattern != null ? chosenRevengPattern.getPostProcessSqls() : Lists.mutable.<Function<String, LineParseOutput>>empty();
+
+                for (Function<String, LineParseOutput> postProcessSql : postProcessSqls) {
+                    LineParseOutput lineParseOutput = postProcessSql.valueOf(sqlSnippet);
+                    sqlSnippet = lineParseOutput.getLineOutput();
+                }
+
+                ChangeEntry change = new ChangeEntry(destination, sqlSnippet + "\nGO", secondaryName, annotation, selfOrder++);
+
+                postProcessChange.value(change, sqlSnippet);
+
+                changeEntries.add(change);
+            } catch (RuntimeException e) {
+                throw new RuntimeException("Failed parsing on statement " + sqlSnippet, e);
+            }
+        }
+
+        return changeEntries;
+    }
+
+
+    private Function<String, Pair<String, RevengPatternOutput>> PATTERN_MATCH_SNIPPET = new Function<String, Pair<String, RevengPatternOutput>>() {
+        @Override
+        public Pair<String, RevengPatternOutput> valueOf(String sqlSnippet) {
+            for (RevengPattern revengPattern : revengPatterns) {
+                RevengPatternOutput patternMatch = revengPattern.evaluate(sqlSnippet);
+                if (patternMatch != null) {
+                    return Tuples.pair(sqlSnippet, patternMatch);
+                }
+            }
+            return Tuples.pair(sqlSnippet, null);
+        }
+    };
+
+    private class SchemaObjectReplacer {
+        private final MutableSet<RevengPatternOutput> objectNames = Sets.mutable.empty();
+        private final MutableSetMultimap<String, String> objectToSchemasMap = Multimaps.mutable.set.empty();
+        private final MutableSetMultimap<String, String> objectToSubSchemasMap = Multimaps.mutable.set.empty();
+
+        public void addPatternMatch(RevengPatternOutput patternMatch) {
+            if (patternMatch != null) {
+                LOG.debug("Found object: {}", patternMatch);
+                objectNames.add(patternMatch);
+                if (patternMatch.getSchema() != null) {
+                    objectToSchemasMap.put(patternMatch.getPrimaryName(), patternMatch.getSchema());
+                }
+                if (patternMatch.getSubSchema() != null) {
+                    objectToSubSchemasMap.put(patternMatch.getPrimaryName(), patternMatch.getSubSchema());
+                }
+            }
+        }
+
+        public String replaceSnippet(String sqlSnippet) {
+            for (RevengPatternOutput objectOutput : objectNames) {
+                MutableSet<String> replacerSchemas = objectToSchemasMap.get(objectOutput.getPrimaryName());
+                if (replacerSchemas == null || replacerSchemas.isEmpty()) {
+                    replacerSchemas = objectToSchemasMap.valuesView().toSet();
+                }
+                MutableSet<String> replacerSubSchemas = objectToSubSchemasMap.get(objectOutput.getPrimaryName());
+                if (replacerSubSchemas == null || replacerSubSchemas.isEmpty()) {
+                    replacerSubSchemas = objectToSubSchemasMap.valuesView().toSet();
+                }
+                LOG.debug("Using replacer schemas {} and subschemas {} on object {}", replacerSchemas, replacerSubSchemas, objectOutput.getPrimaryName());
+
+                if (replacerSubSchemas.notEmpty()) {
+                    LazyIterable<Pair<String, String>> pairs = replacerSchemas.cartesianProduct(replacerSubSchemas);
+                    for (Pair<String, String> pair : pairs) {
+                        String replacerSchema = pair.getOne();
+                        String replacerSubSchema = pair.getTwo();
+
+                        sqlSnippet = replaceSchemaAndSubschemaInSnippet(sqlSnippet, replacerSchema, replacerSubSchema, objectOutput.getPrimaryName());
+                        sqlSnippet = replaceSchemaAndSubschemaInSnippet(sqlSnippet, replacerSchema, replacerSubSchema, objectOutput.getSecondaryName());
+                        sqlSnippet = replaceSchemaAndSubschemaInSnippet(sqlSnippet, replacerSchema, "", objectOutput.getPrimaryName());
+                        sqlSnippet = replaceSchemaAndSubschemaInSnippet(sqlSnippet, replacerSchema, "", objectOutput.getSecondaryName());
+                        sqlSnippet = replaceSchemaInSnippet(sqlSnippet, replacerSubSchema, objectOutput.getPrimaryName());
+                        sqlSnippet = replaceSchemaInSnippet(sqlSnippet, replacerSubSchema, objectOutput.getSecondaryName());
+                    }
+                } else {
+                    for (String replacerSchema : replacerSchemas) {
+                        sqlSnippet = replaceSchemaInSnippet(sqlSnippet, replacerSchema, objectOutput.getPrimaryName());
+                        if (objectOutput.getSecondaryName() != null) {
+                            sqlSnippet = replaceSchemaInSnippet(sqlSnippet, replacerSchema, objectOutput.getSecondaryName());
+                        }
+                    }
+                }
+            }
+
+            return sqlSnippet;
+        }
+
+        private String replaceSchemaInSnippet(String sqlSnippet, String inputSchema, String objectName) {
+            for (boolean useQuotes : Lists.fixedSize.of(true, false)) {
+                String sQuote = useQuotes ? startQuote : "";
+                String eQuote = useQuotes ? endQuote : "";
+                sqlSnippet = sqlSnippet.replaceAll(sQuote + inputSchema + "\\s*" + eQuote + "\\." + sQuote + objectName + eQuote,
+                        replaceSchemaObject(inputSchema, objectName, sQuote, eQuote)
+                );
+            }
+
+            return sqlSnippet;
+        }
+
+        private String replaceSchemaAndSubschemaInSnippet(String sqlSnippet, String inputSchema, String inputSubschema, String objectName) {
+            for (boolean useQuotes : Lists.fixedSize.of(true, false)) {
+                String sQuote = useQuotes ? startQuote : "";
+                String eQuote = useQuotes ? endQuote : "";
+                sqlSnippet = sqlSnippet.replaceAll(sQuote + inputSchema + "\\s*" + eQuote + "\\." + sQuote + inputSubschema + "\\s*" + eQuote + "\\." + sQuote + objectName + eQuote,
+                        replaceSchemaSubschemaObject(inputSchema, inputSubschema, objectName, sQuote, eQuote)
+                        //objectName
+                );
+            }
+
+            return sqlSnippet;
+        }
+    }
+
+    protected String replaceSchemaObject(String inputSchema, String objectName, String sQuote, String eQuote) {
+        return objectName;
+//            return sQuote + inputSchema + eQuote + "." + sQuote + objectName + eQuote;
+    }
+
+    protected String replaceSchemaSubschemaObject(String inputSchema, String inputSubschema, String objectName, String sQuote, String eQuote) {
+        return objectName;
+//            return sQuote + inputSchema + eQuote + "." + sQuote + inputSubschema + eQuote + "." + sQuote + objectName + eQuote;
+    }
+
+    private MutableList<String> getSqlSnippets(File file) {
+        final MutableList<String> dataLines;
+        dataLines = FileUtilsCobra.readLines(file);
 
         dataLines.forEachWithIndex(new ObjectIntProcedure<String>() {
             @Override
@@ -275,156 +500,27 @@ public abstract class AbstractDdlReveng {
             }
         });
 
-        MutableList<String> entries;
+        MutableList<String> sqlSnippets;
         if (stringSplitter != null) {
             String data = dataLines
                     .reject(skipLinePredicates != null ? Predicates.or(skipLinePredicates) : (Predicate) Predicates.alwaysFalse())
                     .makeString(SystemUtils.LINE_SEPARATOR);
 
-            entries = stringSplitter.valueOf(data);
+            sqlSnippets = stringSplitter.valueOf(data);
         } else {
             // If null, then default each line to being its own parsable statement
-            entries = dataLines
+            sqlSnippets = dataLines
                     .reject(skipLinePredicates != null ? Predicates.or(skipLinePredicates) : (Predicate) Predicates.alwaysFalse());
         }
 
-        int selfOrder = 0;
-
-
-        // Find object names
-        MutableSet<RevengPatternOutput> objectNames = Sets.mutable.empty();
-        MutableSetMultimap<String, String> objectToSchemasMap = Multimaps.mutable.set.empty();
-        MutableSetMultimap<String, String> objectToSubSchemasMap = Multimaps.mutable.set.empty();
-        for (String candidateLine : entries) {
-            candidateLine = StringUtils.stripStart(candidateLine, "\r\n \t");
-
-            if (StringUtils.isNotBlank(candidateLine) && Predicates.noneOf(skipPredicates).accept(candidateLine)) {
-                for (RevengPattern revengPattern : revengPatterns) {
-                    RevengPatternOutput patternMatch = revengPattern.evaluate(candidateLine);
-                    if (patternMatch != null) {
-                        LOG.debug("Found object: {}", patternMatch);
-                        objectNames.add(patternMatch);
-                        if (patternMatch.getSchema() != null) {
-                            objectToSchemasMap.put(patternMatch.getPrimaryName(), patternMatch.getSchema());
-                        }
-                        if (patternMatch.getSubSchema() != null) {
-                            objectToSubSchemasMap.put(patternMatch.getPrimaryName(), patternMatch.getSubSchema());
-                        }
-                        break;
-                    }
-                }
+        sqlSnippets = sqlSnippets.collect(new Function<String, String>() {
+            @Override
+            public String valueOf(String sqlSnippet) {
+                return StringUtils.stripStart(sqlSnippet, "\r\n \t");
             }
-        }
-
-        MutableMap<String, AtomicInteger> countByObject = Maps.mutable.empty();
-
-        String candidateObject = "UNKNOWN";
-        ChangeType candidateObjectType = UnclassifiedChangeType.INSTANCE;
-        for (String candidateLine : entries) {
-            try {
-
-                candidateLine = StringUtils.stripStart(candidateLine, "\r\n \t");
-
-                if (StringUtils.isNotBlank(candidateLine)
-                        && Predicates.noneOf(skipPredicates).accept(candidateLine)
-                        ) {
-                    candidateLine = removeQuotesFromProcxmode(candidateLine);  // sybase ASE
-
-                    RevengPattern chosenRevengPattern = null;
-                    String secondaryName = null;
-                    RevengPatternOutput patternMatch = null;
-                    for (RevengPattern revengPattern : revengPatterns) {
-                        patternMatch = revengPattern.evaluate(candidateLine);
-                        if (patternMatch != null) {
-                            chosenRevengPattern = revengPattern;
-                            candidateObject = patternMatch.getPrimaryName();
-                            if (patternMatch.getSecondaryName() != null) {
-                                secondaryName = patternMatch.getSecondaryName();
-                            }
-                            candidateObjectType = platform.getChangeType(revengPattern.getChangeType());
-                            break;
-                        }
-                    }
-
-                    // Ignore other schemas that may have been found in your parsing (came up during HSQLDB use case)
-                    if (!skipSchemaValidation && patternMatch != null && patternMatch.getSchema() != null && patternMatch.getSubSchema() == null && !patternMatch.getSchema().equalsIgnoreCase(schema)) {
-                        continue;
-                    }
-
-                    for (RevengPatternOutput objectOutput : objectNames) {
-                        MutableSet<String> replacerSchemas = objectToSchemasMap.get(objectOutput.getPrimaryName());
-                        if (replacerSchemas == null || replacerSchemas.isEmpty()) {
-                            replacerSchemas = objectToSchemasMap.valuesView().toSet();
-                        }
-                        MutableSet<String> replacerSubSchemas = objectToSubSchemasMap.get(objectOutput.getPrimaryName());
-                        if (replacerSubSchemas == null || replacerSubSchemas.isEmpty()) {
-                            replacerSubSchemas = objectToSubSchemasMap.valuesView().toSet();
-                        }
-                        LOG.debug("Using replacer schemas {} and subschemas {} on object {}", replacerSchemas, replacerSubSchemas, objectOutput.getPrimaryName());
-
-                        if (replacerSubSchemas.notEmpty()) {
-                            LazyIterable<Pair<String, String>> pairs = replacerSchemas.cartesianProduct(replacerSubSchemas);
-                            for (Pair<String, String> pair : pairs) {
-                                String replacerSchema = pair.getOne();
-                                String replacerSubSchema = pair.getTwo();
-                                for (boolean useQuotes : Lists.fixedSize.of(true, false)) {
-                                    String sQuote = useQuotes ? startQuote : "";
-                                    String eQuote = useQuotes ? endQuote : "";
-                                    candidateLine = candidateLine.replaceAll(sQuote + replacerSchema + "\\s*" + eQuote + "\\." + sQuote + replacerSubSchema + "\\s*" + eQuote + "\\." + sQuote + objectOutput.getPrimaryName() + eQuote, objectOutput.getPrimaryName());
-                                    candidateLine = candidateLine.replaceAll(sQuote + replacerSchema + "\\s*" + eQuote + "\\." + sQuote + "\\s*" + eQuote + "\\." + sQuote + objectOutput.getPrimaryName() + eQuote, objectOutput.getPrimaryName());
-                                    candidateLine = candidateLine.replaceAll(sQuote + replacerSubSchema + "\\s*" + eQuote + "\\." + sQuote + objectOutput.getPrimaryName() + eQuote, objectOutput.getPrimaryName());
-                                    if (objectOutput.getSecondaryName() != null) {
-                                        candidateLine = candidateLine.replaceAll(sQuote + replacerSchema + "\\s*" + eQuote + "\\." + sQuote + replacerSubSchema + "\\s*" + eQuote + "\\." + sQuote + objectOutput.getSecondaryName() + eQuote, objectOutput.getSecondaryName());
-                                        candidateLine = candidateLine.replaceAll(sQuote + replacerSchema + "\\s*" + eQuote + "\\." + sQuote + "\\s*" + eQuote + "\\." + sQuote + objectOutput.getSecondaryName() + eQuote, objectOutput.getSecondaryName());
-                                        candidateLine = candidateLine.replaceAll(sQuote + replacerSubSchema + "\\s*" + eQuote + "\\." + sQuote + objectOutput.getSecondaryName() + eQuote, objectOutput.getSecondaryName());
-                                    }
-                                }
-                                LOG.info("MY PAIRS! {}", pair);
-                            }
-                        } else {
-                            for (String replacerSchema : replacerSchemas) {
-                                candidateLine = candidateLine.replaceAll(startQuote + replacerSchema + "\\s*" + endQuote + "\\." + startQuote + objectOutput.getPrimaryName() + endQuote, objectOutput.getPrimaryName());
-                                candidateLine = candidateLine.replaceAll(replacerSchema + "\\s*" + "\\." + objectOutput.getPrimaryName(), objectOutput.getPrimaryName());
-                                if (objectOutput.getSecondaryName() != null) {
-                                    candidateLine = candidateLine.replaceAll(startQuote + replacerSchema + "\\s*" + endQuote + "\\." + startQuote + objectOutput.getSecondaryName() + endQuote, objectOutput.getSecondaryName());
-                                    candidateLine = candidateLine.replaceAll(replacerSchema + "\\s*" + "\\." + objectOutput.getSecondaryName(), objectOutput.getSecondaryName());
-                                }
-                            }
-                        }
-                    }
-
-                    AtomicInteger objectOrder2 = countByObject.getIfAbsentPut(candidateObject, new Function0<AtomicInteger>() {
-                        @Override
-                        public AtomicInteger value() {
-                            return new AtomicInteger(0);
-                        }
-                    });
-
-                    if (secondaryName == null) {
-                        secondaryName = "change" + objectOrder2.getAndIncrement();
-                    }
-                    RevEngDestination destination = new RevEngDestination(schema, candidateObjectType, candidateObject, false);
-
-                    String annotation = chosenRevengPattern != null ? chosenRevengPattern.getAnnotation() : null;
-                    MutableList<Function<String, LineParseOutput>> postProcessSqls = chosenRevengPattern != null ? chosenRevengPattern.getPostProcessSqls() : Lists.mutable.<Function<String, LineParseOutput>>empty();
-
-                    for (Function<String, LineParseOutput> postProcessSql : postProcessSqls) {
-                        LineParseOutput lineParseOutput = postProcessSql.valueOf(candidateLine);
-                        candidateLine = lineParseOutput.getLineOutput();
-                    }
-
-                    ChangeEntry change = new ChangeEntry(destination, candidateLine + "\nGO", secondaryName, annotation, selfOrder++);
-
-                    postProcessChange.value(change, candidateLine);
-
-                    changeEntries.add(change);
-                }
-            } catch (RuntimeException e) {
-                throw new RuntimeException("Failed parsing on statement " + candidateLine, e);
-            }
-        }
-
-        new RevengWriter().write(platform, changeEntries, new File(args.getOutputPath(), "final"), generateBaseline, RevengWriter.defaultShouldOverwritePredicate(), args.getJdbcUrl(), args.getDbHost(), args.getDbPort(), args.getDbServer(), args.getExcludeObjects());
+        });
+        sqlSnippets = sqlSnippets.select(StringPredicates.notBlank().and(Predicates.noneOf(skipPredicates)));
+        return sqlSnippets;
     }
 
     protected DbEnvironment getDbEnvironment(AquaRevengArgs args) {
@@ -621,7 +717,7 @@ public abstract class AbstractDdlReveng {
                     }
 
                 }
-                return new RevengPatternOutput(primaryName, secondaryName, schema, subSchema, input);
+                return new RevengPatternOutput(this, primaryName, secondaryName, schema, subSchema, input);
             }
 
             return null;
@@ -642,18 +738,24 @@ public abstract class AbstractDdlReveng {
     }
 
     public static class RevengPatternOutput {
+        private final RevengPattern revengPattern;
         private final String primaryName;
         private final String secondaryName;
         private final String schema;
         private final String subSchema;
         private final String revisedLine;
 
-        public RevengPatternOutput(String primaryName, String secondaryName, String schema, String subSchema, String revisedLine) {
+        public RevengPatternOutput(RevengPattern revengPattern, String primaryName, String secondaryName, String schema, String subSchema, String revisedLine) {
+            this.revengPattern = revengPattern;
             this.primaryName = primaryName;
             this.secondaryName = secondaryName;
             this.schema = schema;
             this.subSchema = subSchema;
             this.revisedLine = revisedLine;
+        }
+
+        public RevengPattern getRevengPattern() {
+            return revengPattern;
         }
 
         public String getPrimaryName() {

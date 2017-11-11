@@ -69,16 +69,8 @@ public class MsSqlMetadataDialect extends AbstractMetadataDialect {
     }
 
     @Override
-    public void setSchemaOnConnection(Connection conn, String schema) {
-        PreparedStatement ps = null;
-        try {
-            ps = conn.prepareStatement("use " + schema);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            DbUtils.closeQuietly(ps);
-        }
+    public void setSchemaOnConnection(Connection conn, PhysicalSchema physicalSchema) {
+        executeUpdate(conn, "use " + physicalSchema.getPhysicalName());
     }
 
     @Override

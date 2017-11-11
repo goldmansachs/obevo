@@ -54,6 +54,7 @@ public class MsSqlReveng extends AbstractDdlReveng {
         setSkipLinePredicates(Lists.immutable.<Predicate<String>>of(
                 StringPredicates.matches(".*\\s*/\\*+\\s+Object")
                 , StringPredicates.startsWith("/****** Object:")
+                , StringPredicates.startsWith("SET ANSI_PADDING")
                 , StringPredicates.startsWith("SET ANSI_NULLS")
                 , StringPredicates.startsWith("SET QUOTED_IDENTIFIER")
         ));
@@ -76,7 +77,7 @@ public class MsSqlReveng extends AbstractDdlReveng {
                 new AbstractDdlReveng.RevengPattern(ChangeType.FUNCTION_STR, namePatternType, "(?i)create\\s+func(tion)?\\s+" + schemaNameSubPattern),
                 new AbstractDdlReveng.RevengPattern(ChangeType.VIEW_STR, namePatternType, "(?i)create\\s+view\\s+" + schemaNameSubPattern),
                 new AbstractDdlReveng.RevengPattern(ChangeType.SP_STR, namePatternType, "(?i)create\\s+proc(?:edure)?\\s+" + schemaNameSubPattern),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TRIGGER_STR, namePatternType, "(?i)create\\s+trigger\\s+" + schemaNameSubPattern + "on\\s+" + schemaNameSubPattern, 2, 1, null),
+                new AbstractDdlReveng.RevengPattern(ChangeType.TRIGGER_STR, namePatternType, "(?i)create\\s+trigger\\s+" + schemaNameSubPattern + "\\s+on\\s+" + schemaNameSubPattern),
                 new AbstractDdlReveng.RevengPattern(ChangeType.RULE_STR, namePatternType, "(?i)create\\s+rule\\s+" + schemaNameSubPattern),
                 new AbstractDdlReveng.RevengPattern(ChangeType.USERTYPE_STR, namePatternType, "(?i)^(exec\\s+)?sp_addtype\\s+'(\\w+)'")
         );
@@ -105,6 +106,21 @@ public class MsSqlReveng extends AbstractDdlReveng {
         return null;
     }
 
+    @Override
+    protected String getObjectSchema(String inputSchema, String fileName) {
+        // for SQL Server, we extract the subschema from the file name if present
+        String[] fileParts = fileName.split("\\.");
+        return fileParts[0].equals("dbo") ? inputSchema : inputSchema + "_" + fileParts[0];
+    }
+
+    protected String replaceSchemaObject(String inputSchema, String objectName, String sQuote, String eQuote) {
+        if (inputSchema == null || "dbo".equals(inputSchema)) {
+            return objectName;
+        }
+
+        return inputSchema + "." + objectName;
+//        return sQuote + inputSchema + eQuote + "." + sQuote + objectName + eQuote;
+    }
 
     private String getCommandWithDefaults(AquaRevengArgs args, String username, String password, String dbHost, String dbSchema, String outputFile) {
         return "    SqlServerDdlReveng " +

@@ -14,4 +14,6 @@
 -- under the License.
 --
 
+//// METADATA excludeEnvs="test%schema"
+-- excluding these from schema-based envs as these object types are not supported
 CREATE DEFAULT DateDefault AS '01Jan1972'

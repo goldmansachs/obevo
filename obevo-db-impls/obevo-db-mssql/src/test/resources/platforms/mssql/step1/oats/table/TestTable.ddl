@@ -1,4 +1,3 @@
-//// METADATA DISABLE_QUOTED_IDENTIFIERS
 //// CHANGE name=init
 CREATE TABLE ${oats_subschemaSuffixed}TestTable
 (
@@ -28,10 +27,3 @@ DROP INDEX ${oats_subschemaSuffixed}TestTable.IND1
 GO
 CREATE INDEX IND1 ON ${oats_subschemaSuffixed}TestTable(stringField)
 GO
-
-//// CHANGE TRIGGER name=trigger1
-create trigger ${oats_subschemaSuffixed}TestTableTrigger1
-on ${oats_subschemaSuffixed}TestTable
-for insert
-as
-print "Added!"

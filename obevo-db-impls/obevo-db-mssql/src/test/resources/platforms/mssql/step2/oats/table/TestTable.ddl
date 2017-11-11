@@ -1,4 +1,3 @@
-//// METADATA DISABLE_QUOTED_IDENTIFIERS
 //// CHANGE name=init
 CREATE TABLE ${oats_subschemaSuffixed}TestTable
 (
@@ -40,10 +39,3 @@ GO
 //// CHANGE name=rename includeEnvs="unittest*"
 ALTER TABLE ${oats_subschemaSuffixed}TestTable ALTER COLUMN myNewCol2 RENAME TO myNewCol
 GO
-
-//// CHANGE TRIGGER name=trigger1
-create trigger ${oats_subschemaSuffixed}TestTableTrigger1
-on ${oats_subschemaSuffixed}TestTable
-for insert
-as
-print "Added!"
