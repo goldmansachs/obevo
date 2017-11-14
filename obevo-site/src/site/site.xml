@@ -26,15 +26,37 @@
         <href>/</href>
     </bannerLeft>
 
+    <skin>
+        <groupId>org.apache.maven.skins</groupId>
+        <artifactId>maven-fluido-skin</artifactId>
+        <version>1.6</version>
+    </skin>
+
+    <custom>
+        <fluidoSkin>
+            <topBarEnabled>true</topBarEnabled>
+            <sideBarEnabled>true</sideBarEnabled>
+            <gitHub>
+                <projectId>goldmansachs/obevo</projectId>
+                <ribbonOrientation>right</ribbonOrientation>
+                <ribbonColor>gray</ribbonColor>
+            </gitHub>
+        </fluidoSkin>
+    </custom>
+
+
+    <version position="right"/>
+    <publishDate position="right"/>
+
     <body>
-        <links>
-            <item name="Product Link" href="https://github.com/goldmansachs/obevo" />
-        </links>
+        <breadcrumbs>
+            <item name="Obevo" href="/"/>
+        </breadcrumbs>
 
         <menu name="Getting Started">
             <item name="Intro" href="index.html" />
             <item name="Overview" href="overview.html" />
-            <item name="Setup your Distribution" href="setup.html" />
+            <item name="Setup" href="setup.html" />
             <item name="Help and Support" href="support.html" />
         </menu>
         <menu name="Technical Documentation">
@@ -70,7 +92,11 @@
             <item name="DB Merge Tool" href="db-merge-tool.html" />
         </menu>
         <menu name="Developer Information">
-            <item name="Developer Guide" href="developer-guide.html" />
+            <item name="Developer Guide" href="developer-guide.html">
+                <item name="Amazon RDS DB Setup" href="dev-setup-amazon.html" />
+                <item name="DB2 Test DB Setup" href="dev-setup-db2.html" />
+                <item name="Sybase ASE Test DB Setup" href="dev-setup-sybase-ase.html" />
+            </item>
             <item name="Design Walkthrough" href="design-walkthrough.html" />
         </menu>
     </body>

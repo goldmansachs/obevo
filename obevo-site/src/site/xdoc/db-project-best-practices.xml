@@ -23,12 +23,12 @@
         <title>DB Project Best Practices</title>
     </properties>
     <body>
-        <macro name="toc">
-            <param name="fromDepth" value="1" />
-            <param name="toDepth" value="3" />
-        </macro>
-
         <section name="DB Project Best Practices">
+            <macro name="toc">
+                <param name="fromDepth" value="2" />
+                <param name="toDepth" value="3" />
+            </macro>
+
             <h3>Logical schema name should match production or otherwise be environment-agnostic</h3>
 
             <p>The logical schema name should be representative of your schema across environments. When onboarding an
