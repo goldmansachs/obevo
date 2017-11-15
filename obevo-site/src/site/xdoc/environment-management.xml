@@ -20,17 +20,19 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
     <properties>
-        <title>Environment-Specific Deployments</title>
+        <title>Environment Management</title>
     </properties>
     <body>
+        <section name="Environment Management">
+            <p>Ideally, the same code will get deployed to all your environments. However, you may have use cases where
+                you need to only deploy some changes to certain environments. This page describes how to handle that with
+                Obevo.
+            </p>
         <macro name="toc">
             <param name="fromDepth" value="0" />
             <param name="toDepth" value="1" />
         </macro>
-        <p>Ideally, the same code will get deployed to all your environments. However, you may have use cases where
-            you need to only deploy some changes to certain environments. This page describes how to handle that with
-            Obevo.
-        </p>
+        </section>
         <section name="Tokenization">
             <p>You can define tokens per environment to tokenize your DB code</p>
             <source><![CDATA[<!-- In your system-config.xml file -->

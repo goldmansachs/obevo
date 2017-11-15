@@ -24,8 +24,6 @@
         <section name="Module Overview">
             <p>Before diving into the Java code, first let's describe the modules in Obevo.</p>
 
-            <p>NOTE for the review week of Feb 22 - I have not created this module group structure in maven yet</p>
-
             <p>First, describe the high-level module groupings (the first-level of directories in the Obevo codebase):</p>
             <table>
                 <tr>
@@ -39,20 +37,16 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>obevo-db-platforms</td>
+                    <td>obevo-db-impls</td>
                     <td>DBMS-platform implementations of Obevo</td>
                 </tr>
                 <tr>
-                    <td>obevo-db-utils</td>
+                    <td>obevo-utils</td>
                     <td>Java client utilities for DBMS-platforms that sit on top of the platform modules</td>
                 </tr>
                 <tr>
-                    <td>obevo-build-apis</td>
-                    <td>API endpoints for clients to access Obevo from their builds</td>
-                </tr>
-                <tr>
-                    <td>obevo-doc</td>
-                    <td>Documentation and Obevo-internal modules</td>
+                    <td>obevo-dists</td>
+                    <td>API endpoints for non-Java clients to access Obevo from their builds</td>
                 </tr>
             </table>
 
@@ -71,48 +65,38 @@
                 </tr>
                 <tr>
                     <td>obevo-db</td>
-                    <td>db-platforms</td>
+                    <td>db-impls</td>
                     <td>The base implementation of the core DA algorithm for DBMS platforms</td>
                 </tr>
                 <tr>
                     <td>obevo-db-* (db2, h2, hsql, postgresql, sybase-ase, sybase-iq)</td>
-                    <td>db-platforms</td>
+                    <td>db-impls</td>
                     <td>The DBMS-specific implementations. These implement a few interfaces defined in obevo-db</td>
                 </tr>
                 <tr>
-                    <td>obevo-schemacrawler</td>
-                    <td>db-platforms</td>
+                    <td>obevo-dbmetadata-impl</td>
+                    <td>db-impls</td>
                     <td>Wrapper code around the schemacrawler library (i.e. handling a couple tweaks around how to call the library)</td>
                 </tr>
                 <tr>
-                    <td>obevo-catotemp</td>
-                    <td>db-platforms</td>
+                    <td>obevo-internal-comparer</td>
+                    <td>db-impls</td>
                     <td>Copy of the CATO library; hoping to retire this once the main CATO library takes in some changes</td>
                 </tr>
                 <tr>
-                    <td>obevo-sql-parser</td>
-                    <td>db-platforms</td>
-                    <td>SQL parsing/translation code to help w/ the unit test db translations</td>
-                </tr>
-                <tr>
                     <td>obevo-db-client-alldbs</td>
-                    <td>db-platforms</td>
+                    <td>db-impls</td>
                     <td>maven dependency grouping as a convenience to retrieve all DBMS implementations</td>
                 </tr>
                 <tr>
                     <td>obevo-db-scenario-tests</td>
-                    <td>db-platforms</td>
+                    <td>db-impls</td>
                     <td>Scenario tests (not for client usage)</td>
                 </tr>
                 <tr>
-                    <td>obevo-db-unittest</td>
+                    <td>obevo-db-unittest-util</td>
                     <td>obevo-db-utils</td>
                     <td>Utilities to facilitate creating unit test dbs and loading data via DB Unit</td>
-                </tr>
-                <tr>
-                    <td>obevo-hibernate</td>
-                    <td>obevo-db-utils</td>
-                    <td>Utility to generate DDLs from Hibernate</td>
                 </tr>
                 <tr>
                     <td>obevo-reladomo-util</td>
@@ -121,33 +105,23 @@
                 </tr>
                 <tr>
                     <td>obevo-dist</td>
-                    <td>obevo-build-apis</td>
+                    <td>obevo-dists</td>
                     <td>binary assembly distribution</td>
                 </tr>
                 <tr>
                     <td>obevo-maven-plugin</td>
-                    <td>obevo-build-apis</td>
+                    <td>obevo-dists</td>
                     <td>Maven plugin</td>
                 </tr>
                 <tr>
                     <td>obevo-maven-cbk-archetype</td>
-                    <td>obevo-build-apis</td>
+                    <td>obevo-dists</td>
                     <td>Maven archetype to create Obevo projects.</td>
                 </tr>
                 <tr>
                     <td>obevo-site</td>
-                    <td>obevo-doc</td>
+                    <td>Documentation</td>
                     <td>The documentation bundle</td>
-                </tr>
-                <tr>
-                    <td>obevo-internal-infra</td>
-                    <td>obevo-doc</td>
-                    <td>The infrastructure to serve up the documentation</td>
-                </tr>
-                <tr>
-                    <td>obevo-examples</td>
-                    <td>obevo-doc</td>
-                    <td>Examples + kata</td>
                 </tr>
             </table>
         </section>

@@ -23,10 +23,6 @@
         <title>Baseline Validation</title>
     </properties>
     <body>
-        <macro name="toc">
-            <param name="fromDepth" value="0" />
-            <param name="toDepth" value="1" />
-        </macro>
         <section name="Using the baseline comparison feature to validate that your CHANGEs match your baseline">
             <p>If you provide a file w/ ends with .baseline.&lt;extension&gt;, this counts as the baseline file.
                 This is only used when you run Obevo in validateBaseline mode.
