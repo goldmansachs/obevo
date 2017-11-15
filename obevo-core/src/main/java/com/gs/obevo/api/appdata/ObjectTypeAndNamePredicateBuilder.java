@@ -141,7 +141,7 @@ public class ObjectTypeAndNamePredicateBuilder {
                     negatePredicate = true;
 
                 }
-                System.out.println(objectType + ":" + negatePredicate + ":" + objectPatterns);
+
                 Predicate<T> objectTypeAndNamePredicate = getObjectTypeAndNamePredicate(
                         objectTypeFunction, Lists.immutable.with(objectType),
                         negatePredicate, objectNameFunction, objectPatterns.toList().toImmutable()
