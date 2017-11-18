@@ -17,6 +17,8 @@ package com.gs.obevo.impl.text;
 
 import java.util.regex.Pattern;
 
+import com.gs.obevo.api.appdata.CodeDependency;
+import com.gs.obevo.api.appdata.CodeDependencyType;
 import com.gs.obevo.api.appdata.ObjectKey;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.function.Function;
@@ -43,17 +45,19 @@ public class TextDependencyExtractorImpl implements TextDependencyExtractor {
 
         for (T change : changes) {
             // note - only check for nulls here; we may set dependencies to blank explicitly in the overrides
-            if (change.getDependencies() == null && change.getObjectKey().getChangeType().isEnrichableForDependenciesInText()) {
+            if (change.getCodeDependencies() == null && change.getObjectKey().getChangeType().isEnrichableForDependenciesInText()) {
                 // we use getContentForDependencyCalculation() instead of just getContent() due to the staticData
                 // objects needing to have its dependency calculated differently.
 
                 // TODO go via objectNames and physicalSchema+objectName combo
-                MutableSet<String> dependencies = calculateDependencies(change.getObjectKey().toString(), change.getContentForDependencyCalculation(), objectNames)
+                MutableSet<CodeDependency> codeDependencies = calculateDependencies(change.getObjectKey().toString(), change.getContentForDependencyCalculation(), objectNames)
                         .reject(Predicates.equal(convertDbObjectName.valueOf(change.getObjectKey().getObjectName())))
                         .reject(Predicates.in(change.getExcludeDependencies()))
-                        .withAll(change.getIncludeDependencies());
+                        .collectWith(CodeDependency.CREATE_WITH_TYPE, CodeDependencyType.DISCOVERED);
 
-                change.setDependencies(dependencies.toImmutable());
+                codeDependencies.withAll(change.getIncludeDependencies().collectWith(CodeDependency.CREATE_WITH_TYPE, CodeDependencyType.EXPLICIT));
+
+                change.setCodeDependencies(codeDependencies.toImmutable());
             }
         }
     }

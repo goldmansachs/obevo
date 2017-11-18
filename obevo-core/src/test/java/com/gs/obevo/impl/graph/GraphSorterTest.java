@@ -16,12 +16,18 @@
 package com.gs.obevo.impl.graph;
 
 import java.util.Collections;
+import java.util.Set;
 
+import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.ListIterable;
 import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.block.factory.Comparators;
 import org.eclipse.collections.impl.factory.Lists;
+import org.eclipse.collections.impl.factory.Sets;
+import org.eclipse.collections.impl.set.mutable.SetAdapter;
+import org.eclipse.collections.impl.test.Verify;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
@@ -29,10 +35,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -179,14 +185,23 @@ public class GraphSorterTest {
         graph.addEdge(sp8, sp7);
         graph.addEdge(sp6, sp8);
 
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage(containsString("sp4 ==> sp5\n" +
-                "sp5 ==> sp4\n" +
-                "sp6 ==> sp7\n" +
-                "sp7 ==> sp8\n" +
-                "sp8 ==> sp6"));
+        try {
+            sorter.sortChanges(graph);
+            fail("Expecting exception here: " + GraphCycleException.class);
+        } catch (GraphCycleException e) {
+            verifyCycleExists(e, Sets.immutable.with("sp4", "sp5"));
+            verifyCycleExists(e, Sets.immutable.with("sp6", "sp7", "sp8"));
+            Verify.assertSize(2, e.getCycleComponents());
+        }
+    }
 
-        sorter.sortChanges(graph);
+    private void verifyCycleExists(GraphCycleException e, final ImmutableSet<String> cycleVertices) {
+        Verify.assertAnySatisfy(e.<SortableDependency>getCycleComponents(), new Predicate<Set<SortableDependency>>() {
+            @Override
+            public boolean accept(Set<SortableDependency> each) {
+                return SetAdapter.adapt(each).collect(SortableDependency.TO_CHANGE_NAME).equals(cycleVertices);
+            }
+        });
     }
 
     private static SortableDependency newVertex(String vertexName) {

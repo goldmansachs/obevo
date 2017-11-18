@@ -21,7 +21,7 @@ import org.eclipse.collections.api.set.ImmutableSet;
 
 /**
  * Detects the dependencies of a Change from the code content that it has by searching for the object names
- * contained within it, and sets the {@link Change#setDependencies(ImmutableSet)} )} field back on the object
+ * contained within it, and sets the {@link Change#setCodeDependencies(ImmutableSet)} )} field back on the object
  * accordingly.
  */
 public interface TextDependencyExtractor {

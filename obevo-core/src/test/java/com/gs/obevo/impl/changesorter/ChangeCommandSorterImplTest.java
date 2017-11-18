@@ -17,6 +17,8 @@ package com.gs.obevo.impl.changesorter;
 
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.ChangeIncremental;
+import com.gs.obevo.api.appdata.CodeDependency;
+import com.gs.obevo.api.appdata.CodeDependencyType;
 import com.gs.obevo.api.appdata.ObjectKey;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.Platform;
@@ -125,7 +127,7 @@ public class ChangeCommandSorterImplTest {
         when(change.getChangeType()).thenReturn(changeType);
         when(change.getObjectName()).thenReturn(objectName);
         when(change.getChangeName()).thenReturn(changeName);
-        when(change.getDependencies()).thenReturn(dependencies);
+        when(change.getCodeDependencies()).thenReturn(dependencies.collectWith(CodeDependency.CREATE_WITH_TYPE, CodeDependencyType.EXPLICIT));
         change.getContentForDependencyCalculation();
 
 
@@ -143,7 +145,7 @@ public class ChangeCommandSorterImplTest {
         when(change.getChangeType()).thenReturn(changeType);
         when(change.getObjectName()).thenReturn(objectName);
         when(change.getChangeName()).thenReturn(changeName);
-        when(change.getDependencies()).thenReturn(dependencies);
+        when(change.getCodeDependencies()).thenReturn(dependencies.collectWith(CodeDependency.CREATE_WITH_TYPE, CodeDependencyType.EXPLICIT));
         when(change.getOrderWithinObject()).thenReturn(orderWithinObject);
 
 

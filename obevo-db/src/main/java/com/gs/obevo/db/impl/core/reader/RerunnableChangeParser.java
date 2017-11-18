@@ -18,6 +18,8 @@ package com.gs.obevo.db.impl.core.reader;
 import com.gs.obevo.api.appdata.ArtifactRestrictions;
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.ChangeRerunnable;
+import com.gs.obevo.api.appdata.CodeDependency;
+import com.gs.obevo.api.appdata.CodeDependencyType;
 import com.gs.obevo.api.appdata.doc.TextMarkupDocument;
 import com.gs.obevo.api.appdata.doc.TextMarkupDocumentSection;
 import com.gs.obevo.api.platform.ChangeType;
@@ -127,7 +129,7 @@ public class RerunnableChangeParser extends AbstractDbChangeFileParser {
         }
 
         if (dependenciesStr != null) {
-            change.setDependencies(Sets.immutable.with(dependenciesStr.split(",")).reject(StringPredicates.empty()));
+            change.setCodeDependencies(Sets.immutable.with(dependenciesStr.split(",")).reject(StringPredicates.empty()).collectWith(CodeDependency.CREATE_WITH_TYPE, CodeDependencyType.EXPLICIT));
         } else {
             if (excludeDependenciesStr != null) {
                 change.setExcludeDependencies(Sets.immutable.with(excludeDependenciesStr.split(",")).reject(StringPredicates.empty()));

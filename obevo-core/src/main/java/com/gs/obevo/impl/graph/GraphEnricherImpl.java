@@ -15,6 +15,8 @@
  */
 package com.gs.obevo.impl.graph;
 
+import com.gs.obevo.api.appdata.CodeDependency;
+import com.gs.obevo.api.appdata.CodeDependencyType;
 import com.gs.obevo.api.platform.ChangeType;
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.eclipse.collections.api.RichIterable;
@@ -71,11 +73,11 @@ public class GraphEnricherImpl implements GraphEnricher {
         // Now add the declared dependencies to the graph
         for (T changeGroup : inputs) {
             for (SortableDependency change : changeGroup.getComponents()) {
-                if (change.getDependencies() != null) {
-                    for (String dependency : change.getDependencies()) {
+                if (change.getCodeDependencies() != null) {
+                    for (CodeDependency dependency : change.getCodeDependencies()) {
                         T dependencyVertex = null;
                         for (ChangeIndex<T> changeIndex : changeIndexes) {
-                            dependencyVertex = changeIndex.retrieve(change.getObjectKey().getSchema(), dependency);
+                            dependencyVertex = changeIndex.retrieve(change.getObjectKey().getSchema(), dependency.getTarget());
                             if (dependencyVertex != null) {
                                 if (LOG.isTraceEnabled()) {
                                     LOG.trace("Discovered dependency from {} to {} using index {}",
@@ -90,7 +92,7 @@ public class GraphEnricherImpl implements GraphEnricher {
                         if (dependencyVertex == null) {
                             LOG.trace("Dependency not found; likely due to not enriching the full graph in source. Should be OK to ignore: {} - {}", dependency, change);
                         } else {
-                            graph.addEdge(dependencyVertex, changeGroup, new DependencyEdge(dependencyVertex, changeGroup, DependencyEdgeType.EXPLICIT));
+                            graph.addEdge(dependencyVertex, changeGroup, new DependencyEdge(dependencyVertex, changeGroup, dependency.getCodeDependencyType()));
                         }
                     }
                 }
@@ -128,7 +130,7 @@ public class GraphEnricherImpl implements GraphEnricher {
                             // for rollback, we go in reverse-order (each change follows the one after it in the file)
                             Pair<T, SortableDependency> nextChange = sortedChanges.get(index + 1);
 
-                            graph.addEdge(nextChange.getOne(), each.getOne(), new DependencyEdge(nextChange.getOne(), each.getOne(), DependencyEdgeType.IMPLICIT));
+                            graph.addEdge(nextChange.getOne(), each.getOne(), new DependencyEdge(nextChange.getOne(), each.getOne(), CodeDependencyType.IMPLICIT));
                         }
                     });
                 } else {
@@ -138,7 +140,7 @@ public class GraphEnricherImpl implements GraphEnricher {
                             // for regular mode, we go in regular-order (each change follows the one before it in the file)
                             Pair<T, SortableDependency> previousChange = sortedChanges.get(index - 1);
 
-                            graph.addEdge(previousChange.getOne(), each.getOne(), new DependencyEdge(previousChange.getOne(), each.getOne(), DependencyEdgeType.IMPLICIT));
+                            graph.addEdge(previousChange.getOne(), each.getOne(), new DependencyEdge(previousChange.getOne(), each.getOne(), CodeDependencyType.IMPLICIT));
                         }
                     });
                 }
@@ -152,14 +154,14 @@ public class GraphEnricherImpl implements GraphEnricher {
                 return t.getComponents().collect(new Function<SortableDependency, String>() {
                     @Override
                     public String valueOf(SortableDependency sortableDependency) {
-                        return "[ObjectName=" + sortableDependency.getObjectKey().getObjectName() + ", ChangeName=" + sortableDependency.getChangeName();
+                        return "[" + sortableDependency.getObjectKey().getObjectName() + "." + sortableDependency.getChangeName() + "]";
                     }
                 }).makeString(", ");
             }
         }, new Function<DefaultEdge, String>() {
             @Override
             public String valueOf(DefaultEdge dependencyEdge) {
-                return ", DependencyType=" + ((DependencyEdge)dependencyEdge).getEdgeType() + "]";
+                return "-" + ((DependencyEdge)dependencyEdge).getEdgeType();
             }
         });
 
@@ -249,27 +251,15 @@ public class GraphEnricherImpl implements GraphEnricher {
         }
     }
 
-    private enum DependencyEdgeType {
-        /**
-         * Dependencies that are mandatory per the object structure, e.g. consecutive changes in an incremental object file.
-         */
-        IMPLICIT,
-        /**
-         * Dependencies that are derived from the object code and can be overriden.
-         */
-        EXPLICIT,
-        ;
-    }
-
     /**
      * Custom edge type to allow for better error logging for cycles, namely to show the dependency edge type.
      */
     private static class DependencyEdge<T extends SortableDependencyGroup> extends DefaultEdge {
         private final T source;
         private final T target;
-        private final DependencyEdgeType edgeType;
+        private final CodeDependencyType edgeType;
 
-        public DependencyEdge(T source, T target, DependencyEdgeType edgeType) {
+        public DependencyEdge(T source, T target, CodeDependencyType edgeType) {
             this.source = source;
             this.target = target;
             this.edgeType = edgeType;
@@ -285,7 +275,7 @@ public class GraphEnricherImpl implements GraphEnricher {
             return target;
         }
 
-        public DependencyEdgeType getEdgeType() {
+        public CodeDependencyType getEdgeType() {
             return edgeType;
         }
 

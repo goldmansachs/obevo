@@ -69,7 +69,7 @@
                     </li>
                 </ul>
                 <p>You can read the provided
-                    <a href="${kata.product.sourceroot}/src/main/database/system-config.xml">system-config.xml file</a>
+                    <a href="https://github.com/goldmansachs/obevo-kata/tree/master/src/main/database/system-config.xml">system-config.xml file</a>
                     for some of the features and configurations that you can define
                 </p>
 
