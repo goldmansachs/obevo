@@ -17,6 +17,7 @@ package com.gs.obevo.impl.graph;
 
 import java.util.Comparator;
 
+import com.gs.obevo.api.appdata.CodeDependency;
 import com.gs.obevo.api.appdata.ObjectKey;
 import com.gs.obevo.api.platform.ChangeType;
 import org.eclipse.collections.api.block.function.Function;
@@ -30,20 +31,19 @@ import org.eclipse.collections.impl.block.factory.Functions;
  */
 public interface SortableDependency {
     /**
-     * Used in v1 and v2 graph enricher.
-     * @return
+     * Returns the dependencies to use for the graph enrichment.
      */
-    ImmutableSet<String> getDependencies();
+    ImmutableSet<CodeDependency> getCodeDependencies();
 
     ObjectKey getObjectKey();
 
     /**
-     * Used in v2 graph enricher for indexes.
+     * Returns the change name for usage in the enricher index.
      */
     String getChangeName();
 
     /**
-     * Used in v2 graph enricher for indexes.
+     * Returns the object order name for usage in the enricher index.
      */
     int getOrderWithinObject();
 

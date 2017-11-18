@@ -13,21 +13,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+/*
+ * The getCycleComponents method leveraged some code from JGraphT, which is EPL.
+ *
+ * The Eclipse Public License is available at:
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package com.gs.obevo.impl.graph;
 
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.collections.IteratorUtils;
 import org.eclipse.collections.api.block.function.Function;
-import org.eclipse.collections.api.set.MutableSet;
+import org.eclipse.collections.api.block.predicate.Predicate;
+import org.eclipse.collections.api.list.ListIterable;
 import org.eclipse.collections.api.set.SetIterable;
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.block.factory.Functions;
+import org.eclipse.collections.impl.list.mutable.ListAdapter;
 import org.eclipse.collections.impl.set.mutable.SetAdapter;
 import org.eclipse.collections.impl.tuple.Tuples;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.CycleDetector;
+import org.jgrapht.alg.StrongConnectivityInspector;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedSubgraph;
+import org.jgrapht.traverse.DepthFirstIterator;
 
 /**
  * Utility class to work w/ graphs in the JGraphT library. There are a couple usages that need syntax sugar...
@@ -64,32 +76,84 @@ public class GraphUtil {
         validateNoCycles(graph, Functions.getToString(), null);
     }
 
-    public static <T, E> void validateNoCycles(DirectedGraph<T, E> graph, final Function<? super T, String> vertexToString, final Function<? super E, String> edgeToString) {
-        CycleDetector detector = new CycleDetector(graph);
-        if (detector.detectCycles()) {
-            final MutableSet<T> cycleVertices = SetAdapter.adapt((Set<T>) detector.findCycles());
-            final DirectedSubgraph<T, E> cycleSubgraph = new DirectedSubgraph<T, E>(graph, cycleVertices, null);
+    public static <T, E> void validateNoCycles(final DirectedGraph<T, E> graph, final Function<? super T, String> vertexToString, final Function<? super E, String> edgeToString) {
+        ListIterable<Set<T>> cycleComponents = getCycleComponents(graph);
 
-            String cycleChangeString = SetAdapter.adapt(cycleSubgraph.vertexSet()).toSortedListBy(vertexToString).collect(new Function<T, String>() {
+        if (!cycleComponents.isEmpty()) {
+            final AtomicInteger cycleCounter = new AtomicInteger(0);
+            ListIterable<String> cycleMessages = cycleComponents.collect(new Function<Set<T>, String>() {
                 @Override
-                public String valueOf(final T vertex) {
-                    SetIterable<Pair<T, E>> dependencyNodesAndEdges = getDependencyNodesAndEdges(cycleSubgraph, vertex);
-                    return vertexToString.valueOf(vertex) + " ==> " + dependencyNodesAndEdges.collect(new Function<Pair<T,E>, String>() {
+                public String valueOf(Set<T> cycleComponent) {
+                    final StringBuilder sb = new StringBuilder();
+                    final DirectedSubgraph<T, E> cycleSubgraph = new DirectedSubgraph<T, E>(graph, cycleComponent, null);
+                    DepthFirstIterator<T, E> iterator = new DepthFirstIterator<T, E>(cycleSubgraph) {
+                        boolean started = false;
+                        boolean afterCycle = false;
                         @Override
-                        public String valueOf(Pair<T, E> tePair) {
-                            String str = vertexToString.valueOf(tePair.getOne());
-                            if (edgeToString != null) {
-                                str += edgeToString.valueOf(tePair.getTwo());
+                        protected void encounterVertex(T vertex, E edge) {
+                            if (!started) {
+                                sb.append("Cycle #" + cycleCounter.incrementAndGet() + ":");
+                                sb.append("\n    " + vertexToString.valueOf(vertex));
+                                started = true;
+                            } else {
+                                if (afterCycle) {
+                                    afterCycle = false;
+                                    sb.append("\nCycle #" + cycleCounter.incrementAndGet() + ":");
+                                    sb.append("\n    " + vertexToString.valueOf(cycleSubgraph.getEdgeSource(edge)));
+                                }
+                                sb.append("\n    => ").append(vertexToString.valueOf(vertex)).append(" (").append(edge).append(")");
                             }
-                            return str;
+                            super.encounterVertex(vertex, edge);
                         }
-                    }).toSortedList().makeString(",");
+
+                        @Override
+                        protected void encounterVertexAgain(T vertex, E edge) {
+                            sb.append("\n    => ").append(vertexToString.valueOf(vertex)).append(" (").append(edge).append(") (CYCLE FORMED)");
+                            afterCycle = true;
+                            super.encounterVertexAgain(vertex, edge);
+                        }
+                    };
+
+                    IteratorUtils.toList(iterator);  // force iteration through the list
+
+                    return sb.toString();
                 }
-            }).makeString("\n");
-            throw new IllegalArgumentException(
-                    String.format(
-                            "Found cycles for the changes below. Please correct the object content - helpful to analyze the EXPLICIT dependency types. You can remediate by A) manually excluding false dependencies using //// METADATA excludeDependencies=A,B,C or  B) defining appropriate dependencies using the METADATA includeDependencies or dependencies attributes\n%s",
-                            cycleChangeString));
+            });
+
+            throw new GraphCycleException(
+                    "Found cycles for the changes below. Please correct the object content.\n" +
+                            "You can remediate by:\n" +
+                            "    A) manually excluding false dependencies using //// METADATA excludeDependencies=A,B,C or\n" +
+                            "    B) defining appropriate dependencies using the METADATA includeDependencies or dependencies attributes\n" +
+                            "It is helpful to analyze the EXPLICIT dependency types.\n" +
+                            "\n" +
+                            "Changes are marked as [objectName.changeName]\n" +
+                            "Dependency Types: EXPLICIT = marked in code, IMPLICIT = from implied deploy order within incremental table changes\n" +
+                            "\n" +
+                            cycleMessages.makeString("\n"), cycleComponents);
         }
+    }
+
+    /**
+     * Returns the components of the graph that are cycles.
+     * Taken from the implementation of {@link CycleDetector#findCycles()}. (EPL)
+     */
+    private static <T, E> ListIterable<Set<T>> getCycleComponents(final DirectedGraph<T, E> graph) {
+        StrongConnectivityInspector<T, E> inspector =
+                new StrongConnectivityInspector<T, E>(graph);
+
+        return ListAdapter.adapt(inspector.stronglyConnectedSets()).select(new Predicate<Set<T>>() {
+            @Override
+            public boolean accept(Set<T> each) {
+                if (each.size() > 1) {
+                    // multi-vertex strongly-connected component is a cycle
+                    return true;
+                }
+
+                // vertex with an edge to itself is a cycle
+                T vertex = each.iterator().next();
+                return graph.containsEdge(vertex, vertex);
+            }
+        });
     }
 }

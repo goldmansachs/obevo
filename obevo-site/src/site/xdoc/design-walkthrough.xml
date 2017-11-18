@@ -32,7 +32,7 @@
                 have it by default, the keys problem to solve being:
                 <ol>
                     <li>There is no existing mechanism to take a full binary of code and deploy it to upgrade an environment</li>
-                    <li>Some objects within the environment are stateless, thus requiring incremental commands to modify them (and making #1 difficult)</li>
+                    <li>Some objects within the environment are stateful, thus requiring incremental commands to modify them (and making #1 difficult)</li>
                     <li>There is no default ordering mechanism for object changes to the environment; must be manually defined by users.</li>
                 </ol>
             </p>

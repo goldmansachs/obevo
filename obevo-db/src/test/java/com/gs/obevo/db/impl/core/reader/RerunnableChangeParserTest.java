@@ -16,11 +16,12 @@
 package com.gs.obevo.db.impl.core.reader;
 
 import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.CodeDependency;
+import com.gs.obevo.api.appdata.CodeDependencyType;
 import com.gs.obevo.api.platform.ChangeType;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.test.Verify;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.internal.matchers.ThrowableMessageMatcher;
@@ -70,7 +71,7 @@ public class RerunnableChangeParserTest {
 
         assertEquals(objectName, change.getObjectName());
         assertEquals("mycontent\nline2", change.getContent());
-        assertEquals(Sets.immutable.with("abc", "123"), change.getDependencies());
+        assertEquals(Sets.immutable.with(new CodeDependency("abc", CodeDependencyType.EXPLICIT), new CodeDependency("123", CodeDependencyType.EXPLICIT)), change.getCodeDependencies());
         assertEquals("mydrop", change.getDropContent());
     }
 

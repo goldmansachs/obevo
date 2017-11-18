@@ -150,7 +150,7 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
     private String permissionScheme;  // this is really a property of the DB object, not the individual change. We have this here until we refactor to having a "DB Object" class
     private transient TextMarkupDocumentSection metadataSection;
     private transient String dropContent;
-    private transient ImmutableSet<String> dependencies;
+    private transient ImmutableSet<CodeDependency> dependencies;
     private transient ImmutableSet<String> includeDependencies = Sets.immutable.with();
     private transient ImmutableSet<String> excludeDependencies = Sets.immutable.with();
     private transient Boolean applyGrants = null;
@@ -452,13 +452,25 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
     }
 
     @Override
-    public ImmutableSet<String> getDependencies() {
-        return this.dependencies;
+    public ImmutableSet<CodeDependency> getCodeDependencies() {
+        return dependencies;
     }
 
     @Override
-    public void setDependencies(ImmutableSet<String> dependencies) {
+    public void setCodeDependencies(ImmutableSet<CodeDependency> dependencies) {
         this.dependencies = dependencies;
+    }
+
+    @Override
+    @Deprecated
+    public ImmutableSet<String> getDependencies() {
+        return this.dependencies != null ? this.dependencies.collect(CodeDependency.TO_TARGET) : null;
+    }
+
+    @Override
+    @Deprecated
+    public void setDependencies(ImmutableSet<String> dependencies) {
+        this.dependencies = dependencies == null ? null : dependencies.collectWith(CodeDependency.CREATE_WITH_TYPE, CodeDependencyType.EXPLICIT);
     }
 
     @Override

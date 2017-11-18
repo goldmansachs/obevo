@@ -15,6 +15,8 @@
  */
 package com.gs.obevo.impl.text;
 
+import com.gs.obevo.api.appdata.CodeDependency;
+import com.gs.obevo.api.appdata.CodeDependencyType;
 import com.gs.obevo.api.appdata.ObjectKey;
 import com.gs.obevo.api.platform.ChangeType;
 import org.eclipse.collections.api.set.ImmutableSet;
@@ -45,10 +47,10 @@ public class TextDependencyExtractorImplTest {
 
         enricher.calculateDependencies(Lists.mutable.with(sp1, sp2, sp3, spA));
 
-        verifyExpectedDependencies(sp1, Sets.mutable.with("sp2", "manuallyAddedDependency"));
-        verifyExpectedDependencies(sp2, Sets.mutable.<String>with());
-        verifyExpectedDependencies(sp3, Sets.mutable.with("sp2", "sp1"));
-        verifyExpectedDependencies(spA, Sets.mutable.with("sp3"));
+        verifyExpectedDependencies(sp1, Sets.mutable.with(new CodeDependency("sp2", CodeDependencyType.DISCOVERED), new CodeDependency("manuallyAddedDependency", CodeDependencyType.EXPLICIT)));
+        verifyExpectedDependencies(sp2, Sets.mutable.<CodeDependency>with());
+        verifyExpectedDependencies(sp3, Sets.mutable.with(new CodeDependency("sp2", CodeDependencyType.DISCOVERED), new CodeDependency("sp1", CodeDependencyType.DISCOVERED)));
+        verifyExpectedDependencies(spA, Sets.mutable.with(new CodeDependency("sp3", CodeDependencyType.DISCOVERED)));
     }
 
     @Test
@@ -60,10 +62,10 @@ public class TextDependencyExtractorImplTest {
 
         enricher.calculateDependencies(Lists.mutable.with(sp1, sp2, sp3, spA));
 
-        verifyExpectedDependencies(sp1, Sets.mutable.with("sp2", "manuallyAddedDependency"));
-        verifyExpectedDependencies(sp2, Sets.mutable.<String>with());
-        verifyExpectedDependencies(sp3, Sets.mutable.with("sp2", "sp1"));
-        verifyExpectedDependencies(spA, Sets.mutable.with("sp3"));
+        verifyExpectedDependencies(sp1, Sets.mutable.with(new CodeDependency("sp2", CodeDependencyType.DISCOVERED), new CodeDependency("manuallyAddedDependency", CodeDependencyType.EXPLICIT)));
+        verifyExpectedDependencies(sp2, Sets.mutable.<CodeDependency>with());
+        verifyExpectedDependencies(sp3, Sets.mutable.with(new CodeDependency("sp2", CodeDependencyType.DISCOVERED), new CodeDependency("sp1", CodeDependencyType.DISCOVERED)));
+        verifyExpectedDependencies(spA, Sets.mutable.with(new CodeDependency("sp3", CodeDependencyType.DISCOVERED)));
     }
 
     @Test
@@ -83,9 +85,9 @@ public class TextDependencyExtractorImplTest {
         assertEquals(Sets.mutable.with("sp1", "sp_3", "sp4"), dependencies);
     }
 
-    protected void verifyExpectedDependencies(TextDependencyExtractable item, SetIterable<String> expectedDependencies) {
+    protected void verifyExpectedDependencies(TextDependencyExtractable item, SetIterable<CodeDependency> expectedDependencies) {
         ArgumentCaptor<ImmutableSet> setDependencies = ArgumentCaptor.forClass(ImmutableSet.class);
-        verify(item).setDependencies(setDependencies.capture());
+        verify(item).setCodeDependencies(setDependencies.capture());
 
         assertEquals(expectedDependencies, setDependencies.getValue());
     }

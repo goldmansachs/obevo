@@ -15,6 +15,8 @@
  */
 package com.gs.obevo.impl.graph;
 
+import com.gs.obevo.api.appdata.CodeDependency;
+import com.gs.obevo.api.appdata.CodeDependencyType;
 import com.gs.obevo.api.appdata.ObjectKey;
 import com.gs.obevo.api.platform.ChangeType;
 import org.eclipse.collections.api.RichIterable;
@@ -81,22 +83,22 @@ public class GraphEnricherImplTest {
 
 
     @Test
-    public void testScheamObjectChangeDependenciesCaseSensitiveAndRegular() {
+    public void testSchemaObjectChangeDependenciesCaseSensitiveAndRegular() {
         testSchemaObjectChangeDependencies(false, false);
     }
 
     @Test
-    public void testScheamObjectChangeDependenciesCaseInsensitiveAndRegular() {
+    public void testSchemaObjectChangeDependenciesCaseInsensitiveAndRegular() {
         testSchemaObjectChangeDependencies(true, false);
     }
 
     @Test
-    public void testScheamObjectChangeDependenciesCaseSensitiveAndRollback() {
+    public void testSchemaObjectChangeDependenciesCaseSensitiveAndRollback() {
         testSchemaObjectChangeDependencies(false, true);
     }
 
     @Test
-    public void testScheamObjectChangeDependenciesCaseInsensitiveAndRollback() {
+    public void testSchemaObjectChangeDependenciesCaseInsensitiveAndRollback() {
         testSchemaObjectChangeDependencies(true, true);
     }
 
@@ -190,16 +192,47 @@ public class GraphEnricherImplTest {
     public void testCycleValidation() {
         this.enricher = new GraphEnricherImpl(Functions.getStringPassThru());
 
-        SortableDependencyGroup sch1Obj1 = newChange(schema1, type1, "obj1", Sets.immutable.with(schema2 + ".obj3"));
-        SortableDependencyGroup sch1Obj2 = newChange(schema1, type2, "obj2", Sets.immutable.with("obj1"));
-        SortableDependencyGroup sch2Obj3 = newChange(schema2, type1, "obj3", Sets.immutable.with(schema1 + ".obj2"));
-        SortableDependencyGroup sch2Obj4 = newChange(schema2, type1, "obj4", Sets.immutable.with("obj3"));
+        SortableDependencyGroup cyc1Obj1 = newChange(schema1, type1, "cyc1Obj1", Sets.immutable.with(schema2 + ".cyc1Obj3"));
+        SortableDependencyGroup cyc1Obj2 = newChange(schema1, type2, "cyc1Obj2", Sets.immutable.with("cyc1Obj1"));
+        SortableDependencyGroup cyc1Obj3 = newChange(schema2, type1, "cyc1Obj3", Sets.immutable.with(schema1 + ".cyc1Obj2", schema2 + ".cyc1Obj4", schema2 + ".notcyc1ObjB"));
+        SortableDependencyGroup cyc1Obj4 = newChange(schema2, type1, "cyc1Obj4", Sets.immutable.with(schema2 + ".cyc1Obj5"));
+        SortableDependencyGroup cyc1Obj5 = newChange(schema2, type1, "cyc1Obj5", Sets.immutable.with(schema2 + ".cyc1Obj3"));
+        SortableDependencyGroup notcyc1ObjA = newChange(schema2, type1, "notcyc1ObjA", Sets.immutable.with(schema2 + ".cyc1Obj3"));  // inbound edge to cycle, but not in it
+        SortableDependencyGroup notcyc1ObjB = newChange(schema2, type1, "notcyc1ObjB", Sets.immutable.<String>with());  // outbound edge from cycle, but not in it
+        SortableDependencyGroup cyc2Obj1 = newChange(schema2, type1, "cyc2Obj1", Sets.immutable.with(schema2 + ".cyc2Obj2"));
+        SortableDependencyGroup cyc2Obj2 = newChange(schema2, type1, "cyc2Obj2", Sets.immutable.with(schema2 + ".cyc2Obj3"));
+        SortableDependencyGroup cyc2Obj3 = newChange(schema2, type1, "cyc2Obj3", Sets.immutable.with(schema2 + ".cyc2Obj1"));
+        SortableDependencyGroup loneObj1 = newChange(schema2, type1, "loneObj1", Sets.immutable.<String>with());
 
         try {
             enricher.createDependencyGraph(Lists.mutable.with(
-                    sch1Obj1, sch1Obj2, sch2Obj3, sch2Obj4), false);
+                    cyc1Obj1, cyc1Obj2, cyc1Obj3, cyc1Obj4, cyc1Obj5, notcyc1ObjA, notcyc1ObjB, cyc2Obj1, cyc2Obj2, cyc2Obj3, loneObj1), false);
             fail("Expecting an exception here due to a cycle exception, but a cycle exception was not found");
         } catch (IllegalArgumentException exc) {
+            exc.printStackTrace();
+            assertThat(exc.getMessage(), containsString("Found cycles"));
+        }
+    }
+
+
+    @Test
+    public void testCycleValidationWithIncrementalChanges() {
+        this.enricher = new GraphEnricherImpl(Functions.getStringPassThru());
+
+        SortableDependencyGroup sch1Obj1C1 = newChange(schema1, type1, "obj1", "c1", 0, null);
+        SortableDependencyGroup sch1Obj1C2 = newChange(schema1, type1, "obj1", "c2", 1, Sets.immutable.<String>with("obj2"));
+        SortableDependencyGroup sch1Obj1C3 = newChange(schema1, type1, "obj1", "c3", 2, null);
+        SortableDependencyGroup sch1Obj2C1 = newChange(schema1, type1, "obj2", "c1", 0, null);
+        SortableDependencyGroup sch1Obj2C2 = newChange(schema1, type1, "obj2", "c2", 1, null);
+        SortableDependencyGroup sch1Obj2C3 = newChange(schema1, type1, "obj2", "c3", 2, Sets.immutable.<String>with("obj1.c3"));
+        SortableDependencyGroup sch1Obj3 = newChange(schema1, type1, "obj3", Sets.immutable.with("obj1"));
+
+        try {
+            enricher.createDependencyGraph(Lists.mutable.with(
+                    sch1Obj1C1, sch1Obj1C2, sch1Obj1C3, sch1Obj2C1, sch1Obj2C2, sch1Obj2C3, sch1Obj3), false);
+            fail("Expecting an exception here due to a cycle exception, but a cycle exception was not found");
+        } catch (IllegalArgumentException exc) {
+            exc.printStackTrace();
             assertThat(exc.getMessage(), containsString("Found cycles"));
         }
     }
@@ -225,7 +258,9 @@ public class GraphEnricherImplTest {
         SortableDependency sort = mock(SortableDependency.class);
         ObjectKey key = new ObjectKey(schema, changeType, objectName);
         when(sort.getObjectKey()).thenReturn(key);
-        when(sort.getDependencies()).thenReturn(dependencies);
+        if (dependencies != null) {
+            when(sort.getCodeDependencies()).thenReturn(dependencies.collectWith(CodeDependency.CREATE_WITH_TYPE, CodeDependencyType.EXPLICIT));
+        }
         when(sort.getChangeName()).thenReturn(changeName);
         when(sort.getOrderWithinObject()).thenReturn(orderWithinObject);
 

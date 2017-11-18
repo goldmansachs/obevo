@@ -125,7 +125,7 @@
                         be named as the "prod" environment in your config, with a separate placeholder environment for your dev</li>
                     <li>Use the placeholder dev environments for your deploys during testing</li>
                     <li>Rename the &lt;schema&gt; entry to become the logical schema name that you want</li>
-                    <li>Use the <a href="${kata.product.sourceroot}/src/main/database/system-config.xml">kata system-config.xml file</a> as a further sample to model from if needed</li>
+                    <li>Use the <a href="https://github.com/goldmansachs/obevo-kata/tree/master/src/main/database/system-config.xml">kata system-config.xml file</a> as a further sample to model from if needed</li>
                 </ul>
             </p>
         </section>
