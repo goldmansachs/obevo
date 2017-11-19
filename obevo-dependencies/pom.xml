@@ -33,6 +33,11 @@
         that clients can depend on the BOM without pulling in third-party dependencies.
     </description>
 
+    <properties>
+        <schemacrawler.version>14.16.04-java7</schemacrawler.version>
+        <schemacrawler-iq.version>14.16.03-java7</schemacrawler-iq.version>  <!-- IQ is maintained as a separate product; hence the separate version -->
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <!-- Schemacrawler dependencies; note - no h2 or Sybase dependency exists for the latest version -->
@@ -54,7 +59,7 @@
             <dependency>
                 <groupId>us.fatehi</groupId>
                 <artifactId>schemacrawler-sybaseiq</artifactId>
-                <version>${schemacrawler.version}</version>
+                <version>${schemacrawler-iq.version}</version>
             </dependency>
             <dependency>
                 <groupId>us.fatehi</groupId>
