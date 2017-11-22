@@ -29,4 +29,4 @@ SET CLASSPATH=%OBEVO_CLASSPATH%;%OBEVO_HOME%\conf;%OBEVO_HOME%\lib\*
 REM *** Set OBEVO_LIBRARY_PATH if we need to add any library paths to the execution, e.g. for Sybase IQ client loads ***
 SET PATH=%OBEVO_LIBRARY_PATH%;%PATH%
 
-%JAVA_HOME%\bin\java -cp %CLASSPATH% com.gs.obevo.dist.Main %*
+%JAVA_HOME%\bin\java %OBEVO_JAVA_OPTS% -cp %CLASSPATH% com.gs.obevo.dist.Main %*

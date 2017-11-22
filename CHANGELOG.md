@@ -1,11 +1,21 @@
 # Change Log
 
+## 6.4.0
+
+### Functionality Improvements
+#53: Allowing log level to be configured in command-line API
+
+### Bug Fixes
+#82: Clearer error messages on cyclic dependencies in user DDL files
+
+
+
 ## 6.3.0
 
 ### Functionality Improvements
 
-#42 Oracle package and package body support
-#74 Oracle synonym support
+#42: Oracle package and package body support
+#74: Oracle synonym support
 
 
 ### Bug Fixes

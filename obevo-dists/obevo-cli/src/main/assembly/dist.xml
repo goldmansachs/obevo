@@ -27,13 +27,13 @@
     <includeBaseDirectory>false</includeBaseDirectory>
     <dependencySets>
         <dependencySet>
-            <outputDirectory>/lib</outputDirectory>
+            <outputDirectory>lib</outputDirectory>
         </dependencySet>
     </dependencySets>
     <fileSets>
         <fileSet>
             <directory>${basedir}/src/main/bin</directory>
-            <outputDirectory>/bin</outputDirectory>
+            <outputDirectory>bin</outputDirectory>
             <includes>
                 <include>**/*</include>
             </includes>
@@ -43,7 +43,7 @@
         </fileSet>
         <fileSet>
             <directory>${basedir}/src/main/conf</directory>
-            <outputDirectory>/conf</outputDirectory>
+            <outputDirectory>conf</outputDirectory>
             <includes>
                 <include>**/*</include>
             </includes>
@@ -53,7 +53,7 @@
         </fileSet>
         <fileSet>
             <directory>${basedir}/target/extlib</directory>
-            <outputDirectory>/extlib</outputDirectory>
+            <outputDirectory>extlib</outputDirectory>
             <includes>
                 <include>**/*</include>
             </includes>
