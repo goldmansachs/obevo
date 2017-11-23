@@ -101,11 +101,6 @@ public class DbDirectoryChangesetReader implements DbChangeReader {
         this.deployMetricsCollector = new DeployMetricsCollectorImpl();
     }
 
-    private boolean containsSchema(DbEnvironment env, String dirName) {
-        ImmutableSet<String> envSchemas = env.getSchemaNames().collect(this.convertDbObjectName);
-        return envSchemas.contains(this.convertDbObjectName.valueOf(dirName));
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -116,11 +111,13 @@ public class DbDirectoryChangesetReader implements DbChangeReader {
 
         MutableList<Change> allChanges = Lists.mutable.empty();
 
+        ImmutableSet<String> envSchemas = env.getSchemaNames().collect(this.convertDbObjectName);
+
         for (FileObject sourceDir : env.getSourceDirs()) {
             for (FileObject schemaDir : sourceDir.findFiles(new BasicFileSelector(and(vcsAware(), directory()), false))) {
                 String schema = schemaDir.getName().getBaseName();
 
-                if (this.containsSchema(env, schema)) {
+                if (envSchemas.contains(this.convertDbObjectName.valueOf(schema))) {
                     MutableList<Change> schemaChanges = Lists.mutable.empty();
 
                     for (ChangeType changeType : env.getPlatform().getChangeTypes()) {
@@ -158,8 +155,7 @@ public class DbDirectoryChangesetReader implements DbChangeReader {
 
                     allChanges.addAll(schemaChanges);
                 } else {
-                    LOG.info("Skipping schema directory " + schema
-                            + " as it was not defined in your system-config.xml file");
+                    LOG.info("Skipping schema directory [{}] as it was not defined among the schemas in your system-config.xml file: {}", schema, envSchemas);
                     continue;
                 }
             }

@@ -15,9 +15,6 @@
  */
 package com.gs.obevo.dist;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Date;
 
 import com.gs.obevo.cmdline.DeployerArgs;
@@ -34,11 +31,10 @@ import com.gs.obevo.reladomo.ReladomoSchemaConverterArgs;
 import com.gs.obevo.util.ArgsParser;
 import com.gs.obevo.util.EnumUtils;
 import com.gs.obevo.util.LogUtil;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.time.StopWatch;
-import org.apache.log4j.FileAppender;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.map.ImmutableMap;
@@ -50,15 +46,11 @@ import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.list.fixed.ArrayAdapter;
 import org.eclipse.collections.impl.map.strategy.mutable.UnifiedMapWithHashingStrategy;
 import org.eclipse.collections.impl.tuple.Tuples;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 
 public class Main {
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(Main.class);
     private static final ImmutableList<DeployCommand> COMMANDS = ArrayAdapter.adapt(DeployCommand.values()).toImmutable();
-    private static final DateTimeFormatter LOG_NAME_TIME_FORMAT = DateTimeFormat.forPattern("yyyyMMddHHmmss");
 
     public enum DeployCommand {
         DEPLOY,
@@ -89,41 +81,42 @@ public class Main {
     private void execute(String[] args) {
         Pair<String, Procedure<String[]>> commandEntry = getDeployCommand(args);
 
-        FileAppender logAppender = getLogAppender(commandEntry.getOne());
+        LogUtil.FileLogger logAppender = LogUtil.getLogAppender(commandEntry.getOne());
 
         StopWatch changeStopWatch = new StopWatch();
         changeStopWatch.start();
         LOG.info("Starting action at time [" + new Date() + "]");
         boolean success = false;
 
+        Throwable processException = null;
         try {
             String[] argSubset = (String[]) ArrayUtils.subarray(args, 1, args.length);
 
             commandEntry.getTwo().value(argSubset);
             success = true;
+        } catch (Throwable t) {
+            processException = t;
         } finally {
+            // We handle the exception and do system.exit in the finally block as we want a clean message to go out to users.
+            // If we just threw the runtime exception, then that would be the last thing that appears to users, which
+            // was confusing for users.
+
             changeStopWatch.stop();
             long runtimeSeconds = changeStopWatch.getTime() / 1000;
             String successString = success ? "successfully" : "with errors";
-            LOG.info("Action completed " + successString + " at " + new Date() + ", " +
-                    "took " + runtimeSeconds + " seconds. If you need more information, " +
-                    "you can see the log at: " + logAppender.getFile());
-            LogUtil.closeAppender(logAppender);
+            LOG.info("");
+            LOG.info("Action completed {} at {}, took {} seconds.", successString, new Date(), runtimeSeconds);
+            LOG.info("");
+            if (processException != null) {
+                LOG.info("*** Exception stack trace ***", processException);
+                LOG.info("");
+            }
+            LOG.info("Detailed Log File is available at: {}", logAppender.getLogFile());
+            LOG.info("");
+            LOG.info("Exiting {}!", successString);
+            IOUtils.closeQuietly(logAppender);
+            System.exit(processException != null ? 1 : 0);
         }
-    }
-
-    private static FileAppender getLogAppender(String commandName) {
-        // append the user name to the temp directory to 1) avoid conflicts in user folder  2) make it clearer who owned the directory
-        String userNameSuffix = SystemUtils.USER_NAME != null ? "-" + SystemUtils.USER_NAME : "";
-        File workDir;
-        try {
-            workDir = Files.createTempDirectory("obevo" + userNameSuffix).toFile();
-        } catch (IOException e) {
-            // fall back to old logic just in case the above fails (as of v6.1.0)
-            workDir = new File(FileUtils.getTempDirectory(), ".obevo" + userNameSuffix);
-        }
-        final String logFileName = "obevo-" + commandName + "-" + LOG_NAME_TIME_FORMAT.print(new DateTime()) + ".log";
-        return LogUtil.configureLogging(workDir, logFileName);
     }
 
     private Pair<String, Procedure<String[]>> getDeployCommand(String[] args) {
@@ -157,7 +150,15 @@ public class Main {
         commandMap.put("deploy", new Procedure<String[]>() {
             @Override
             public void value(String[] argSubset) {
-                new DbDeployerMain().start(new ArgsParser().parse(argSubset, new DeployerArgs()));
+                new DbDeployerMain().start(new ArgsParser().parse(argSubset, new DeployerArgs(), new Function<DeployerArgs, String>() {
+                    @Override
+                    public String valueOf(DeployerArgs object) {
+                        if (object.getSourcePath() == null) {
+                            return "-sourcePath argument must be passed in";
+                        }
+                        return null;
+                    }
+                }));
             }
         });
         commandMap.put("DBREVENG", new Procedure<String[]>() {

@@ -61,5 +61,13 @@
             </p>
             <p>3) "preview" goal - shows the changes that will be applied to the DB along with validations, but without doing an actual deployment            A suggestion is to have these scripts run against a test db server that no one other than the build uses, so that you can guarantee that the scripts are fine</p>
         </section>
+        <section name="Configuring Custom Logging for Obevo in Maven">
+            <p>Obevo uses the <a href="https://www.slf4j.org">SLF4J API</a>, and the main jars do not include any logging
+            implementations as third-party dependencies.</p>
+
+            <p>Hence, you can leverage the usual Maven logging settings to configure the log level for Obevo.</p>
+
+
+        </section>
     </body>
 </document>

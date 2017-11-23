@@ -200,6 +200,8 @@ $OBEVO_HOME/bin/deploy.bat DEPLOY -env prod -sourcePath /home/myuser/mypackage/1
                                 the change in question. See the example below, note the &quot;chng-from-2.0.0&quot;
                                 CHANGE
                             </li>
+                            <li>Note: the ROLLBACK section should not be blank, as it will be ignored and not considered
+                            during rollback execution. This will be corrected in a future release.</li>
                         </ul>
                     </li>
                 </ul>

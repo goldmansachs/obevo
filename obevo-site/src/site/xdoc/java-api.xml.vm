@@ -269,5 +269,14 @@ context.setupEnvInfra();
 context.cleanEnvironment();
 context.deploy();]]></source>
         </section>
+        <section name="Configuring Custom Logging for Obevo in Java">
+            <p>Obevo uses the <a href="https://www.slf4j.org">SLF4J API</a>, and the main jars do not include any logging
+            implementations as third-party dependencies.</p>
+
+            <p>Hence, you can configure your logging as you wish.</p>
+
+            <p>Note: the only exception is the obevo-cli module, which is the command-line API and will have a logging
+            implementation included. However, this dependency is not appropriate for Java library usage.</p>
+        </section>
     </body>
 </document>

@@ -81,7 +81,7 @@ public class JdbcHelper {
         PreparedStatement ps = null;
         try {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Executing update on connection {}: {} with args: {}", displayConnection(conn), sql, args);
+                LOG.debug("Executing update on {}: {} with args: {}", displayConnection(conn), sql, args);
             }
             if (args.length == 0) {
                 // For args length == 0, we use regular Statements and not PreparedStatements
@@ -129,7 +129,7 @@ public class JdbcHelper {
             this.jdbcHandler.preUpdate(conn, this);
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Executing batch update on connection {}: {} with args: {}", displayConnection(conn), sql, argsArray);
+                LOG.debug("Executing batch update on {}: {} with args: {}", displayConnection(conn), sql, argsArray);
             }
             ps = conn.prepareStatement(sql);
             for (Object[] args : argsArray) {
@@ -173,7 +173,7 @@ public class JdbcHelper {
         try {
             statement = conn.createStatement();
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Executing query on connection {}: {}", displayConnection(conn), sql);
+                LOG.debug("Executing query on {}: {}", displayConnection(conn), sql);
             }
             resultSet = statement.executeQuery(sql);
             return resultSetHandler.handle(resultSet);
@@ -202,6 +202,6 @@ public class JdbcHelper {
     }
 
     private String displayConnection(Connection connection) {
-        return "Connection[" + System.identityHashCode(connection) + "]: " + connection.toString();
+        return "connection[" + System.identityHashCode(connection);
     }
 }
