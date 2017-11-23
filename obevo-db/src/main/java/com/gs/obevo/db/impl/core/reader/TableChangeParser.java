@@ -307,9 +307,10 @@ public class TableChangeParser extends AbstractDbChangeFileParser {
 
             String content = section.getContent() == null ? "" : section.getContent();
             if (StringUtils.isEmpty(content)) {
-                LOG.warn("WARNING: Table {} has change name {} defined without any content in it; please " +
-                                "double-check if this was intentional (ideally, we should not have empty changes)",
-                        objectName, changeName);
+                LOG.warn("WARNING: Empty change defined in [Table={}, Change={}]; please avoid empty changes or correct/remove if possible", objectName, changeName);
+            }
+            if (rollbackSection != null && StringUtils.isBlank(rollbackContent)) {
+                LOG.warn("WARNING: Empty rollback script defined in [Table={}, Change={}], which will be ignored. Please remove, or add content (e.g. a dummy SQL update if you want to force a rollback)", objectName, changeName);
             }
             ChangeIncremental change = new ChangeIncremental(changeType, schema, objectName, changeName,
                     changeIndex, this.contentHashStrategy.hashContent(content), content,
