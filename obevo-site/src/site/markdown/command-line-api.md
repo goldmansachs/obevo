@@ -118,10 +118,12 @@ export OBEVO_JAVA_OPTS="-Xmx512M -Dmysysprop=myvalue"
 
 # Configuring Custom Logging for the Obevo process
 
-The default Obevo logging logic is as follows:
+Command-line logging is configured for two log types:
 
-* INFO logs are written to System.out (i.e. user output) and a log file under &lt;tempDir&gt;/obevo
-* SQL Statements are logged as DEBUG and also written by default to System.out and the log file
+* SQL Statements
+* All other log statements
+
+Both default to the INFO log level. They will be written to System.out and a log file under &lt;tempDir&gt;/obevo.
 
 Obevo uses the [SLF4J API](https://www.slf4j.org), but the underlying implementation is [Logback](https://logback.qos.ch). The default configuration
 file is in $OBEVO_HOME/conf.

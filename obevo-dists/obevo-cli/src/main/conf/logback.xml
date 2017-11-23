@@ -23,7 +23,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.gs.obevo.db.impl.core.jdbc" level="${obevo.sqllog.level:-debug}">
+    <logger name="com.gs.obevo.db.impl.core.jdbc" level="${obevo.sqllog.level:-info}">
         <appender-ref ref="console" />
     </logger>
 

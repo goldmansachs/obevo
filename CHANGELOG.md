@@ -4,6 +4,7 @@
 
 ### Functionality Improvements
 #53: Allowing log level to be configured in command-line API
+#98: Clearer error messages on exceptions
 
 ### Bug Fixes
 #82: Clearer error messages on cyclic dependencies in user DDL files

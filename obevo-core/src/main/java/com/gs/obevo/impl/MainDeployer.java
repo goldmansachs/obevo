@@ -228,7 +228,7 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
                         LOG.error("Exception found in the post-deploy step; printing it out here, but there was an exception during the regular deploy as well", exc);
                     }
                 }
-                LOG.info("Exiting!");
+                LOG.info("Deploy complete!");
             }
         }
     }
@@ -351,8 +351,15 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
 
         if (!failedChanges.isEmpty()) {
             deployMetricsCollector.addMetric("exceptionCount", failedChanges.size());
-            String exceptionMessage = "Failed deploying the following artifacts.\n"
-                    + failedChanges.collect(FailedChange.TO_CHANGE_COMMAND).collect(ChangeCommand.TO_COMMAND_DESCRIPTION)
+            MutableList<String> changeMessages = failedChanges.collect(new Function<FailedChange, String>() {
+                @Override
+                public String valueOf(FailedChange object) {
+                    return object.getChangeCommand().getCommandDescription() + "\n"
+                            + "    Root Exception Message: " + ExceptionUtils.getRootCauseMessage(object.getException());
+                }
+            });
+
+            String exceptionMessage = "Failed deploying the following artifacts.\n" + changeMessages
                     .makeString("\n");
             LOG.error(exceptionMessage);
             LOG.error("");

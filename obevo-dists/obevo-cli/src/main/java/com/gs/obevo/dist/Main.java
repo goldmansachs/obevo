@@ -88,19 +88,34 @@ public class Main {
         LOG.info("Starting action at time [" + new Date() + "]");
         boolean success = false;
 
+        Throwable processException = null;
         try {
             String[] argSubset = (String[]) ArrayUtils.subarray(args, 1, args.length);
 
             commandEntry.getTwo().value(argSubset);
             success = true;
+        } catch (Throwable t) {
+            processException = t;
         } finally {
+            // We handle the exception and do system.exit in the finally block as we want a clean message to go out to users.
+            // If we just threw the runtime exception, then that would be the last thing that appears to users, which
+            // was confusing for users.
+
             changeStopWatch.stop();
             long runtimeSeconds = changeStopWatch.getTime() / 1000;
             String successString = success ? "successfully" : "with errors";
-            LOG.info("Action completed " + successString + " at " + new Date() + ", " +
-                    "took " + runtimeSeconds + " seconds. If you need more information, " +
-                    "you can see the log at: " + logAppender.getLogFile());
+            LOG.info("");
+            LOG.info("Action completed {} at {}, took {} seconds.", successString, new Date(), runtimeSeconds);
+            LOG.info("");
+            if (processException != null) {
+                LOG.info("*** Exception stack trace ***", processException);
+                LOG.info("");
+            }
+            LOG.info("Detailed Log File is available at: {}", logAppender.getLogFile());
+            LOG.info("");
+            LOG.info("Exiting {}!", successString);
             IOUtils.closeQuietly(logAppender);
+            System.exit(processException != null ? 1 : 0);
         }
     }
 
