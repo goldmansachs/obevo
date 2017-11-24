@@ -15,6 +15,7 @@
  */
 package com.gs.obevo.impl;
 
+import com.gs.obevo.api.platform.CommandExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,7 @@ class ForceInitDeployStrategy implements DeployStrategy {
     }
 
     @Override
-    public void deploy(ExecuteChangeCommand changeCommand) {
+    public void deploy(ExecuteChangeCommand changeCommand, CommandExecutionContext cec) {
         LOG.info("* Not actually deploying this change as we are in INIT mode (just " +
                 "marking the audit table)");
     }

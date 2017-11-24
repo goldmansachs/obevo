@@ -34,6 +34,7 @@ import com.gs.obevo.dbmetadata.api.DaTable;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
 import com.gs.obevo.impl.Changeset;
 import com.gs.obevo.impl.ChangesetCreator;
+import com.gs.obevo.api.platform.CommandExecutionContext;
 import com.gs.obevo.impl.ExecuteChangeCommand;
 import com.gs.obevo.util.inputreader.ConsoleInputReader;
 import com.gs.obevo.util.inputreader.UserInputReader;
@@ -288,7 +289,7 @@ public class DbEnvironmentCleaner implements EnvironmentCleaner {
             LOG.info("Executing the drop: {}", executeChangeCommand.getCommandDescription());
             this.statementExecutor.performExtraCleanOperation(executeChangeCommand, dbMetadataManager);
             try {
-                executeChangeCommand.execute();
+                executeChangeCommand.execute(new CommandExecutionContext());  // no need to collect warnings here, so we ignore the ContextExecutionContext value
             } catch (Exception exc) {
                 LOG.info("Found error {}, will proceed with other objects (stack trace to come below)", exc.getMessage());
                 exceptions.add(exc);

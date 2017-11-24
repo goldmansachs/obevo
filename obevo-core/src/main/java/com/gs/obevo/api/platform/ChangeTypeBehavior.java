@@ -22,7 +22,7 @@ public interface ChangeTypeBehavior {
     /**
      * Deploys the given change.
      */
-    void deploy(Change change);
+    void deploy(Change change, CommandExecutionContext cec);
 
     /**
      * Undeploys the given change (i.e. removes from db or rolls back).

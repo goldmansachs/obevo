@@ -18,6 +18,7 @@ package com.gs.obevo.impl.command;
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.DeployExecution;
 import com.gs.obevo.api.platform.ChangeAuditDao;
+import com.gs.obevo.api.platform.CommandExecutionContext;
 
 public class DeployChangeCommand extends AbstractExecuteChangeCommand {
     public DeployChangeCommand(Change artifact) {
@@ -25,8 +26,8 @@ public class DeployChangeCommand extends AbstractExecuteChangeCommand {
     }
 
     @Override
-    public void execute() {
-        getArtifact().deploy();
+    public void execute(CommandExecutionContext cec) {
+        getArtifact().deploy(cec);
     }
 
     @Override
