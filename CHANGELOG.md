@@ -3,12 +3,18 @@
 ## 6.4.0
 
 ### Functionality Improvements
+#84: Supporting subschema support in SQL Server and Sybase ASE (i.e. database.schema.object convention)
 #53: Allowing log level to be configured in command-line API
 #98: Clearer error messages on exceptions
 
 ### Bug Fixes
 #82: Clearer error messages on cyclic dependencies in user DDL files
+#94: Errors on granting permissions will no longer leave deployments in an inconsistent state
+#55: Adding clearer log messages on rollback
 
+### Notable Dependency Upgrades
+Schemacrawler: to version 14.16.04-java7 (and 14.16.03-java7 for Sybase IQ)
+HSQLDB: from 2.3.2 to 2.3.4; needed to avoid log warnings on synonym lookups
 
 
 ## 6.3.0

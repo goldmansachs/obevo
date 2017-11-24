@@ -15,6 +15,8 @@
  */
 package com.gs.obevo.impl;
 
+import com.gs.obevo.api.platform.CommandExecutionContext;
+
 /**
  * Strategy interface for controlling how change deployments should get done, notably around whether certain differences
  * are allowed or whether to execute them.
@@ -22,7 +24,7 @@ package com.gs.obevo.impl;
 public interface DeployStrategy {
     String getDeployVerbMessage();
 
-    void deploy(ExecuteChangeCommand changeCommand);
+    void deploy(ExecuteChangeCommand changeCommand, CommandExecutionContext cec);
 
     boolean isInitAllowedOnHashExceptions();
 }

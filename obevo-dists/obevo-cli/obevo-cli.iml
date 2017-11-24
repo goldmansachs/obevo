@@ -5,21 +5,29 @@
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="obevo-db-client-alldbs" />
-    <orderEntry type="module" module-name="obevo-db-db2" />
-    <orderEntry type="module" module-name="obevo-dbmetadata-impl" scope="RUNTIME" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler:14.16.01-java7" level="project" />
-    <orderEntry type="library" name="Maven: commons-io:commons-io:2.0" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-hsqldb:14.16.01-java7" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-sybaseiq:14.16.01-java7" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-postgresql:14.16.01-java7" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-oracle:14.16.01-java7" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-sqlserver:14.16.01-java7" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-db2:14.16.01-java7" level="project" />
+    <orderEntry type="module" module-name="obevo-db-client-alldbs" />
+    <orderEntry type="module" module-name="obevo-db-db2" />
+    <orderEntry type="module" module-name="obevo-dbmetadata-impl" scope="RUNTIME" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler:14.16.04-java7" level="project" />
+    <orderEntry type="library" name="Maven: commons-io:commons-io:2.0" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-hsqldb:14.16.04-java7" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-sybaseiq:14.16.03-java7" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-postgresql:14.16.04-java7" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-oracle:14.16.04-java7" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-sqlserver:14.16.04-java7" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-db2:14.16.04-java7" level="project" />
     <orderEntry type="module" module-name="obevo-db-sybase-ase" />
     <orderEntry type="module" module-name="obevo-db-sybase-iq" />
     <orderEntry type="module" module-name="obevo-db-postgresql" />
@@ -27,7 +35,7 @@
     <orderEntry type="module" module-name="obevo-db-h2" />
     <orderEntry type="library" name="Maven: com.h2database:h2:1.4.187" level="project" />
     <orderEntry type="module" module-name="obevo-db-hsql" />
-    <orderEntry type="library" name="Maven: org.hsqldb:hsqldb:2.3.2" level="project" />
+    <orderEntry type="library" name="Maven: org.hsqldb:hsqldb:2.3.4" level="project" />
     <orderEntry type="module" module-name="obevo-db-mssql" />
     <orderEntry type="library" name="Maven: com.microsoft.sqlserver:mssql-jdbc:6.1.0.jre7" level="project" />
     <orderEntry type="module" module-name="obevo-db-oracle" />
@@ -56,8 +64,8 @@
     <orderEntry type="library" name="Maven: commons-dbcp:commons-dbcp:1.4" level="project" />
     <orderEntry type="library" name="Maven: commons-pool:commons-pool:1.5.4" level="project" />
     <orderEntry type="library" name="Maven: org.freemarker:freemarker:2.3.23" level="project" />
-    <orderEntry type="library" name="Maven: org.slf4j:slf4j-log4j12:1.7.18" level="project" />
-    <orderEntry type="library" name="Maven: log4j:log4j:1.2.14" level="project" />
+    <orderEntry type="library" name="Maven: ch.qos.logback:logback-classic:1.2.3" level="project" />
+    <orderEntry type="library" name="Maven: ch.qos.logback:logback-core:1.2.3" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:jcl-over-slf4j:1.7.18" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.18" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.11" level="project" />

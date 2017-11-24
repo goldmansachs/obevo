@@ -29,12 +29,13 @@ import com.gs.obevo.api.appdata.Schema;
 import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeCommand;
 import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry;
-import com.gs.obevo.api.platform.ToolVersion;
+import com.gs.obevo.api.platform.CommandExecutionContext;
 import com.gs.obevo.api.platform.DeployExecutionDao;
 import com.gs.obevo.api.platform.DeployMetrics;
 import com.gs.obevo.api.platform.DeployerRuntimeException;
 import com.gs.obevo.api.platform.MainDeployerArgs;
 import com.gs.obevo.api.platform.Platform;
+import com.gs.obevo.api.platform.ToolVersion;
 import com.gs.obevo.util.inputreader.ConsoleInputReader;
 import com.gs.obevo.util.inputreader.Credential;
 import com.gs.obevo.util.inputreader.UserInputReader;
@@ -49,6 +50,7 @@ import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.MapIterable;
 import org.eclipse.collections.api.set.MutableSet;
+import org.eclipse.collections.impl.block.factory.StringFunctions;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.slf4j.Logger;
@@ -198,8 +200,9 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
             String action = deployerArgs.isRollback() ? "Rollback" : "Deployment";
 
             boolean mainDeploymentSuccess = false;
+            CommandExecutionContext cec = new CommandExecutionContext();
             try {
-                this.doExecute(artifactsToProcess, deployStrategy, onboardingStrategy, executionsBySchema);
+                this.doExecute(artifactsToProcess, deployStrategy, onboardingStrategy, executionsBySchema, cec);
                 LOG.info(action + " has Completed Successfully!");
                 for (DeployExecution deployExecution : executionsBySchema.valuesView()) {
                     deployExecution.setStatus(DeployExecutionStatus.SUCCEEDED);
@@ -211,7 +214,7 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
                 LOG.info(action
                         + " has Failed. We will error out, but first complete the post-deploy step");
                 for (DeployExecution deployExecution : executionsBySchema.valuesView()) {
-                    deployExecution.setStatus(DeployExecutionStatus.SUCCEEDED);
+                    deployExecution.setStatus(DeployExecutionStatus.FAILED);
                     this.deployExecutionDao.update(deployExecution);
                 }
                 throw exc;
@@ -228,6 +231,14 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
                         LOG.error("Exception found in the post-deploy step; printing it out here, but there was an exception during the regular deploy as well", exc);
                     }
                 }
+                LOG.info("Post-deploy step completed");
+
+                RichIterable<String> warnings = cec.getWarnings();
+                if (warnings.notEmpty()) {
+                    LOG.info("");
+                    LOG.info("Summary of warnings from this deployment; please address:\n{}", warnings.collect(StringFunctions.prepend("    ")).makeString("\n"));
+                }
+
                 LOG.info("Deploy complete!");
             }
         }
@@ -289,7 +300,7 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
         }
     }
 
-    private void doExecute(Changeset artifactsToProcess, DeployStrategy deployStrategy, OnboardingStrategy onboardingStrategy, MapIterable<String, DeployExecution> executionsBySchema) {
+    private void doExecute(Changeset artifactsToProcess, DeployStrategy deployStrategy, OnboardingStrategy onboardingStrategy, MapIterable<String, DeployExecution> executionsBySchema, CommandExecutionContext cec) {
         MutableList<FailedChange> failedChanges = Lists.mutable.empty();
         MutableSet<String> failedDbObjects = UnifiedSet.newSet();
         MutableSet<String> failedDbObjectNames = UnifiedSet.newSet();  // TODO we should merge the failedDbObjects* variables; depends on fixing the EnabledOnboardingStrategy for detecting prior exceptions
@@ -318,7 +329,7 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
             changeStopWatch.start();
 
             try {
-                deployStrategy.deploy(changeCommand);
+                deployStrategy.deploy(changeCommand, cec);
                 changeCommand.markAuditTable(this.artifactDeployerDao, executionsBySchema.get(changeCommand.getSchema()));
 
                 changeStopWatch.stop();

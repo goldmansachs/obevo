@@ -15,11 +15,13 @@
  */
 package com.gs.obevo.impl;
 
+import com.gs.obevo.api.platform.CommandExecutionContext;
+
 /**
  * A command that will actually invoke some action against the environment that would affect your applications.
  */
 public interface ExecuteChangeCommand extends AuditChangeCommand {
-    void execute();
+    void execute(CommandExecutionContext cec);
 
     boolean isDrop();
 

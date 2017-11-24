@@ -26,6 +26,7 @@ import com.gs.obevo.db.api.platform.DbChangeType;
 import com.gs.obevo.db.api.platform.DbChangeTypeBehavior;
 import com.gs.obevo.db.api.platform.SqlExecutor;
 import com.gs.obevo.db.impl.core.util.MultiLineStringSplitter;
+import com.gs.obevo.api.platform.CommandExecutionContext;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.function.Function;
@@ -62,7 +63,7 @@ public abstract class AbstractDbChangeTypeBehavior implements DbChangeTypeBehavi
     }
 
     @Override
-    public void deploy(final Change change) {
+    public void deploy(final Change change, final CommandExecutionContext cec) {
         sqlExecutor.executeWithinContext(change.getPhysicalSchema(), new Procedure<Connection>() {
             @Override
             public void value(Connection conn) {
@@ -72,7 +73,7 @@ public abstract class AbstractDbChangeTypeBehavior implements DbChangeTypeBehavi
                             Predicates.attributePredicate(PERMISSION_TO_SCHEME,
                                     StringPredicates.equalsIgnoreCase(change.getPermissionScheme())));
 
-                    applyGrants(conn, change.getPhysicalSchema(), change.getObjectName(), permsToApply);
+                    applyGrants(conn, change.getPhysicalSchema(), change.getObjectName(), permsToApply, cec);
                 }
             }
         });
@@ -100,20 +101,46 @@ public abstract class AbstractDbChangeTypeBehavior implements DbChangeTypeBehavi
 
     @Override
     public void applyGrants(Connection conn, PhysicalSchema schema, String objectName, RichIterable<Permission> permsToApply) {
-        Pair<Boolean, RichIterable<String>> qualifiedObjectNames = getQualifiedObjectNames(conn, schema, objectName);
-        ImmutableList<String> grants = this.grantChangeParser.generateGrantChanges(permsToApply, dbChangeType, schema, objectName, qualifiedObjectNames.getTwo(), qualifiedObjectNames.getOne());
-
-        LOG.info(String.format("Applying grants on db object [%s]: found %d total SQL statements to apply",
-                objectName, grants.size()));
-
-        for (String grant : grants) {
-            if (!StringUtils.isBlank(grant)) {
-                // need to check for blank in case it gets tokenized away during the in-memory conversion
-                LOG.debug("Executing grant: {}", grant);
-                // grants are automatically included as part of the original change, so we don't track the deployment in the
-                // audit table
-                sqlExecutor.getJdbcTemplate().update(conn, grant);
+        CommandExecutionContext cec = new CommandExecutionContext();
+        applyGrants(conn, schema, objectName, permsToApply, cec);
+        if (cec.getWarnings().notEmpty()) {
+            LOG.warn("Failed to execute grants on schema {} and object {}", schema, objectName);
+            for (String warning : cec.getWarnings()) {
+                LOG.warn(warning);
             }
+        }
+    }
+
+    /**
+     * To avoid irrecoverable deploy state, we allow the deploy to succeed even if grant fails, and we will simply log out warnings.
+     */
+    private void applyGrants(Connection conn, PhysicalSchema schema, String objectName, RichIterable<Permission> permsToApply, CommandExecutionContext cec) {
+        String lastExecutedSql = null;
+        try {
+            Pair<Boolean, RichIterable<String>> qualifiedObjectNames = getQualifiedObjectNames(conn, schema, objectName);
+            ImmutableList<String> grants = this.grantChangeParser.generateGrantChanges(permsToApply, dbChangeType, schema, objectName, qualifiedObjectNames.getTwo(), qualifiedObjectNames.getOne());
+
+            LOG.info(String.format("Applying grants on db object [%s]: found %d total SQL statements to apply",
+                    objectName, grants.size()));
+
+            for (String grant : grants) {
+                if (!StringUtils.isBlank(grant)) {
+                    // need to check for blank in case it gets tokenized away during the in-memory conversion
+                    LOG.debug("Executing grant: {}", grant);
+                    lastExecutedSql = grant;
+
+                    // grants are automatically included as part of the original change, so we don't track the deployment in the
+                    // audit table
+                    sqlExecutor.getJdbcTemplate().update(conn, grant);
+                }
+            }
+        } catch (Exception exc) {
+            String warningMessage = "Failed executing grant on schema [" + schema + "] and object [" + objectName + "]";
+            if (lastExecutedSql != null) {
+                warningMessage += " on SQL " + lastExecutedSql + ":";
+            }
+            cec.addWarning(warningMessage + exc.getMessage() + "\n        Proceeding with deploy. Please use a /migration script to correct this. Watch https://github.com/goldmansachs/obevo/issues/3 to see when we improve this logic.");
+            LOG.error(warningMessage, exc);
         }
     }
 

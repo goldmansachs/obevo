@@ -18,6 +18,7 @@ package com.gs.obevo.impl.command;
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.DeployExecution;
 import com.gs.obevo.api.platform.ChangeAuditDao;
+import com.gs.obevo.api.platform.CommandExecutionContext;
 import com.gs.obevo.impl.ExecuteChangeCommand;
 import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.collection.ImmutableCollection;
@@ -37,12 +38,12 @@ public class ParallelDeployChangeCommand implements ExecuteChangeCommand {
     }
 
     @Override
-    public void execute() {
+    public void execute(final CommandExecutionContext cec) {
         // 2 value -> only fork to parallelism if we have 2 tasks. 1 task will not require thread pool usage
         ParallelIterate.forEach(changes, new Procedure<Change>() {
             @Override
             public void value(Change change) {
-                change.deploy();
+                change.deploy(cec);
             }
         }, 2, numThreads);
     }

@@ -25,6 +25,7 @@ import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeTypeBehavior;
 import com.gs.obevo.api.platform.ChangeTypeCommandCalculator;
 import com.gs.obevo.db.api.platform.SqlExecutor;
+import com.gs.obevo.api.platform.CommandExecutionContext;
 import com.gs.obevo.impl.changecalc.ChangeCommandFactory;
 import com.gs.obevo.impl.graph.GraphEnricher;
 import org.eclipse.collections.api.block.procedure.Procedure;
@@ -56,7 +57,7 @@ public class StaticDataChangeTypeBehavior implements ChangeTypeBehavior {
     }
 
     @Override
-    public void deploy(Change change) {
+    public void deploy(Change change, CommandExecutionContext cec) {
         final ListIterable<Change> staticDatas = getSubChanges(change);
 
         if (staticDatas.isEmpty()) {

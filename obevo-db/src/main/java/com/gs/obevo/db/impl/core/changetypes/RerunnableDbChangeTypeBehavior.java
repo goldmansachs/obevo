@@ -29,6 +29,7 @@ import com.gs.obevo.dbmetadata.api.DaSchemaInfoLevel;
 import com.gs.obevo.dbmetadata.api.DaTable;
 import com.gs.obevo.dbmetadata.api.DaView;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
+import com.gs.obevo.api.platform.CommandExecutionContext;
 import com.gs.obevo.impl.changetypes.RerunnableChangeTypeCommandCalculator;
 import com.gs.obevo.impl.graph.GraphEnricher;
 import org.eclipse.collections.api.collection.ImmutableCollection;
@@ -63,11 +64,11 @@ public class RerunnableDbChangeTypeBehavior extends AbstractDbChangeTypeBehavior
     }
 
     @Override
-    public void deploy(Change change) {
+    public void deploy(Change change, CommandExecutionContext cec) {
         if (!change.isCreateOrReplace()) {
             dropObject(change, true);
         }
-        super.deploy(change);
+        super.deploy(change, cec);
     }
 
     @Override

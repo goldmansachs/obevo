@@ -15,6 +15,8 @@
  */
 package com.gs.obevo.impl;
 
+import com.gs.obevo.api.platform.CommandExecutionContext;
+
 /**
  * The standard deployment behavior.
  */
@@ -30,8 +32,8 @@ class ExecuteDeployStrategy implements DeployStrategy {
     }
 
     @Override
-    public void deploy(ExecuteChangeCommand changeCommand) {
-        changeCommand.execute();
+    public void deploy(ExecuteChangeCommand changeCommand, CommandExecutionContext cec) {
+        changeCommand.execute(cec);
     }
 
     @Override

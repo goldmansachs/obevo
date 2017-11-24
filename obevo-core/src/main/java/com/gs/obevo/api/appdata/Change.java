@@ -22,6 +22,7 @@ import com.gs.obevo.api.appdata.doc.TextMarkupDocumentSection;
 import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.ChangeTypeBehavior;
+import com.gs.obevo.api.platform.CommandExecutionContext;
 import com.gs.obevo.impl.graph.SortableDependency;
 import com.gs.obevo.impl.graph.SortableDependencyGroup;
 import com.gs.obevo.impl.text.TextDependencyExtractable;
@@ -595,8 +596,8 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
 
     private ChangeTypeBehavior changeTypeBehavior;
 
-    public void deploy() {
-        this.changeTypeBehavior.deploy(this);
+    public void deploy(CommandExecutionContext cec) {
+        this.changeTypeBehavior.deploy(this, cec);
     }
 
     public void undeploy() {
