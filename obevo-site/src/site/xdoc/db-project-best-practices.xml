@@ -66,12 +66,12 @@
             </p>
 
 
-            <h3>Do not include references to the same schema in your DDLs</h3>
+            <h3>Prefer not including references to the same schema in your DDLs</h3>
 
-            <p>e.g. If your objects are for schmea MYSCHEMA1, then do not qualify your object references with the schema, e.g.
-                <source><![CDATA[CREATE TABLE MYSCHEMA1.TAB1 (  -- Not OK
+            <p>e.g. If your objects are for schema MYSCHEMA1, then do not qualify your object references with the schema, e.g.
+                <source><![CDATA[CREATE TABLE MYSCHEMA1.TAB1 (  -- not preferred
 
-CREATE TABLE TAB1 (  -- OK]]></source>
+CREATE TABLE TAB1 (  -- preferred]]></source>
             </p>
 
             <p>This is so that you have flexibility in deploying your objects to differently named schemas (whether suffixed

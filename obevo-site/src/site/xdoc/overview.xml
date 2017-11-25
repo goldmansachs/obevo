@@ -31,8 +31,9 @@
             usually would be painful to get that under source control, and thus Obevo has functionality to make
             it as easy as possible (and continually looks to improve)
         </p>
-        <p>Obevo was built to handle such cases (and vetted by its usage and onboarding into long-lived existing systems).
-            We will provide a demo project soon to show this (GITHUB#2). In our opinion, the resulting code is
+        <p>Obevo was built to handle such cases and vetted by its usage and onboarding into long-lived existing systems.
+            See <a href="https://github.com/goldmansachs/obevo-kata/blob/master/internal/doc/kata2-reverse-engineering.md">here</a>
+            for a demo project to show this. In our opinion, the resulting code is
             rather maintainable (considering the hundreds of db objects!) compared to what may otherwise result if the
             system was maintained only using incremental update scripts.
         </p>
@@ -105,7 +106,7 @@
             </li>
             <li>Among other things</li>
         </ul>
-        <p>The user guide details the features that come with Obevo</p>
+        <p>The user guide details the features that come with Obevo.</p>
         <subsection name="How Obevo Calculates and Applies Changes"></subsection>
         <p>Read the 'how &quot;most database deployment tools&quot; work' section and then see the <a href="design-walkthrough.html">Design Walkthrough</a></p>
     </body>

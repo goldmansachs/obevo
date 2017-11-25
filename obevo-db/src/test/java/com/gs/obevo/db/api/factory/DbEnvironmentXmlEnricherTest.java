@@ -244,4 +244,16 @@ public class DbEnvironmentXmlEnricherTest {
                 .resolveSingleFileObject("./src/test/resources/DbEnvironmentXmlEnricher/system-config-bad-deprecatedExclusionTypes.xml"));
     }
 
+    @Test
+    public void validSchemaName() {
+        DbEnvironmentXmlEnricher.validateSchemaName("AbcDef123_456_98");
+    }
+
+    @Test
+    public void invalidSchemaName() {
+        thrown.expect(IllegalArgumentException.class);
+
+        DbEnvironmentXmlEnricher.validateSchemaName("abc.def");
+    }
+
 }

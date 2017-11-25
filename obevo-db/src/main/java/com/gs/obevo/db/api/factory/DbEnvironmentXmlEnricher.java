@@ -16,6 +16,7 @@
 package com.gs.obevo.db.api.factory;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import com.gs.obevo.api.appdata.DeploySystem;
 import com.gs.obevo.api.appdata.Schema;
@@ -31,6 +32,7 @@ import com.gs.obevo.db.api.appdata.User;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.util.CollectionUtil;
 import com.gs.obevo.util.Tokenizer;
+import com.gs.obevo.util.VisibleForTesting;
 import com.gs.obevo.util.vfs.FileObject;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -53,6 +55,8 @@ import org.eclipse.collections.impl.list.mutable.ListAdapter;
 import org.eclipse.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrategy;
 
 public class DbEnvironmentXmlEnricher implements EnvironmentEnricher<DbEnvironment> {
+    private static final Pattern PATTERN = Pattern.compile("[\\w+]+");
+
     private final DbPlatformConfiguration dbPlatformConfiguration;
 
     public DbEnvironmentXmlEnricher() {
@@ -126,13 +130,16 @@ public class DbEnvironmentXmlEnricher implements EnvironmentEnricher<DbEnvironme
         };
     }
 
-    private Function<HierarchicalConfiguration, Schema> convertCfgToSchema(final DbPlatform systemDbPlatform) {
+    private Function<HierarchicalConfiguration, Schema> convertCfgToSchema(final DbPlatform systemDbPlatform, final int schemaNameValidation) {
         return new Function<HierarchicalConfiguration, Schema>() {
             private static final long serialVersionUID = 1L;
 
             @Override
             public Schema valueOf(HierarchicalConfiguration object) {
                 String schemaName = object.getString("[@name]");
+                if (schemaNameValidation >= 2) {
+                    validateSchemaName(schemaName);
+                }
                 boolean readOnly = object.getBoolean("[@readOnly]", false);
 
                 MutableSetMultimap<String, String> excludedNameMap = Multimaps.mutable.set.empty();
@@ -166,6 +173,13 @@ public class DbEnvironmentXmlEnricher implements EnvironmentEnricher<DbEnvironme
                 return new Schema(schemaName, systemDbPlatform.getObjectExclusionPredicateBuilder().add(excludedNameMap.toImmutable()), readOnly);
             }
         };
+    }
+
+    @VisibleForTesting
+    static void validateSchemaName(String schemaName) {
+        if (!PATTERN.matcher(schemaName).matches()) {
+            throw new IllegalArgumentException("SchemaName " + schemaName + " does not match regexp " + PATTERN.pattern());
+        }
     }
 
     private HierarchicalConfiguration getConfig(FileObject checkoutFolder) {
@@ -228,9 +242,12 @@ public class DbEnvironmentXmlEnricher implements EnvironmentEnricher<DbEnvironme
             dbEnv.setDefaultPassword(envCfg.getString("[@defaultPassword]"));
             dbEnv.setDefaultTablespace(envCfg.getString("[@defaultTablespace]"));
 
+
+            int schemaNameValidationVersion = envCfg.getInt("schemaNameValidation", sysCfg.getInt("schemaNameValidation", dbPlatformConfiguration.getFeatureToggleVersion("schemaNameValidation")));
+
             // TODO add include/exclude schemas functionality
             MutableList<Schema> schemaObjs = Lists.mutable.withAll(iterConfig(sysCfg, "schemas.schema"))
-                    .collect(convertCfgToSchema(systemDbPlatform));
+                    .collect(convertCfgToSchema(systemDbPlatform, schemaNameValidationVersion));
 
             MutableSet<String> schemasToInclude = iterString(envCfg, "includeSchemas").toSet();
             MutableSet<String> schemasToExclude = iterString(envCfg, "excludeSchemas").toSet();

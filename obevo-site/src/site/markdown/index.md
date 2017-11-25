@@ -15,27 +15,27 @@
     under the License.
 
 -->
-# Obevo - Evolve Your Database Objects
+# Obevo: Evolve Your Database Objects
 
-Deploying tables for a new application?
+Deploying tables for a new greenfield application?
 
-Or looking to improve the database deployment of a years-old system with hundreds (or thousands) of tables, views, stored procedures, and other objects?
+Or looking to improve your database change management for a _years-old system_ with _**hundreds or thousands** of tables, views, stored procedures, and more_?
 
 Obevo has your database deployment use case covered.
 
 [Quickstart Examples](https://github.com/goldmansachs/obevo-kata)
 
 
-## Why Use Obevo?
+## Why Use Obevo for Database Deployment?
 
 ### Organized maintenance of all your DB object files to handle all use cases
 
-By allowing your DB files to be maintained per DB object (as you would with classes in application code), db file maintenance
-becomes much easier compared to DB Deployment tools that require a new file or change definition per migration:
+By allowing your DB files to be maintained per object (as you would with classes in application code), DB file maintenance
+becomes much easier compared to other tools that require a new file or change definition per migration:
 
 * Changes for a particular table can be reviewed in one place
 * Stateless objects like stored procedures and views can be edited in place without specifying any new incremental change files
-* All of this is possible without having to define the complete order of your file deployments; Obevo figures it out for you (a la a Java compiler compiling classes)
+* All of this is possible without having to define the complete order of your file deployments; Obevo figures it out for you
 
 [Click here](design-walkthrough.html) for more information on how Obevo works and how its algorithm compares to what most other DB Deployment tools do
 
@@ -76,9 +76,12 @@ Treat your DB code like you would treat your application code!
 
 ### DBMS-specific features
 
-Obevo currently supports DB2, Sybase ASE, Sybase IQ, PostgreSQL, MS SQL Server, Oracle, HSQLDB, and H2
+Obevo currently supports DB2, MS SQL Server, Oracle, PostgreSQL, Sybase ASE, Sybase IQ, HSQLDB, and H2.
 
-It has special handling for DBMS, such as reorgs for DB2 and handling transaction log checks for Sybase ASE
+It includes DBMS-specific handling, such as DB2 reorgs and handling transaction log checks for Sybase ASE.
 
 ## Document Conventions
-This documentation assumes we are running this from a Windows desktop. Adjust the command line arguments accordingly for Linux if you choose.
+
+This documentation assumes we are running this from a Windows desktop, unless otherwise specified.
+
+Adjust the command line arguments accordingly for Linux if you choose.
