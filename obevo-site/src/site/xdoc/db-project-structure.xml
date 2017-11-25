@@ -53,11 +53,10 @@
                                     <li>and so on</li>
                                 </ul>
                             </li>
-                            <li>
-                                <font color="red">NOTE for Sybase ASE users: The "schema" term in Obevo is
-                                    equivalent to the Sybase ASE "database". The ASE schema concept is not used; the default is
-                                    assumed.
-                                </font>
+                            <li>The logical schema name should only contain alphanumeric characters and underscores</li>
+                            <li><font color="red">NOTE for Sybase ASE and SQL Server users: The "schema" term in Obevo is
+                                equivalent to the Sybase ASE "database".</font> By default, we assume the default user
+                                during SQL execution. See the section below on how to use the database + schema.
                             </li>
                         </ul>
                     </li>
@@ -110,7 +109,8 @@
                                 if you
                                 have specified it
                             </li>
-                            <li>See the example below</li>
+                            <li>See the example below:</li>
+                            <li>For SQL Server and Sybase ASE, this value applies to the database used for your objects. See the next section for schema handling</li>
                         </ul>
                     </li>
                 </ul>
@@ -122,7 +122,7 @@
 		<schema name="SCHEMA3" />
 	</schemas>
 	<environments>
-		<dbEnvironment name="test" type="DEV" dbServer="example" ...>
+		<dbEnvironment name="test" dbServer="example" ...>
 			<schemaOverrides>
 				<schemaOverride schema="SCHEMA1" overrideValue="my_schema1abc" />
 				<schemaOverride schema="SCHEMA2" overrideValue="my_schema2def" />
@@ -132,6 +132,46 @@
 		</dbEnvironment>
 	</environments>
 </dbSystemConfig>]]></source>
+            </subsection>
+            <subsection name="[For SQL Server and Sybase ASE] database.schema convention">
+                <p>By default, Obevo will refer to an object by its default catalog/database. For example:
+                    <ul>
+                        <li>In DB2: schema1.object1</li>
+                        <li>In SQL Server: schema1..object1 (note the extra period)</li>
+                    </ul>
+                </p>
+                <p>We imply the schema user here (e.g. dbo - schema1.dbo.object1)</p>
+                <p>If you need to define your objects in a schema within the database, consider the following:</p>
+                <ul>
+                    <li>If you want to manage multiple schemas within your database, you will need to map each database+schema
+                    combination to a logical schema</li>
+                    <li>Use the schemaOverride element to define the database/schema combination, e.g.
+                        <source><![CDATA[<!--schema override example -->
+<dbSystemConfig type="SYBASE_ASE">
+    <schemas>
+        <schema name="SCHEMA1" />
+        <schema name="SCHEMA2" />
+    </schemas>
+    <environments>
+    <dbEnvironment name="test" ...>
+        <schemaOverrides>
+            <!-- note - many logical schemas can map to different schemas within the same database -->
+            <schemaOverride schema="SCHEMA1" overrideValue="mydatabase.myschema1" />
+            <schemaOverride schema="SCHEMA2" overrideValue="mydatabase.myschema2" />
+        </schemaOverrides>
+        ...
+    </dbEnvironment>
+    </environments>
+</dbSystemConfig>]]></source>
+                    </li>
+                    <li>In your DB object code, if you need to refer to the schema, then you can use the tokens &lt;logicalSchema&gt;_schemaSuffixed
+                        and &lt;logicalSchema&gt;_subschemaSuffixed to give you either the "mydatabase.myschema1." token value
+                        or "myschema1." token value, respectively
+
+                        <source><![CDATA[CREATE TABLE ${SCHEMA1_subschemaSuffixed}myobject ( ... )]]></source>
+                    </li>
+                </ul>
+
             </subsection>
             <subsection name="Advanced Environment Management">
                 <p>You can do more advanced environment management with Obevo, including tokenization, permission

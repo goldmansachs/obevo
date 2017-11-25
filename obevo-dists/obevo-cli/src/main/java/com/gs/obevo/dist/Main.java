@@ -31,6 +31,7 @@ import com.gs.obevo.reladomo.ReladomoSchemaConverterArgs;
 import com.gs.obevo.util.ArgsParser;
 import com.gs.obevo.util.EnumUtils;
 import com.gs.obevo.util.LogUtil;
+import com.gs.obevo.util.VisibleForTesting;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -78,8 +79,27 @@ public class Main {
         this.commandMap = commandMap.toImmutable();
     }
 
-    private void execute(String[] args) {
-        Pair<String, Procedure<String[]>> commandEntry = getDeployCommand(args);
+    protected void execute(String[] args) {
+        execute(args, new Runnable() {
+            @Override
+            public void run() {
+                System.exit(0);
+            }
+        }, new Runnable() {
+            @Override
+            public void run() {
+                System.exit(-1);
+            }
+        });
+    }
+
+    /**
+     * Executes the main method. This is public so that client distributions can test this method from their own
+     * packages.
+     */
+    @VisibleForTesting
+    public void execute(String[] args, Runnable exitSuccessMethod, Runnable exitFailureMethod) {
+        Pair<String, Procedure<String[]>> commandEntry = getDeployCommand(args, exitFailureMethod);
 
         LogUtil.FileLogger logAppender = LogUtil.getLogAppender(commandEntry.getOne());
 
@@ -115,14 +135,18 @@ public class Main {
             LOG.info("");
             LOG.info("Exiting {}!", successString);
             IOUtils.closeQuietly(logAppender);
-            System.exit(processException != null ? 1 : 0);
+            if (processException != null) {
+                exitFailureMethod.run();
+            } else {
+                exitSuccessMethod.run();
+            }
         }
     }
 
-    private Pair<String, Procedure<String[]>> getDeployCommand(String[] args) {
+    private Pair<String, Procedure<String[]>> getDeployCommand(String[] args, Runnable exitFailureMethod) {
         if (args.length == 0) {
             usage();
-            System.exit(-1);
+            exitFailureMethod.run();
         }
 
         Procedure<String[]> command = commandMap.get(args[0]);
@@ -130,7 +154,7 @@ public class Main {
             System.out.println("No command w/ name " + args[0] + " has been defined in this distribution: " + commandMap.keysView().makeString("[", ", ", "]"));
             System.out.println("See the usage for more details");
             usage();
-            System.exit(-1);
+            exitFailureMethod.run();
         }
 
         return Tuples.pair(args[0], command);
@@ -142,7 +166,6 @@ public class Main {
                 .makeString("/") + "] [args]");
         System.out.println("Pick one of the commands when entering.");
         System.out.println("If you just put in the command w/ no args, you will be prompted with further options");
-        System.exit(-1);
     }
 
     protected ImmutableMap<String, Procedure<String[]>> getCommandMap() {
