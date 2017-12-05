@@ -23,6 +23,11 @@
         <title>Overview</title>
     </properties>
     <body>
+        <subsection name="InfoQ Article">
+            <p>We have published an <a href="https://www.infoq.com/articles/Obevo-Introduction">article on InfoQ</a> that
+                gives an overview of Obevo.</p>
+            <p>Please see that article in place of this page.</p>
+        </subsection>
         <subsection name="Preface"></subsection>
         <p>Before we start, we'd like to mention that one of the keys to this tool is to make your db schema maintenance
             easy, whether for large or small DBs, for new or existing.
