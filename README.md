@@ -18,6 +18,9 @@ Getting Started
 * [Documentation](https://goldmansachs.github.io/obevo/)
 * [Quickstart Examples](https://github.com/goldmansachs/obevo-kata) (Setup a new database or Onboard an existing database)
 
+InfoQ Article:
+* [https://www.infoq.com/articles/Obevo-Introduction](https://www.infoq.com/articles/Obevo-Introduction)
+
 API Links
 * [Java API](https://goldmansachs.github.io/obevo/java-api.html)
 * [Command Line API](https://goldmansachs.github.io/obevo/command-line-api.html)

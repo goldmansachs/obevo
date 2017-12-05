@@ -27,6 +27,12 @@
             <param name="fromDepth" value="0" />
             <param name="toDepth" value="1" />
         </macro>
+        <section name="InfoQ Article">
+            <p>We have published an <a href="https://www.infoq.com/articles/Obevo-Introduction">article on InfoQ</a> that
+                gives an overview of Obevo and some technical details.</p>
+            <p>The article has a slightly more up-to-date and cleaner representation of some of the information on this
+                page. Feel free to look at the InfoQ article first before proceeding on this page.</p>
+        </section>
         <section name="Obevo Problem Statement - A Compiler for Stateful and Stateless Code Classes">
             <p>Design goal of Obevo - to give idempotent deploy semantics onto a platform target that does not
                 have it by default, the keys problem to solve being:
