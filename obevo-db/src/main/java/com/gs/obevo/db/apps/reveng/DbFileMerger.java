@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.DeployerRuntimeException;
+import com.gs.obevo.db.api.factory.DbPlatformConfiguration;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.util.ArgsParser;
 import com.gs.obevo.util.DAStringUtil;
@@ -146,8 +147,9 @@ public class DbFileMerger {
 
     public void execute(DbFileMergerArgs args) {
         try {
-            DbPlatform dialect = null;  // TODO add this in
-            this.generateDiffs(dialect, DbMergeInfo.parseFromProperties(new PropertiesConfiguration(args.getDbMergeConfigFile())), args.getOutputDir());
+            PropertiesConfiguration config = new PropertiesConfiguration(args.getDbMergeConfigFile());
+            DbPlatform dialect = DbPlatformConfiguration.getInstance().valueOf(config.getString("dbType"));
+            this.generateDiffs(dialect, DbMergeInfo.parseFromProperties(config), args.getOutputDir());
         } catch (ConfigurationException e) {
             throw new DeployerRuntimeException(e);
         }
