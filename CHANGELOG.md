@@ -1,5 +1,13 @@
 # Change Log
 
+## 6.5.0
+
+### Functionality Improvements
+
+### Bug Fixes
+Re-enabling the DB Merge Tool (was failing due to some exceptions before)
+
+
 ## 6.4.0
 
 ### Functionality Improvements

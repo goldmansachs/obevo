@@ -14,6 +14,7 @@
     under the License.
 ====
 
+dbType=com.gs.obevo.db.apps.reveng.TestRevengDbPlatform
 instances=db1,db2,db3
 db1.inputDir=./src/test/resources/scenariotests/reveng-merge/db1
 db2.inputDir=./src/test/resources/scenariotests/reveng-merge/db2

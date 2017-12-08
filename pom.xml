@@ -422,6 +422,7 @@
 
                         <!-- Excluding the reverse-engineering files  -->
                         <exclude>**/test/resources/**/reveng/**</exclude>
+                        <exclude>**/test/resources/**/expected/**</exclude>
 
                         <!-- Other SP/sql files to exclude that weren't automatically applied by the mycila plugin originally -->
                         <exclude>**/*.ddl</exclude>

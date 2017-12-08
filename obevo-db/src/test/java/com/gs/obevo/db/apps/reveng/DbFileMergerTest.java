@@ -24,7 +24,6 @@ import org.junit.Test;
 
 public class DbFileMergerTest {
     @Test
-    @Ignore("NEED TO PUT THIS TEST BACK")
     public void basicMergeTest() {
         FileUtils.deleteQuietly(new File("./target/merge/unittest"));
 
