@@ -5,7 +5,8 @@
 ### Functionality Improvements
 
 ### Bug Fixes
-Re-enabling the DB Merge Tool (was failing due to some exceptions before)
+#122: Re-enabling the DB Merge Tool (was failing due to some exceptions before)
+#115: Reladomo DDL reverse engineering - removing "drop if exists" and splitting indices by leveraging common reverse-engineering utility
 
 
 ## 6.4.0

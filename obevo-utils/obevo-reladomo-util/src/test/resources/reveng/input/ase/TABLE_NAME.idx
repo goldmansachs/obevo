@@ -1,0 +1,20 @@
+if exists (select * from sysindexes where name = 'TABLE_NAME_PK' and id = object_id('TABLE_NAME'))
+drop index TABLE_NAME.TABLE_NAME_PK
+GO
+
+create unique index TABLE_NAME_PK on TABLE_NAME(ID, OUT_UTC)
+GO
+
+if exists (select * from sysindexes where name = 'TABLE_NAME_IDX0' and id = object_id('TABLE_NAME'))
+drop index TABLE_NAME.TABLE_NAME_IDX0
+GO
+
+create index TABLE_NAME_IDX0 on TABLE_NAME(TABLE_NAME_3, OUT_UTC)
+GO
+
+if exists (select * from sysindexes where name = 'TABLE_NAME_IDX1' and id = object_id('TABLE_NAME'))
+drop index TABLE_NAME.TABLE_NAME_IDX1
+GO
+
+create index TABLE_NAME_IDX1 on TABLE_NAME(TABLE_NAME_2, OUT_UTC)
+GO

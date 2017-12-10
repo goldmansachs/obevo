@@ -1,0 +1,8 @@
+alter table TABLE1 add constraint APPLCTN_SR_ROLE_PK primary key (ID, OUT_UTC);
+
+create index APPLCTN_SR_RL_IDX0 on TABLE1(APPLICATION_ID, OUT_UTC);
+
+create index APPLCTN_SR_RL_IDX1 on TABLE1(USER_ID, OUT_UTC);
+
+create index APPLCTN_SR_RL_IDX2 on TABLE1(ROLE_ID, OUT_UTC);
+

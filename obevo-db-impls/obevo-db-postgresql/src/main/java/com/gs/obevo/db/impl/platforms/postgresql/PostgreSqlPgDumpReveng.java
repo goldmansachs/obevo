@@ -39,12 +39,7 @@ public class PostgreSqlPgDumpReveng extends AbstractDdlReveng {
                         StringPredicates.contains("-- PostgreSQL database dump").and(StringPredicates.contains("-- Dumped by pg_dump"))
                 ),
                 getRevengPatterns(),
-                new Procedure2<ChangeEntry, String>() {
-                    @Override
-                    public void value(ChangeEntry changeEntry, String s) {
-
-                    }
-                }
+                null
         );
         setSkipLinePredicates(Lists.immutable.<Predicate<String>>of(
                 StringPredicates.startsWith("SET statement_timeout")

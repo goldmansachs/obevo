@@ -46,12 +46,7 @@ public class Db2lookReveng extends AbstractDdlReveng {
                         , StringPredicates.startsWith("SET NLS_STRING_UNITS = 'SYSTEM'")
                 ),
                 getRevengPatterns(),
-                new Procedure2<ChangeEntry, String>() {
-                    @Override
-                    public void value(ChangeEntry changeEntry, String s) {
-
-                    }
-                }
+                null
         );
         setStartQuote("\"");
         setEndQuote("\"");

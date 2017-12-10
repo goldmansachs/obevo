@@ -62,12 +62,7 @@ public class HsqlReveng extends AbstractDdlReveng {
                         , StringPredicates.startsWith("ALTER SEQUENCE SYSTEM_LOBS")
                 ),
                 getRevengPatterns(),
-                new Procedure2<ChangeEntry, String>() {
-                    @Override
-                    public void value(ChangeEntry changeEntry, String s) {
-
-                    }
-                }
+                null
         );
         setStartQuote(QUOTE);
         setEndQuote(QUOTE);
