@@ -124,7 +124,13 @@ public abstract class AbstractDdlReveng {
         this.stringSplitter = stringSplitter;
         this.skipPredicates = skipPredicates;
         this.revengPatterns = revengPatterns;
-        this.postProcessChange = postProcessChange;
+        Procedure2<ChangeEntry, String> noOpProcedure = new Procedure2<ChangeEntry, String>() {
+            @Override
+            public void value(ChangeEntry changeEntry, String s) {
+
+            }
+        };
+        this.postProcessChange = ObjectUtils.firstNonNull(postProcessChange, noOpProcedure);
     }
 
     protected static String getCatalogSchemaObjectPattern(String startQuoteStr, String endQuoteStr) {
@@ -342,7 +348,9 @@ public abstract class AbstractDdlReveng {
                     sqlSnippet = lineParseOutput.getLineOutput();
                 }
 
-                ChangeEntry change = new ChangeEntry(destination, sqlSnippet + "\nGO", secondaryName, annotation, selfOrder++);
+                Integer suggestedOrder = patternMatch.getRevengPattern().getSuggestedOrder();
+
+                ChangeEntry change = new ChangeEntry(destination, sqlSnippet + "\nGO", secondaryName, annotation, ObjectUtils.firstNonNull(suggestedOrder, selfOrder++));
 
                 postProcessChange.value(change, sqlSnippet);
 
@@ -633,6 +641,7 @@ public abstract class AbstractDdlReveng {
         private final Integer secondaryNameIndex;
         private final String annotation;
         private final MutableList<Function<String, LineParseOutput>> postProcessSqls = Lists.mutable.empty();
+        private Integer suggestedOrder;
 
         public static final Function<RevengPattern, String> TO_CHANGE_TYPE = new Function<RevengPattern, String>() {
             @Override
@@ -686,8 +695,25 @@ public abstract class AbstractDdlReveng {
             return postProcessSqls;
         }
 
+        /**
+         * See {@link #withSuggestedOrder(Integer)}.
+         */
+        public Integer getSuggestedOrder() {
+            return suggestedOrder;
+        }
+
         public RevengPattern withPostProcessSql(Function<String, LineParseOutput> postProcessSql) {
             this.postProcessSqls.add(postProcessSql);
+            return this;
+        }
+
+        /**
+         * A hint to the reverse-engineering where the resultant change should be ordered, relative to other changes.
+         * The default order is 0. This is needed for cases where changes for a particular object are spread across
+         * files in the input.
+         */
+        public RevengPattern withSuggestedOrder(Integer suggestedOrder) {
+            this.suggestedOrder = suggestedOrder;
             return this;
         }
 
