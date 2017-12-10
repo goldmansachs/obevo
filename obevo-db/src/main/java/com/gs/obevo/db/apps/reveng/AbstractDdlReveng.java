@@ -348,7 +348,7 @@ public abstract class AbstractDdlReveng {
                     sqlSnippet = lineParseOutput.getLineOutput();
                 }
 
-                Integer suggestedOrder = patternMatch.getRevengPattern().getSuggestedOrder();
+                Integer suggestedOrder = patternMatch != null ? patternMatch.getRevengPattern().getSuggestedOrder() : null;
 
                 ChangeEntry change = new ChangeEntry(destination, sqlSnippet + "\nGO", secondaryName, annotation, ObjectUtils.firstNonNull(suggestedOrder, selfOrder++));
 
