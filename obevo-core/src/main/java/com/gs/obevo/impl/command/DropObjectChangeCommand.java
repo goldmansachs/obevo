@@ -18,6 +18,7 @@ package com.gs.obevo.impl.command;
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.DeployExecution;
 import com.gs.obevo.api.platform.ChangeAuditDao;
+import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.api.platform.CommandExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +31,8 @@ public class DropObjectChangeCommand extends AbstractExecuteChangeCommand {
     }
 
     @Override
-    public void execute(CommandExecutionContext cec) {
-        getArtifact().dropObject();
+    public void execute(ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry, CommandExecutionContext cec) {
+        changeTypeBehaviorRegistry.dropObject(getArtifact());
     }
 
     @Override
@@ -40,7 +41,7 @@ public class DropObjectChangeCommand extends AbstractExecuteChangeCommand {
     }
 
     @Override
-    public void markAuditTable(ChangeAuditDao changeAuditDao, DeployExecution deployExecution) {
-        getArtifact().unmanageObject(changeAuditDao);
+    public void markAuditTable(ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry, ChangeAuditDao changeAuditDao, DeployExecution deployExecution) {
+        changeTypeBehaviorRegistry.unmanageObject(getArtifact(), changeAuditDao);
     }
 }

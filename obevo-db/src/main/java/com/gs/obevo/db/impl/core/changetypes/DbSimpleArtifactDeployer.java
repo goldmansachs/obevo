@@ -22,7 +22,7 @@ import com.gs.obevo.api.platform.DeployerRuntimeException;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.db.api.platform.SqlExecutor;
 import com.gs.obevo.db.impl.core.jdbc.DataAccessException;
-import com.gs.obevo.db.impl.core.util.MultiLineStringSplitter;
+import com.gs.obevo.impl.util.MultiLineStringSplitter;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.collections.api.list.MutableList;
 import org.slf4j.Logger;

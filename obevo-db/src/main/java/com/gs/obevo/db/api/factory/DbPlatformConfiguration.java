@@ -35,11 +35,7 @@ public class DbPlatformConfiguration extends PlatformConfiguration {
     private static final Logger LOG = LoggerFactory.getLogger(DbPlatformConfiguration.class);
     private static final DbPlatformConfiguration INSTANCE = new DbPlatformConfiguration();
 
-    private final Config platformConfigs;
-    private final ImmutableMap<String, String> dbPlatformMap;
     private final ImmutableSet<String> extraEnvAttrs;
-    private final ImmutableMap<String, Integer> featureToggleVersions;
-    private final String sourceEncoding;
 
     public static DbPlatformConfiguration getInstance() {
         return INSTANCE;
@@ -47,11 +43,7 @@ public class DbPlatformConfiguration extends PlatformConfiguration {
 
     private DbPlatformConfiguration() {
         super();
-        this.platformConfigs = this.getConfig().getConfig("db").getConfig("platforms");
-        this.dbPlatformMap = getDbPlatformMap();
         this.extraEnvAttrs = createExtraEnvAttrs();
-        this.featureToggleVersions = createFeatureToggleVersions();
-        this.sourceEncoding = this.getConfig().getString("sourceEncoding");
     }
 
     @Override
@@ -60,51 +52,11 @@ public class DbPlatformConfiguration extends PlatformConfiguration {
     }
 
     public DbPlatform valueOf(String dbPlatformStr) {
-        try {
-            String resolvedDbPlatformClass = dbPlatformMap.get(dbPlatformStr);
-            if (resolvedDbPlatformClass == null) {
-                resolvedDbPlatformClass = dbPlatformStr;
-            }
-            return (DbPlatform) Class.forName(resolvedDbPlatformClass).newInstance();
-        } catch (InstantiationException e) {
-            throw new DeployerRuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new DeployerRuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw new DeployerRuntimeException(e);
-        }
-    }
-
-    public String getSourceEncoding() {
-        return sourceEncoding;
-    }
-
-    /**
-     * Returns the default name-to-platform mappings. We put this in a separate protected method to allow external
-     * distributions to override these values as needed.
-     */
-    protected ImmutableMap<String, String> getDbPlatformMap() {
-        MutableMap<String, String> platformByName = Maps.mutable.empty();
-
-        for (String platformName : platformConfigs.root().keySet()) {
-            String platformClass = getPlatformConfig(platformName).getString("class");
-            platformByName.put(platformName, platformClass);
-            LOG.debug("Registering platform {} at class {}", platformName, platformClass);
-        }
-
-        return platformByName.toImmutable();
-    }
-
-    public Config getPlatformConfig(String platformName) {
-        return platformConfigs.getConfig(platformName);
+        return (DbPlatform) super.valueOf(dbPlatformStr);
     }
 
     public ImmutableSet<String> getExtraEnvAttrs() {
         return extraEnvAttrs;
-    }
-
-    public int getFeatureToggleVersion(String featureToggleName) {
-        return featureToggleVersions.getIfAbsentValue(featureToggleName, 0);
     }
 
     protected ImmutableSet<String> createExtraEnvAttrs() {
@@ -116,19 +68,6 @@ public class DbPlatformConfiguration extends PlatformConfiguration {
             @Override
             public String valueOf(String attrNumber) {
                 return attrConfig.getConfig(attrNumber).getString("name");
-            }
-        }).toImmutable();
-    }
-
-    private ImmutableMap<String, Integer> createFeatureToggleVersions() {
-        if (!this.getConfig().hasPath("featureToggles")) {
-            return Maps.immutable.empty();
-        }
-        final Config attrConfig = this.getConfig().getConfig("featureToggles");
-        return SetAdapter.adapt(attrConfig.root().keySet()).toMap(Functions.<String>getPassThru(), new Function<String, Integer>() {
-            @Override
-            public Integer valueOf(String featureToggleName) {
-                return attrConfig.getConfig(featureToggleName).getInt("defaultVersion");
             }
         }).toImmutable();
     }

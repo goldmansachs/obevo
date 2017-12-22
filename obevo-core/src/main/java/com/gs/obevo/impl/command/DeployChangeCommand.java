@@ -18,6 +18,7 @@ package com.gs.obevo.impl.command;
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.DeployExecution;
 import com.gs.obevo.api.platform.ChangeAuditDao;
+import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.api.platform.CommandExecutionContext;
 
 public class DeployChangeCommand extends AbstractExecuteChangeCommand {
@@ -25,13 +26,17 @@ public class DeployChangeCommand extends AbstractExecuteChangeCommand {
         super(artifact);
     }
 
-    @Override
-    public void execute(CommandExecutionContext cec) {
-        getArtifact().deploy(cec);
+    public DeployChangeCommand(Change artifact, String deployMessage) {
+        super(artifact, deployMessage);
     }
 
     @Override
-    public void markAuditTable(ChangeAuditDao artifactDeployerDao, DeployExecution deployExecution) {
-        getArtifact().manage(artifactDeployerDao, deployExecution);
+    public void execute(ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry, CommandExecutionContext cec) {
+        changeTypeBehaviorRegistry.deploy(getArtifact(), cec);
+    }
+
+    @Override
+    public void markAuditTable(ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry, ChangeAuditDao artifactDeployerDao, DeployExecution deployExecution) {
+        changeTypeBehaviorRegistry.manage(getArtifact(), artifactDeployerDao, deployExecution);
     }
 }

@@ -22,10 +22,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-/**
- * Tests around the PlatformConfigReader. Note - no tests yet around having multiple config files of the same name
- * read, that is a todo.
- */
 public class PlatformConfigReaderTest {
     private final PlatformConfigReader reader = new PlatformConfigReader();
 
@@ -33,11 +29,11 @@ public class PlatformConfigReaderTest {
     public void testValidDefault() {
         Properties properties = reader.readPlatformProperties(Lists.immutable.of("PlatformConfigReader/validDefault"));
 
-        assertEquals(4, properties.size());
         assertEquals("val1", properties.getProperty("prop1"));
         assertEquals("val2", properties.getProperty("prop2"));
         assertEquals("val3", properties.getProperty("key3.prop3"));
         assertEquals("val4", properties.getProperty("key4.prop4"));
+        assertEquals(4, properties.size());
     }
 
     @Test
@@ -51,8 +47,24 @@ public class PlatformConfigReaderTest {
         assertEquals("val4", properties.getProperty("key4.prop4"));
     }
 
+    @Test
+    public void testSameFileWarning() {
+        Properties properties = reader.readPlatformProperties(Lists.immutable.of("PlatformConfigReader/sameFileWarning"));
+
+        assertEquals(4, properties.size());
+        assertEquals("val1", properties.getProperty("prop1"));
+        assertEquals("val2diff", properties.getProperty("prop2"));
+        assertEquals("val3diff", properties.getProperty("key3.prop3"));
+        assertEquals("val4", properties.getProperty("key4.prop4"));
+    }
+
     @Test(expected = IllegalStateException.class)
     public void testBadMissingDefault() {
         reader.readPlatformProperties(Lists.immutable.of("PlatformConfigReader/badMissingDefault"));
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testBadSameFileNameWithSamePriority() {
+        reader.readPlatformProperties(Lists.immutable.of("PlatformConfigReader/badSameFileSamePriority"));
     }
 }

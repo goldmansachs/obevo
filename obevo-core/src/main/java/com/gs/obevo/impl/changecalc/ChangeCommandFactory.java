@@ -40,8 +40,12 @@ public final class ChangeCommandFactory {
         return new DeployChangeCommand(source);
     }
 
-    public ExecuteChangeCommand createRollback(ChangeIncremental incrementalDeployed) {
-        return new UndeployChangeCommand(incrementalDeployed);
+    public ExecuteChangeCommand createDeployCommand(Change source, String deployMessage) {
+        return new DeployChangeCommand(source, deployMessage);
+    }
+
+    public ExecuteChangeCommand createRollback(ChangeIncremental incrementalDeployed, String undeployMessage) {
+        return new UndeployChangeCommand(incrementalDeployed, undeployMessage);
     }
 
     public ChangeCommandWarning createUnrolledbackWarning(ChangeIncremental incrementalDeployed) {

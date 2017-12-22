@@ -16,16 +16,26 @@
 package com.gs.obevo.api.platform;
 
 import java.io.File;
+import java.util.Collection;
 
+import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.util.inputreader.Credential;
 
 public interface DeployerAppContext<E extends Environment, Self extends DeployerAppContext<E, Self>> {
+    E getEnvironment();
+
     Self setEnvironment(E env);
 
     Self setCredential(Credential credential);
 
+    File getWorkDir();
+
     Self setWorkDir(File workDir);
+
+    Self buildDbContext();
+
+    Self buildFileContext();
 
     Self build();
 
@@ -33,5 +43,11 @@ public interface DeployerAppContext<E extends Environment, Self extends Deployer
 
     Self deploy(MainDeployerArgs deployerArgs);
 
+    Self deploy(Collection<Change> changes);
+
+    Self deploy(Collection<Change> changes, MainDeployerArgs deployerArgs);
+
     DeployMetrics getDeployMetrics();
+
+    Self setFileSourceContext(FileSourceContext source);
 }

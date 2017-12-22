@@ -20,32 +20,17 @@ import java.util.regex.Pattern;
 
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.ChangeIncremental;
-import com.gs.obevo.api.appdata.DeployExecution;
-import com.gs.obevo.api.platform.ChangeAuditDao;
-import com.gs.obevo.api.platform.ChangeTypeCommandCalculator;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.platform.DbChangeType;
 import com.gs.obevo.db.api.platform.SqlExecutor;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
-import com.gs.obevo.impl.DeployMetricsCollector;
-import com.gs.obevo.impl.changetypes.IncrementalChangeTypeCommandCalculator;
 import org.eclipse.collections.api.block.procedure.Procedure;
 
 public class IncrementalDbChangeTypeBehavior extends AbstractDbChangeTypeBehavior {
     private static final Pattern CREATE_TABLE_MATCHER = Pattern.compile("(?i).*create\\s+table.*", Pattern.DOTALL);
 
-    private final DeployMetricsCollector deployMetricsCollector;
-    private final int numThreads;
-
-    public IncrementalDbChangeTypeBehavior(DbEnvironment env, DbChangeType changeType, SqlExecutor sqlExecutor, DbSimpleArtifactDeployer baseArtifactDeployer, GrantChangeParser grantChangeParser, DeployMetricsCollector deployMetricsCollector, int numThreads) {
+    public IncrementalDbChangeTypeBehavior(DbEnvironment env, DbChangeType changeType, SqlExecutor sqlExecutor, DbSimpleArtifactDeployer baseArtifactDeployer, GrantChangeParser grantChangeParser) {
         super(env, changeType, sqlExecutor, baseArtifactDeployer, grantChangeParser);
-        this.deployMetricsCollector = deployMetricsCollector;
-        this.numThreads = numThreads;
-    }
-
-    @Override
-    public ChangeTypeCommandCalculator getChangeTypeCalculator() {
-        return new IncrementalChangeTypeCommandCalculator(deployMetricsCollector, numThreads);
     }
 
     @Override
@@ -60,17 +45,12 @@ public class IncrementalDbChangeTypeBehavior extends AbstractDbChangeTypeBehavio
             throw new IllegalStateException("Change is intended for rollback, but was not marked as such already; indicates a code issue: " + change);
         }
 
-        getSqlExecutor().executeWithinContext(change.getPhysicalSchema(), new Procedure<Connection>() {
+        getSqlExecutor().executeWithinContext(change.getPhysicalSchema(env), new Procedure<Connection>() {
             @Override
             public void value(Connection conn) {
                 getBaseArtifactDeployer().deployArtifact(conn, change);
             }
         });
-    }
-
-    @Override
-    public void manage(Change change, ChangeAuditDao changeAuditDao, DeployExecution deployExecution) {
-        changeAuditDao.insertNewChange(change, deployExecution);
     }
 
     /**

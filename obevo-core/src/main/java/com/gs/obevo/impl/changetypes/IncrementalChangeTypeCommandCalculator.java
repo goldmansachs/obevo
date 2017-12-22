@@ -22,7 +22,6 @@ import com.gs.obevo.api.platform.ChangeCommand;
 import com.gs.obevo.api.platform.ChangePair;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.ChangeTypeCommandCalculator;
-import com.gs.obevo.impl.DeployMetricsCollector;
 import com.gs.obevo.impl.changecalc.ChangeCommandFactory;
 import com.gs.obevo.impl.command.AlreadyDroppedTableWarning;
 import com.gs.obevo.impl.command.BaselineChangeCommand;
@@ -65,11 +64,9 @@ public class IncrementalChangeTypeCommandCalculator implements ChangeTypeCommand
     private static final Logger LOG = LoggerFactory.getLogger(IncrementalChangeTypeCommandCalculator.class);
 
     private final ChangeCommandFactory changeCommandFactory = new ChangeCommandFactory();
-    private final DeployMetricsCollector deployMetricsCollector;
     private final int numThreads;
 
-    public IncrementalChangeTypeCommandCalculator(DeployMetricsCollector deployMetricsCollector, int numThreads) {
-        this.deployMetricsCollector = deployMetricsCollector;
+    public IncrementalChangeTypeCommandCalculator(int numThreads) {
         this.numThreads = numThreads;
     }
 
@@ -114,12 +111,11 @@ public class IncrementalChangeTypeCommandCalculator implements ChangeTypeCommand
                             // do a drop-with-sql here? or, automatically populate the drop command as the
                             // rollback?
                             incrementalDeployed.setRollbackActivated(true);
-                            incrementalDeployed.setReason("Running Rollback");
-                            changeset.add(changeCommandFactory.createRollback(incrementalDeployed));
+                            changeset.add(changeCommandFactory.createRollback(incrementalDeployed, "Running Rollback"));
                         } else {
                             changeset.add(changeCommandFactory.createUnrolledbackWarning(incrementalDeployed));
                         }
-                    } else if (deployed.getChangeType().getName() == ChangeType.MIGRATION_STR) {
+                    } else if (deployed.getChangeType().getName().equalsIgnoreCase(ChangeType.MIGRATION_STR)) {
                         // unmanage the change. Note that this clause should come after the rollback, as we will let the rollback logic happen if possible
                         incrementalDeployed.setRollbackIfAlreadyDeployedContent(
                                 "migration-only. sql should not actually be invoked");
@@ -182,10 +178,7 @@ public class IncrementalChangeTypeCommandCalculator implements ChangeTypeCommand
 
                     if (incrementalSource.getRollbackIfAlreadyDeployedContent() != null
                             && incrementalSource.isActive()) {
-                        changeset.add(changeCommandFactory.createRollback(incrementalSource));
-                    } else {
-                        deployMetricsCollector.addMetric("normalCodePathVerification", true);  // TODO remove this once we see stats on this in prod and can confirm that it is normal
-                        LOG.trace("This is likely the normal code-paths (i.e no diffs between source and target): {}", incrementalSource);
+                        changeset.add(changeCommandFactory.createRollback(incrementalSource, "Rolling back due to ROLLBACK-IF-ALREADY-DEPLOYED flag."));
                     }
                 } else {
                     if (initAllowedOnHashExceptions) {

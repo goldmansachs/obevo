@@ -33,8 +33,11 @@ package com.gs.obevo.api.platform;
  */
 
 
+import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.DeployExecution;
 import org.eclipse.collections.api.map.ImmutableMap;
 import org.eclipse.collections.api.map.MutableMap;
+import org.eclipse.collections.impl.factory.Maps;
 
 /**
  * Registry for the changeTypeBehavior instances for the given environment.
@@ -42,12 +45,92 @@ import org.eclipse.collections.api.map.MutableMap;
 public class ChangeTypeBehaviorRegistry {
 
     private final ImmutableMap<String, ChangeTypeBehavior> changeTypeBehaviors;
+    private final ImmutableMap<String, ChangeTypeSemantic> changeTypeSemantics;
 
-    public ChangeTypeBehaviorRegistry(MutableMap<String, ChangeTypeBehavior> changeTypeBehaviors) {
-        this.changeTypeBehaviors = changeTypeBehaviors.toImmutable();
+    public static ChangeTypeBehaviorRegistryBuilder newBuilder() {
+        return new ChangeTypeBehaviorRegistryBuilder();
+    }
+
+    private ChangeTypeBehaviorRegistry(ImmutableMap<String, ChangeTypeBehavior> changeTypeBehaviors, ImmutableMap<String, ChangeTypeSemantic> changeTypeSemantics) {
+        this.changeTypeBehaviors = changeTypeBehaviors;
+        this.changeTypeSemantics = changeTypeSemantics;
+    }
+
+    public ChangeTypeSemantic getChangeTypeSemantic(String changeTypeName) {
+        return changeTypeSemantics.get(changeTypeName);
     }
 
     public ChangeTypeBehavior getChangeTypeBehavior(String changeTypeName) {
         return changeTypeBehaviors.get(changeTypeName);
+    }
+
+    private ChangeTypeSemantic getChangeTypeSemantic(Change change) {
+        return changeTypeSemantics.get(change.getChangeType().getName());
+    }
+
+    private ChangeTypeBehavior getChangeTypeBehavior(Change change) {
+        return changeTypeBehaviors.get(change.getChangeType().getName());
+    }
+
+    public void deploy(Change change, CommandExecutionContext cec) {
+        getChangeTypeBehavior(change).deploy(change, cec);
+    }
+
+    public void undeploy(Change change) {
+        getChangeTypeBehavior(change).undeploy(change);
+    }
+
+    public void dropObject(Change change) {
+        getChangeTypeBehavior(change).dropObject(change, false);
+    }
+
+    public void manage(Change change, ChangeAuditDao changeAuditDao, DeployExecution deployExecution) {
+        getChangeTypeSemantic(change).manage(change, changeAuditDao, deployExecution);
+    }
+
+    public void unmanage(Change change, ChangeAuditDao changeAuditDao) {
+        getChangeTypeSemantic(change).unmanage(change, changeAuditDao);
+    }
+
+    public void unmanageObject(Change change, ChangeAuditDao changeAuditDao) {
+        getChangeTypeSemantic(change).unmanageObject(change, changeAuditDao);
+    }
+
+    public ChangeTypeBehaviorRegistryBuilder toBuilder() {
+        return new ChangeTypeBehaviorRegistryBuilder(changeTypeBehaviors.toMap(), changeTypeSemantics.toMap());
+    }
+
+    public static class ChangeTypeBehaviorRegistryBuilder {
+        private final MutableMap<String, ChangeTypeBehavior> changeTypeBehaviors;
+        private final MutableMap<String, ChangeTypeSemantic> changeTypeSemantics;
+
+        private ChangeTypeBehaviorRegistryBuilder() {
+            this(Maps.mutable.<String, ChangeTypeBehavior>empty(), Maps.mutable.<String, ChangeTypeSemantic>empty());
+        }
+
+        private ChangeTypeBehaviorRegistryBuilder(MutableMap<String, ChangeTypeBehavior> changeTypeBehaviors, MutableMap<String, ChangeTypeSemantic> changeTypeSemantics) {
+            this.changeTypeBehaviors = changeTypeBehaviors;
+            this.changeTypeSemantics = changeTypeSemantics;
+        }
+
+        public ChangeTypeBehaviorRegistryBuilder put(String changeTypeName, ChangeTypeSemantic semantic, ChangeTypeBehavior behavior) {
+            putBehavior(changeTypeName, behavior);
+            putSemantic(changeTypeName, semantic);
+            return this;
+        }
+
+        public ChangeTypeBehaviorRegistryBuilder putSemantic(String changeTypeName, ChangeTypeSemantic semantic) {
+            changeTypeSemantics.put(changeTypeName, semantic);
+            return this;
+        }
+
+        public ChangeTypeBehaviorRegistryBuilder putBehavior(String changeTypeName, ChangeTypeBehavior behavior) {
+            changeTypeBehaviors.put(changeTypeName, behavior);
+            return this;
+        }
+
+        public ChangeTypeBehaviorRegistry build() {
+            return new ChangeTypeBehaviorRegistry(changeTypeBehaviors.toImmutable(), changeTypeSemantics.toImmutable());
+        }
     }
 }

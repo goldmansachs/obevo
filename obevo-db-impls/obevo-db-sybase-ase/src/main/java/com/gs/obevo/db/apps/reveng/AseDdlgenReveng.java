@@ -19,8 +19,8 @@ import java.io.File;
 import java.io.PrintStream;
 
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.db.impl.core.reader.TextMarkupDocumentReader;
-import com.gs.obevo.db.impl.core.util.MultiLineStringSplitter;
+import com.gs.obevo.impl.reader.TextMarkupDocumentReader;
+import com.gs.obevo.impl.util.MultiLineStringSplitter;
 import com.gs.obevo.db.impl.platforms.sybasease.AseDbPlatform;
 import org.apache.commons.lang3.ObjectUtils;
 import org.eclipse.collections.api.block.predicate.Predicate;

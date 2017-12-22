@@ -36,6 +36,7 @@ import com.gs.obevo.api.platform.DeployerRuntimeException;
 import com.gs.obevo.api.platform.MainDeployerArgs;
 import com.gs.obevo.api.platform.Platform;
 import com.gs.obevo.api.platform.ToolVersion;
+import com.gs.obevo.impl.text.TextDependencyExtractor;
 import com.gs.obevo.util.inputreader.ConsoleInputReader;
 import com.gs.obevo.util.inputreader.Credential;
 import com.gs.obevo.util.inputreader.UserInputReader;
@@ -71,7 +72,8 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
     private final Credential credential;
     private final MainInputReader mainInputReader;
     private final ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry;
-
+    private final DeployerPlugin deployerPlugin;
+    private final TextDependencyExtractor textDependencyExtractor;
 
     public MainDeployer(ChangeAuditDao artifactDeployerDao,
             MainInputReader mainInputReader,
@@ -80,7 +82,9 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
             PostDeployAction postDeployAction,
             DeployMetricsCollector deployMetricsCollector,
             DeployExecutionDao deployExecutionDao,
-            Credential credential
+            Credential credential,
+            TextDependencyExtractor textDependencyExtractor,
+            DeployerPlugin deployerPlugin
     ) {
         this.artifactDeployerDao = artifactDeployerDao;
         this.mainInputReader = mainInputReader;
@@ -90,27 +94,17 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
         this.deployMetricsCollector = deployMetricsCollector;
         this.deployExecutionDao = deployExecutionDao;
         this.credential = credential;
+        this.textDependencyExtractor = textDependencyExtractor;
+        this.deployerPlugin = deployerPlugin;
     }
 
-    protected ChangeAuditDao getArtifactDeployerDao() {
-        return artifactDeployerDao;
-    }
-
-    protected DeployMetricsCollector getDeployMetricsCollector() {
-        return deployMetricsCollector;
-    }
-
-    protected DeployExecutionDao getDeployExecutionDao() {
-        return deployExecutionDao;
-    }
-
-    public void execute(final E env, final MainDeployerArgs deployerArgs) {
+    public void execute(final E env, SourceReaderStrategy sourceReaderStrategy, final MainDeployerArgs deployerArgs) {
         StopWatch changeStopWatch = new StopWatch();
         changeStopWatch.start();
 
         boolean mainDeploymentSuccess = false;
         try {
-            executeInternal(env, deployerArgs);
+            executeInternal(env, sourceReaderStrategy, deployerArgs);
             mainDeploymentSuccess = true;
         } finally {
             changeStopWatch.stop();
@@ -120,8 +114,12 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
         }
     }
 
-    private void executeInternal(final E env, final MainDeployerArgs deployerArgs) {
+    private void executeInternal(final E env, SourceReaderStrategy sourceReaderStrategy, final MainDeployerArgs deployerArgs) {
         LOG.info("Running {} version {}", ToolVersion.getToolName(), ToolVersion.getToolVersion());
+
+        if (env.getSchemas().isEmpty()) {
+            throw new IllegalArgumentException("Environment needs schemas populated");
+        }
 
         if (deployerArgs.getProductVersion() != null) {
             RollbackDetector rollbackDetector = new DefaultRollbackDetector();
@@ -139,11 +137,20 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
             }
         }
 
-        ImmutableList<Change> sourceChanges = mainInputReader.readInternal(env, deployerArgs);
-        for (Change change : sourceChanges) {
-            change.setChangeTypeBehavior(changeTypeBehaviorRegistry.getChangeTypeBehavior(change.getChangeType().getName()));
-
+        deployerPlugin.validateSetup();
+        if (deployerArgs.isRollback()) {
+            LOG.info("*** EXECUTING IN ROLLBACK MODE ***");
         }
+
+        logArgumentMetrics(deployerArgs);
+        logEnvironment(env);
+        logEnvironmentMetrics(env);
+        deployerPlugin.logEnvironmentMetrics(env);
+
+        ImmutableList<Change> sourceChanges = mainInputReader.readInternal(sourceReaderStrategy, deployerArgs);
+
+        // TODO ensure that we've handled the split between static data and others properly
+        this.textDependencyExtractor.calculateDependencies(sourceChanges);
 
         OnboardingStrategy onboardingStrategy = getOnboardingStrategy(deployerArgs);
         onboardingStrategy.validateSourceDirs(env.getSourceDirs(), env.getSchemaNames());
@@ -156,10 +163,11 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
         Changeset artifactsToProcess = changesetCreator.determineChangeset(deployedChanges, sourceChanges, deployerArgs.isRollback(), deployStrategy.isInitAllowedOnHashExceptions(), deployerArgs.getChangesetPredicate());
 
         validatePriorToDeployment(env, deployStrategy, sourceChanges, deployedChanges, artifactsToProcess);
+        deployerPlugin.validatePriorToDeployment(env, deployStrategy, sourceChanges, deployedChanges, artifactsToProcess);
 
         if (this.shouldProceedWithDbChange(artifactsToProcess, deployerArgs)) {
             for (PhysicalSchema schema : env.getPhysicalSchemas()) {
-                initializeSchema(env, schema);
+                deployerPlugin.initializeSchema(env, schema);
             }
 
             // Note - only init the audit table if we actually proceed w/ a deploy
@@ -221,7 +229,7 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
             } finally {
                 LOG.info("Executing the post-deploy step");
                 try {
-                    doPostDeployAction(env, sourceChanges);
+                    deployerPlugin.doPostDeployAction(env, sourceChanges);
                     this.postDeployAction.value(env);
                 } catch (RuntimeException exc) {
                     if (mainDeploymentSuccess) {
@@ -244,12 +252,33 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
         }
     }
 
-    protected void doPostDeployAction(E env, ImmutableList<Change> sourceChanges) {
-
+    private void logArgumentMetrics(MainDeployerArgs deployerArgs) {
+        deployMetricsCollector.addMetric("args.onboardingMode", deployerArgs.isOnboardingMode());
+        deployMetricsCollector.addMetric("args.init", deployerArgs.isPerformInitOnly());
+        deployMetricsCollector.addMetric("args.rollback", deployerArgs.isRollback());
+        deployMetricsCollector.addMetric("args.preview", deployerArgs.isPreview());
+        deployMetricsCollector.addMetric("args.useBaseline", deployerArgs.isUseBaseline());
     }
 
-    protected void validatePriorToDeployment(E env, DeployStrategy deployStrategy, ImmutableList<Change> sourceChanges, ImmutableCollection<Change> deployedChanges, Changeset artifactsToProcess) {
+    private void logEnvironment(E env) {
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Environment information:");
+            LOG.info("Logical schemas [{}]: {}", env.getSchemaNames().size(), env.getSchemaNames().makeString(","));
+            LOG.info("Physical schemas [{}]: {}", env.getPhysicalSchemas().size(), env.getPhysicalSchemas().collect(PhysicalSchema.TO_PHYSICAL_NAME).makeString(","));
+        }
+    }
+
+    private void logEnvironmentMetrics(E env) {
+        deployMetricsCollector.addMetric("platform", env.getPlatform().getName());
+        deployMetricsCollector.addMetric("schemaCount", env.getSchemaNames().size());
+        deployMetricsCollector.addMetric("schemas", env.getSchemaNames().makeString(","));
+        deployMetricsCollector.addMetric("physicalSchemaCount", env.getPhysicalSchemas().size());
+        deployMetricsCollector.addMetric("physicalSchemas", env.getPhysicalSchemas().collect(PhysicalSchema.TO_PHYSICAL_NAME).makeString(","));
+    }
+
+    private void validatePriorToDeployment(E env, DeployStrategy deployStrategy, ImmutableList<Change> sourceChanges, ImmutableCollection<Change> deployedChanges, Changeset artifactsToProcess) {
         printArtifactsToProcessForUser(artifactsToProcess, deployStrategy, env, deployedChanges, sourceChanges);
+        deployerPlugin.printArtifactsToProcessForUser2(artifactsToProcess, deployStrategy, env, deployedChanges, sourceChanges);
 
         logChangeset(artifactsToProcess);
         artifactsToProcess.validateForDeployment();
@@ -306,7 +335,7 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
         MutableSet<String> failedDbObjectNames = UnifiedSet.newSet();  // TODO we should merge the failedDbObjects* variables; depends on fixing the EnabledOnboardingStrategy for detecting prior exceptions
 
         for (AuditChangeCommand auditChangeCommand : artifactsToProcess.getAuditChanges()) {
-            auditChangeCommand.markAuditTable(this.artifactDeployerDao, executionsBySchema.get(auditChangeCommand.getSchema()));
+            auditChangeCommand.markAuditTable(changeTypeBehaviorRegistry, this.artifactDeployerDao, executionsBySchema.get(auditChangeCommand.getSchema()));
         }
 
         for (ExecuteChangeCommand changeCommand : artifactsToProcess.getInserts()) {
@@ -329,8 +358,8 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
             changeStopWatch.start();
 
             try {
-                deployStrategy.deploy(changeCommand, cec);
-                changeCommand.markAuditTable(this.artifactDeployerDao, executionsBySchema.get(changeCommand.getSchema()));
+                deployStrategy.deploy(changeTypeBehaviorRegistry, changeCommand, cec);
+                changeCommand.markAuditTable(changeTypeBehaviorRegistry, this.artifactDeployerDao, executionsBySchema.get(changeCommand.getSchema()));
 
                 changeStopWatch.stop();
                 long runtimeSeconds = TimeUnit.MILLISECONDS.toSeconds(changeStopWatch.getTime());
@@ -421,9 +450,6 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
         LOG.info("Did not pass command line validation input. Will not proceed w/ actual deployment");
         return false;
     }
-
-    protected void initializeSchema(Environment env, PhysicalSchema schema) {}
-
 
     protected void printArtifactsToProcessForUser(Changeset artifactsToProcess, DeployStrategy deployStrategy, E env, ImmutableCollection<Change> deployedChanges, ImmutableCollection<Change> sourceChanges) {
         printCommands(artifactsToProcess.getInserts(), "DB Changes are to be " + deployStrategy.getDeployVerbMessage());

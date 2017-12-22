@@ -19,6 +19,7 @@ import com.gs.obevo.api.appdata.DeployExecution;
 import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeCommand;
+import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry;
 
 /**
  * A command that will only update the audit table in the {@link Environment}, but not actually modify anything else
@@ -32,8 +33,9 @@ public interface AuditChangeCommand extends ChangeCommand {
 
     /**
      * Modifies the audit table (i.e. either manage or unmanage the changes).
+     * @param changeTypeBehaviorRegistry
      * @param artifactDeployerDao
      * @param deployExecution
      */
-    void markAuditTable(ChangeAuditDao artifactDeployerDao, DeployExecution deployExecution);
+    void markAuditTable(ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry, ChangeAuditDao artifactDeployerDao, DeployExecution deployExecution);
 }

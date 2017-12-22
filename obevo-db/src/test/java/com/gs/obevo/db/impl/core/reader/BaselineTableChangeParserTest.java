@@ -17,8 +17,6 @@ package com.gs.obevo.db.impl.core.reader;
 
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.util.hash.OldWhitespaceAgnosticDbChangeHashStrategy;
-import com.gs.obevo.util.vfs.FileRetrievalMode;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.junit.Test;
 
@@ -33,7 +31,7 @@ public class BaselineTableChangeParserTest {
         ChangeType tableChangeType = mock(ChangeType.class);
         ChangeType fkChangeType = mock(ChangeType.class);
         ChangeType triggerChangeType = mock(ChangeType.class);
-        BaselineTableChangeParser parser = new BaselineTableChangeParser(new OldWhitespaceAgnosticDbChangeHashStrategy(), fkChangeType, triggerChangeType);
+        BaselineTableChangeParser parser = new BaselineTableChangeParser(fkChangeType, triggerChangeType);
 
         ImmutableList<Change> changes = parser.value(
                 tableChangeType, null, "CREATE TABLE TABLE_A (\n" +

@@ -15,17 +15,17 @@
  */
 package com.gs.obevo.db.impl.core;
 
-import java.io.File;
-
 import javax.sql.DataSource;
 
 import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.doc.TextMarkupDocumentSection;
 import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.api.platform.ChangeTypeBehavior;
 import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry;
+import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry.ChangeTypeBehaviorRegistryBuilder;
 import com.gs.obevo.api.platform.DeployExecutionDao;
-import com.gs.obevo.api.platform.DeployMetrics;
+import com.gs.obevo.api.platform.FileSourceContext;
+import com.gs.obevo.api.platform.FileSourceParams;
 import com.gs.obevo.api.platform.MainDeployerArgs;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.platform.DbChangeType;
@@ -49,48 +49,27 @@ import com.gs.obevo.db.impl.core.envinfrasetup.EnvironmentInfraSetup;
 import com.gs.obevo.db.impl.core.envinfrasetup.NoOpEnvironmentInfraSetup;
 import com.gs.obevo.db.impl.core.jdbc.DataSourceFactory;
 import com.gs.obevo.db.impl.core.jdbc.SingleConnectionDataSource;
-import com.gs.obevo.db.impl.core.reader.CachedDbChangeReader;
-import com.gs.obevo.db.impl.core.reader.DbChangeReader;
-import com.gs.obevo.db.impl.core.reader.DbDirectoryChangesetReader;
-import com.gs.obevo.db.impl.core.reader.PrepareDbChange;
+import com.gs.obevo.db.impl.core.reader.BaselineTableChangeParser;
+import com.gs.obevo.impl.PrepareDbChange;
 import com.gs.obevo.db.impl.core.reader.PrepareDbChangeForDb;
-import com.gs.obevo.db.impl.core.reader.SourceChangeReaderImpl;
-import com.gs.obevo.db.impl.core.reader.TextMarkupDocumentReader;
+import com.gs.obevo.impl.reader.TableChangeParser.GetChangeType;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
-import com.gs.obevo.impl.ChangesetCreator;
-import com.gs.obevo.impl.DeployMetricsCollector;
-import com.gs.obevo.impl.DeployMetricsCollectorImpl;
-import com.gs.obevo.impl.MainDeployer;
-import com.gs.obevo.impl.NoOpPostDeployAction;
-import com.gs.obevo.impl.PostDeployAction;
-import com.gs.obevo.impl.SourceChangeReader;
-import com.gs.obevo.impl.changecalc.ChangesetCreatorImpl;
+import com.gs.obevo.impl.DeployerPlugin;
 import com.gs.obevo.impl.changepredicate.ChangeKeyPredicateBuilder;
-import com.gs.obevo.impl.changesorter.ChangeCommandSorter;
-import com.gs.obevo.impl.changesorter.ChangeCommandSorterImpl;
-import com.gs.obevo.impl.graph.GraphEnricher;
-import com.gs.obevo.impl.graph.GraphEnricherImpl;
-import com.gs.obevo.impl.text.TextDependencyExtractor;
-import com.gs.obevo.impl.text.TextDependencyExtractorImpl;
+import com.gs.obevo.impl.context.AbstractDeployerAppContext;
 import com.gs.obevo.util.CollectionUtil;
 import com.gs.obevo.util.inputreader.Credential;
 import org.apache.commons.lang3.Validate;
 import org.eclipse.collections.api.block.function.Function0;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
-import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.partition.list.PartitionImmutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.Lists;
-import org.eclipse.collections.impl.factory.Maps;
 
-public abstract class DbDeployerAppContextImpl implements DbDeployerAppContext {
-    protected Credential credential;
-    private File workDir;
-    protected DbEnvironment env;
+public abstract class DbDeployerAppContextImpl extends AbstractDeployerAppContext<DbEnvironment, DbDeployerAppContext> implements DbDeployerAppContext {
     private boolean strictSetupEnvInfra = DbDeployerAppContext.STRICT_SETUP_ENV_INFRA_DEFAULT;
-    protected ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry;
 
     /**
      * Renamed.
@@ -117,48 +96,6 @@ public abstract class DbDeployerAppContextImpl implements DbDeployerAppContext {
     }
 
     @Override
-    public DbEnvironment getEnvironment() {
-        return this.env;
-    }
-
-    @Override
-    public DbDeployerAppContextImpl setEnvironment(DbEnvironment env) {
-        this.env = env;
-        return this;
-    }
-
-    public Credential getCredential() {
-        return this.credential;
-    }
-
-    @Override
-    public DbDeployerAppContextImpl setCredential(Credential credential) {
-        this.credential = credential;
-        return this;
-    }
-
-    @Override
-    public File getWorkDir() {
-        return this.workDir;
-    }
-
-    @Override
-    public DbDeployerAppContextImpl setWorkDir(File workDir) {
-        this.workDir = workDir;
-        return this;
-    }
-
-    @Override
-    public final DbDeployerAppContextImpl build() {
-        buildDbContext();
-        buildFileContext();
-
-        // then everything else, which is already setup by default
-
-        return this;
-    }
-
-    @Override
     public DbDeployerAppContext buildDbContext() {
         Validate.notNull(env.getPlatform(), "dbType must be populated");
 
@@ -170,9 +107,7 @@ public abstract class DbDeployerAppContextImpl implements DbDeployerAppContext {
             }
         }
 
-        this.changeTypeBehaviorRegistry = new ChangeTypeBehaviorRegistry(getChangeTypeBehaviors());
-
-        validateChangeTypes(platform().getChangeTypes(), changeTypeBehaviorRegistry);
+        validateChangeTypes(platform().getChangeTypes(), getChangeTypeBehaviorRegistry());
 
         getEnvironmentCleaner();
         getManagedDataSource();
@@ -203,14 +138,14 @@ public abstract class DbDeployerAppContextImpl implements DbDeployerAppContext {
         return new DbSimpleArtifactDeployer(platform(), getSqlExecutor());
     }
 
-    protected MutableMap<String, ChangeTypeBehavior> getChangeTypeBehaviors() {
-        MutableMap<String, ChangeTypeBehavior> behaviors = Maps.mutable.<String, ChangeTypeBehavior>empty();
+    protected ChangeTypeBehaviorRegistryBuilder getChangeTypeBehaviors() {
+        ChangeTypeBehaviorRegistryBuilder builder = ChangeTypeBehaviorRegistry.newBuilder();
 
         PartitionImmutableList<ChangeType> staticDataPartition = platform().getChangeTypes().partition(Predicates.attributeEqual(ChangeType.TO_NAME, ChangeType.STATICDATA_STR));
 
         for (ChangeType staticDataType : staticDataPartition.getSelected()) {
-            StaticDataChangeTypeBehavior behavior = new StaticDataChangeTypeBehavior(getSqlExecutor(), simpleArtifactDeployer(), getCsvStaticDataLoader(), graphEnricher());
-            behaviors.put(staticDataType.getName(), behavior);
+            StaticDataChangeTypeBehavior behavior = new StaticDataChangeTypeBehavior(env, getSqlExecutor(), simpleArtifactDeployer(), getCsvStaticDataLoader());
+            builder.put(staticDataType.getName(), groupSemantic(), behavior);
         }
 
         PartitionImmutableList<ChangeType> rerunnablePartition = staticDataPartition.getRejected().partition(ChangeType.IS_RERUNNABLE);
@@ -221,16 +156,16 @@ public abstract class DbDeployerAppContextImpl implements DbDeployerAppContext {
             }
             RerunnableDbChangeTypeBehavior behavior = new RerunnableDbChangeTypeBehavior(
                     env, (DbChangeType) rerunnableChange, getSqlExecutor(), simpleArtifactDeployer(), grantChangeParser(), graphEnricher(), platform(), getDbMetadataManager());
-            behaviors.put(rerunnableChange.getName(), behavior);
+            builder.put(rerunnableChange.getName(), rerunnableSemantic(), behavior);
         }
         for (ChangeType incrementalChange : rerunnablePartition.getRejected()) {
             IncrementalDbChangeTypeBehavior behavior =  new IncrementalDbChangeTypeBehavior(
-                    env, (DbChangeType) incrementalChange, getSqlExecutor(), simpleArtifactDeployer(), grantChangeParser(), deployStatsTracker(), getNumThreads()
+                    env, (DbChangeType) incrementalChange, getSqlExecutor(), simpleArtifactDeployer(), grantChangeParser()
             );
-            behaviors.put(incrementalChange.getName(), behavior);
+            builder.put(incrementalChange.getName(), incrementalSemantic(), behavior);
         }
 
-        return behaviors;
+        return builder;
     }
 
     protected GrantChangeParser grantChangeParser() {
@@ -243,7 +178,7 @@ public abstract class DbDeployerAppContextImpl implements DbDeployerAppContext {
         Validate.notNull(env.getName(), "name must be populated");
         Validate.notNull(env.getSchemas(), "schemas must be populated");
 
-        getDbChangeReader();
+        getInputReader();
         getChangesetCreator();
 
         return this;
@@ -261,57 +196,57 @@ public abstract class DbDeployerAppContextImpl implements DbDeployerAppContext {
 
     @Override
     public ImmutableList<Change> readChangesFromSource(boolean useBaseline) {
-        return getDbChangeReader().readChanges(useBaseline);
+        return getInputReader().readInternal(getSourceReaderStrategy(FileSourceParams.newBuilder().build()), new MainDeployerArgs().useBaseline(useBaseline));
     }
 
-    public DbChangeReader getDbChangeReader() {
-        return this.singleton("getDbChangeReader", new Function0<DbChangeReader>() {
-            @Override
-            public DbChangeReader value() {
-                DbDirectoryChangesetReader underlyingChangesetReader = new DbDirectoryChangesetReader(getEnvironment().getPlatform().convertDbObjectName(), getEnvironment(), deployStatsTracker(), true, textMarkupDocumentReader());
-                return new CachedDbChangeReader(underlyingChangesetReader);
+    @Override
+    public void readSource(MainDeployerArgs deployerArgs) {
+        getInputReader().readInternal(getSourceReaderStrategy(FileSourceParams.newBuilder().build()), new MainDeployerArgs().useBaseline(false));
+    }
+
+    @Override
+    protected FileSourceContext getDefaultFileSourceContext() {
+        final ChangeType fkChangeType = env.getPlatform().getChangeType(ChangeType.FOREIGN_KEY_STR);
+        final ChangeType triggerChangeType = env.getPlatform().getChangeType(ChangeType.TRIGGER_INCREMENTAL_OLD_STR);
+        DbGetChangeType getChangeType = new DbGetChangeType(fkChangeType, triggerChangeType);
+        BaselineTableChangeParser baselineTableChangeParser = new BaselineTableChangeParser(fkChangeType, triggerChangeType);
+
+        return new ReaderContext(env, deployStatsTracker(), getChangeType, baselineTableChangeParser).getDefaultFileSourceContext();
+    }
+
+    public static class DbGetChangeType implements GetChangeType {
+        private final ChangeType fkChangeType;
+        private final ChangeType triggerChangeType;
+
+        public DbGetChangeType(ChangeType fkChangeType, ChangeType triggerChangeType) {
+            this.fkChangeType = fkChangeType;
+            this.triggerChangeType = triggerChangeType;
+        }
+
+        private static final String TOGGLE_FK = "FK";
+        private static final String TOGGLE_TRIGGER = "TRIGGER";
+
+        @Override
+        public ChangeType getChangeType(TextMarkupDocumentSection section, ChangeType tableChangeType) {
+            if (section.isTogglePresent(TOGGLE_FK)) {
+                return fkChangeType;
+            } else {
+                if (section.isTogglePresent(TOGGLE_TRIGGER)) {
+                    return triggerChangeType;
+                } else {
+                    return tableChangeType;
+                }
             }
-        });
+        }
     }
 
-    private TextMarkupDocumentReader textMarkupDocumentReader() {
-        return this.singleton("textMarkupDocumentReader", new Function0<TextMarkupDocumentReader>() {
-            @Override
-            public TextMarkupDocumentReader value() {
-                int metadataLineReaderVersion = env.getMetadataLineReaderVersion();
-                return new TextMarkupDocumentReader(metadataLineReaderVersion < 3);  // legacy mode is 2 and below
-            }
-        });
-    }
 
-    public DeployMetricsCollector deployStatsTracker() {
-        return this.singleton("deployStatsTracker", new Function0<DeployMetricsCollector>() {
-            @Override
-            public DeployMetricsCollector value() {
-                return new DeployMetricsCollectorImpl();
-            }
-        });
-    }
-
-    public ChangesetCreator getChangesetCreator() {
-        return this.singleton("getChangesetCreator", new Function0<ChangesetCreator>() {
-            @Override
-            public ChangesetCreator value() {
-                return new ChangesetCreatorImpl(changeCommandSorter(), changeTypeBehaviorRegistry);
-            }
-        });
-    }
-
-    private ChangeCommandSorter changeCommandSorter() {
-        return new ChangeCommandSorterImpl(env.getPlatform());
-    }
-
-    protected GraphEnricher graphEnricher() {
-        return new GraphEnricherImpl(env.getPlatform().convertDbObjectName());
-    }
-
-    private TextDependencyExtractor getTextDependencyExtractor() {
-        return new TextDependencyExtractorImpl(env.getPlatform().convertDbObjectName());
+    @Override
+    protected ImmutableList<PrepareDbChange> getArtifactTranslators() {
+        return Lists.mutable
+                .<PrepareDbChange>with(new PrepareDbChangeForDb())
+                .withAll(this.env.getDbTranslationDialect().getAdditionalTranslators())
+                .toImmutable();
     }
 
     public ChangeAuditDao getArtifactDeployerDao() {
@@ -321,7 +256,7 @@ public abstract class DbDeployerAppContextImpl implements DbDeployerAppContext {
                 if (env.isDisableAuditTracking()) {
                     return new NoOpChangeAuditDao();
                 } else {
-                    return new SameSchemaChangeAuditDao(env, getSqlExecutor(), getDbMetadataManager(), credential.getUsername(), getDeployExecutionDao(), changeTypeBehaviorRegistry);
+                    return new SameSchemaChangeAuditDao(env, getSqlExecutor(), getDbMetadataManager(), credential.getUsername(), getDeployExecutionDao(), getChangeTypeBehaviorRegistry());
                 }
             }
         });
@@ -364,7 +299,7 @@ public abstract class DbDeployerAppContextImpl implements DbDeployerAppContext {
                         env.getPhysicalSchemas(),
                         getTableSqlSuffix(),
                         env,
-                        changeTypeBehaviorRegistry
+                        getChangeTypeBehaviorRegistry()
                 );
             }
         });
@@ -381,7 +316,7 @@ public abstract class DbDeployerAppContextImpl implements DbDeployerAppContext {
                         platform(),
                         env.getPhysicalSchemas(),
                         getTableSqlSuffix(),
-                        changeTypeBehaviorRegistry
+                        getChangeTypeBehaviorRegistry()
                 );
             }
         });
@@ -391,41 +326,20 @@ public abstract class DbDeployerAppContextImpl implements DbDeployerAppContext {
         return env.getPlatform().getTableSuffixSql(env);
     }
 
-    public MainDeployer getDeployer() {
-        return this.singleton("deployer", new Function0<MainDeployer>() {
+
+    @Override
+    protected DeployerPlugin getDeployerPlugin() {
+        return this.singleton("getDeployerPlugin", new Function0<DeployerPlugin>() {
             @Override
-            public MainDeployer value() {
+            public DeployerPlugin value() {
                 return new DbDeployer(
                         getArtifactDeployerDao()
-                        , getInputReader()
-                        , changeTypeBehaviorRegistry
-                        , getChangesetCreator()
-                        , getPostDeployAction()
                         , getDbMetadataManager()
                         , getSqlExecutor()
                         , deployStatsTracker()
                         , getDbChecksumManager()
                         , getDeployExecutionDao()
-                        , getCredential()
                 );
-            }
-        });
-    }
-
-    public final DbInputReader getInputReader() {
-        return this.singleton("getInputReader", new Function0<DbInputReader>() {
-            @Override
-            public DbInputReader value() {
-                return new DbInputReader(getSourceChangeReader(), getDbChangeFilter(), deployStatsTracker());
-            }
-        });
-    }
-
-    public final SourceChangeReader getSourceChangeReader() {
-        return this.singleton("getSourceChangeReader", new Function0<SourceChangeReader>() {
-            @Override
-            public SourceChangeReader value() {
-                return new SourceChangeReaderImpl(env, getDbChangeReader(), getTextDependencyExtractor(), getArtifactTranslators());
             }
         });
     }
@@ -435,7 +349,7 @@ public abstract class DbDeployerAppContextImpl implements DbDeployerAppContext {
             @Override
             public DbEnvironmentCleaner value() {
                 return new DbEnvironmentCleaner(env, getSqlExecutor(), getDbMetadataManager(),
-                        getChangesetCreator(), changeTypeBehaviorRegistry);
+                        getChangesetCreator(), getChangeTypeBehaviorRegistry());
             }
         });
     }
@@ -446,7 +360,7 @@ public abstract class DbDeployerAppContextImpl implements DbDeployerAppContext {
         return new NoOpEnvironmentInfraSetup();
     }
 
-    public Predicate<? super Change> getDbChangeFilter() {
+    protected Predicate<? super Change> getDbChangeFilter() {
         ImmutableSet<String> disabledChangeTypeNames = this.env.getDbTranslationDialect().getDisabledChangeTypeNames();
         if (disabledChangeTypeNames.isEmpty()) {
             return Predicates.alwaysTrue();
@@ -460,28 +374,6 @@ public abstract class DbDeployerAppContextImpl implements DbDeployerAppContext {
     public CsvStaticDataDeployer getCsvStaticDataLoader() {
         return new CsvStaticDataDeployer(env, this.getSqlExecutor(), getManagedDataSource(),
                 this.getDbMetadataManager(), this.env.getPlatform());
-    }
-
-    public PostDeployAction getPostDeployAction() {
-        return new NoOpPostDeployAction();
-    }
-
-    protected ImmutableList<PrepareDbChange> getArtifactTranslators() {
-        return Lists.mutable
-                .<PrepareDbChange>with(new PrepareDbChangeForDb())
-                .withAll(this.env.getDbTranslationDialect().getAdditionalTranslators())
-                .toImmutable();
-    }
-
-    private final MutableMap<String, Object> singletonBeans = Maps.mutable.empty();
-
-    public <T> T singleton(String beanName, Function0<T> func) {
-        Object bean = this.singletonBeans.get(beanName);
-        if (bean == null) {
-            bean = func.value();
-            this.singletonBeans.put(beanName, bean);
-        }
-        return (T) bean;
     }
 
     /**
@@ -506,10 +398,6 @@ public abstract class DbDeployerAppContextImpl implements DbDeployerAppContext {
         });
     }
 
-    private int getNumThreads() {
-        return 5;
-    }
-
     public DbDeployerAppContext setupEnvInfra() {
         return setupEnvInfra(isStrictSetupEnvInfra());
     }
@@ -527,22 +415,6 @@ public abstract class DbDeployerAppContextImpl implements DbDeployerAppContext {
     }
 
     @Override
-    public DbDeployerAppContextImpl deploy() {
-        return this.deploy(new MainDeployerArgs());
-    }
-
-    @Override
-    public DbDeployerAppContextImpl deploy(MainDeployerArgs deployerArgs) {
-        getDeployer().execute(env, deployerArgs);
-        return this;
-    }
-
-    @Override
-    public void readSource(MainDeployerArgs deployerArgs) {
-        getInputReader().read(env, deployerArgs);
-    }
-
-    @Override
     public DbDeployerAppContextImpl cleanAndDeploy() {
         cleanEnvironment();
         deploy();
@@ -554,10 +426,5 @@ public abstract class DbDeployerAppContextImpl implements DbDeployerAppContext {
         setupEnvInfra();
         cleanAndDeploy();
         return this;
-    }
-
-    @Override
-    public DeployMetrics getDeployMetrics() {
-        return deployStatsTracker().getMetrics();
     }
 }

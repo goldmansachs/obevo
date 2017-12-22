@@ -16,12 +16,14 @@
 package com.gs.obevo.db.unittest;
 
 import java.io.File;
+import java.util.Collection;
 
 import javax.sql.DataSource;
 
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.platform.DeployExecutionDao;
 import com.gs.obevo.api.platform.DeployMetrics;
+import com.gs.obevo.api.platform.FileSourceContext;
 import com.gs.obevo.api.platform.MainDeployerArgs;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.platform.DbDeployerAppContext;
@@ -75,6 +77,11 @@ class UnitTestDbDeployerAppContext implements DbDeployerAppContext {
         this.setupEnvInfra();
         this.cleanAndDeploy();
         return this;
+    }
+
+    @Override
+    public DbDeployerAppContext setFileSourceContext(FileSourceContext source) {
+        return delegate.setFileSourceContext(source);
     }
 
     @Override
@@ -160,6 +167,16 @@ class UnitTestDbDeployerAppContext implements DbDeployerAppContext {
     @Override
     public DbDeployerAppContext deploy(MainDeployerArgs deployerArgs) {
         return delegate.deploy(deployerArgs);
+    }
+
+    @Override
+    public DbDeployerAppContext deploy(Collection<Change> changes) {
+        return delegate.deploy(changes);
+    }
+
+    @Override
+    public DbDeployerAppContext deploy(Collection<Change> changes, MainDeployerArgs deployerArgs) {
+        return delegate.deploy(changes, deployerArgs);
     }
 
     @Override

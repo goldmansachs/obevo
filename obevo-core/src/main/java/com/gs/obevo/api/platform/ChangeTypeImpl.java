@@ -19,8 +19,6 @@ package com.gs.obevo.api.platform;
  * Basic implementation of {@link ChangeType} that clients can quickly define a set of types with.
  */
 public class ChangeTypeImpl implements ChangeType {
-    private ChangeTypeBehavior changeTypeBehavior;
-
     private final String name;
     private final boolean rerunnable;
     private final int deployOrderPriority;
@@ -83,10 +81,6 @@ public class ChangeTypeImpl implements ChangeType {
     @Override
     public ChangeType getBodyChangeType() {
         return bodyChangeType;
-    }
-
-    protected ChangeTypeBehavior getChangeTypeBehavior() {
-        return changeTypeBehavior;
     }
 
     public static class ChangeTypeImplBuilder {

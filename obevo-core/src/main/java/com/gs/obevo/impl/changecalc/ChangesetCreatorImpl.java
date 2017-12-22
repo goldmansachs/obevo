@@ -99,7 +99,7 @@ public class ChangesetCreatorImpl implements ChangesetCreator {
                 changeTypeSources.forEachWith(addChangeToMap, true);
                 changeTypeDeploys.forEachWith(addChangeToMap, false);
 
-                return changeTypeBehaviorRegistry.getChangeTypeBehavior(changeType.getName()).getChangeTypeCalculator().calculateCommands(changeType, changes.valuesView(), sources, rollback, initAllowedOnHashExceptions);
+                return changeTypeBehaviorRegistry.getChangeTypeSemantic(changeType.getName()).getChangeTypeCalculator().calculateCommands(changeType, changes.valuesView(), sources, rollback, initAllowedOnHashExceptions);
             }
         });
 

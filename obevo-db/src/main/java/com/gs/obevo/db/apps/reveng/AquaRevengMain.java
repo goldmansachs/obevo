@@ -27,7 +27,7 @@ import com.gs.obevo.api.platform.Platform;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.platform.DbDeployerAppContext;
 import com.gs.obevo.db.api.platform.DbPlatform;
-import com.gs.obevo.db.impl.core.util.MultiLineStringSplitter;
+import com.gs.obevo.impl.util.MultiLineStringSplitter;
 import com.gs.obevo.dbmetadata.api.DaCatalog;
 import com.gs.obevo.dbmetadata.api.DaSchemaInfoLevel;
 import com.gs.obevo.dbmetadata.api.RuleBinding;

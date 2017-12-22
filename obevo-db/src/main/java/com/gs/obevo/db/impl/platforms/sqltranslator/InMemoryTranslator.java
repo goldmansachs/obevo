@@ -20,11 +20,11 @@ import java.util.List;
 import java.util.Objects;
 
 import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.impl.core.changetypes.StaticDataChangeTypeBehavior;
-import com.gs.obevo.db.impl.core.reader.PrepareDbChange;
-import com.gs.obevo.db.impl.core.util.MultiLineStringSplitter;
+import com.gs.obevo.impl.PrepareDbChange;
+import com.gs.obevo.impl.util.MultiLineStringSplitter;
 import com.gs.obevo.db.impl.platforms.sqltranslator.impl.DefaultSqlTranslatorNameMapper;
 import com.gs.obevo.db.sqlparser.syntaxparser.AlterTableDrop;
 import com.gs.obevo.db.sqlparser.syntaxparser.Constraint;
@@ -74,7 +74,7 @@ public class InMemoryTranslator implements PrepareDbChange {
     }
 
     @Override
-    public final String prepare(String sql, final Change change, final DbEnvironment env) {
+    public final String prepare(String sql, final Change change, final Environment env) {
         if (change != null && Objects.equals(change.getChangeType().getName(), ChangeType.STATICDATA_STR)
                 && !StaticDataChangeTypeBehavior.isInsertModeStaticData(sql)) {
             return sql;

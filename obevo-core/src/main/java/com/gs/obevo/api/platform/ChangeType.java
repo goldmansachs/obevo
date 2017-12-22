@@ -98,7 +98,7 @@ public interface ChangeType {
     String getName();
 
     /**
-     * Deploy order priority to serve as a tiebreaker in the topological sorting.
+     * Deploy order priority to serve as a tiebreaker in the topological sorting. A lower priority means earlier ordering.
      */
     int getDeployOrderPriority();
 

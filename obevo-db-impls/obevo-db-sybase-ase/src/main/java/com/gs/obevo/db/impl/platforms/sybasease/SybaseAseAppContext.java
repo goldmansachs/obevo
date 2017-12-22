@@ -16,7 +16,7 @@
 package com.gs.obevo.db.impl.platforms.sybasease;
 
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.api.platform.ChangeTypeBehavior;
+import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry.ChangeTypeBehaviorRegistryBuilder;
 import com.gs.obevo.db.api.platform.DbChangeType;
 import com.gs.obevo.db.api.platform.SqlExecutor;
 import com.gs.obevo.db.impl.core.DbDeployerAppContextImpl;
@@ -24,7 +24,6 @@ import com.gs.obevo.db.impl.core.envinfrasetup.EnvironmentInfraSetup;
 import com.gs.obevo.db.impl.core.jdbc.DataSourceFactory;
 import com.gs.obevo.model.AseUserTypeChangeTypeBehavior;
 import org.eclipse.collections.api.block.function.Function0;
-import org.eclipse.collections.api.map.MutableMap;
 
 public class SybaseAseAppContext extends DbDeployerAppContextImpl {
 
@@ -48,9 +47,9 @@ public class SybaseAseAppContext extends DbDeployerAppContextImpl {
     }
 
     @Override
-    protected MutableMap<String, ChangeTypeBehavior> getChangeTypeBehaviors() {
+    protected ChangeTypeBehaviorRegistryBuilder getChangeTypeBehaviors() {
         DbChangeType usertypeChangeType = (DbChangeType) platform().getChangeType(ChangeType.USERTYPE_STR);
         return super.getChangeTypeBehaviors()
-                .withKeyValue(ChangeType.USERTYPE_STR, new AseUserTypeChangeTypeBehavior(env, usertypeChangeType, getSqlExecutor(), simpleArtifactDeployer(), grantChangeParser(), graphEnricher(), platform(), getDbMetadataManager()));
+                .putBehavior(ChangeType.USERTYPE_STR, new AseUserTypeChangeTypeBehavior(env, usertypeChangeType, getSqlExecutor(), simpleArtifactDeployer(), grantChangeParser(), graphEnricher(), platform(), getDbMetadataManager()));
     }
 }

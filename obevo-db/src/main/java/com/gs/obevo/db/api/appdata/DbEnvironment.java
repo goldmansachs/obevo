@@ -57,16 +57,12 @@ public class DbEnvironment extends Environment<DbPlatform> {
     private ImmutableList<User> users = Lists.immutable.empty();
 
     private String auditTableSql;
-    private ImmutableSet<String> acceptedExtensions;
     private String ianywhereDriverProperty;
     private boolean checksumDetectionEnabled = false;
     private boolean invalidObjectCheckEnabled = true;
     private boolean reorgCheckEnabled = true;
-    private int metadataLineReaderVersion = DbPlatformConfiguration.getInstance().getFeatureToggleVersion("metadataLineReaderVersion");
     private int csvVersion = DbPlatformConfiguration.getInstance().getFeatureToggleVersion("csvVersion");
-    private String sourceEncoding = DbPlatformConfiguration.getInstance().getSourceEncoding();
     private ImmutableMap<String, String> extraEnvAttrs;
-    private int legacyDirectoryStructureEnabledVersion = DbPlatformConfiguration.getInstance().getFeatureToggleVersion("legacyDirectoryStructureEnabled");
 
     public DbEnvironment() {
     }
@@ -100,16 +96,12 @@ public class DbEnvironment extends Environment<DbPlatform> {
         this.groups = env.groups;
         this.users = env.users;
         this.auditTableSql = env.auditTableSql;
-        this.acceptedExtensions = env.acceptedExtensions;
         this.ianywhereDriverProperty = env.ianywhereDriverProperty;
         this.checksumDetectionEnabled = env.checksumDetectionEnabled;
         this.invalidObjectCheckEnabled = env.invalidObjectCheckEnabled;
         this.reorgCheckEnabled = env.reorgCheckEnabled;
-        this.metadataLineReaderVersion = env.metadataLineReaderVersion;
         this.csvVersion = env.csvVersion;
-        this.sourceEncoding = env.sourceEncoding;
         this.extraEnvAttrs = env.extraEnvAttrs;
-        this.legacyDirectoryStructureEnabledVersion = env.legacyDirectoryStructureEnabledVersion;
     }
 
     @Override
@@ -191,12 +183,6 @@ public class DbEnvironment extends Environment<DbPlatform> {
     @Deprecated
     public void setDbPlatform(DbPlatform dbPlatform) {
         this.setPlatform(dbPlatform);
-    }
-
-    @Override
-    public void setPlatform(DbPlatform platform) {
-        super.setPlatform(platform);
-        this.setAppContextBuilderClass(platform.getAppContextBuilderClass());
     }
 
     public DbPlatform getSystemDbPlatform() {
@@ -388,22 +374,6 @@ public class DbEnvironment extends Environment<DbPlatform> {
         this.auditTableSql = auditTableSql;
     }
 
-    /**
-     * Override the accepted extensions from the platform if needed.
-     * This should be avoided if possible; clients should send feedback to the product maintainers to update the list of
-     * defaults if needed (or to contribute the code change themselves).
-     */
-    public void setAcceptedExtensions(ImmutableSet<String> acceptedExtensions) {
-        this.acceptedExtensions = acceptedExtensions;
-    }
-
-    public ImmutableSet<String> getAcceptedExtensions() {
-        if (acceptedExtensions != null && acceptedExtensions.notEmpty()) {
-            return acceptedExtensions;
-        }
-        return getPlatform().getAcceptedExtensions();
-    }
-
     public String getIanywhereDriverProperty() {
         return ianywhereDriverProperty;
     }
@@ -436,14 +406,6 @@ public class DbEnvironment extends Environment<DbPlatform> {
         this.reorgCheckEnabled = reorgCheckEnabled;
     }
 
-    public int getMetadataLineReaderVersion() {
-        return metadataLineReaderVersion;
-    }
-
-    public void setMetadataLineReaderVersion(int metadataLineReaderVersion) {
-        this.metadataLineReaderVersion = metadataLineReaderVersion;
-    }
-
     public int getCsvVersion() {
         return csvVersion;
     }
@@ -452,28 +414,11 @@ public class DbEnvironment extends Environment<DbPlatform> {
         this.csvVersion = csvVersion;
     }
 
-    public String getSourceEncoding() {
-        return sourceEncoding;
-    }
-
-    public void setSourceEncoding(String sourceEncoding) {
-        this.sourceEncoding = sourceEncoding;
-    }
-
     public ImmutableMap<String, String> getExtraEnvAttrs() {
         return extraEnvAttrs == null ? Maps.immutable.<String, String>empty() : extraEnvAttrs;
     }
 
     public void setExtraEnvAttrs(ImmutableMap<String, String> extraEnvAttrs) {
         this.extraEnvAttrs = extraEnvAttrs;
-    }
-
-    public boolean isLegacyDirectoryStructureEnabled() {
-        // 1 == legacy, 2 == new
-        return legacyDirectoryStructureEnabledVersion == 1;
-    }
-
-    public void setLegacyDirectoryStructureEnabledVersion(int legacyDirectoryStructureEnabledVersion) {
-        this.legacyDirectoryStructureEnabledVersion = legacyDirectoryStructureEnabledVersion;
     }
 }

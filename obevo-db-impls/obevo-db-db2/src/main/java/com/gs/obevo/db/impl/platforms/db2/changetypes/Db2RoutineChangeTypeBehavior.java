@@ -59,7 +59,7 @@ public class Db2RoutineChangeTypeBehavior extends RerunnableDbChangeTypeBehavior
     protected String generateDropChangeRaw(Connection conn, Change change) {
         StringBuilder sb = new StringBuilder();
 
-        final ImmutableCollection<DaRoutine> routines = getDbMetadataManager().getRoutineInfo(change.getPhysicalSchema(), change.getObjectName());
+        final ImmutableCollection<DaRoutine> routines = getDbMetadataManager().getRoutineInfo(change.getPhysicalSchema(env), change.getObjectName());
         LOG.info("Found {} routines with name {} to drop", routines.size(), change.getObjectName());
         for (DaRoutine routine : routines) {
             sb.append("DROP SPECIFIC ").append(getDbChangeType().getDefaultObjectKeyword()).append(" ").append(routine.getSpecificName()).append("\nGO\n");

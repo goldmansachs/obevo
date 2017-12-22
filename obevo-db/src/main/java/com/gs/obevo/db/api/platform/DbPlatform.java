@@ -17,10 +17,10 @@ package com.gs.obevo.db.api.platform;
 
 import java.sql.Connection;
 import java.sql.Driver;
+import java.sql.Timestamp;
 
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.PhysicalSchema;
-import com.gs.obevo.api.platform.DeployerAppContext;
 import com.gs.obevo.api.platform.Platform;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.appdata.GrantTargetType;
@@ -30,7 +30,6 @@ import com.gs.obevo.dbmetadata.api.DbMetadataManager;
 import org.eclipse.collections.api.set.ImmutableSet;
 
 public interface DbPlatform extends Platform {
-    Class<? extends DeployerAppContext> getAppContextBuilderClass();
 
     Class<? extends Driver> getDriverClass(DbEnvironment env);
 
@@ -106,8 +105,6 @@ public interface DbPlatform extends Platform {
             final String tablespaceSql,
             final DbEnvironment env);
 
-    ImmutableSet<String> getAcceptedExtensions();
-
     ImmutableSet<String> getRequiredValidationObjectTypes();
 
     /**
@@ -116,4 +113,22 @@ public interface DbPlatform extends Platform {
     AbstractDdlReveng getDdlReveng();
 
     String getTableSuffixSql(DbEnvironment env);
+
+    /**
+     * Given an object from the result set returned by the MapListHandler in JdbcHelper, this will return a long value.
+     * This is simple for most DBMSs, but a few need special handling.
+     */
+    Long getLongValue(Object obj);
+
+    /**
+     * Given an object from the result set returned by the MapListHandler in JdbcHelper, this will return a timestamp value.
+     * This is simple for most DBMSs, but a few need special handling.
+     */
+    Timestamp getTimestampValue(Object obj);
+
+    /**
+     * Given an object from the result set returned by the MapListHandler in JdbcHelper, this will return an integer value.
+     * This is simple for most DBMSs, but a few need special handling.
+     */
+    Integer getIntegerValue(Object obj);
 }

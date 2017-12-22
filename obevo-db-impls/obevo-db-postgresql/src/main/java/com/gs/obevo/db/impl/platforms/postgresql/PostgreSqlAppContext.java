@@ -16,7 +16,7 @@
 package com.gs.obevo.db.impl.platforms.postgresql;
 
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.api.platform.ChangeTypeBehavior;
+import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry.ChangeTypeBehaviorRegistryBuilder;
 import com.gs.obevo.db.api.platform.DbChangeType;
 import com.gs.obevo.db.api.platform.SqlExecutor;
 import com.gs.obevo.db.impl.core.DbDeployerAppContextImpl;
@@ -25,7 +25,6 @@ import com.gs.obevo.db.impl.platforms.postgresql.changetypes.PostgreSqlFunctionC
 import com.gs.obevo.impl.NoOpPostDeployAction;
 import com.gs.obevo.impl.PostDeployAction;
 import org.eclipse.collections.api.block.function.Function0;
-import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.impl.block.factory.Predicates;
 
 public class PostgreSqlAppContext extends DbDeployerAppContextImpl {
@@ -54,12 +53,9 @@ public class PostgreSqlAppContext extends DbDeployerAppContextImpl {
     }
 
     @Override
-    protected MutableMap<String, ChangeTypeBehavior> getChangeTypeBehaviors() {
-        MutableMap<String, ChangeTypeBehavior> changeTypeBehaviors = super.getChangeTypeBehaviors();
-
+    protected ChangeTypeBehaviorRegistryBuilder getChangeTypeBehaviors() {
         ChangeType routineChangeType = platform().getChangeTypes().detect(Predicates.attributeEqual(ChangeType.TO_NAME, ChangeType.FUNCTION_STR));
-        changeTypeBehaviors.put(ChangeType.FUNCTION_STR, new PostgreSqlFunctionChangeTypeBehavior(env, (DbChangeType) routineChangeType, getSqlExecutor(), simpleArtifactDeployer(), grantChangeParser(), graphEnricher(), platform(), getDbMetadataManager()));
-
-        return changeTypeBehaviors;
+        return super.getChangeTypeBehaviors()
+                .putBehavior(ChangeType.FUNCTION_STR, new PostgreSqlFunctionChangeTypeBehavior(env, (DbChangeType) routineChangeType, getSqlExecutor(), simpleArtifactDeployer(), grantChangeParser(), graphEnricher(), platform(), getDbMetadataManager()));
     }
 }

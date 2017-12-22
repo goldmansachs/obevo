@@ -25,8 +25,8 @@ import com.gs.obevo.impl.graph.GraphEnricher;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.eclipse.collections.api.RichIterable;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.function.Function2;
-import org.eclipse.collections.api.block.procedure.primitive.ObjectIntProcedure;
 import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
@@ -106,28 +106,29 @@ public class RerunnableChangeTypeCommandCalculator implements ChangeTypeCommandC
             RerunnableObjectInfo rerunnableObjectInfo,
             RichIterable<Change> fromSourceList) {
         final MutableList<ChangeCommand> commands = Lists.mutable.empty();
-        MutableCollection<Change> drops = rerunnableObjectInfo.getDroppedObjects();
-        drops.forEachWithIndex(new ObjectIntProcedure<Change>() {
-            @Override
-            public void value(Change droppedObject, int order) {
-                commands.add(changeCommandFactory.createRemove(droppedObject).withDrop(true));
-            }
-        });
 
-        MutableList<Change> fullChanges = Lists.mutable.empty();
+        commands.addAll(rerunnableObjectInfo.getDroppedObjects().collect(new Function<Change, ChangeCommand>() {
+            @Override
+            public ChangeCommand valueOf(Change droppedObject) {
+                return changeCommandFactory.createRemove(droppedObject).withDrop(true);
+            }
+        }));
 
         if (changeType.isDependentObjectRecalculationRequired()) {
-            fullChanges.addAll(getObjectChangesRequiringRecompilation(changeType, fromSourceList, rerunnableObjectInfo.getChangedObjects().reject(Change.IS_CREATE_OR_REPLACE)));
+            commands.addAll(getObjectChangesRequiringRecompilation(changeType, fromSourceList, rerunnableObjectInfo.getChangedObjects().reject(Change.IS_CREATE_OR_REPLACE)).collect(new Function<Change, ChangeCommand>() {
+                @Override
+                public ChangeCommand valueOf(Change change) {
+                    return changeCommandFactory.createDeployCommand(change, "Re-deploying this object due to change in dependent object [" + change.getObjectName() + "]");
+                }
+            }));
         }
 
-        fullChanges.addAll(rerunnableObjectInfo.getChangedObjects());
-
-        fullChanges.forEachWithIndex(new ObjectIntProcedure<Change>() {
+        commands.addAll(rerunnableObjectInfo.getChangedObjects().collect(new Function<Change, ChangeCommand>() {
             @Override
-            public void value(Change fullChange, int order) {
-                commands.add(changeCommandFactory.createDeployCommand(fullChange));
+            public ChangeCommand valueOf(Change fullChange) {
+                return changeCommandFactory.createDeployCommand(fullChange);
             }
-        });
+        }));
 
         return commands.toImmutable();
     }
@@ -161,8 +162,6 @@ public class RerunnableChangeTypeCommandCalculator implements ChangeTypeCommandC
 
             for (Change changeToAddBack : dependencies) {
                 if (!changesForTypeMap.containsKey(changeToAddBack.getObjectName())) {
-                    changeToAddBack.setReason("Re-deploying this object due to change in dependent object ["
-                            + change.getObjectName() + "]");
                     newChangesToAdd.add(changeToAddBack);
                 }
             }

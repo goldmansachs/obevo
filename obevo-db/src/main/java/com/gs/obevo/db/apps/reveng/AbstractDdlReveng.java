@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.platform.DbPlatform;
-import com.gs.obevo.db.impl.core.util.MultiLineStringSplitter;
+import com.gs.obevo.impl.util.MultiLineStringSplitter;
 import com.gs.obevo.impl.changetypes.UnclassifiedChangeType;
 import com.gs.obevo.util.FileUtilsCobra;
 import org.apache.commons.lang.StringUtils;

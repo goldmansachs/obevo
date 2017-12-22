@@ -19,10 +19,16 @@ import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.impl.ExecuteChangeCommand;
 
 public abstract class AbstractExecuteChangeCommand extends AuditOnlyChangeCommand implements ExecuteChangeCommand {
+    private final String deployMessage;
     private boolean drop;
 
     protected AbstractExecuteChangeCommand(Change artifact) {
+        this(artifact, null);
+    }
+
+    public AbstractExecuteChangeCommand(Change artifact, String deployMessage) {
         super(artifact);
+        this.deployMessage = deployMessage;
     }
 
     /**
@@ -43,4 +49,14 @@ public abstract class AbstractExecuteChangeCommand extends AuditOnlyChangeComman
         return this;
     }
 
+    @Override
+    public String getCommandDescription() {
+        StringBuilder sb = new StringBuilder(super.getCommandDescription());
+
+        if (deployMessage != null) {
+            sb.append("; Reason [" + deployMessage + "]");
+        }
+
+        return sb.toString();
+    }
 }

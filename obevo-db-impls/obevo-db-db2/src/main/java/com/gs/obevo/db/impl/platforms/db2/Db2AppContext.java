@@ -17,6 +17,7 @@ package com.gs.obevo.db.impl.platforms.db2;
 
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.ChangeTypeBehavior;
+import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry.ChangeTypeBehaviorRegistryBuilder;
 import com.gs.obevo.db.api.platform.DbChangeType;
 import com.gs.obevo.db.api.platform.SqlExecutor;
 import com.gs.obevo.db.impl.core.DbDeployerAppContextImpl;
@@ -25,7 +26,6 @@ import com.gs.obevo.db.impl.core.jdbc.DataSourceFactory;
 import com.gs.obevo.db.impl.platforms.db2.changetypes.Db2RoutineChangeTypeBehavior;
 import com.gs.obevo.impl.PostDeployAction;
 import org.eclipse.collections.api.block.function.Function0;
-import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.impl.block.factory.Predicates;
 
 public class Db2AppContext extends DbDeployerAppContextImpl {
@@ -61,10 +61,10 @@ public class Db2AppContext extends DbDeployerAppContextImpl {
     }
 
     @Override
-    protected MutableMap<String, ChangeTypeBehavior> getChangeTypeBehaviors() {
-        MutableMap<String, ChangeTypeBehavior> changeTypeBehaviors = super.getChangeTypeBehaviors();
-        changeTypeBehaviors.put(ChangeType.SP_STR, updateRoutineType(ChangeType.SP_STR));
-        changeTypeBehaviors.put(ChangeType.FUNCTION_STR, updateRoutineType(ChangeType.FUNCTION_STR));
+    protected ChangeTypeBehaviorRegistryBuilder getChangeTypeBehaviors() {
+        ChangeTypeBehaviorRegistryBuilder changeTypeBehaviors = super.getChangeTypeBehaviors();
+        changeTypeBehaviors.putBehavior(ChangeType.SP_STR, updateRoutineType(ChangeType.SP_STR));
+        changeTypeBehaviors.putBehavior(ChangeType.FUNCTION_STR, updateRoutineType(ChangeType.FUNCTION_STR));
         return changeTypeBehaviors;
     }
 

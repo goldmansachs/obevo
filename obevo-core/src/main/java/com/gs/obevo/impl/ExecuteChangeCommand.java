@@ -15,13 +15,14 @@
  */
 package com.gs.obevo.impl;
 
+import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.api.platform.CommandExecutionContext;
 
 /**
  * A command that will actually invoke some action against the environment that would affect your applications.
  */
 public interface ExecuteChangeCommand extends AuditChangeCommand {
-    void execute(CommandExecutionContext cec);
+    void execute(ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry, CommandExecutionContext cec);
 
     boolean isDrop();
 

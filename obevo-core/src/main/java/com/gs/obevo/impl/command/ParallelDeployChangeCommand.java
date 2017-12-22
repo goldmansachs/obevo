@@ -18,6 +18,7 @@ package com.gs.obevo.impl.command;
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.DeployExecution;
 import com.gs.obevo.api.platform.ChangeAuditDao;
+import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.api.platform.CommandExecutionContext;
 import com.gs.obevo.impl.ExecuteChangeCommand;
 import org.eclipse.collections.api.block.procedure.Procedure;
@@ -38,12 +39,12 @@ public class ParallelDeployChangeCommand implements ExecuteChangeCommand {
     }
 
     @Override
-    public void execute(final CommandExecutionContext cec) {
+    public void execute(final ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry, final CommandExecutionContext cec) {
         // 2 value -> only fork to parallelism if we have 2 tasks. 1 task will not require thread pool usage
         ParallelIterate.forEach(changes, new Procedure<Change>() {
             @Override
             public void value(Change change) {
-                change.deploy(cec);
+                changeTypeBehaviorRegistry.deploy(change, cec);
             }
         }, 2, numThreads);
     }
@@ -65,9 +66,9 @@ public class ParallelDeployChangeCommand implements ExecuteChangeCommand {
     }
 
     @Override
-    public void markAuditTable(ChangeAuditDao artifactDeployerDao, DeployExecution deployExecution) {
+    public void markAuditTable(ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry, ChangeAuditDao artifactDeployerDao, DeployExecution deployExecution) {
         for (Change change : changes) {
-            change.manage(artifactDeployerDao, deployExecution);
+            changeTypeBehaviorRegistry.manage(change, artifactDeployerDao, deployExecution);
         }
     }
 

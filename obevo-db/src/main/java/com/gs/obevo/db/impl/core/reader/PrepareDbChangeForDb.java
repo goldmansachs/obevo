@@ -19,11 +19,12 @@ import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.appdata.Schema;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
+import com.gs.obevo.impl.PrepareDbChange;
 import com.gs.obevo.util.Tokenizer;
 import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.impl.factory.Maps;
 
-public class PrepareDbChangeForDb implements PrepareDbChange {
+public class PrepareDbChangeForDb implements PrepareDbChange<DbEnvironment> {
     @Override
     public String prepare(String content, Change change, DbEnvironment env) {
         MutableMap<String, String> tokens = Maps.mutable.<String, String>empty()

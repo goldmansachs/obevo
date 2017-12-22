@@ -16,7 +16,7 @@
 package com.gs.obevo.db.impl.platforms.db2;
 
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.db.impl.core.reader.PrepareDbChange;
+import com.gs.obevo.impl.PrepareDbChange;
 import com.gs.obevo.db.impl.platforms.DefaultDbTranslationDialect;
 import com.gs.obevo.db.impl.platforms.sqltranslator.InMemoryTranslator;
 import com.gs.obevo.db.impl.platforms.sqltranslator.SqlTranslatorConfigHelper;

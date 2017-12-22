@@ -21,9 +21,11 @@ import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.ChangeIncremental;
 import com.gs.obevo.api.appdata.doc.TextMarkupDocumentSection;
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.db.impl.core.util.MultiLineStringSplitter;
+import com.gs.obevo.impl.util.MultiLineStringSplitter;
 import com.gs.obevo.db.impl.core.util.RegexpPatterns;
+import com.gs.obevo.impl.reader.DbChangeFileParser;
 import com.gs.obevo.util.hash.DbChangeHashStrategy;
+import com.gs.obevo.util.hash.OldWhitespaceAgnosticDbChangeHashStrategy;
 import com.gs.obevo.util.vfs.FileObject;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
@@ -35,12 +37,11 @@ import org.eclipse.collections.impl.block.factory.StringPredicates;
 import org.eclipse.collections.impl.factory.Lists;
 
 public class BaselineTableChangeParser implements DbChangeFileParser {
-    private final DbChangeHashStrategy contentHashStrategy;
+    private final DbChangeHashStrategy contentHashStrategy = new OldWhitespaceAgnosticDbChangeHashStrategy();
     private final ChangeType fkChangeType;
     private final ChangeType triggerChangeType;
 
-    public BaselineTableChangeParser(DbChangeHashStrategy contentHashStrategy, ChangeType fkChangeType, ChangeType triggerChangeType) {
-        this.contentHashStrategy = contentHashStrategy;
+    public BaselineTableChangeParser(ChangeType fkChangeType, ChangeType triggerChangeType) {
         this.fkChangeType = fkChangeType;
         this.triggerChangeType = triggerChangeType;
     }
@@ -67,7 +68,7 @@ public class BaselineTableChangeParser implements DbChangeFileParser {
                         String rollbackContent = null;
 
                         ChangeIncremental change = new ChangeIncremental(changeType, schema, objectName,
-                                changeName, index, BaselineTableChangeParser.this.contentHashStrategy.hashContent(content), content,
+                                changeName, index, contentHashStrategy.hashContent(content), content,
                                 rollbackIfAlreadyDeployedCommand, active);
                         change.setRollbackContent(rollbackContent);
                         change.setFileLocation(file);

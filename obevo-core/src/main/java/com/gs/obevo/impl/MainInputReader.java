@@ -15,14 +15,12 @@
  */
 package com.gs.obevo.impl;
 
-import java.util.concurrent.TimeUnit;
-
+import com.gs.obevo.api.appdata.ArtifactRestrictions;
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.Environment;
-import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.platform.MainDeployerArgs;
 import com.gs.obevo.api.platform.Platform;
-import org.apache.commons.lang3.time.StopWatch;
+import com.gs.obevo.util.CollectionUtil;
 import org.eclipse.collections.api.bag.MutableBag;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.block.procedure.Procedure2;
@@ -35,55 +33,29 @@ import static org.eclipse.collections.impl.block.factory.Predicates.and;
 
 public class MainInputReader<P extends Platform, E extends Environment<P>> {
     private static final Logger LOG = LoggerFactory.getLogger(MainInputReader.class);
-
-    private final SourceChangeReader sourceChangeReader;
+    private final Environment env;
     private final Predicate<? super Change> dbChangeFilter;
+    private final ImmutableList<PrepareDbChange> artifactTranslators;
     private final DeployMetricsCollector deployMetricsCollector;
 
-    public MainInputReader(SourceChangeReader sourceChangeReader, Predicate<? super Change> dbChangeFilter, DeployMetricsCollector deployMetricsCollector) {
-        this.sourceChangeReader = sourceChangeReader;
+    public MainInputReader(Environment env, Predicate<? super Change> dbChangeFilter, ImmutableList<PrepareDbChange> artifactTranslators, DeployMetricsCollector deployMetricsCollector) {
+        this.env = env;
         this.dbChangeFilter = dbChangeFilter;
+        this.artifactTranslators = artifactTranslators;
         this.deployMetricsCollector = deployMetricsCollector;
-    }
-
-    public void read(E env, final MainDeployerArgs deployerArgs) {
-        StopWatch changeStopWatch = new StopWatch();
-        changeStopWatch.start();
-
-        boolean mainDeploymentSuccess = false;
-        try {
-            readInternal(env, deployerArgs);
-            mainDeploymentSuccess = true;
-        } finally {
-            changeStopWatch.stop();
-            long deployRuntimeSeconds = TimeUnit.MILLISECONDS.toSeconds(changeStopWatch.getTime());
-            deployMetricsCollector.addMetric("runtimeSeconds", deployRuntimeSeconds);
-            deployMetricsCollector.addMetric("success", mainDeploymentSuccess);
-        }
     }
 
     protected DeployMetricsCollector getDeployMetricsCollector() {
         return deployMetricsCollector;
     }
 
-    protected ImmutableList<Change> readInternal(E env, final MainDeployerArgs deployerArgs) {
-        validateSetup();
-        if (deployerArgs.isRollback()) {
-            LOG.info("*** EXECUTING IN ROLLBACK MODE ***");
-        }
+    public ImmutableList<Change> readInternal(SourceReaderStrategy dbChangeReader, final MainDeployerArgs deployerArgs) {
         LOG.info("Now fetching the changed artifacts");
 
-        logArgumentMetrics(deployerArgs);
-        logEnvironment(env);
-        logEnvironmentMetrics(env);
-
-        ImmutableList<Change> sourceChanges = sourceChangeReader.readSourceChanges(
+        ImmutableList<Change> sourceChanges = readSourceChanges(
+                dbChangeReader,
                 deployerArgs.isUseBaseline(),
                 and(this.dbChangeFilter, deployerArgs.getChangeInclusionPredicate()));
-
-        for (Change artf : sourceChanges) {
-            artf.setEnvironment(env);
-        }
 
         logChanges("source", sourceChanges);
 
@@ -105,33 +77,6 @@ public class MainInputReader<P extends Platform, E extends Environment<P>> {
         }
     }
 
-    protected void validateSetup() {
-    }
-
-    private void logArgumentMetrics(MainDeployerArgs deployerArgs) {
-        deployMetricsCollector.addMetric("args.onboardingMode", deployerArgs.isOnboardingMode());
-        deployMetricsCollector.addMetric("args.init", deployerArgs.isPerformInitOnly());
-        deployMetricsCollector.addMetric("args.rollback", deployerArgs.isRollback());
-        deployMetricsCollector.addMetric("args.preview", deployerArgs.isPreview());
-        deployMetricsCollector.addMetric("args.useBaseline", deployerArgs.isUseBaseline());
-    }
-
-    protected void logEnvironment(E env) {
-        if (LOG.isInfoEnabled()) {
-            LOG.info("Environment information:");
-            LOG.info("Logical schemas [{}]: {}", env.getSchemaNames().size(), env.getSchemaNames().makeString(","));
-            LOG.info("Physical schemas [{}]: {}", env.getPhysicalSchemas().size(), env.getPhysicalSchemas().collect(PhysicalSchema.TO_PHYSICAL_NAME).makeString(","));
-        }
-    }
-
-    protected void logEnvironmentMetrics(E env) {
-        deployMetricsCollector.addMetric("platform", env.getPlatform().getName());
-        deployMetricsCollector.addMetric("schemaCount", env.getSchemaNames().size());
-        deployMetricsCollector.addMetric("schemas", env.getSchemaNames().makeString(","));
-        deployMetricsCollector.addMetric("physicalSchemaCount", env.getPhysicalSchemas().size());
-        deployMetricsCollector.addMetric("physicalSchemas", env.getPhysicalSchemas().collect(PhysicalSchema.TO_PHYSICAL_NAME).makeString(","));
-    }
-
     private void logChangeMetrics(final String changeSide, ImmutableList<Change> changes) {
         MutableBag<String> changeTypeCounts = changes.collect(Change.TO_CHANGE_TYPE_NAME).toBag();
         changeTypeCounts.toMapOfItemToCount().forEachKeyValue(new Procedure2<String, Integer>() {
@@ -140,5 +85,46 @@ public class MainInputReader<P extends Platform, E extends Environment<P>> {
                 deployMetricsCollector.addMetric("changes." + changeSide + "." + changeType, count);
             }
         });
+    }
+
+    public ImmutableList<Change> readSourceChanges(SourceReaderStrategy dbChangeReader, boolean useBaseline, Predicate<Change> dbChangeFilter) {
+        ImmutableList<Change> sourceChanges = dbChangeReader
+                .getChanges(useBaseline)
+                .select(dbChangeFilter)
+                .selectWith(ArtifactRestrictions.apply(), env)
+                ;
+
+        CollectionUtil.verifyNoDuplicates(sourceChanges, Change.TO_CHANGE_KEY, "Duplicate changes found - please check your input source files (e.g. no //// CHANGE entries with the same name in a file or files w/ same object names within an environment)");
+
+        // We tokenize at this point (prior to the changeset calculation) as we'd want to have both the untokenized
+        // and tokenized file contents to be hashed so that the change comparison can consider both. The use case
+        // here was if the original hash was taken from the untokenized value, but later we change the SQL text to
+        // tokenize it -> we don't want that to count as a hash different as the end result of tokenization is still
+        // the same
+        for (Change change : sourceChanges) {
+            this.tokenizeChange(change, env);
+        }
+
+        return sourceChanges;
+    }
+
+    private void tokenizeChange(Change change, Environment env) {
+        String content = change.getContent();
+        String rollbackContent = change.getRollbackContent();
+        for (PrepareDbChange translator : this.artifactTranslators) {
+            content = translator.prepare(content, change, env);
+        }
+        if (rollbackContent != null) {
+            for (PrepareDbChange translator : this.artifactTranslators) {
+                rollbackContent = translator.prepare(rollbackContent, change, env);
+            }
+        }
+
+        change.setConvertedContent(content);
+        change.setConvertedRollbackContent(rollbackContent);
+
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Content for {} was converted to {}", change.getDisplayString(), content);
+        }
     }
 }

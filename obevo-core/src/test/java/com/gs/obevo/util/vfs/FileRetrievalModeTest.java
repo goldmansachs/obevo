@@ -15,38 +15,73 @@
  */
 package com.gs.obevo.util.vfs;
 
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ListIterable;
-import org.eclipse.collections.api.set.MutableSetIterable;
-import org.eclipse.collections.impl.block.factory.StringPredicates;
-import org.eclipse.collections.impl.factory.Sets;
+import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.impl.factory.Lists;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import static com.gs.obevo.util.vfs.FileFilterUtils.vcsAware;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.Matchers.endsWith;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class FileRetrievalModeTest {
+    private static final Function<FileObject, String> getFilePath = new Function<FileObject, String>() {
+        @Override
+        public String valueOf(FileObject object) {
+            return object.getURLDa().getPath();
+        }
+    };
 
     @Test
     public void testShouldRetrieveAllFoldersAvailableInClassPath() {
-        ListIterable<FileObject> sourceDirs = FileRetrievalMode.CLASSPATH.resolveFileObjects("database/");
-        assertEquals(3, sourceDirs.size());
+        ListIterable<FileObject> sourceDirs = FileRetrievalMode.CLASSPATH.resolveFileObjects("vfs/classpathtest");
 
-        MutableSetIterable<String> resolved = Sets.mutable.empty();
+        // verify that we can find the same directories if they exist under different classpaths
+        assertThat(sourceDirs.collect(getFilePath), containsInAnyOrder(
+                endsWith("obevo-core/target/test-classes/vfs/classpathtest"),
+                allOf(containsString("obevo-internal-test-client-01"), containsString("vfs/classpathtest")),
+                allOf(containsString("obevo-internal-test-client-02"), containsString("vfs/classpathtest"))
+        ));
+
+
+        // verify that we can find the same files if they exist under different classpaths
+        assertThat(FileRetrievalMode.CLASSPATH.resolveFileObjects("vfs/classpathtest/dir1/file2-multiinstance.txt").collect(getFilePath), containsInAnyOrder(
+                allOf(containsString("obevo-internal-test-client-01"), containsString("vfs/classpathtest/dir1/file2-multiinstance.txt")),
+                allOf(containsString("obevo-internal-test-client-02"), containsString("vfs/classpathtest/dir1/file2-multiinstance.txt"))
+        ));
+
+
+        // now verify that traversal from a folder to its descendants can still emit a full classpath
+        MutableList<String> resolvedFiles = Lists.mutable.empty();
         for (FileObject sourceDir : sourceDirs) {
             FileObject[] files = sourceDir.findFiles(new BasicFileSelector(vcsAware(), true));
             for (FileObject file : files) {
-                resolved.add(file.getURL().getPath());
+                // only check for files, not folders
+                if (!file.getType().hasChildren()) {
+                    resolvedFiles.add(getFilePath.valueOf(file));
+                }
             }
         }
-        assertTrue(resolved.anySatisfy(StringPredicates.endsWith("TEST_TABLE.sql")));
-        assertTrue(resolved.anySatisfy(StringPredicates.endsWith("TEST_TABLE_1.sql")));
-        assertTrue(resolved.anySatisfy(StringPredicates.endsWith("TEST_TABLE_2.sql")));
-        assertTrue(resolved.anySatisfy(StringPredicates.endsWith("TEST_TABLE_3.sql")));
+        assertThat(resolvedFiles, containsInAnyOrder(
+                endsWith("obevo-core/target/test-classes/vfs/classpathtest/dir1/file0.txt"),
+                allOf(containsString("obevo-internal-test-client-01"), containsString("vfs/classpathtest/dir1/file1.txt")),
+                allOf(containsString("obevo-internal-test-client-01"), containsString("vfs/classpathtest/dir1/file2-multiinstance.txt")),
+                allOf(containsString("obevo-internal-test-client-02"), containsString("vfs/classpathtest/dir1/file2-multiinstance.txt")),
+                allOf(containsString("obevo-internal-test-client-02"), containsString("vfs/classpathtest/dir1/file3.txt")),
+                allOf(containsString("obevo-internal-test-client-02"), containsString("vfs/classpathtest/dir2/file4.txt"))
+//                endsWith("obevo-internal-test-client-01/target/classes/vfs/classpathtest/dir1/file1.txt"),
+//                endsWith("obevo-internal-test-client-01/target/classes/vfs/classpathtest/dir1/file2-multiinstance.txt"),
+//                endsWith("obevo-internal-test-client-02/target/classes/vfs/classpathtest/dir1/file2-multiinstance.txt"),
+//                endsWith("obevo-internal-test-client-02/target/classes/vfs/classpathtest/dir1/file3.txt"),
+//                endsWith("obevo-internal-test-client-02/target/classes/vfs/classpathtest/dir2/file4.txt")
+        ));
     }
 
 
@@ -82,7 +117,7 @@ public class FileRetrievalModeTest {
     }
 
     @Test
-    public void testReadFromJar() {
+    public void testReadFromThirdPartyJar() {
         FileObject file = FileRetrievalMode.CLASSPATH.resolveSingleFileObject("org/apache/commons/vfs2/impl/providers.xml");
         assertThat(file.getStringContent(), containsString("org.apache.commons.vfs2.provider.local.DefaultLocalFileProvider"));
     }

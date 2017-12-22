@@ -17,22 +17,41 @@ package com.gs.obevo.api.factory;
 
 import com.gs.obevo.api.appdata.DeploySystem;
 import com.gs.obevo.api.appdata.Environment;
+import com.gs.obevo.api.platform.Platform;
 import com.gs.obevo.util.vfs.FileObject;
 import com.gs.obevo.util.vfs.FileRetrievalMode;
 import com.gs.obevo.util.vfs.VFSFileSystemException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.eclipse.collections.api.RichIterable;
+import org.eclipse.collections.impl.factory.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EnvironmentLocator<T extends Environment> {
+public class EnvironmentLocator {
     private static final Logger LOG = LoggerFactory.getLogger(EnvironmentLocator.class);
 
-    private final EnvironmentEnricher<T> envEnricher;
+    private final RichIterable<FileConfigReader> configReaders;
+    private final PlatformConfiguration platformConfiguration;
 
-    public EnvironmentLocator(EnvironmentEnricher<T> envEnricher) {
-        this.envEnricher = envEnricher;
+    public EnvironmentLocator() {
+        this(Lists.immutable.<FileConfigReader>of(new XmlFileConfigReader()));
     }
 
-    public DeploySystem<T> readSystem(String sourcePathStr) {
+    public EnvironmentLocator(RichIterable<FileConfigReader> configReaders) {
+        this.configReaders = configReaders;
+        this.platformConfiguration = PlatformConfiguration.getInstance();
+    }
+
+    public <T extends Environment> DeploySystem<T> readSystem(String sourcePathStr) {
+        DeploySystem<T> deploySystem = readSystemOptional(sourcePathStr);
+        if (deploySystem != null) {
+            return deploySystem;
+        } else {
+            throw new IllegalArgumentException("Could not find valid system at this location (neither in classpath nor file system): " + sourcePathStr + ". Possible diagnosis: check if there is a valid system-config.xml file?");
+        }
+    }
+
+    public <T extends Environment> DeploySystem<T> readSystemOptional(String sourcePathStr) {
         for (FileRetrievalMode fileRetrievalMode : FileRetrievalMode.values()) {
             FileObject sourcePath;
             try {
@@ -48,16 +67,22 @@ public class EnvironmentLocator<T extends Environment> {
                 continue;
             }
 
-            if (sourcePath.exists() && this.envEnricher.isEnvironmentOfThisTypeHere(sourcePath)) {
-                LOG.info("Checker for environment type w/ enricher "
-                        + this.envEnricher.getClass().getSimpleName() + " here");
-                DeploySystem<T> sys = this.envEnricher.readSystem(sourcePath);
-                if (sys != null) {
-                    return sys;
+            for (FileConfigReader configReader : configReaders) {
+                if (sourcePath.exists() && configReader.isEnvironmentOfThisTypeHere(sourcePath)) {
+                    LOG.info("Checker for environment type w/ enricher "
+                            + configReader.getClass().getSimpleName() + " here");
+                    HierarchicalConfiguration config = configReader.getConfig(sourcePath);
+                    Platform platform = platformConfiguration.valueOf(config.getString("[@type]"));
+                    DeploySystem<T> sys = platform.getEnvironmentEnricher().readSystem(config, sourcePath);
+
+                    if (sys != null) {
+                        return sys;
+                    }
                 }
             }
+
         }
 
-        throw new IllegalArgumentException("Could not find valid system at this location (neither in classpath nor file system): " + sourcePathStr + ". Possible diagnosis: check if there is a valid system-config.xml file?");
+        return null;
     }
 }

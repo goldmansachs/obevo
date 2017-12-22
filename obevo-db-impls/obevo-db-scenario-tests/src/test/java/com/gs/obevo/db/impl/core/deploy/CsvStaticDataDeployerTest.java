@@ -30,7 +30,7 @@ import com.gs.obevo.db.api.platform.SqlExecutor;
 import com.gs.obevo.db.impl.core.changetypes.CsvStaticDataDeployer;
 import com.gs.obevo.db.impl.core.jdbc.JdbcDataSourceFactory;
 import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
-import com.gs.obevo.db.impl.core.reader.TextMarkupDocumentReader;
+import com.gs.obevo.impl.reader.TextMarkupDocumentReader;
 import com.gs.obevo.db.impl.platforms.h2.H2DbPlatform;
 import com.gs.obevo.db.impl.platforms.h2.H2JdbcDataSourceFactory;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
@@ -110,7 +110,7 @@ public class CsvStaticDataDeployerTest {
         env.setDataDelimiter('^');
 
         Change artifact = mock(Change.class);
-        when(artifact.getPhysicalSchema()).thenReturn(new PhysicalSchema(schema));
+        when(artifact.getPhysicalSchema(env)).thenReturn(new PhysicalSchema(schema));
         when(artifact.getObjectName()).thenReturn(table);
         when(artifact.getMetadataAttribute(TextMarkupDocumentReader.ATTR_UPDATE_TIME_COLUMN)).thenReturn(
                 "UPDATETIMEFIELD");
@@ -171,7 +171,7 @@ public class CsvStaticDataDeployerTest {
         env.setDataDelimiter('^');
 
         Change artifact = mock(Change.class);
-        when(artifact.getPhysicalSchema()).thenReturn(new PhysicalSchema(schema));
+        when(artifact.getPhysicalSchema(env)).thenReturn(new PhysicalSchema(schema));
         when(artifact.getObjectName()).thenReturn(table);
         when(artifact.getMetadataAttribute(TextMarkupDocumentReader.ATTR_UPDATE_TIME_COLUMN)).thenReturn(
                 "UPDATETIMEFIELD");
@@ -262,7 +262,7 @@ public class CsvStaticDataDeployerTest {
         env.setDataDelimiter('^');
 
         Change artifact = mock(Change.class);
-        when(artifact.getPhysicalSchema()).thenReturn(new PhysicalSchema(schema));
+        when(artifact.getPhysicalSchema(env)).thenReturn(new PhysicalSchema(schema));
         when(artifact.getObjectName()).thenReturn(table);
         when(artifact.getConvertedContent()).thenReturn(
                 "AID^BID\n" +
@@ -296,7 +296,7 @@ public class CsvStaticDataDeployerTest {
         env.setDataDelimiter('^');
 
         Change artifact = mock(Change.class);
-        when(artifact.getPhysicalSchema()).thenReturn(new PhysicalSchema(schema));
+        when(artifact.getPhysicalSchema(env)).thenReturn(new PhysicalSchema(schema));
         when(artifact.getObjectName()).thenReturn(table);
         when(artifact.getConvertedContent()).thenReturn(
                 "AID^BID\n" +
@@ -330,7 +330,7 @@ public class CsvStaticDataDeployerTest {
         env.setDataDelimiter('^');
 
         Change artifact = mock(Change.class);
-        when(artifact.getPhysicalSchema()).thenReturn(new PhysicalSchema(schema));
+        when(artifact.getPhysicalSchema(env)).thenReturn(new PhysicalSchema(schema));
         when(artifact.getObjectName()).thenReturn(table);
         when(artifact.getMetadataAttribute(TextMarkupDocumentReader.ATTR_UPDATE_TIME_COLUMN)).thenReturn(
                 "UPDATETIMEFIELD");
@@ -366,7 +366,7 @@ public class CsvStaticDataDeployerTest {
         env.setDataDelimiter('^');
 
         Change artifact = mock(Change.class);
-        when(artifact.getPhysicalSchema()).thenReturn(new PhysicalSchema(schema));
+        when(artifact.getPhysicalSchema(env)).thenReturn(new PhysicalSchema(schema));
         when(artifact.getObjectName()).thenReturn(table);
         when(artifact.getMetadataAttribute(TextMarkupDocumentReader.ATTR_UPDATE_TIME_COLUMN)).thenReturn(
                 "InvalidTimeFieldColumn");

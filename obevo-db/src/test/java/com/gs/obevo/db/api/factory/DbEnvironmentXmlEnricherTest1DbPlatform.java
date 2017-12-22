@@ -22,6 +22,7 @@ import java.sql.Timestamp;
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder;
 import com.gs.obevo.api.appdata.PhysicalSchema;
+import com.gs.obevo.api.factory.EnvironmentEnricher;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.DeployerAppContext;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
@@ -212,6 +213,11 @@ public class DbEnvironmentXmlEnricherTest1DbPlatform implements DbPlatform {
 
     @Override
     public Integer getIntegerValue(Object obj) {
+        return null;
+    }
+
+    @Override
+    public EnvironmentEnricher getEnvironmentEnricher() {
         return null;
     }
 }

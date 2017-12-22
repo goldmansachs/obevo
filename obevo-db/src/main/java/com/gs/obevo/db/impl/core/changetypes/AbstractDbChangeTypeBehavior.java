@@ -19,14 +19,13 @@ import java.sql.Connection;
 
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.PhysicalSchema;
-import com.gs.obevo.api.platform.ChangeAuditDao;
+import com.gs.obevo.api.platform.CommandExecutionContext;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.appdata.Permission;
 import com.gs.obevo.db.api.platform.DbChangeType;
 import com.gs.obevo.db.api.platform.DbChangeTypeBehavior;
 import com.gs.obevo.db.api.platform.SqlExecutor;
-import com.gs.obevo.db.impl.core.util.MultiLineStringSplitter;
-import com.gs.obevo.api.platform.CommandExecutionContext;
+import com.gs.obevo.impl.util.MultiLineStringSplitter;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.function.Function;
@@ -48,7 +47,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractDbChangeTypeBehavior implements DbChangeTypeBehavior {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractDbChangeTypeBehavior.class);
 
-    private final DbEnvironment env;
+    protected final DbEnvironment env;
     private final DbChangeType dbChangeType;
     private final SqlExecutor sqlExecutor;
     private final DbSimpleArtifactDeployer baseArtifactDeployer;
@@ -64,7 +63,7 @@ public abstract class AbstractDbChangeTypeBehavior implements DbChangeTypeBehavi
 
     @Override
     public void deploy(final Change change, final CommandExecutionContext cec) {
-        sqlExecutor.executeWithinContext(change.getPhysicalSchema(), new Procedure<Connection>() {
+        sqlExecutor.executeWithinContext(change.getPhysicalSchema(env), new Procedure<Connection>() {
             @Override
             public void value(Connection conn) {
                 baseArtifactDeployer.deployArtifact(conn, change);
@@ -73,22 +72,12 @@ public abstract class AbstractDbChangeTypeBehavior implements DbChangeTypeBehavi
                             Predicates.attributePredicate(PERMISSION_TO_SCHEME,
                                     StringPredicates.equalsIgnoreCase(change.getPermissionScheme())));
 
-                    applyGrants(conn, change.getPhysicalSchema(), change.getObjectName(), permsToApply, cec);
+                    applyGrants(conn, change.getPhysicalSchema(env), change.getObjectName(), permsToApply, cec);
                 }
             }
         });
     }
 
-
-    @Override
-    public void unmanage(Change change, ChangeAuditDao changeAuditDao) {
-        changeAuditDao.deleteChange(change);
-    }
-
-    @Override
-    public void unmanageObject(Change change, ChangeAuditDao changeAuditDao) {
-        changeAuditDao.deleteObjectChanges(change);
-    }
 
     protected abstract boolean shouldApplyGrants(Change artifact);
 
@@ -146,7 +135,7 @@ public abstract class AbstractDbChangeTypeBehavior implements DbChangeTypeBehavi
 
     @Override
     public void dropObject(final Change change, final boolean dropForRecreate) {
-        sqlExecutor.executeWithinContext(change.getPhysicalSchema(), new Procedure<Connection>() {
+        sqlExecutor.executeWithinContext(change.getPhysicalSchema(env), new Procedure<Connection>() {
             @Override
             public void value(Connection conn) {
                 String dropSql = null;
@@ -160,7 +149,6 @@ public abstract class AbstractDbChangeTypeBehavior implements DbChangeTypeBehavi
                     }
                 } catch (RuntimeException exc) {
                     if (dropForRecreate) {
-                        // TODO See GITHUB#4 - we should detect if the object exists first before trying to drop it and ignoring exceptions if unsuccessful.
                         LOG.debug("Change type {} for Object {} is being deployed anew as this sql did not execute: {}", change.getChangeType(), change.getObjectName(), dropSql);
                     } else {
                         throw exc;
@@ -193,7 +181,7 @@ public abstract class AbstractDbChangeTypeBehavior implements DbChangeTypeBehavi
         if (defaultObjectKeyword == null) {
             return "";
         } else {
-            return "DROP " + defaultObjectKeyword + " " + env.getPlatform().getSubschemaPrefix(change.getPhysicalSchema()) + change.getObjectName();
+            return "DROP " + defaultObjectKeyword + " " + env.getPlatform().getSubschemaPrefix(change.getPhysicalSchema(env)) + change.getObjectName();
         }
     }
 

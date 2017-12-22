@@ -18,6 +18,7 @@ package com.gs.obevo.api.factory;
 import com.gs.obevo.api.appdata.DeploySystem;
 import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.util.vfs.FileObject;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 
 public interface EnvironmentEnricher<T extends Environment> {
     /**
@@ -27,11 +28,5 @@ public interface EnvironmentEnricher<T extends Environment> {
      *
      * An error will be thrown
      */
-    DeploySystem<T> readSystem(FileObject sourcePath);
-
-    /**
-     * Returns true if we should try to build an environment from here
-     * This is here so that we can facilitate the autodetection of the env type based on the input location
-     */
-    boolean isEnvironmentOfThisTypeHere(FileObject sourcePath);
+    DeploySystem<T> readSystem(HierarchicalConfiguration config, FileObject sourcePath);
 }

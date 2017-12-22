@@ -49,7 +49,7 @@ import static org.mockito.Mockito.when;
 public class IncrementalChangeTypeCommandCalculatorTest {
     private static final String CONTENT = "";
 
-    private final IncrementalChangeTypeCommandCalculator cmdCalc = new IncrementalChangeTypeCommandCalculator(new DeployMetricsCollectorImpl(), 1);
+    private final IncrementalChangeTypeCommandCalculator cmdCalc = new IncrementalChangeTypeCommandCalculator(1);
 
     private final ImmutableList<Change> unusedChangesArg = Lists.immutable.with();
     private final AtomicInteger r = new AtomicInteger(0);

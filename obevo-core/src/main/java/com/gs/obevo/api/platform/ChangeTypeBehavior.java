@@ -15,8 +15,10 @@
  */
 package com.gs.obevo.api.platform;
 
+/**
+ * Defines the behavior for deploying a change. This class will be Platform-specific.
+ */
 import com.gs.obevo.api.appdata.Change;
-import com.gs.obevo.api.appdata.DeployExecution;
 
 public interface ChangeTypeBehavior {
     /**
@@ -37,23 +39,6 @@ public interface ChangeTypeBehavior {
      *                        moment), or a permanent drop
      */
     void dropObject(Change change, boolean dropForRecreate);
-
-    /**
-     * Adds the change to the audit table.
-     */
-    void manage(Change change, ChangeAuditDao changeAuditDao, DeployExecution deployExecution);
-
-    /**
-     * Removes the change to the audit table.
-     */
-    void unmanage(Change change, ChangeAuditDao changeAuditDao);
-
-    /**
-     * Removes all changes related to the given object from the audit table.
-     */
-    void unmanageObject(Change change, ChangeAuditDao changeAuditDao);
-
-    ChangeTypeCommandCalculator getChangeTypeCalculator();
 
     String getDefinitionFromEnvironment(Change exampleChange);
 }
