@@ -249,7 +249,7 @@ public class SameSchemaChangeAuditDao implements ChangeAuditDao {
 
     @Override
     public void insertNewChange(final Change change, final DeployExecution deployExecution) {
-        sqlExecutor.executeWithinContext(change.getPhysicalSchema(), new Procedure<Connection>() {
+        sqlExecutor.executeWithinContext(change.getPhysicalSchema(env), new Procedure<Connection>() {
             @Override
             public void value(Connection conn) {
                 insertNewChangeInternal(conn, change, deployExecution);
@@ -262,7 +262,7 @@ public class SameSchemaChangeAuditDao implements ChangeAuditDao {
 
         Timestamp currentTimestamp = getCurrentTimestamp();
         jdbcTemplate.update(
-                conn, "INSERT INTO " + env.getPlatform().getSchemaPrefix(change.getPhysicalSchema())
+                conn, "INSERT INTO " + env.getPlatform().getSchemaPrefix(change.getPhysicalSchema(env))
                         + dbChangeTable +
                         " (ARTFTYPE, DBSCHEMA, ACTIVE, CHANGETYPE, CONTENTHASH, " + changeNameColumn + ", OBJECTNAME, "
                         + rollbackContentColumn + ", " + deployUserIdColumn + ", " + timeInsertedColumn + ", " + timeUpdatedColumn + ", " + insertDeployExecutionIdColumn + ", " + updateDeployExecutionIdColumn + ") " +
@@ -285,10 +285,10 @@ public class SameSchemaChangeAuditDao implements ChangeAuditDao {
 
     @Override
     public void updateOrInsertChange(final Change change, final DeployExecution deployExecution) {
-        sqlExecutor.executeWithinContext(change.getPhysicalSchema(), new Procedure<Connection>() {
+        sqlExecutor.executeWithinContext(change.getPhysicalSchema(env), new Procedure<Connection>() {
             @Override
             public void value(Connection conn) {
-                int numRowsUpdated = updateDeployedArtifactVersionInternal(conn, change, change.getContentHash(), deployExecution);
+                int numRowsUpdated = updateInternal(conn, change, deployExecution);
                 if (numRowsUpdated == 0) {
                     insertNewChangeInternal(conn, change, deployExecution);
                 }
@@ -341,7 +341,6 @@ public class SameSchemaChangeAuditDao implements ChangeAuditDao {
                                 String changeType = (String) resultSet.get(convertDbObjectName.valueOf(resolveColumnName("CHANGETYPE")));
                                 changeType = changeType.equals(OLD_STATICDATA_CHANGETYPE) ? ChangeType.STATICDATA_STR : changeType;
                                 artf.setChangeType(env.getPlatform().getChangeType(changeType));
-                                artf.setChangeTypeBehavior(changeTypeBehaviorRegistry.getChangeTypeBehavior(changeType));
 
                                 artf.setContentHash((String) resultSet.get(convertDbObjectName.valueOf(resolveColumnName("CONTENTHASH"))));
                                 // these are repeated often
@@ -375,10 +374,6 @@ public class SameSchemaChangeAuditDao implements ChangeAuditDao {
             });
         }
 
-        for (Change artf : artfs) {
-            artf.setEnvironment(env);
-        }
-
         return artfs.toSet().toList()
                 .select(Predicates.attributeIn(Change.TO_SCHEMA, env.getSchemaNames())).toImmutable();
     }
@@ -390,11 +385,11 @@ public class SameSchemaChangeAuditDao implements ChangeAuditDao {
 
     @Override
     public void deleteChange(final Change change) {
-        sqlExecutor.executeWithinContext(change.getPhysicalSchema(), new Procedure<Connection>() {
+        sqlExecutor.executeWithinContext(change.getPhysicalSchema(env), new Procedure<Connection>() {
             @Override
             public void value(Connection conn) {
                 sqlExecutor.getJdbcTemplate().update(
-                        conn, "DELETE FROM " + env.getPlatform().getSchemaPrefix(change.getPhysicalSchema())
+                        conn, "DELETE FROM " + env.getPlatform().getSchemaPrefix(change.getPhysicalSchema(env))
                                 + dbChangeTable + " WHERE " + changeNameColumn + " = ? AND OBJECTNAME = ?"
                         , change.getChangeName(), change.getObjectName());
             }
@@ -403,11 +398,11 @@ public class SameSchemaChangeAuditDao implements ChangeAuditDao {
 
     @Override
     public void deleteObjectChanges(final Change change) {
-        sqlExecutor.executeWithinContext(change.getPhysicalSchema(), new Procedure<Connection>() {
+        sqlExecutor.executeWithinContext(change.getPhysicalSchema(env), new Procedure<Connection>() {
             @Override
             public void value(Connection conn) {
                 sqlExecutor.getJdbcTemplate().update(
-                        conn, "DELETE FROM " + env.getPlatform().getSchemaPrefix(change.getPhysicalSchema())
+                        conn, "DELETE FROM " + env.getPlatform().getSchemaPrefix(change.getPhysicalSchema(env))
                                 + dbChangeTable + " WHERE OBJECTNAME = ? AND CHANGETYPE = ?",
                         change.getObjectName(),
                         change.getChangeType().getName()
@@ -415,7 +410,7 @@ public class SameSchemaChangeAuditDao implements ChangeAuditDao {
 
                 // TODO delete this eventually
                 sqlExecutor.getJdbcTemplate().update(
-                        conn, "DELETE FROM " + env.getPlatform().getSchemaPrefix(change.getPhysicalSchema())
+                        conn, "DELETE FROM " + env.getPlatform().getSchemaPrefix(change.getPhysicalSchema(env))
                                 + dbChangeTable + " WHERE OBJECTNAME = ? AND CHANGETYPE = ?",
                         change.getObjectName(),
                         "GRANT"
@@ -426,7 +421,7 @@ public class SameSchemaChangeAuditDao implements ChangeAuditDao {
 
     private int updateInternal(Connection conn, Change artifact, DeployExecution deployExecution) {
         return sqlExecutor.getJdbcTemplate().update(
-                conn, "UPDATE " + env.getPlatform().getSchemaPrefix(artifact.getPhysicalSchema()) + dbChangeTable
+                conn, "UPDATE " + env.getPlatform().getSchemaPrefix(artifact.getPhysicalSchema(env)) + dbChangeTable
                         + " SET " +
                         "ARTFTYPE = ?, " +
                         "DBSCHEMA = ?, " +

@@ -22,53 +22,185 @@ import java.util.List;
 import java.util.Properties;
 
 import com.gs.obevo.api.platform.DeployerRuntimeException;
+import com.gs.obevo.util.vfs.FileObject;
 import com.gs.obevo.util.vfs.FileRetrievalMode;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.collections.api.RichIterable;
+import org.eclipse.collections.api.bag.MutableBag;
+import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.block.procedure.Procedure2;
+import org.eclipse.collections.api.list.ListIterable;
+import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.api.multimap.list.MutableListMultimap;
+import org.eclipse.collections.api.set.MutableSet;
+import org.eclipse.collections.impl.block.factory.HashingStrategies;
+import org.eclipse.collections.impl.block.factory.Predicates;
+import org.eclipse.collections.impl.block.factory.primitive.IntPredicates;
+import org.eclipse.collections.impl.collection.mutable.CollectionAdapter;
+import org.eclipse.collections.impl.factory.HashingStrategySets;
+import org.eclipse.collections.impl.factory.Lists;
+import org.eclipse.collections.impl.list.fixed.ArrayAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility to read in properties from default and override locations.
  */
 class PlatformConfigReader {
+    private static final Logger LOG = LoggerFactory.getLogger(PlatformConfigReader.class);
+    private static final String PROP_CONFIG_PRIORITY = "obevo.configPriority";
+
     public Properties readPlatformProperties(RichIterable<String> configPackages) {
-        Properties props = new Properties();
+        MutableList<PropertyInput> prioritizedProperties = readConfigPackages(configPackages);
 
-        for (String configPackage : configPackages) {
-            String defaultConfigPath = configPackage + "/default.properties";
-            List<URL> defaultConfigUrls = FileRetrievalMode.getResourcesFromClasspath(defaultConfigPath);
+        validate(prioritizedProperties);
 
-            if (defaultConfigUrls.isEmpty()) {
-                throw new IllegalStateException("Could not find default configuration " + defaultConfigPath + " in the classpath");
-            }
-            if (defaultConfigUrls.size() > 1) {
-                throw new IllegalStateException("Found multiple default config files " + defaultConfigPath + " in the classpath; this is not allowed: " + defaultConfigUrls);
-            }
+        // order properties by priority: higher-numbered files will replace properties of lower-numbered files
+        prioritizedProperties.sortThisBy(PropertyInput.TO_PRIORITY);
 
-            String overrideConfigPath = configPackage + "/override.properties";
-            List<URL> overrideConfigUrls = FileRetrievalMode.getResourcesFromClasspath(overrideConfigPath);
-            if (overrideConfigUrls.size() > 1) {
-                throw new IllegalStateException("Found multiple default config files " + overrideConfigPath + " in the classpath; this is not allowed: " + overrideConfigUrls);
-            }
-
-            loadPropertiesFromUrl(defaultConfigUrls, props);
-
-            if (overrideConfigUrls.size() == 1) {
-                loadPropertiesFromUrl(overrideConfigUrls, props);
-            }
+        // merge properties
+        Properties finalProperties = new Properties();
+        for (Properties properties : prioritizedProperties.collect(PropertyInput.TO_PROPS)) {
+            finalProperties.putAll(properties);
         }
 
-        return props;
+        // remove the configPriority property
+        finalProperties.remove(PROP_CONFIG_PRIORITY);
+
+        return finalProperties;
     }
 
-    private void loadPropertiesFromUrl(List<URL> defaultConfigUrls, Properties props) {
+    private MutableList<PropertyInput> readConfigPackages(RichIterable<String> configPackages) {
+        MutableSet<PropertyInput> prioritizedProperties = HashingStrategySets.mutable.of(HashingStrategies.fromFunction(PropertyInput.TO_PROPERTY_FILE_PATH));
+
+        for (String configPackage : configPackages) {
+            ListIterable<FileObject> fileObjects = FileRetrievalMode.CLASSPATH.resolveFileObjects(configPackage)
+                    .flatCollect(new Function<FileObject, List<FileObject>>() {
+                        @Override
+                        public List<FileObject> valueOf(FileObject object) {
+                            return ArrayAdapter.adapt(object.getChildren());
+                        }
+                    });
+            ListIterable<FileObject> propertyFiles = fileObjects
+                    .select(Predicates.attributeEqual(FileObject.TO_EXTENSION, "properties"));
+
+            for (FileObject propertyFile : propertyFiles) {
+                Properties fileProps = loadPropertiesFromUrl(propertyFile);
+
+                String configPriorityProp = fileProps.getProperty(PROP_CONFIG_PRIORITY);
+                if (configPriorityProp != null) {
+                    int priority = Integer.parseInt(configPriorityProp);
+                    prioritizedProperties.add(new PropertyInput(propertyFile.getName().getBaseName(), propertyFile.getURLDa(), priority, fileProps));
+                } else {
+                    LOG.warn("Property file {} was ignored as it did not contain {} property", propertyFile, PROP_CONFIG_PRIORITY);
+                }
+            }
+        }
+        return prioritizedProperties.toList();
+    }
+
+    private void validate(MutableList<PropertyInput> prioritizedProperties) {
+        // Now validate the file inputs
+        if (prioritizedProperties.isEmpty()) {
+            throw new IllegalStateException("Could not find default configuration " + "abc" + " in the classpath");
+        }
+
+        MutableListMultimap<String, PropertyInput> propertiesByFileName = prioritizedProperties.groupBy(PropertyInput.TO_FILE_NAME);
+        final MutableList<String> warnings = Lists.mutable.empty();
+        final MutableList<String> errors = Lists.mutable.empty();
+
+        propertiesByFileName.forEachKeyMultiValues(new Procedure2<String, Iterable<PropertyInput>>() {
+            @Override
+            public void value(String fileName, Iterable<PropertyInput> propertyInputsIter) {
+                MutableList<PropertyInput> propertyInputs = CollectionAdapter.wrapList(propertyInputsIter);
+                MutableBag<Integer> priorities = propertyInputs.collect(PropertyInput.TO_PRIORITY).toBag();
+                MutableBag<Integer> duplicatePriorities = priorities.selectByOccurrences(IntPredicates.greaterThan(1));
+                if (duplicatePriorities.notEmpty()) {
+                    errors.add("File name [" + fileName + "] was found with the same priority [" + duplicatePriorities + "] in multiple locations [" + propertyInputs.collect(PropertyInput.TO_PROPERTY_FILE_PATH) + "]. Please ensure that priorities are distinct.");
+                } else if (priorities.size() > 1) {
+                    warnings.add("File name [" + fileName + "] was found in multiple locations [" + propertyInputs.collect(PropertyInput.TO_PROPERTY_FILE_PATH) + "]. Will refer to them in their priority order, but ideally the file name should be different.");
+                }
+            }
+        });
+
+        if (warnings.notEmpty()) {
+            LOG.warn("Warnings on platform configuration file setup; please address in the future, but program will proceed:\n{}", warnings.makeString("\n"));
+        }
+
+        if (errors.notEmpty()) {
+            throw new IllegalStateException(errors.makeString("abc"));
+        }
+    }
+
+    private Properties loadPropertiesFromUrl(FileObject file) {
+        Properties props = new Properties();
         InputStream defaultStream = null;
         try {
-            defaultStream = defaultConfigUrls.get(0).openStream();
+            defaultStream = file.getURLDa().openStream();
             props.load(defaultStream);
+            return props;
         } catch (IOException e) {
             throw new DeployerRuntimeException(e);
         } finally {
             IOUtils.closeQuietly(defaultStream);
+        }
+    }
+
+    private static class PropertyInput {
+        private final String fileName;
+        private final URL propertyFilePath;
+        private final int priority;
+        private final Properties props;
+
+        private static final Function<PropertyInput, String> TO_FILE_NAME = new Function<PropertyInput, String>() {
+            @Override
+            public String valueOf(PropertyInput object) {
+                return object.getFileName();
+            }
+        };
+
+        private static final Function<PropertyInput, URL> TO_PROPERTY_FILE_PATH = new Function<PropertyInput, URL>() {
+            @Override
+            public URL valueOf(PropertyInput object) {
+                return object.getPropertyFilePath();
+            }
+        };
+
+        private static final Function<PropertyInput, Integer> TO_PRIORITY = new Function<PropertyInput, Integer>() {
+            @Override
+            public Integer valueOf(PropertyInput object) {
+                return object.getPriority();
+            }
+        };
+
+        private static final Function<PropertyInput, Properties> TO_PROPS = new Function<PropertyInput, Properties>() {
+            @Override
+            public Properties valueOf(PropertyInput object) {
+                return object.getProps();
+            }
+        };
+
+        public PropertyInput(String fileName, URL propertyFilePath, int priority, Properties props) {
+            this.fileName = fileName;
+            this.propertyFilePath = propertyFilePath;
+            this.priority = priority;
+            this.props = props;
+        }
+
+        public String getFileName() {
+            return fileName;
+        }
+
+        public URL getPropertyFilePath() {
+            return propertyFilePath;
+        }
+
+        public int getPriority() {
+            return priority;
+        }
+
+        public Properties getProps() {
+            return props;
         }
     }
 }

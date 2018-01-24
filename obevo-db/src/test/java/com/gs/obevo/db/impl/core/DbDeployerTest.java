@@ -143,12 +143,12 @@ public class DbDeployerTest {
         return table;
     }
 
-    private Change change(String schema, String objectName) {
-        Change change = mock(Change.class);
-        when(change.getObjectKey()).thenReturn(new ObjectKey(schema, tableChangeType, objectName));
-        when(change.getChangeType()).thenReturn(tableChangeType);
-        when(change.getObjectName()).thenReturn(objectName);
-        when(change.getPhysicalSchema()).thenReturn(new PhysicalSchema(schema));
-        return change;
-    }
+//    private Change change(String schema, String objectName) {
+//        Change change = mock(Change.class);
+//        when(change.getObjectKey()).thenReturn(new ObjectKey(schema, tableChangeType, objectName));
+//        when(change.getChangeType()).thenReturn(tableChangeType);
+//        when(change.getObjectName()).thenReturn(objectName);
+//        when(change.getPhysicalSchema(env)).thenReturn(new PhysicalSchema(schema));
+//        return change;
+//    }
 }

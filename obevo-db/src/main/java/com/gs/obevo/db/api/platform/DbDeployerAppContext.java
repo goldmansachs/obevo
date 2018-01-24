@@ -43,14 +43,6 @@ public interface DbDeployerAppContext extends DeployerAppContext<DbEnvironment, 
      */
     DbDeployerAppContext setStrictSetupEnvInfra(boolean strictSetupEnvInfra);
 
-    DbEnvironment getEnvironment();
-
-    File getWorkDir();
-
-    DbDeployerAppContext buildDbContext();
-
-    DbDeployerAppContext buildFileContext();
-
     ImmutableList<Change> readChangesFromAudit();
 
     ImmutableList<Change> readChangesFromSource();

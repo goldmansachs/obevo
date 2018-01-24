@@ -45,7 +45,7 @@ public class ChangeCommandSorterImplTest {
         when(dialect.convertDbObjectName()).thenReturn(Functions.getStringPassThru());
         when(dialect.isDropOrderRequired()).thenReturn(false);
 
-        this.sorter = new ChangeCommandSorterImpl(dialect);
+        this.sorter = new ChangeCommandSorterImpl(dialect, Functions.<Change, String>getFixedValue(null));
     }
 
 

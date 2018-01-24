@@ -18,7 +18,7 @@ package com.gs.obevo.db.api.platform;
 import java.sql.Connection;
 
 import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
-import com.gs.obevo.db.impl.core.reader.PrepareDbChange;
+import com.gs.obevo.impl.PrepareDbChange;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
 

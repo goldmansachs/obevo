@@ -16,10 +16,8 @@
 package com.gs.obevo.db.impl.core.changetypes;
 
 import com.gs.obevo.api.appdata.Change;
-import com.gs.obevo.api.appdata.DeployExecution;
-import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.api.platform.ChangeTypeCommandCalculator;
+import com.gs.obevo.api.platform.CommandExecutionContext;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.platform.DbChangeType;
 import com.gs.obevo.db.api.platform.DbPlatform;
@@ -29,8 +27,6 @@ import com.gs.obevo.dbmetadata.api.DaSchemaInfoLevel;
 import com.gs.obevo.dbmetadata.api.DaTable;
 import com.gs.obevo.dbmetadata.api.DaView;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
-import com.gs.obevo.api.platform.CommandExecutionContext;
-import com.gs.obevo.impl.changetypes.RerunnableChangeTypeCommandCalculator;
 import com.gs.obevo.impl.graph.GraphEnricher;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 
@@ -39,13 +35,11 @@ import org.eclipse.collections.api.collection.ImmutableCollection;
  * object w/out considering state).
  */
 public class RerunnableDbChangeTypeBehavior extends AbstractDbChangeTypeBehavior {
-    private final GraphEnricher graphEnricher;
     private final DbPlatform dbPlatform;
     private final DbMetadataManager dbMetadataManager;
 
     public RerunnableDbChangeTypeBehavior(DbEnvironment env, DbChangeType dbChangeType, SqlExecutor sqlExecutor, DbSimpleArtifactDeployer baseArtifactDeployer, GrantChangeParser grantChangeParser, GraphEnricher graphEnricher, DbPlatform dbPlatform, DbMetadataManager dbMetadataManager) {
         super(env, dbChangeType, sqlExecutor, baseArtifactDeployer, grantChangeParser);
-        this.graphEnricher = graphEnricher;
         this.dbPlatform = dbPlatform;
         this.dbMetadataManager = dbMetadataManager;
     }
@@ -56,11 +50,6 @@ public class RerunnableDbChangeTypeBehavior extends AbstractDbChangeTypeBehavior
 
     protected DbMetadataManager getDbMetadataManager() {
         return dbMetadataManager;
-    }
-
-    @Override
-    public ChangeTypeCommandCalculator getChangeTypeCalculator() {
-        return new RerunnableChangeTypeCommandCalculator(graphEnricher);
     }
 
     @Override
@@ -77,11 +66,6 @@ public class RerunnableDbChangeTypeBehavior extends AbstractDbChangeTypeBehavior
     }
 
     @Override
-    public void manage(Change change, ChangeAuditDao changeAuditDao, DeployExecution deployExecution) {
-        changeAuditDao.updateOrInsertChange(change, deployExecution);
-    }
-
-    @Override
     public void undeploy(Change change) {
         dropObject(change, false);
     }
@@ -89,7 +73,7 @@ public class RerunnableDbChangeTypeBehavior extends AbstractDbChangeTypeBehavior
     @Override
     public String getDefinitionFromEnvironment(Change drop) {
         if (drop.getChangeType().getName().equals(ChangeType.VIEW_STR)) {
-            DaTable table = this.dbMetadataManager.getTableInfo(drop.getPhysicalSchema(),
+            DaTable table = this.dbMetadataManager.getTableInfo(drop.getPhysicalSchema(env),
                     drop.getObjectName(), new DaSchemaInfoLevel().setRetrieveViewDetails(true));
             DaView view;
             if (table instanceof DaView) {
@@ -102,7 +86,7 @@ public class RerunnableDbChangeTypeBehavior extends AbstractDbChangeTypeBehavior
             return view.getDefinition();
         } else if (drop.getChangeType().getName().equals(ChangeType.FUNCTION_STR)) {
             ImmutableCollection<DaRoutine> procedures = this.dbMetadataManager.getRoutineInfo(
-                    drop.getPhysicalSchema(),
+                    drop.getPhysicalSchema(env),
                     drop.getObjectName(),
                     new DaSchemaInfoLevel().setRetrieveRoutineDetails(true)
             );

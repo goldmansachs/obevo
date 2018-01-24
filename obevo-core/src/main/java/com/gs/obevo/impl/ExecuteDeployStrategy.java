@@ -15,6 +15,7 @@
  */
 package com.gs.obevo.impl;
 
+import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.api.platform.CommandExecutionContext;
 
 /**
@@ -32,8 +33,8 @@ class ExecuteDeployStrategy implements DeployStrategy {
     }
 
     @Override
-    public void deploy(ExecuteChangeCommand changeCommand, CommandExecutionContext cec) {
-        changeCommand.execute(cec);
+    public void deploy(ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry, ExecuteChangeCommand changeCommand, CommandExecutionContext cec) {
+        changeCommand.execute(changeTypeBehaviorRegistry, cec);
     }
 
     @Override

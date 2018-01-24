@@ -22,11 +22,13 @@ import java.sql.Timestamp;
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder;
 import com.gs.obevo.api.appdata.PhysicalSchema;
+import com.gs.obevo.api.factory.EnvironmentEnricher;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.ChangeTypeImpl;
 import com.gs.obevo.api.platform.DeployerAppContext;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.appdata.GrantTargetType;
+import com.gs.obevo.db.api.factory.DbEnvironmentXmlEnricher;
 import com.gs.obevo.db.api.factory.DbPlatformConfiguration;
 import com.gs.obevo.db.api.platform.DbChangeType;
 import com.gs.obevo.db.api.platform.DbChangeTypeImpl;
@@ -140,6 +142,11 @@ public abstract class AbstractDbPlatform implements DbPlatform {
     @Override
     public ImmutableSet<String> getAcceptedExtensions() {
         return Sets.immutable.with("sql", "ddl", "dml", "tbl", "vw", "view", "spc", "sp", "txt", "csv", "proc", "dat");
+    }
+
+    @Override
+    public EnvironmentEnricher getEnvironmentEnricher() {
+        return new DbEnvironmentXmlEnricher();
     }
 
     @Override

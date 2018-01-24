@@ -29,7 +29,7 @@ import com.gs.obevo.db.api.platform.DbTranslationDialect;
 import com.gs.obevo.db.api.platform.SqlExecutor;
 import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
 import com.gs.obevo.db.apps.reveng.ChangeEntry;
-import com.gs.obevo.db.impl.core.reader.TextMarkupDocumentReader;
+import com.gs.obevo.impl.reader.TextMarkupDocumentReader;
 import com.gs.obevo.db.impl.platforms.AbstractDbPlatform;
 import org.apache.commons.lang3.ObjectUtils;
 import org.eclipse.collections.api.block.function.Function;

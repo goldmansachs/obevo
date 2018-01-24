@@ -19,13 +19,11 @@ import java.sql.Connection;
 
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.Environment;
-import com.gs.obevo.api.appdata.ObjectKey;
 import com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder;
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.appdata.Schema;
 import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.api.platform.DeployExecutionDao;
 import com.gs.obevo.api.platform.ToolVersion;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
@@ -40,16 +38,12 @@ import com.gs.obevo.dbmetadata.api.DaSchemaInfoLevel;
 import com.gs.obevo.dbmetadata.api.DaTable;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
 import com.gs.obevo.impl.Changeset;
-import com.gs.obevo.impl.ChangesetCreator;
 import com.gs.obevo.impl.DeployMetricsCollector;
 import com.gs.obevo.impl.DeployStrategy;
-import com.gs.obevo.impl.MainDeployer;
-import com.gs.obevo.impl.MainInputReader;
-import com.gs.obevo.impl.PostDeployAction;
-import com.gs.obevo.util.inputreader.Credential;
+import com.gs.obevo.impl.DeployerPlugin;
 import com.gs.obevo.util.lookuppredicate.LookupIndex;
+import org.apache.commons.dbutils.BasicRowProcessor;
 import org.eclipse.collections.api.block.function.Function;
-import org.eclipse.collections.api.block.function.Function2;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.collection.ImmutableCollection;
@@ -67,27 +61,31 @@ import org.slf4j.LoggerFactory;
 /**
  * Deployer implementation targeted specifically for DBMS platforms.
  */
-public class DbDeployer extends MainDeployer<DbPlatform, DbEnvironment> {
+public class DbDeployer implements DeployerPlugin<DbPlatform, DbEnvironment> {
     public static final String INIT_WARNING_MESSAGE =
             "WARNING: An INIT was requested; however, the system has been initialized in the past.\n" +
             "Please double-check that you need this INIT.";
 
     private static final Logger LOG = LoggerFactory.getLogger(DbDeployer.class);
 
+    private final ChangeAuditDao artifactDeployerDao;
+    private final DeployExecutionDao deployExecutionDao;
+    private final DeployMetricsCollector deployMetricsCollector;
     private final DbMetadataManager dbMetadataManager;
     private final SqlExecutor sqlExecutor;
     private final DbChecksumManager dbChecksumManager;
-    private DbEnvironment env;
 
-    public DbDeployer(ChangeAuditDao artifactDeployerDao, MainInputReader mainInputReader, ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry, ChangesetCreator changesetCreator, PostDeployAction postDeployAction, DbMetadataManager dbMetadataManager, SqlExecutor sqlExecutor, DeployMetricsCollector deployMetricsCollector, DbChecksumManager dbChecksumManager, DeployExecutionDao deployExecutionDao, Credential credential) {
-        super(artifactDeployerDao, mainInputReader, changeTypeBehaviorRegistry, changesetCreator, postDeployAction, deployMetricsCollector, deployExecutionDao, credential);
+    public DbDeployer(ChangeAuditDao artifactDeployerDao, DbMetadataManager dbMetadataManager, SqlExecutor sqlExecutor, DeployMetricsCollector deployMetricsCollector, DbChecksumManager dbChecksumManager, DeployExecutionDao deployExecutionDao) {
+        this.artifactDeployerDao = artifactDeployerDao;
+        this.deployExecutionDao = deployExecutionDao;
+        this.deployMetricsCollector = deployMetricsCollector;
         this.dbMetadataManager = dbMetadataManager;
         this.sqlExecutor = sqlExecutor;
         this.dbChecksumManager = dbChecksumManager;
     }
 
     @Override
-    protected void initializeSchema(final Environment env, PhysicalSchema schema) {
+    public void initializeSchema(final Environment env, PhysicalSchema schema) {
         this.sqlExecutor.executeWithinContext(schema, new Procedure<Connection>() {
             @Override
             public void value(Connection conn) {
@@ -97,11 +95,7 @@ public class DbDeployer extends MainDeployer<DbPlatform, DbEnvironment> {
     }
 
     @Override
-    protected void printArtifactsToProcessForUser(Changeset artifactsToProcess, DeployStrategy deployStrategy, DbEnvironment env, ImmutableCollection<Change> deployedChanges, ImmutableCollection<Change> sourceChanges) {
-        this.env = env;  // setting this as a kludge here until proper subsequent refactoring
-        super.printArtifactsToProcessForUser(artifactsToProcess, deployStrategy, env, deployedChanges, sourceChanges);
-
-
+    public void printArtifactsToProcessForUser2(Changeset artifactsToProcess, DeployStrategy deployStrategy, DbEnvironment env, ImmutableCollection<Change> deployedChanges, ImmutableCollection<Change> sourceChanges) {
         if (deployStrategy.isInitAllowedOnHashExceptions() && !isInitRequired(env)) {
             LOG.info("*******************************************");
             LOG.info(INIT_WARNING_MESSAGE);
@@ -133,16 +127,8 @@ public class DbDeployer extends MainDeployer<DbPlatform, DbEnvironment> {
         });
     }
 
-    private static final Function2<Change, Function<String, String>, ObjectKey> CHANGE_TO_IDENTITY = new Function2<Change, Function<String, String>, ObjectKey>() {
-        @Override
-        public ObjectKey value(Change change, Function<String, String> convertDbObjectName) {
-            return new ObjectKey(change.getPhysicalSchema().getPhysicalName(), change.getChangeType(), convertDbObjectName.valueOf(change.getObjectName()));
-        }
-    };
-
     @Override
-    protected void validatePriorToDeployment(DbEnvironment env, DeployStrategy deployStrategy, ImmutableList<Change> sourceChanges, ImmutableCollection<Change> deployedChanges, Changeset artifactsToProcess) {
-        super.validatePriorToDeployment(env, deployStrategy, sourceChanges, deployedChanges, artifactsToProcess);
+    public void validatePriorToDeployment(DbEnvironment env, DeployStrategy deployStrategy, ImmutableList<Change> sourceChanges, ImmutableCollection<Change> deployedChanges, Changeset artifactsToProcess) {
 
         if (env.isChecksumDetectionEnabled() && dbChecksumManager.isInitialized()) {
             Predicate<? super ChecksumEntry> platformInclusionPredicate = getPlatformInclusionPredicate(env);
@@ -165,19 +151,18 @@ public class DbDeployer extends MainDeployer<DbPlatform, DbEnvironment> {
     }
 
     @Override
-    protected void doPostDeployAction(DbEnvironment env, final ImmutableList<Change> sourceChanges) {
-        super.doPostDeployAction(env, sourceChanges);
+    public void doPostDeployAction(DbEnvironment env, final ImmutableList<Change> sourceChanges) {
         if (env.isChecksumDetectionEnabled()) {
             if (!dbChecksumManager.isInitialized()) {
                 // need this check done here to account for existing clients
                 dbChecksumManager.initialize();
             }
 
-            dbChecksumManager.applyChecksumDiffs(Predicates.and(getPlatformInclusionPredicate(env), getSourceChangesInclusionPredicate(sourceChanges)));
+            dbChecksumManager.applyChecksumDiffs(Predicates.and(getPlatformInclusionPredicate(env), getSourceChangesInclusionPredicate(env, sourceChanges)));
         }
     }
 
-    private ChecksumEntryInclusionPredicate createLookupIndexForObjectType(ImmutableList<Change> sourceChanges, String changeTypeName) {
+    private ChecksumEntryInclusionPredicate createLookupIndexForObjectType(DbEnvironment env, ImmutableList<Change> sourceChanges, String changeTypeName) {
         LookupIndex objectTypeIndex = new LookupIndex(Sets.immutable.with(changeTypeName));
         ImmutableList<Change> objectTypeChanges = sourceChanges.select(Predicates.attributeEqual(Change.TO_CHANGE_TYPE_NAME, changeTypeName));
         MutableSet<String> objectNames = objectTypeChanges.collect(Change.objectName()).collect(env.getPlatform().convertDbObjectName()).toSet();
@@ -212,16 +197,58 @@ public class DbDeployer extends MainDeployer<DbPlatform, DbEnvironment> {
         return Predicates.and(auditTablePredicate, Predicates.and(schemaObjectNamePredicates));
     }
 
-    public Predicate<ChecksumEntry> getSourceChangesInclusionPredicate(final ImmutableList<Change> sourceChanges) {
+    private Predicate<ChecksumEntry> getSourceChangesInclusionPredicate(final DbEnvironment env, final ImmutableList<Change> sourceChanges) {
         // 3) only include the predicate types that we care about
         ImmutableSet<String> requiredValidationObjectTypes = env.getPlatform().getRequiredValidationObjectTypes();
         ImmutableSet<ChecksumEntryInclusionPredicate> checksumEntryPredicates = requiredValidationObjectTypes.collect(new Function<String, ChecksumEntryInclusionPredicate>() {
             @Override
             public ChecksumEntryInclusionPredicate valueOf(String changeType) {
-                return createLookupIndexForObjectType(sourceChanges, changeType);
+                return createLookupIndexForObjectType(env, sourceChanges, changeType);
             }
         });
 
         return Predicates.or(checksumEntryPredicates);
+    }
+
+    @Override
+    public void validateSetup() {
+        validateProperDbUtilsVersion();
+    }
+
+    private void validateProperDbUtilsVersion() {
+        Package dbutilsPackage = BasicRowProcessor.class.getPackage();
+        String dbutilsVersion = dbutilsPackage.getSpecificationVersion();
+
+        if (dbutilsVersion == null) {
+            return;  // in case the jar is shaded, this information may not be available; hence, we are forced to return
+        }
+        String[] versionParts = dbutilsVersion.split("\\.");
+        if (versionParts.length < 2) {
+            throw new IllegalArgumentException("Improper dbutils version; must have at least two parts x.y; " + dbutilsVersion);
+        }
+
+        int majorVersion = Integer.valueOf(versionParts[0]).intValue();
+        int minorVersion = Integer.valueOf(versionParts[1]).intValue();
+
+        if (!(majorVersion >= 1 && minorVersion >= 6)) {
+            throw new IllegalArgumentException("commons-dbutils:commons-dbutils version must be >= 1.6 to avoid bugs w/ JDBC getColumnName() usage in <= 1.5");
+        }
+    }
+
+    @Override
+    public void logEnvironmentMetrics(DbEnvironment env) {
+        getDeployMetricsCollector().addMetric("dbDataSourceName", env.getDbDataSourceName());
+    }
+
+    private ChangeAuditDao getArtifactDeployerDao() {
+        return artifactDeployerDao;
+    }
+
+    private DeployExecutionDao getDeployExecutionDao() {
+        return deployExecutionDao;
+    }
+
+    private DeployMetricsCollector getDeployMetricsCollector() {
+        return deployMetricsCollector;
     }
 }

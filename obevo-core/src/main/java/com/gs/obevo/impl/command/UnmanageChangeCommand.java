@@ -18,6 +18,7 @@ package com.gs.obevo.impl.command;
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.DeployExecution;
 import com.gs.obevo.api.platform.ChangeAuditDao;
+import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +32,8 @@ public class UnmanageChangeCommand extends AuditOnlyChangeCommand {
     }
 
     @Override
-    public void markAuditTable(ChangeAuditDao artifactDeployerDao, DeployExecution deployExecution) {
+    public void markAuditTable(ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry, ChangeAuditDao artifactDeployerDao, DeployExecution deployExecution) {
         LOG.debug("Unmanaging the change due to {}", this.reasonMessage);
-        getArtifact().unmanage(artifactDeployerDao);
+        changeTypeBehaviorRegistry.unmanage(getArtifact(), artifactDeployerDao);
     }
 }

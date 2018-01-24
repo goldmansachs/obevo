@@ -27,7 +27,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import com.gs.obevo.util.VisibleForTesting;
-import com.sun.org.apache.xerces.internal.dom.DeepNodeListImpl;
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BOMInputStream;
@@ -52,6 +51,27 @@ public class FileObject implements org.apache.commons.vfs2.FileObject {
         @Override
         public FileObject valueOf(org.apache.commons.vfs2.FileObject fileObject) {
             return fileObject == null ? null : new FileObject(fileObject);
+        }
+    };
+
+    public static final Function<FileObject, URL> TO_URL_DA = new Function<FileObject, URL>() {
+        @Override
+        public URL valueOf(FileObject object) {
+            return object.getURLDa();
+        }
+    };
+
+    public static final Function<FileObject, String> TO_EXTENSION = new Function<FileObject, String>() {
+        @Override
+        public String valueOf(FileObject object) {
+            return object.getName().getExtension();
+        }
+    };
+
+    public static final Function<FileObject, String> TO_BASE_NAME = new Function<FileObject, String>() {
+        @Override
+        public String valueOf(FileObject object) {
+            return object.getName().getBaseName();
         }
     };
 

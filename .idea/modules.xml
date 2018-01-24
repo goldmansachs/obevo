@@ -27,6 +27,7 @@
       <module fileurl="file://$PROJECT_DIR$/obevo-internal-test-client-02/obevo-internal-test-client-02.iml" filepath="$PROJECT_DIR$/obevo-internal-test-client-02/obevo-internal-test-client-02.iml" />
       <module fileurl="file://$PROJECT_DIR$/obevo-internal-test-util/obevo-internal-test-util.iml" filepath="$PROJECT_DIR$/obevo-internal-test-util/obevo-internal-test-util.iml" />
       <module fileurl="file://$PROJECT_DIR$/obevo-dists/obevo-maven-plugin/obevo-maven-plugin.iml" filepath="$PROJECT_DIR$/obevo-dists/obevo-maven-plugin/obevo-maven-plugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-mongodb/obevo-mongodb.iml" filepath="$PROJECT_DIR$/obevo-mongodb/obevo-mongodb.iml" />
       <module fileurl="file://$PROJECT_DIR$/obevo-parent.iml" filepath="$PROJECT_DIR$/obevo-parent.iml" />
       <module fileurl="file://$PROJECT_DIR$/obevo-utils/obevo-reladomo-util/obevo-reladomo-util.iml" filepath="$PROJECT_DIR$/obevo-utils/obevo-reladomo-util/obevo-reladomo-util.iml" />
       <module fileurl="file://$PROJECT_DIR$/obevo-site/obevo-site.iml" filepath="$PROJECT_DIR$/obevo-site/obevo-site.iml" />

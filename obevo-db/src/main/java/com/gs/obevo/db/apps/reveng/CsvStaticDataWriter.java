@@ -34,7 +34,7 @@ import com.gs.obevo.db.api.platform.DbDeployerAppContext;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.db.api.platform.SqlExecutor;
 import com.gs.obevo.db.impl.core.changetypes.CsvReaderDataSource;
-import com.gs.obevo.db.impl.core.reader.TextMarkupDocumentReader;
+import com.gs.obevo.impl.reader.TextMarkupDocumentReader;
 import com.gs.obevo.dbmetadata.api.DaNamedObject;
 import com.gs.obevo.dbmetadata.api.DaSchemaInfoLevel;
 import com.gs.obevo.dbmetadata.api.DaTable;

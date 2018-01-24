@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.db.impl.core.reader.TextMarkupDocumentReader;
+import com.gs.obevo.impl.reader.TextMarkupDocumentReader;
 import com.gs.obevo.db.impl.platforms.sqltranslator.PostColumnSqlTranslator;
 import com.gs.obevo.db.impl.platforms.sqltranslator.PostParsedSqlTranslator;
 import com.gs.obevo.db.sqlparser.syntaxparser.CreateTable;

@@ -240,8 +240,6 @@ public class DbEnvironmentCleaner implements EnvironmentCleaner {
                             , "hash"
                             , "n/a"
                     );
-                    change.setEnvironment(env);
-                    change.setChangeTypeBehavior(changeTypeBehaviorRegistry.getChangeTypeBehavior(cleanCommand.getObjectType().getName()));
                     return change;
                 } else {
                     ChangeIncremental dbChangeIncremental = new ChangeIncremental(cleanCommand.getObjectType()
@@ -255,8 +253,6 @@ public class DbEnvironmentCleaner implements EnvironmentCleaner {
                     dbChangeIncremental.setDrop(true);
                     dbChangeIncremental.setManuallyCodedDrop(cleanCommand.getObjectType().getName().equals(ChangeType.FOREIGN_KEY_STR));
                     dbChangeIncremental.setForceDropForEnvCleaning(true);
-                    dbChangeIncremental.setEnvironment(env);
-                    dbChangeIncremental.setChangeTypeBehavior(changeTypeBehaviorRegistry.getChangeTypeBehavior(cleanCommand.getObjectType().getName()));
 
                     return dbChangeIncremental;
                 }
@@ -289,7 +285,7 @@ public class DbEnvironmentCleaner implements EnvironmentCleaner {
             LOG.info("Executing the drop: {}", executeChangeCommand.getCommandDescription());
             this.statementExecutor.performExtraCleanOperation(executeChangeCommand, dbMetadataManager);
             try {
-                executeChangeCommand.execute(new CommandExecutionContext());  // no need to collect warnings here, so we ignore the ContextExecutionContext value
+                executeChangeCommand.execute(changeTypeBehaviorRegistry, new CommandExecutionContext());  // no need to collect warnings here, so we ignore the ContextExecutionContext value
             } catch (Exception exc) {
                 LOG.info("Found error {}, will proceed with other objects (stack trace to come below)", exc.getMessage());
                 exceptions.add(exc);

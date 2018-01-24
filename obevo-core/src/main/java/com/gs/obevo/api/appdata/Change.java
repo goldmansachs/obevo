@@ -19,10 +19,7 @@ import java.sql.Timestamp;
 import java.util.regex.Pattern;
 
 import com.gs.obevo.api.appdata.doc.TextMarkupDocumentSection;
-import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.api.platform.ChangeTypeBehavior;
-import com.gs.obevo.api.platform.CommandExecutionContext;
 import com.gs.obevo.impl.graph.SortableDependency;
 import com.gs.obevo.impl.graph.SortableDependencyGroup;
 import com.gs.obevo.impl.text.TextDependencyExtractable;
@@ -130,7 +127,6 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
     private String contentHash;
 
     private transient FileObject fileLocation;
-    private transient String reason;
 
     private boolean active;
 
@@ -146,8 +142,6 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
     private String convertedRollbackContent;
     private int order = DEFAULT_CHANGE_ORDER;
 
-    private Environment environment;
-
     private String permissionScheme;  // this is really a property of the DB object, not the individual change. We have this here until we refactor to having a "DB Object" class
     private transient TextMarkupDocumentSection metadataSection;
     private transient String dropContent;
@@ -159,11 +153,6 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
     private Timestamp timeUpdated;
     private Timestamp timeInserted;
     private String changeset;
-    private boolean createOrReplace;
-
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
-    }
 
     protected Change() {
 
@@ -216,8 +205,8 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
         this.contentHash = contentHash;
     }
 
-    public PhysicalSchema getPhysicalSchema() {
-        return this.environment.getPhysicalSchema(this.schema);
+    public PhysicalSchema getPhysicalSchema(Environment env) {
+        return env.getPhysicalSchema(this.schema);
     }
 
     /**
@@ -309,14 +298,8 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
                 , this.getChangeType().getName()
                 , this.getSchema()
         ));
-        if (this.environment != null) {
-            sb.append("; PhysicalSchema [" + this.environment.getPhysicalSchema(this.getSchema()).getPhysicalName() + "]");
-        }
         if (this.fileLocation != null) {
             sb.append("; File [" + this.fileLocation + "]");
-        }
-        if (this.reason != null) {
-            sb.append("; Reason [" + this.reason + "]");
         }
 
         return sb.toString();
@@ -511,14 +494,6 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
         this.order = order;
     }
 
-    public String getReason() {
-        return this.reason;
-    }
-
-    public void setReason(String reason) {
-        this.reason = reason;
-    }
-
     public boolean isRollbackActivated() {
         return false;
     }
@@ -594,40 +569,6 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
         this.changeset = changeset;
     }
 
-    private ChangeTypeBehavior changeTypeBehavior;
-
-    public void deploy(CommandExecutionContext cec) {
-        this.changeTypeBehavior.deploy(this, cec);
-    }
-
-    public void undeploy() {
-        this.changeTypeBehavior.undeploy(this);
-    }
-
-    public void dropObject() {
-        this.changeTypeBehavior.dropObject(this, false);
-    }
-
-    public void manage(ChangeAuditDao changeAuditDao, DeployExecution deployExecution) {
-        this.changeTypeBehavior.manage(this, changeAuditDao, deployExecution);
-    }
-
-    public void unmanage(ChangeAuditDao changeAuditDao) {
-        this.changeTypeBehavior.unmanage(this, changeAuditDao);
-    }
-
-    public void unmanageObject(ChangeAuditDao changeAuditDao) {
-        this.changeTypeBehavior.unmanageObject(this, changeAuditDao);
-    }
-
-    public ChangeTypeBehavior getChangeTypeBehavior() {
-        return changeTypeBehavior;
-    }
-
-    public void setChangeTypeBehavior(ChangeTypeBehavior changeTypeBehavior) {
-        this.changeTypeBehavior = changeTypeBehavior;
-    }
-
     @Override
     public ImmutableSet<SortableDependency> getComponents() {
         return Sets.immutable.<SortableDependency>with(this);
@@ -638,9 +579,5 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
             return false;
         }
         return CREATE_OR_REPLACE_PATTERN.matcher(content).find();
-    }
-
-    public void setCreateOrReplace(boolean createOrReplace) {
-        this.createOrReplace = createOrReplace;
     }
 }

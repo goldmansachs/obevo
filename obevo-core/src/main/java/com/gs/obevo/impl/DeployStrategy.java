@@ -15,6 +15,7 @@
  */
 package com.gs.obevo.impl;
 
+import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.api.platform.CommandExecutionContext;
 
 /**
@@ -24,7 +25,7 @@ import com.gs.obevo.api.platform.CommandExecutionContext;
 public interface DeployStrategy {
     String getDeployVerbMessage();
 
-    void deploy(ExecuteChangeCommand changeCommand, CommandExecutionContext cec);
+    void deploy(ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry, ExecuteChangeCommand changeCommand, CommandExecutionContext cec);
 
     boolean isInitAllowedOnHashExceptions();
 }

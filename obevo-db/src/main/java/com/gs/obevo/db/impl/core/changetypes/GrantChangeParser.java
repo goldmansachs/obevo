@@ -23,7 +23,7 @@ import com.gs.obevo.db.api.appdata.GrantTargetType;
 import com.gs.obevo.db.api.appdata.Permission;
 import com.gs.obevo.db.api.platform.DbChangeType;
 import com.gs.obevo.db.api.platform.DbPlatform;
-import com.gs.obevo.db.impl.core.reader.PrepareDbChange;
+import com.gs.obevo.impl.PrepareDbChange;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.procedure.Procedure2;
 import org.eclipse.collections.api.list.ImmutableList;

@@ -17,6 +17,7 @@ package com.gs.obevo.api.appdata;
 
 import java.util.LinkedHashSet;
 
+import com.gs.obevo.api.factory.PlatformConfiguration;
 import com.gs.obevo.api.platform.DeployerAppContext;
 import com.gs.obevo.api.platform.DeployerRuntimeException;
 import com.gs.obevo.api.platform.Platform;
@@ -43,7 +44,6 @@ public class Environment<T extends Platform> {
     private ImmutableMap<String, String> tokens = Maps.immutable.empty();
     private String defaultUserId;
     private String defaultPassword;
-    private Class<? extends DeployerAppContext> appContextBuilderClass;
 
     private FileObject coreSourcePath;
     private ListIterable<String> additionalSourceDirs;
@@ -54,6 +54,10 @@ public class Environment<T extends Platform> {
     private ImmutableSet<Schema> allSchemas = Sets.immutable.empty();
     private ImmutableMap<String, String> schemaNameOverrides = Maps.immutable.empty();
     private boolean rollbackDetectionEnabled = true;
+    private ImmutableSet<String> acceptedExtensions;
+    private int metadataLineReaderVersion = PlatformConfiguration.getInstance().getFeatureToggleVersion("metadataLineReaderVersion");
+    private String sourceEncoding = PlatformConfiguration.getInstance().getSourceEncoding();
+    private int legacyDirectoryStructureEnabledVersion = PlatformConfiguration.getInstance().getFeatureToggleVersion("legacyDirectoryStructureEnabled");
 
     public static final Function<Environment, String> TO_NAME = new Function<Environment, String>() {
         @Override
@@ -69,7 +73,6 @@ public class Environment<T extends Platform> {
         this.tokens = env.tokens;
         this.defaultUserId = env.defaultUserId;
         this.defaultPassword = env.defaultPassword;
-        this.appContextBuilderClass = env.appContextBuilderClass;
         this.coreSourcePath = env.coreSourcePath;
         this.additionalSourceDirs = Lists.mutable.withAll(env.additionalSourceDirs);
         this.sourceDirs = env.sourceDirs;
@@ -78,6 +81,10 @@ public class Environment<T extends Platform> {
         this.allSchemas = env.allSchemas;
         this.schemaNameOverrides = env.schemaNameOverrides;
         this.rollbackDetectionEnabled = env.rollbackDetectionEnabled;
+        this.acceptedExtensions = env.acceptedExtensions;
+        this.sourceEncoding = env.sourceEncoding;
+        this.legacyDirectoryStructureEnabledVersion = env.legacyDirectoryStructureEnabledVersion;
+        this.metadataLineReaderVersion = env.metadataLineReaderVersion;
     }
 
     public String getName() {
@@ -200,7 +207,7 @@ public class Environment<T extends Platform> {
     public DeployerAppContext getAppContextBuilder() {
         DeployerAppContext deployerAppContext;
         try {
-            deployerAppContext = this.appContextBuilderClass.newInstance();
+            deployerAppContext = this.platform.getAppContextBuilderClass().newInstance();
         } catch (InstantiationException e) {
             throw new DeployerRuntimeException(e);
         } catch (IllegalAccessException e) {
@@ -212,10 +219,6 @@ public class Environment<T extends Platform> {
         }
 
         return deployerAppContext;
-    }
-
-    public void setAppContextBuilderClass(Class<? extends DeployerAppContext> appContextBuilderClass) {
-        this.appContextBuilderClass = appContextBuilderClass;
     }
 
     public ImmutableSet<String> getSchemaNames() {
@@ -304,5 +307,46 @@ public class Environment<T extends Platform> {
 
     public void setRollbackDetectionEnabled(boolean rollbackDetectionEnabled) {
         this.rollbackDetectionEnabled = rollbackDetectionEnabled;
+    }
+
+    /**
+     * Override the accepted extensions from the platform if needed.
+     * This should be avoided if possible; clients should send feedback to the product maintainers to update the list of
+     * defaults if needed (or to contribute the code change themselves).
+     */
+    public void setAcceptedExtensions(ImmutableSet<String> acceptedExtensions) {
+        this.acceptedExtensions = acceptedExtensions;
+    }
+
+    public ImmutableSet<String> getAcceptedExtensions() {
+        if (acceptedExtensions != null && acceptedExtensions.notEmpty()) {
+            return acceptedExtensions;
+        }
+        return getPlatform().getAcceptedExtensions();
+    }
+
+    public String getSourceEncoding() {
+        return sourceEncoding;
+    }
+
+    public void setSourceEncoding(String sourceEncoding) {
+        this.sourceEncoding = sourceEncoding;
+    }
+
+    public boolean isLegacyDirectoryStructureEnabled() {
+        // 1 == legacy, 2 == new
+        return legacyDirectoryStructureEnabledVersion == 1;
+    }
+
+    public void setLegacyDirectoryStructureEnabledVersion(int legacyDirectoryStructureEnabledVersion) {
+        this.legacyDirectoryStructureEnabledVersion = legacyDirectoryStructureEnabledVersion;
+    }
+
+    public int getMetadataLineReaderVersion() {
+        return metadataLineReaderVersion;
+    }
+
+    public void setMetadataLineReaderVersion(int metadataLineReaderVersion) {
+        this.metadataLineReaderVersion = metadataLineReaderVersion;
     }
 }

@@ -18,6 +18,7 @@ package com.gs.obevo.impl.command;
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.DeployExecution;
 import com.gs.obevo.api.platform.ChangeAuditDao;
+import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 
 public class BaselineChangeCommand extends AuditOnlyChangeCommand {
@@ -34,7 +35,7 @@ public class BaselineChangeCommand extends AuditOnlyChangeCommand {
     }
 
     @Override
-    public void markAuditTable(ChangeAuditDao artifactDeployerDao, DeployExecution deployExecution) {
+    public void markAuditTable(ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry, ChangeAuditDao artifactDeployerDao, DeployExecution deployExecution) {
         artifactDeployerDao.insertNewChange(this.getArtifact(), deployExecution);
         for (Change replacedChange : this.replacedChanges) {
             artifactDeployerDao.deleteChange(replacedChange);

@@ -19,17 +19,12 @@ import java.sql.Connection;
 import java.util.regex.Pattern;
 
 import com.gs.obevo.api.appdata.Change;
-import com.gs.obevo.api.appdata.DeployExecution;
-import com.gs.obevo.api.appdata.GroupChange;
-import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeTypeBehavior;
-import com.gs.obevo.api.platform.ChangeTypeCommandCalculator;
-import com.gs.obevo.db.api.platform.SqlExecutor;
 import com.gs.obevo.api.platform.CommandExecutionContext;
-import com.gs.obevo.impl.changecalc.ChangeCommandFactory;
-import com.gs.obevo.impl.graph.GraphEnricher;
+import com.gs.obevo.impl.changetypes.GroupChangeTypeSemantic;
+import com.gs.obevo.db.api.appdata.DbEnvironment;
+import com.gs.obevo.db.api.platform.SqlExecutor;
 import org.eclipse.collections.api.block.procedure.Procedure;
-import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.ListIterable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,21 +39,21 @@ public class StaticDataChangeTypeBehavior implements ChangeTypeBehavior {
     private static final Logger LOG = LoggerFactory.getLogger(StaticDataChangeTypeBehavior.class);
     private static final Pattern INSERT_INTO_PATTERN = Pattern.compile("(?i)^.*insert\\s+into.*$", Pattern.DOTALL);
 
+    private final DbEnvironment env;
     private final SqlExecutor sqlExecutor;
     private final DbSimpleArtifactDeployer baseArtifactDeployer;
     private final CsvStaticDataDeployer csvStaticDataDeployer;
-    private final GraphEnricher graphEnricher;
 
-    public StaticDataChangeTypeBehavior(SqlExecutor sqlExecutor, DbSimpleArtifactDeployer baseArtifactDeployer, CsvStaticDataDeployer csvStaticDataDeployer, GraphEnricher graphEnricher) {
+    public StaticDataChangeTypeBehavior(DbEnvironment env, SqlExecutor sqlExecutor, DbSimpleArtifactDeployer baseArtifactDeployer, CsvStaticDataDeployer csvStaticDataDeployer) {
+        this.env = env;
         this.sqlExecutor = sqlExecutor;
         this.baseArtifactDeployer = baseArtifactDeployer;
         this.csvStaticDataDeployer = csvStaticDataDeployer;
-        this.graphEnricher = graphEnricher;
     }
 
     @Override
     public void deploy(Change change, CommandExecutionContext cec) {
-        final ListIterable<Change> staticDatas = getSubChanges(change);
+        final ListIterable<Change> staticDatas = GroupChangeTypeSemantic.getSubChanges(change);
 
         if (staticDatas.isEmpty()) {
             LOG.info("No changes specified for this command");
@@ -96,7 +91,7 @@ public class StaticDataChangeTypeBehavior implements ChangeTypeBehavior {
             }
 
             for (final Change staticData : staticDatas) {
-                sqlExecutor.executeWithinContext(staticData.getPhysicalSchema(), new Procedure<Connection>() {
+                sqlExecutor.executeWithinContext(staticData.getPhysicalSchema(env), new Procedure<Connection>() {
                     @Override
                     public void value(Connection conn) {
                         baseArtifactDeployer.deployArtifact(conn, staticData);
@@ -114,35 +109,9 @@ public class StaticDataChangeTypeBehavior implements ChangeTypeBehavior {
         return INSERT_INTO_PATTERN.matcher(sql).matches();
     }
 
-    private ImmutableList<Change> getSubChanges(Change change) {
-        return ((GroupChange) change).getChanges();
-    }
-
-    @Override
-    public ChangeTypeCommandCalculator getChangeTypeCalculator() {
-        return new StaticDataChangeTypeCommandCalculator(new ChangeCommandFactory(), graphEnricher);
-    }
-
     @Override
     public String getDefinitionFromEnvironment(Change exampleChange) {
         return null;  // not applicable for static data
-    }
-
-    @Override
-    public void manage(Change change, ChangeAuditDao changeAuditDao, DeployExecution deployExecution) {
-        for (Change staticData : getSubChanges(change)) {
-            changeAuditDao.updateOrInsertChange(staticData, deployExecution);
-        }
-    }
-
-    @Override
-    public void unmanage(Change change, ChangeAuditDao changeAuditDao) {
-        changeAuditDao.deleteChange(change);
-    }
-
-    @Override
-    public void unmanageObject(Change change, ChangeAuditDao changeAuditDao) {
-        throw new UnsupportedOperationException("This method is not supported for this object type.");
     }
 
     @Override

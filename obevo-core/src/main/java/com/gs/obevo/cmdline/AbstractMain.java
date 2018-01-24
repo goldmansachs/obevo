@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.api.factory.EnvironmentEnricher;
 import com.gs.obevo.api.factory.EnvironmentLocator;
+import com.gs.obevo.api.factory.Obevo;
 import com.gs.obevo.api.platform.DeployerAppContext;
 import com.gs.obevo.util.FileUtilsCobra;
 import com.gs.obevo.util.RegexUtil;
@@ -28,6 +29,7 @@ import com.gs.obevo.util.inputreader.Credential;
 import com.gs.obevo.util.inputreader.CredentialReader;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.factory.Lists;
@@ -38,9 +40,8 @@ public abstract class AbstractMain<EnvType extends Environment, ContextClass, Co
     private static final Logger LOG = LoggerFactory.getLogger(AbstractMain.class);
     private final CredentialReader credentialReader = new CredentialReader();
 
-    public MutableCollection<EnvType> getRequestedSystem(String sourcePath) {
-        EnvironmentLocator<EnvType> environmentLocator = new EnvironmentLocator<EnvType>(getEnvironmentEnricher());
-        return environmentLocator.readSystem(sourcePath).getEnvironments();
+    private MutableCollection<EnvType> getRequestedSystem(String sourcePath) {
+        return Obevo.<EnvType>buildContext(sourcePath).toList();
     }
 
     public RichIterable<EnvType> getRequestedEnvironments(String sourcePath, String... envNames) {

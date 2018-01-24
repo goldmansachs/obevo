@@ -19,13 +19,16 @@ import com.gs.obevo.api.appdata.DeploySystem;
 import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.appdata.Schema;
+import com.gs.obevo.api.factory.XmlFileConfigReader;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.appdata.GrantTargetType;
 import com.gs.obevo.db.api.appdata.Group;
 import com.gs.obevo.db.api.appdata.Permission;
 import com.gs.obevo.db.api.appdata.User;
+import com.gs.obevo.util.vfs.FileObject;
 import com.gs.obevo.util.vfs.FileRetrievalMode;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.multimap.set.MutableSetMultimap;
 import org.eclipse.collections.impl.block.factory.Predicates;
@@ -43,15 +46,15 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class DbEnvironmentXmlEnricherTest {
+    private final DbEnvironmentXmlEnricher enricher = new DbEnvironmentXmlEnricher();
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
     @Test
     public void test1() {
-        DbEnvironmentXmlEnricher enricher = new DbEnvironmentXmlEnricher();
         // ensure that we can read the default system-config.xml from the folder
-        DeploySystem system = enricher.readSystem(FileRetrievalMode.FILE_SYSTEM
-                .resolveSingleFileObject("./src/test/resources/DbEnvironmentXmlEnricher"));
+        DeploySystem system = getDeploySystem("./src/test/resources/DbEnvironmentXmlEnricher");
 
         MutableList<DbEnvironment> envs = system.getEnvironments().toList().sortThisBy(Environment.TO_NAME);
         DbEnvironment env1 = envs.detect(Predicates.attributeEqual(Environment.TO_NAME, "test1"));
@@ -196,9 +199,7 @@ public class DbEnvironmentXmlEnricherTest {
      */
     @Test
     public void test2() {
-        DbEnvironmentXmlEnricher enricher = new DbEnvironmentXmlEnricher();
-        DeploySystem system = enricher.readSystem(FileRetrievalMode.FILE_SYSTEM
-                .resolveSingleFileObject("./src/test/resources/DbEnvironmentXmlEnricher/system-config-test2.xml"));
+        DeploySystem system = getDeploySystem("./src/test/resources/DbEnvironmentXmlEnricher/system-config-test2.xml");
 
         MutableList<DbEnvironment> envs = system.getEnvironments().toList().sortThisBy(Environment.TO_NAME);
         DbEnvironment env1 = envs.detect(Predicates.attributeEqual(Environment.TO_NAME, "test1"));
@@ -229,9 +230,7 @@ public class DbEnvironmentXmlEnricherTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(containsString("duplicate env names"));
 
-        DbEnvironmentXmlEnricher enricher = new DbEnvironmentXmlEnricher();
-        enricher.readSystem(FileRetrievalMode.FILE_SYSTEM
-                .resolveSingleFileObject("./src/test/resources/DbEnvironmentXmlEnricher/system-config-bad-dupeEnvNames.xml"));
+        getDeploySystem("./src/test/resources/DbEnvironmentXmlEnricher/system-config-bad-dupeEnvNames.xml");
     }
 
     @Test
@@ -239,21 +238,12 @@ public class DbEnvironmentXmlEnricherTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(containsString("Pattern element is deprecated"));
 
-        DbEnvironmentXmlEnricher enricher = new DbEnvironmentXmlEnricher();
-        enricher.readSystem(FileRetrievalMode.FILE_SYSTEM
-                .resolveSingleFileObject("./src/test/resources/DbEnvironmentXmlEnricher/system-config-bad-deprecatedExclusionTypes.xml"));
+        getDeploySystem("./src/test/resources/DbEnvironmentXmlEnricher/system-config-bad-deprecatedExclusionTypes.xml");
     }
 
-    @Test
-    public void validSchemaName() {
-        DbEnvironmentXmlEnricher.validateSchemaName("AbcDef123_456_98");
+    private DeploySystem getDeploySystem(String pathStr) {
+        FileObject sourcePath = FileRetrievalMode.FILE_SYSTEM.resolveSingleFileObject(pathStr);
+        HierarchicalConfiguration config = new XmlFileConfigReader().getConfig(sourcePath);
+        return enricher.readSystem(config, sourcePath);
     }
-
-    @Test
-    public void invalidSchemaName() {
-        thrown.expect(IllegalArgumentException.class);
-
-        DbEnvironmentXmlEnricher.validateSchemaName("abc.def");
-    }
-
 }

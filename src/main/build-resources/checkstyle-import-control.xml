@@ -63,7 +63,7 @@ General Rules:
     </subpackage>
     <subpackage name="impl">
         <!-- The impl folder has the main deployer implementation; the subpackages help feed into it -->
-        <disallow pkg="com\.gs\.obevo\.impl\..*" regex="true" local-only="true" />
+        <disallow pkg="com\.gs\.obevo\.impl\.[^(text)].*" regex="true" local-only="true" />
     </subpackage>
 
     <!-- obevo-db module -->

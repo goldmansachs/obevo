@@ -29,11 +29,7 @@ import com.gs.obevocomparer.compare.breaks.Break;
 import com.gs.obevocomparer.compare.breaks.DataObjectBreak;
 import com.gs.obevocomparer.compare.breaks.FieldBreak;
 import com.gs.obevocomparer.compare.simple.SimpleCatoProperties;
-import com.gs.obevocomparer.data.CatoDataObject;
-import com.gs.obevocomparer.input.AbstractCatoDataSource;
 import com.gs.obevocomparer.input.CatoDataSource;
-import com.gs.obevocomparer.input.CatoDerivedField;
-import com.gs.obevocomparer.input.CatoTypeConverter;
 import com.gs.obevocomparer.util.CatoBaseUtil;
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.PhysicalSchema;
@@ -42,7 +38,7 @@ import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.db.api.platform.SqlExecutor;
 import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
-import com.gs.obevo.db.impl.core.reader.TextMarkupDocumentReader;
+import com.gs.obevo.impl.reader.TextMarkupDocumentReader;
 import com.gs.obevo.dbmetadata.api.DaColumn;
 import com.gs.obevo.dbmetadata.api.DaIndex;
 import com.gs.obevo.dbmetadata.api.DaNamedObject;
@@ -147,14 +143,14 @@ public class CsvStaticDataDeployer {
 
     public final StaticDataChangeRows getStaticDataChangesForTable(DbEnvironment env, Change artifact) {
         DaTable table = Validate.notNull(
-                this.metadataManager.getTableInfo(artifact.getPhysicalSchema(), artifact.getObjectName(), new DaSchemaInfoLevel()
+                this.metadataManager.getTableInfo(artifact.getPhysicalSchema(env), artifact.getObjectName(), new DaSchemaInfoLevel()
                                 .setRetrieveTables(true)
                                 .setRetrieveTableColumns(true)
                                 .setRetrieveTableCheckConstraints(true)
                                 .setRetrieveTableIndexes(true)
                         // not retrieving foreign keys
                 ),
-                "Could not find table %1$s.%2$s", artifact.getPhysicalSchema(), artifact.getObjectName());
+                "Could not find table %1$s.%2$s", artifact.getPhysicalSchema(env), artifact.getObjectName());
 
         CsvReaderDataSource fileSource = new CsvStaticDataReader().getFileDataSource(env.getCsvVersion(), table, artifact.getConvertedContent(),
                 env.getDataDelimiter(), env.getNullToken(), dbPlatform.convertDbObjectName());
@@ -215,7 +211,7 @@ public class CsvStaticDataDeployer {
     private StaticDataChangeRows parseReconChanges(Change artifact, DaTable table,
             CatoDataSource fileSource,
             CatoProperties reconFields, final MutableSet<String> fileColumnNames, String updateTimeColumn) {
-        CatoDataSource dbSource = this.getQueryDataSource(artifact.getPhysicalSchema(), table);
+        CatoDataSource dbSource = this.getQueryDataSource(artifact.getPhysicalSchema(env), table);
 
         CatoComparison recon = CatoBaseUtil.compare("name", fileSource, dbSource, reconFields);
 
@@ -307,7 +303,7 @@ public class CsvStaticDataDeployer {
             }
         }
 
-        return new StaticDataChangeRows(artifact.getPhysicalSchema(), table, inserts.toImmutable(), updates.toImmutable(), deletes.toImmutable());
+        return new StaticDataChangeRows(artifact.getPhysicalSchema(env), table, inserts.toImmutable(), updates.toImmutable(), deletes.toImmutable());
     }
 
     /**

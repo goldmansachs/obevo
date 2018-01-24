@@ -28,7 +28,6 @@ public class GroupChange extends Change {
         Validate.isTrue(changes.notEmpty(), "Cannot provide an empty list to a GroupChange");
         this.changes = changes;
         this.setChangeType(changes.get(0).getChangeType());
-        this.setChangeTypeBehavior(changes.get(0).getChangeTypeBehavior());
     }
 
     public ImmutableList<Change> getChanges() {

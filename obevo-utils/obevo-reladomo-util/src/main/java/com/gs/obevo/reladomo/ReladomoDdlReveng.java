@@ -22,7 +22,7 @@ import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
 import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
-import com.gs.obevo.db.impl.core.util.MultiLineStringSplitter;
+import com.gs.obevo.impl.util.MultiLineStringSplitter;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.impl.block.factory.StringPredicates;

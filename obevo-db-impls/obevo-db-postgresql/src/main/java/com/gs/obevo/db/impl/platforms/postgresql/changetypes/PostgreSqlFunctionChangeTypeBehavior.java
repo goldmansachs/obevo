@@ -72,7 +72,7 @@ public class PostgreSqlFunctionChangeTypeBehavior extends RerunnableDbChangeType
     @Override
     protected String generateDropChangeRaw(Connection conn, Change change) {
         StringBuilder sb = new StringBuilder();
-        for (String functionName : this.getQualifiedObjectNames(conn, change.getPhysicalSchema(), change.getObjectName()).getTwo()) {
+        for (String functionName : this.getQualifiedObjectNames(conn, change.getPhysicalSchema(env), change.getObjectName()).getTwo()) {
             sb.append("DROP FUNCTION ").append(functionName).append(";\n");
         }
 

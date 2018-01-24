@@ -60,10 +60,12 @@ public class ChangeCommandSorterImpl implements ChangeCommandSorter {
     private static final Logger LOG = LoggerFactory.getLogger(ChangeCommandSorterImpl.class);
     private final Platform dialect;
     private final GraphEnricher enricher;
+    private final Function<Change, String> getDefinitionFromEnvironment;
     private final GraphSorter graphSorter = new GraphSorter();
 
-    public ChangeCommandSorterImpl(Platform dialect) {
+    public ChangeCommandSorterImpl(Platform dialect, Function<Change, String> getDefinitionFromEnvironment) {
         this.dialect = dialect;
+        this.getDefinitionFromEnvironment = getDefinitionFromEnvironment;
         this.enricher = new GraphEnricherImpl(dialect.convertDbObjectName());
     }
 
@@ -110,7 +112,7 @@ public class ChangeCommandSorterImpl implements ChangeCommandSorter {
 
             for (DbCommandSortKey dbCommandSortKey : rerunnableDrops) {
                 Change drop = dbCommandSortKey.getChangeCommand().getChanges().getFirst();
-                String sql = drop.getChangeTypeBehavior().getDefinitionFromEnvironment(drop);
+                String sql = getDefinitionFromEnvironment.valueOf(drop);
                 LOG.debug("Found the sql from the DB for dropping: {}", sql);
                 drop.setContent(sql != null ? sql : "");
             }

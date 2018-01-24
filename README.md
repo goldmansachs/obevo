@@ -3,6 +3,7 @@
 [![Documentation abc](https://img.shields.io/badge/Documentation-online-brightgreen.svg)](https://goldmansachs.github.io/obevo/) [![Build Status abc](https://travis-ci.org/goldmansachs/obevo.svg?branch=master)](https://travis-ci.org/goldmansachs/obevo) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.goldmansachs.obevo/obevo-parent/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.goldmansachs.obevo/obevo-parent) [![Releases](https://img.shields.io/github/release/goldmansachs/obevo.svg)](https://github.com/goldmansachs/obevo/releases) [![Apache License](https://img.shields.io/badge/License-Apache%202-blue.svg)](LICENSE.txt)
 
 
+
 ## Database Deployment Tool for Enterprise Scale and Complexity
 
 Deploying tables for a new application?
@@ -10,6 +11,12 @@ Deploying tables for a new application?
 Or looking to improve the DB Deployment of a years-old system with hundreds (or thousands) of tables, views, stored procedures, and other objects?
 
 Obevo has your use case covered.
+
+
+## Announcement: MongoDB and non-SQL platforms coming soon in 7.0.0
+
+MongoDB support is coming soon! This is a proof of concept that we can deploy non-RDBMS platforms using the object-based
+management pattern described [here](https://www.infoq.com/articles/Obevo-Introduction)
 
 
 ## Quick Links

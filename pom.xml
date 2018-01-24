@@ -38,6 +38,7 @@
         <module>obevo-internal-test-util</module>  <!-- put bom at the end as the last module of the staging plugin must be deployed for all the eligible modules to get deployed -->
         <module>obevo-bom</module>
         <module>obevo-dependencies</module>
+        <module>obevo-mongodb</module>
     </modules>
 
     <name>Obevo Parent POM</name>

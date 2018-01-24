@@ -18,8 +18,10 @@ package com.gs.obevo.api.platform;
 import java.sql.Timestamp;
 
 import com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder;
+import com.gs.obevo.api.factory.EnvironmentEnricher;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
+import org.eclipse.collections.api.set.ImmutableSet;
 
 /**
  * Represent the platform/system whose code we want to maintain.
@@ -31,6 +33,8 @@ import org.eclipse.collections.api.list.ImmutableList;
  * TODO write up more information on the incremental pattern.
  */
 public interface Platform {
+    Class<? extends DeployerAppContext> getAppContextBuilderClass();
+
     /**
      * The name of the this {@link ChangeType}. This value should be leveraged where possible to interact
      * with the wider ecosystem, e.g. change restrictions, directory structure for code.
@@ -72,21 +76,7 @@ public interface Platform {
 
     ObjectTypeAndNamePredicateBuilder getObjectExclusionPredicateBuilder();
 
-    /**
-     * Given an object from the result set returned by the MapListHandler in JdbcHelper, this will return a long value.
-     * This is simple for most DBMSs, but a few need special handling.
-     */
-    Long getLongValue(Object obj);
+    ImmutableSet<String> getAcceptedExtensions();
 
-    /**
-     * Given an object from the result set returned by the MapListHandler in JdbcHelper, this will return a timestamp value.
-     * This is simple for most DBMSs, but a few need special handling.
-     */
-    Timestamp getTimestampValue(Object obj);
-
-    /**
-     * Given an object from the result set returned by the MapListHandler in JdbcHelper, this will return an integer value.
-     * This is simple for most DBMSs, but a few need special handling.
-     */
-    Integer getIntegerValue(Object obj);
+    EnvironmentEnricher getEnvironmentEnricher();
 }
