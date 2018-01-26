@@ -13,7 +13,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.gs.obevo.mongodb;
+package com.gs.obevo.mongodb.impl;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -25,6 +25,7 @@ import com.gs.obevo.api.appdata.DeployExecution;
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.Platform;
+import com.gs.obevo.mongodb.api.appdata.MongoDbEnvironment;
 import com.gs.obevo.util.knex.InternMap;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;

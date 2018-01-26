@@ -231,15 +231,15 @@
 </dependencies>]]></source>
             </p>
         </section>
-        <section name="Example API Usage - DbEnvironmentFactory">
+        <section name="Example API Usage - com.gs.obevo.api.factory.Obevo">
 
-            <p>DbEnvironmentFactory is the main API to read in your project configurations from the config file. Explore the API and the overloads for each method to see what other method options are available.
+            <p>com.gs.obevo.api.factory.Obevo is the main API entrypoint to read in your project configurations from the config file. Explore the API and the overloads for each method to see what other method options are available.
 
-            <source><![CDATA[
-// Read the environment from your file system
-DbEnvironment env = DbEnvironmentFactory.getInstance().readOneFromSourcePath("./src/test/resources/platforms/hsql");
+            <source><![CDATA[// Read the environment from your file system
+DbEnvironment env = Obevo.readEnvironment("./src/test/resources/platforms/hsql");
+
 // Build the app context - you can pass in credentials via the API if needed
-DbDeployerAppContext context = env.buildAppContext("sa", "password");
+DeployerAppContext context = Obevo.buildContext(env, "sa", "password");
 
 // Then invoke the deploy commands.
 context.cleanEnvironment();
@@ -251,19 +251,18 @@ context.deploy();]]></source>
             create the DbDeployerAppContext directly from there:
 
             <source><![CDATA[DbEnvironment dbEnv = new DbEnvironment();
-dbEnv.setSourceDirs(Lists.mutable.with(FileRetrievalMode.FILE_SYSTEM.getFileObject("./src/test/resources/platforms/h2/step1")));
+dbEnv.setSourceDirs(Lists.immutable.with(FileRetrievalMode.FILE_SYSTEM.resolveSingleFileObject("./src/test/resources/platforms/h2/step1")));
 dbEnv.setName("test");
-dbEnv.setDbPlatform(new H2DbPlatform());
-dbEnv.setSchemas(Lists.mutable.with(new Schema("SCHEMA1"), new Schema("SCHEMA2")));
+dbEnv.setPlatform(new H2DbPlatform());
+dbEnv.setSchemas(Sets.immutable.with(new Schema("SCHEMA1"), new Schema("SCHEMA2")));
 dbEnv.setDbServer("BLAH");
 
-dbEnv.setSchemaNameOverrides(UnifiedMap.newWithKeysValues("SCHEMA1", "bogusSchema"));
+dbEnv.setSchemaNameOverrides(Maps.immutable.of("SCHEMA1", "bogusSchema"));
 dbEnv.setNullToken("(null)");
 dbEnv.setDataDelimiter('^');
 
-DbDeployerAppContext context = dbEnv.getAppContextBuilder()
-        .setCredential(new Credential("sa", ""))
-        .build();
+
+DeployerAppContext context = Obevo.buildContext(dbEnv, new Credential("sa", ""));
 
 context.setupEnvInfra();
 context.cleanEnvironment();

@@ -13,9 +13,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.gs.obevo.mongodb;
+package com.gs.obevo.mongodb.api.appdata;
 
 import com.gs.obevo.api.appdata.Environment;
+import com.gs.obevo.mongodb.impl.MongoDbPlatform;
 import com.mongodb.MongoClientURI;
 
 public class MongoDbEnvironment extends Environment<MongoDbPlatform> {

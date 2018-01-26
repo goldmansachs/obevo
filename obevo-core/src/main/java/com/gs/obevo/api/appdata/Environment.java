@@ -44,6 +44,8 @@ public class Environment<T extends Platform> {
     private ImmutableMap<String, String> tokens = Maps.immutable.empty();
     private String defaultUserId;
     private String defaultPassword;
+    @Deprecated
+    private Class<? extends DeployerAppContext> appContextBuilderClass;
 
     private FileObject coreSourcePath;
     private ListIterable<String> additionalSourceDirs;
@@ -207,7 +209,11 @@ public class Environment<T extends Platform> {
     public DeployerAppContext getAppContextBuilder() {
         DeployerAppContext deployerAppContext;
         try {
-            deployerAppContext = this.platform.getAppContextBuilderClass().newInstance();
+            if (appContextBuilderClass != null) {
+                deployerAppContext = this.appContextBuilderClass.newInstance();
+            } else {
+                deployerAppContext = this.platform.getAppContextBuilderClass().newInstance();
+            }
         } catch (InstantiationException e) {
             throw new DeployerRuntimeException(e);
         } catch (IllegalAccessException e) {
@@ -219,6 +225,15 @@ public class Environment<T extends Platform> {
         }
 
         return deployerAppContext;
+    }
+
+    /**
+     *
+     * @deprecated
+     */
+    @Deprecated
+    public void setAppContextBuilderClass(Class<? extends DeployerAppContext> appContextBuilderClass) {
+        this.appContextBuilderClass = appContextBuilderClass;
     }
 
     public ImmutableSet<String> getSchemaNames() {

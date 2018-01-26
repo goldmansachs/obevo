@@ -27,7 +27,7 @@ import org.eclipse.collections.impl.factory.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EnvironmentLocator {
+class EnvironmentLocator {
     private static final Logger LOG = LoggerFactory.getLogger(EnvironmentLocator.class);
 
     private final RichIterable<FileConfigReader> configReaders;

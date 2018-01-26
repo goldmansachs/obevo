@@ -26,16 +26,15 @@ import com.gs.obevo.api.appdata.DeployExecutionStatus;
 import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.appdata.Schema;
+import com.gs.obevo.api.factory.PlatformConfiguration;
 import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeCommand;
-import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.api.platform.CommandExecutionContext;
 import com.gs.obevo.api.platform.DeployExecutionDao;
 import com.gs.obevo.api.platform.DeployMetrics;
 import com.gs.obevo.api.platform.DeployerRuntimeException;
 import com.gs.obevo.api.platform.MainDeployerArgs;
 import com.gs.obevo.api.platform.Platform;
-import com.gs.obevo.api.platform.ToolVersion;
 import com.gs.obevo.impl.text.TextDependencyExtractor;
 import com.gs.obevo.util.inputreader.ConsoleInputReader;
 import com.gs.obevo.util.inputreader.Credential;
@@ -115,7 +114,7 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
     }
 
     private void executeInternal(final E env, SourceReaderStrategy sourceReaderStrategy, final MainDeployerArgs deployerArgs) {
-        LOG.info("Running {} version {}", ToolVersion.getToolName(), ToolVersion.getToolVersion());
+        LOG.info("Running {} version {}", PlatformConfiguration.getInstance().getToolName(), PlatformConfiguration.getInstance().getToolVersion());
 
         if (env.getSchemas().isEmpty()) {
             throw new IllegalArgumentException("Environment needs schemas populated");
@@ -181,7 +180,7 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
                             deployerArgs.getDeployRequesterId(),
                             credential.getUsername(),
                             schema.getName(),
-                            ToolVersion.getToolVersion(),
+                            PlatformConfiguration.getInstance().getToolVersion(),
                             new Timestamp(new Date().getTime()),
                             deployerArgs.isPerformInitOnly(),
                             deployerArgs.isRollback(),

@@ -19,7 +19,7 @@ import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.platform.ChangeCommand;
 import com.gs.obevo.api.platform.ChangePair;
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry;
+import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.impl.AuditChangeCommand;
 import com.gs.obevo.impl.ChangeCommandWarning;
 import com.gs.obevo.impl.Changeset;
