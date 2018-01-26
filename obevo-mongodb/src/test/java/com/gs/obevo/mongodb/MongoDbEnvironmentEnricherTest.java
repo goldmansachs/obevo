@@ -15,12 +15,19 @@
  */
 package com.gs.obevo.mongodb;
 
+import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.api.factory.XmlFileConfigReader;
+import com.gs.obevo.mongodb.api.appdata.MongoDbEnvironment;
+import com.gs.obevo.mongodb.impl.MongoDbEnvironmentEnricher;
 import com.gs.obevo.util.vfs.FileObject;
 import com.gs.obevo.util.vfs.FileRetrievalMode;
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.eclipse.collections.api.collection.MutableCollection;
+import org.eclipse.collections.impl.factory.Maps;
+import org.eclipse.collections.impl.factory.Sets;
 import org.junit.Test;
 
+import static org.eclipse.collections.impl.block.factory.Predicates.attributeEqual;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -29,12 +36,26 @@ public class MongoDbEnvironmentEnricherTest {
 
     @Test
     public void testSimpleRead() {
-
         FileObject input = FileRetrievalMode.CLASSPATH.resolveSingleFileObject("MongoDbEnvironmentEnricher/system-config-basic.xml");
         HierarchicalConfiguration config = new XmlFileConfigReader().getConfig(input);
 
-        MongoDbEnvironment env = enricher.readSystem(config, input).getEnvironments().getFirst();
+        MutableCollection<MongoDbEnvironment> envs = enricher.readSystem(config, input).getEnvironments();
 
-        assertThat(env.getConnectionURI(), equalTo(MongoDbTestHelper.CONNECTION_URI));
+        validateEnv1(envs.detect(attributeEqual(Environment.TO_NAME, "test1")));
+        validateEnv2(envs.detect(attributeEqual(Environment.TO_NAME, "test2")));
+    }
+
+    private void validateEnv1(MongoDbEnvironment env1) {
+        assertThat(env1.getConnectionURI(), equalTo("mongodb://localhost:10000"));
+        assertThat(env1.getSchemaNames(), equalTo(Sets.immutable.of("MYSCHEMA")));
+        assertThat(env1.getPhysicalSchema("MYSCHEMA").getPhysicalName(), equalTo("MYSCHEMA"));
+        assertThat(env1.getTokens(), equalTo(Maps.immutable.<String, String>empty()));
+    }
+
+    private void validateEnv2(MongoDbEnvironment env2) {
+        assertThat(env2.getConnectionURI(), equalTo("mongodb://localhost:10001"));
+        assertThat(env2.getSchemaNames(), equalTo(Sets.immutable.of("MYSCHEMA")));
+        assertThat(env2.getPhysicalSchema("MYSCHEMA").getPhysicalName(), equalTo("MYSCHEMA_TEST2"));
+        assertThat(env2.getTokens(), equalTo(Maps.immutable.of("key", "val")));
     }
 }

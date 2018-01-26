@@ -20,7 +20,6 @@ import com.gs.obevo.api.appdata.DeployExecution;
 import com.gs.obevo.api.appdata.GroupChange;
 import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeTypeCommandCalculator;
-import com.gs.obevo.db.impl.core.changetypes.StaticDataChangeTypeCommandCalculator;
 import com.gs.obevo.impl.changecalc.ChangeCommandFactory;
 import com.gs.obevo.impl.graph.GraphEnricher;
 import org.eclipse.collections.api.list.ImmutableList;
@@ -48,6 +47,6 @@ public class GroupChangeTypeSemantic extends AbstractChangeTypeSemantic {
 
     @Override
     public ChangeTypeCommandCalculator getChangeTypeCalculator() {
-        return new StaticDataChangeTypeCommandCalculator(new ChangeCommandFactory(), graphEnricher);
+        return new GroupChangeTypeCommandCalculator(new ChangeCommandFactory(), graphEnricher);
     }
 }

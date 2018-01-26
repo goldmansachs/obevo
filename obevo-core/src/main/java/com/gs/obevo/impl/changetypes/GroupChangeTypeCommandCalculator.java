@@ -13,7 +13,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.gs.obevo.db.impl.core.changetypes;
+package com.gs.obevo.impl.changetypes;
 
 import java.util.Set;
 
@@ -44,14 +44,14 @@ import org.jgrapht.graph.DefaultEdge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StaticDataChangeTypeCommandCalculator implements ChangeTypeCommandCalculator {
-    private static final Logger LOG = LoggerFactory.getLogger(StaticDataChangeTypeCommandCalculator.class);
+public class GroupChangeTypeCommandCalculator implements ChangeTypeCommandCalculator {
+    private static final Logger LOG = LoggerFactory.getLogger(GroupChangeTypeCommandCalculator.class);
 
     private final ChangeCommandFactory changeCommandFactory;
     private final GraphEnricher enricher;
     private final GraphSorter sorter = new GraphSorter();
 
-    public StaticDataChangeTypeCommandCalculator(ChangeCommandFactory changeCommandFactory, GraphEnricher enricher) {
+    public GroupChangeTypeCommandCalculator(ChangeCommandFactory changeCommandFactory, GraphEnricher enricher) {
         this.changeCommandFactory = changeCommandFactory;
         this.enricher = enricher;
     }

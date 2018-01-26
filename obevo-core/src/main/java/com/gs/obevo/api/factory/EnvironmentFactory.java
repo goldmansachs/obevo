@@ -31,9 +31,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Factory class that facilitates reading environments from a given input file path.
  *
- * @since 7.0.0
+ * @since 6.5.0
  */
-public final class EnvironmentFactory {
+final class EnvironmentFactory {
     private static final Logger LOG = LoggerFactory.getLogger(EnvironmentFactory.class);
     private static final EnvironmentFactory INSTANCE = new EnvironmentFactory();
 

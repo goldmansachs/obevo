@@ -22,10 +22,10 @@ import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder;
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.appdata.Schema;
+import com.gs.obevo.api.factory.PlatformConfiguration;
 import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.DeployExecutionDao;
-import com.gs.obevo.api.platform.ToolVersion;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.db.api.platform.SqlExecutor;
@@ -137,8 +137,8 @@ public class DbDeployer implements DeployerPlugin<DbPlatform, DbEnvironment> {
 
             if (checksumBreaks.notEmpty()) {
                 LOG.info("*******************************************");
-                LOG.info("WARNING: The following objects were modified or managed outside of {}.", ToolVersion.getToolName());
-                LOG.info("Please revert these changes or incorporate into your {} codebase", ToolVersion.getToolName());
+                LOG.info("WARNING: The following objects were modified or managed outside of {}.", PlatformConfiguration.getInstance().getToolName());
+                LOG.info("Please revert these changes or incorporate into your {} codebase", PlatformConfiguration.getInstance().getToolName());
 
                 for (ChecksumBreak checksumBreak : checksumBreaks) {
                     LOG.info("\t" + checksumBreak.toDisplayString());

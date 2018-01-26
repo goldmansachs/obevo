@@ -15,22 +15,15 @@
     under the License.
 
 -->
-<dbSystemConfig type="HSQL">
+<systemConfig type="MONGODB">
     <schemas>
-        <schema name="MYLARGESCHEMA" />
+        <schema name="schema1" />
     </schemas>
-    <groups>
-        <group name="GROUP1" />
-    </groups>
-    <users>
-        <user name="USER1" password="abc" />
-    </users>
     <environments>
-        <dbEnvironment name="test" type="DEV" cleanBuildAllowed="true" dbServer="largeExample" />
+        <environment name="test1" connectionURI="mongodb://localhost:27017">
+            <schemaOverrides>
+                <schemaOverride schema="schema1" overrideValue="mydb"/>
+            </schemaOverrides>
+        </environment>
     </environments>
-    <permissions>
-        <permission scheme="TABLE">
-            <grant groups="GROUP1" users="USER1" privileges="SELECT, DELETE" />
-        </permission>
-    </permissions>
-</dbSystemConfig>
+</systemConfig>

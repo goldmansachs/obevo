@@ -18,13 +18,10 @@ package com.gs.obevo.db.cmdline;
 import java.util.Date;
 
 import com.gs.obevo.api.appdata.Environment;
-import com.gs.obevo.api.factory.EnvironmentEnricher;
+import com.gs.obevo.api.platform.DeployerAppContext;
 import com.gs.obevo.api.platform.MainDeployerArgs;
 import com.gs.obevo.cmdline.AbstractMain;
 import com.gs.obevo.cmdline.DeployerArgs;
-import com.gs.obevo.db.api.appdata.DbEnvironment;
-import com.gs.obevo.db.api.factory.DbEnvironmentXmlEnricher;
-import com.gs.obevo.db.api.platform.DbDeployerAppContext;
 import com.gs.obevo.impl.changepredicate.ChangeKeyPredicateBuilder;
 import com.gs.obevo.util.inputreader.ConsoleInputReader;
 import com.gs.obevo.util.inputreader.UserInputReader;
@@ -33,17 +30,12 @@ import org.eclipse.collections.impl.list.fixed.ArrayAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DbDeployerMain extends AbstractMain<DbEnvironment, DbDeployerAppContext, DbDeployerAppContext> {
+public class DbDeployerMain extends AbstractMain<Environment> {
     private static final Logger LOG = LoggerFactory.getLogger(DbDeployerMain.class);
     private final UserInputReader userInputReader = new ConsoleInputReader();
 
-    @Override
-    protected EnvironmentEnricher<DbEnvironment> getEnvironmentEnricher() {
-        return new DbEnvironmentXmlEnricher();
-    }
-
-    public void start(DbDeployerAppContext ctxt, DeployerArgs args) {
-        DbEnvironment env = ctxt.getEnvironment();
+    public void start(DeployerAppContext ctxt, DeployerArgs args) {
+        Environment env = ctxt.getEnvironment();
 
         LOG.info("Setting up the the environment infrastructure for {}; will {} on setup exception", env.getName(), args.isStrictSetupEnvInfra() ? "fail" : "warn");
         ctxt.setupEnvInfra(args.isStrictSetupEnvInfra());

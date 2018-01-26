@@ -19,9 +19,13 @@ import com.gs.obevo.api.appdata.Schema;
 import com.gs.obevo.api.factory.Obevo;
 import com.gs.obevo.api.platform.DeployerAppContext;
 import com.gs.obevo.api.platform.MainDeployerArgs;
+import com.gs.obevo.mongodb.api.appdata.MongoDbEnvironment;
+import com.gs.obevo.mongodb.impl.MongoClientFactory;
+import com.gs.obevo.mongodb.impl.MongoDbPlatform;
 import com.gs.obevo.util.inputreader.Credential;
 import com.gs.obevo.util.vfs.FileRetrievalMode;
 import com.mongodb.client.MongoDatabase;
+import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.factory.Sets;
 import org.junit.Before;
@@ -40,11 +44,17 @@ public class MongoDbDeployIT {
 
     @Test
     public void deployTest() {
-        deploy("./src/test/resources/platforms/mongodb/step1");
-        deploy("./src/test/resources/platforms/mongodb/step2");
+        deployProgrammatically("./src/test/resources/platforms/mongodb/step1");
+        deployProgrammatically("./src/test/resources/platforms/mongodb/step2");
     }
 
-    private void deploy(String sourcePath) {
+    @Test
+    public void deployFromFile() {
+        deployFromFile("./src/test/resources/platforms/mongodb/step1");
+        deployFromFile("./src/test/resources/platforms/mongodb/step2");
+    }
+
+    private void deployProgrammatically(String sourcePath) {
         MongoDbEnvironment env = new MongoDbEnvironment();
         env.setPlatform(new MongoDbPlatform());
         env.setSourceDirs(FileRetrievalMode.FILE_SYSTEM.resolveFileObjects(sourcePath));
@@ -52,6 +62,16 @@ public class MongoDbDeployIT {
         env.setSchemaNameOverrides(Maps.immutable.of("schema1", "mydb"));
         env.setConnectionURI(MongoDbTestHelper.CONNECTION_URI);
 
+    }
+
+    private void deployFromFile(String sourcePath) {
+        ImmutableCollection<MongoDbEnvironment> environments = Obevo.readEnvironments(sourcePath);
+        for (MongoDbEnvironment environment : environments) {
+            deploy(environment);
+        }
+    }
+
+    private void deploy(MongoDbEnvironment env) {
         MainDeployerArgs args = new MainDeployerArgs();
 
         Credential credential = new Credential("a", "b");

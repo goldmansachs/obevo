@@ -13,7 +13,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.gs.obevo.api.factory;
+package com.gs.obevo.impl;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -21,6 +21,8 @@ import java.util.regex.Pattern;
 import com.gs.obevo.api.appdata.DeploySystem;
 import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.api.appdata.Schema;
+import com.gs.obevo.api.factory.EnvironmentEnricher;
+import com.gs.obevo.api.factory.PlatformConfiguration;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.Platform;
 import com.gs.obevo.util.CollectionUtil;
@@ -52,7 +54,12 @@ public abstract class AbstractEnvironmentEnricher<E extends Environment> impleme
         Platform systemDbPlatform = dbPlatformConfiguration.valueOf(sysCfg.getString("[@type]"));
 
         MutableList<E> envList = Lists.mutable.empty();
-        for (HierarchicalConfiguration envCfg : iterConfig(sysCfg, "environments.dbEnvironment")) {
+        ImmutableList<HierarchicalConfiguration> envConfigs = iterConfig(sysCfg, "environments.dbEnvironment");
+        if (envConfigs.isEmpty()) {
+            envConfigs = iterConfig(sysCfg, "environments.environment");
+        }
+
+        for (HierarchicalConfiguration envCfg : envConfigs) {
             E dbEnv = createNewEnv();
 
             enrich(dbEnv, sysCfg, envCfg, sourcePath, systemDbPlatform);

@@ -23,7 +23,7 @@ import org.eclipse.collections.api.list.ImmutableList;
  *
  * Implementations are intended to be independent of platform implementations.
  *
- * @since 7.0.0
+ * @since 6.5.0
  */
 public interface FileSourceContext {
     /**

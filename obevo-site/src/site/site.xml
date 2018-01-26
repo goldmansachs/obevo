@@ -58,17 +58,21 @@
             <item name="Overview" href="overview.html" />
             <item name="Setup" href="setup.html" />
             <item name="Help and Support" href="support.html" />
+<!-- FAQ not yet available
+            <item name="FAQs" href="faq.html" />
+-->
         </menu>
         <menu name="Technical Documentation">
             <item name="DB Project Structure" href="db-project-structure.html" />
             <item name="Environment Management" href="environment-management.html" />
             <item name="Permission Management" href="permission-management.html" />
             <item name="Error-Handling" href="error-handling.html" />
+        </menu>
+        <menu name="API Documentation">
             <item name="Command-line API" href="command-line-api.html" />
             <item name="Java API" href="java-api.html" />
             <item name="Maven plugin API" href="maven-api.html" />
             <item name="Gradle API" href="gradle-api.html" />
-            <item name="FAQs" href="faq.html" />
         </menu>
         <menu name="Advanced Topics">
             <item name="DB Project Best Practices" href="db-project-best-practices.html" />
@@ -78,10 +82,13 @@
             <item name="Parallel Deploy Execution" href="parallel-deploy-execution.html" />
             <item name="ORM Integration" href="orm-integration.html" />
             <item name="Baseline DDL Validation" href="baseline-validation.html" />
-            <item name="Sybase ASE Notes" href="sybase-ase-notes.html" />
-            <item name="DB2 Notes" href="db2-notes.html" />
             <item name="Phased Deployments" href="phased-deployments.html" />
             <item name="Incremental Change Code Cleanup" href="incremental-change-code-cleanup.html" />
+        </menu>
+        <menu name="Platform-Specific Topics">
+            <item name="Sybase ASE Notes" href="sybase-ase-notes.html" />
+            <item name="DB2 Notes" href="db2-notes.html" />
+            <item name="MongoDB Notes" href="mongodb-notes.html" />
         </menu>
         <menu name="Onboarding Guide">
             <item name="Which onboarding to choose?" href="onboarding-guide.html" />

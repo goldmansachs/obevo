@@ -13,25 +13,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.gs.obevo.mongodb;
+package com.gs.obevo.mongodb.impl;
 
 import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.ChangeTypeBehavior;
-import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry;
-import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry.ChangeTypeBehaviorRegistryBuilder;
+import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
+import com.gs.obevo.impl.ChangeTypeBehaviorRegistry.ChangeTypeBehaviorRegistryBuilder;
 import com.gs.obevo.api.platform.DeployExecutionDao;
 import com.gs.obevo.api.platform.FileSourceContext;
 import com.gs.obevo.impl.context.AbstractDeployerAppContext;
 import com.gs.obevo.impl.PrepareDbChange;
 import com.gs.obevo.impl.reader.TableChangeParser.GetChangeType;
+import com.gs.obevo.mongodb.api.appdata.MongoDbEnvironment;
 import com.mongodb.MongoClient;
 import org.eclipse.collections.api.block.function.Function0;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.partition.list.PartitionImmutableList;
 import org.eclipse.collections.impl.factory.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MongoDbDeployerAppContext extends AbstractDeployerAppContext<MongoDbEnvironment, MongoDbDeployerAppContext> {
+    private static final Logger LOG = LoggerFactory.getLogger(MongoDbDeployerAppContext.class);
 
     @Override
     protected FileSourceContext getDefaultFileSourceContext() {
@@ -90,6 +94,24 @@ public class MongoDbDeployerAppContext extends AbstractDeployerAppContext<MongoD
 
     @Override
     public MongoDbDeployerAppContext buildFileContext() {
+        return this;
+    }
+
+    @Override
+    public MongoDbDeployerAppContext setupEnvInfra() {
+        LOG.info("setupEnvInfra is not implemented; doing nothing");
+        return this;
+    }
+
+    @Override
+    public MongoDbDeployerAppContext setupEnvInfra(boolean strictSetupEnvInfra) {
+        LOG.info("setupEnvInfra is not implemented; doing nothing");
+        return this;
+    }
+
+    @Override
+    public MongoDbDeployerAppContext cleanEnvironment() {
+        LOG.info("setupEnvInfra is not implemented; doing nothing");
         return this;
     }
 }

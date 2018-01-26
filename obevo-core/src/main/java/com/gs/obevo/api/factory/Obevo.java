@@ -26,13 +26,13 @@ import org.eclipse.collections.api.collection.ImmutableCollection;
 /**
  * Entry point to Obevo API.
  *
- * @since 7.0.0
+ * @since 6.5.0
  */
 public final class Obevo {
     private Obevo() {}
 
-    public static Platform getPlatform(String platformStr) {
-        return null;
+    public static DeployerAppContext buildContext(Environment env, String username, String password) {
+        return buildContext(env, new Credential(username, password));
     }
 
     public static DeployerAppContext buildContext(Environment env, Credential credential) {
@@ -41,15 +41,12 @@ public final class Obevo {
         return appContextBuilder;
     }
 
-    public static DeployerAppContext buildContext(Environment env, FileSourceContext source, Credential credential) {
-        DeployerAppContext appContextBuilder = getAppContextBuilder(env, credential);
-        appContextBuilder.setFileSourceContext(source);
-        appContextBuilder.build();
-        return appContextBuilder;
+    public static <E extends Environment> E readEnvironment(String sourcePath, String... envNames) {
+        return EnvironmentFactory.getInstance().readOneFromSourcePath(sourcePath, envNames);
     }
 
-    public static <E extends Environment> ImmutableCollection<E> buildContext(String sourcePath) {
-        return EnvironmentFactory.getInstance().readFromSourcePath(sourcePath);
+    public static <E extends Environment> ImmutableCollection<E> readEnvironments(String sourcePath, String... envNames) {
+        return EnvironmentFactory.getInstance().readFromSourcePath(sourcePath, envNames);
     }
 
     private static DeployerAppContext getAppContextBuilder(Environment env, Credential credential) {
