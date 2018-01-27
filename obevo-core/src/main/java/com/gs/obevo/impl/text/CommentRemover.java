@@ -36,7 +36,7 @@ public class CommentRemover {
     public static String removeComments(String content, String logMessage) {
         try {
             MutableList<SqlToken> sqlTokens = new SqlTokenParser().parseTokens(content);
-            MutableList<SqlToken> nonCommentTokens = sqlTokens.reject(Predicates.attributeEqual(SqlToken.TO_TOKEN_TYPE,
+            MutableList<SqlToken> nonCommentTokens = sqlTokens.reject(Predicates.attributeEqual(SqlToken::getTokenType,
                     SqlTokenType.COMMENT));
 
             // makeString returns a space due to the current kludge that the SqlTokenParser also stripes newline from
