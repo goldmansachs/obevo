@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -45,14 +45,14 @@ import org.slf4j.LoggerFactory;
 
 public class SimpleDataSourceComparator implements CatoDataSourceComparator {
 
-    protected final CatoProperties properties;
-    protected final Comparator<CatoDataObject> dataObjectComparator;
-    protected final CatoDataComparator dataComparator;
-    protected final Sort<CatoDataObject> sort;
-    protected final Factory<Collection<Break>> breakCollectionFactory;
-    protected final Factory<Collection<CatoDataObject>> dataCollectionFactory;
+    private final CatoProperties properties;
+    private final Comparator<CatoDataObject> dataObjectComparator;
+    private final CatoDataComparator dataComparator;
+    private final Sort<CatoDataObject> sort;
+    private final Factory<Collection<Break>> breakCollectionFactory;
+    private final Factory<Collection<CatoDataObject>> dataCollectionFactory;
 
-    protected int groupId = 1;
+    private int groupId = 1;
 
     private static final Logger LOG = LoggerFactory.getLogger(SimpleDataSourceComparator.class);
 
@@ -124,7 +124,7 @@ public class SimpleDataSourceComparator implements CatoDataSourceComparator {
                 rightDataSource, rightData);
     }
 
-    protected void processLeftOnlyGroup(List<CatoDataObject> leftGroup, Collection<Break> breaks,
+    private void processLeftOnlyGroup(List<CatoDataObject> leftGroup, Collection<Break> breaks,
             Collection<CatoDataObject> leftData, Collection<CatoDataObject> rightData) {
         leftData.addAll(leftGroup);
 
@@ -133,7 +133,7 @@ public class SimpleDataSourceComparator implements CatoDataSourceComparator {
         }
     }
 
-    protected void processRightOnlyGroup(List<CatoDataObject> rightGroup, Collection<Break> breaks,
+    private void processRightOnlyGroup(List<CatoDataObject> rightGroup, Collection<Break> breaks,
             Collection<CatoDataObject> leftData, Collection<CatoDataObject> rightData) {
         rightData.addAll(rightGroup);
 
@@ -142,7 +142,7 @@ public class SimpleDataSourceComparator implements CatoDataSourceComparator {
         }
     }
 
-    protected void processBothGroups(List<CatoDataObject> leftGroup, List<CatoDataObject> rightGroup,
+    private void processBothGroups(List<CatoDataObject> leftGroup, List<CatoDataObject> rightGroup,
             Collection<Break> breaks, Collection<CatoDataObject> leftData, Collection<CatoDataObject> rightData) {
         leftData.addAll(leftGroup);
         rightData.addAll(rightGroup);
@@ -197,7 +197,7 @@ public class SimpleDataSourceComparator implements CatoDataSourceComparator {
         this.groupId++;
     }
 
-    protected FieldBreak compareDataObjects(CatoDataObject leftObj, CatoDataObject rightObj) {
+    FieldBreak compareDataObjects(CatoDataObject leftObj, CatoDataObject rightObj) {
         if (leftObj == null || rightObj == null) {
             LOG.error("Cannot compare null DataObjects");
             throw new IllegalArgumentException("Cannot compare null DataObjects");
@@ -249,7 +249,7 @@ public class SimpleDataSourceComparator implements CatoDataSourceComparator {
         }
     }
 
-    protected String getRightField(String leftField) {
+    private String getRightField(String leftField) {
         if (this.properties.getMappedFields().containsKey(leftField)) {
             return this.properties.getMappedFields().get(leftField);
         } else {
@@ -257,7 +257,7 @@ public class SimpleDataSourceComparator implements CatoDataSourceComparator {
         }
     }
 
-    protected void processComparisonData(Collection<Break> breaks, Collection<CatoDataObject> leftData, Collection<CatoDataObject> rightData) {
+    private void processComparisonData(Collection<Break> breaks, Collection<CatoDataObject> leftData, Collection<CatoDataObject> rightData) {
         // This method is intended to help subclass implementations
     }
 }

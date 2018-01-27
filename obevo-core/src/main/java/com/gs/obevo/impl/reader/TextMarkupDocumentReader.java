@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -86,7 +86,6 @@ public class TextMarkupDocumentReader {
 
     private ImmutableList<TextMarkupDocumentSection> parseString(String text, ImmutableList<String> elementsToCheck, final boolean recurse,
             final String elementPrefix) {
-
         MutableList<Pair<String, String>> outerSections = splitIntoMainSections(text, elementsToCheck, elementPrefix);
 
         MutableList<TextMarkupDocumentSection> sections = outerSections.flatCollect(new ConvertOuterSectionToTextSection(recurse, elementPrefix));
@@ -148,7 +147,7 @@ public class TextMarkupDocumentReader {
         private final boolean recurse;
         private final String elementPrefix;
 
-        public ConvertOuterSectionToTextSection(boolean recurse, String elementPrefix) {
+        ConvertOuterSectionToTextSection(boolean recurse, String elementPrefix) {
             this.elementPrefix = elementPrefix;
             this.recurse = recurse;
         }

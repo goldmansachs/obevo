@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -178,15 +178,14 @@ public class MongoDbChangeAuditDao implements ChangeAuditDao {
             Document previousDoc = docs.get(0);
             Date timeInserted = previousDoc.getDate(timeInsertedColumn);
             auditCollection.replaceOne(getChangeFilter(change), createDocFromChange(change, deployExecution, timeInserted));
-
         }
     }
 
     private Bson getChangeFilter(Change change) {
         return Filters.and(
-                    Filters.eq(changeNameColumn, change.getChangeName()),
-                    Filters.eq("OBJECTNAME", change.getObjectName())
-            );
+                Filters.eq(changeNameColumn, change.getChangeName()),
+                Filters.eq("OBJECTNAME", change.getObjectName())
+        );
     }
 
     static <T> MutableList<T> iterableToCollection(FindIterable<T> iterable) {

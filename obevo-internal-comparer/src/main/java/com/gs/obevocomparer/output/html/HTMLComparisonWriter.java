@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -25,7 +25,7 @@ import com.gs.obevocomparer.output.simple.AbstractMultiComparisonWriter;
 import com.gs.obevocomparer.util.IoUtil;
 
 public class HTMLComparisonWriter extends AbstractMultiComparisonWriter {
-    boolean writeToFile;
+    private boolean writeToFile;
     private String contentFileName;
     private String summaryContentFileName;
     private final HTMLContentWriter contentWriter;
@@ -38,7 +38,7 @@ public class HTMLComparisonWriter extends AbstractMultiComparisonWriter {
         this.summaryContentFileName = summaryContentFile;
     }
 
-    public HTMLComparisonWriter(String contentfile, String summaryContentFile,
+    private HTMLComparisonWriter(String contentfile, String summaryContentFile,
             boolean writeSummary, boolean writeLegend, boolean writeBreaks,
             boolean writeDataSets) {
         this(writeSummary, writeLegend, writeBreaks, writeDataSets);
@@ -51,7 +51,7 @@ public class HTMLComparisonWriter extends AbstractMultiComparisonWriter {
         this(true, true, true, true);
     }
 
-    public HTMLComparisonWriter(boolean writeSummary, boolean writeLegend,
+    private HTMLComparisonWriter(boolean writeSummary, boolean writeLegend,
             boolean writeBreaks, boolean writeDataSets) {
         super(writeSummary, writeLegend, writeBreaks, writeDataSets);
         this.writeToFile = false;

@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -116,20 +116,20 @@ public class TableSyncher {
 
         private ImmutableCollection<DaTable> tables;
 
-        public TableSyncSide(DataSource dataSource, PhysicalSchema schema) {
+        TableSyncSide(DataSource dataSource, PhysicalSchema schema) {
             this.dataSource = dataSource;
             this.schema = schema;
         }
 
-        public DataSource getDataSource() {
+        DataSource getDataSource() {
             return this.dataSource;
         }
 
-        public PhysicalSchema getSchema() {
+        PhysicalSchema getSchema() {
             return this.schema;
         }
 
-        public void enrichTables(DbPlatform dbPlatform) {
+        void enrichTables(DbPlatform dbPlatform) {
             this.tables = getTables(dbPlatform, this);
         }
 
@@ -141,19 +141,19 @@ public class TableSyncher {
             return database.getTables().reject(DaTable.IS_VIEW);
         }
 
-        public static final Function<TableSyncSide, ImmutableCollection<DaTable>> TO_TABLES = new Function<TableSyncSide, ImmutableCollection<DaTable>>() {
+        static final Function<TableSyncSide, ImmutableCollection<DaTable>> TO_TABLES = new Function<TableSyncSide, ImmutableCollection<DaTable>>() {
             @Override
             public ImmutableCollection<DaTable> valueOf(TableSyncSide object) {
                 return object.getTables();
             }
         };
 
-        public ImmutableCollection<DaTable> getTables() {
+        ImmutableCollection<DaTable> getTables() {
             return this.tables;
         }
     }
 
-    public void syncSchemaTables(DbPlatform dbPlatform, RichIterable<TableSyncSide> syncSides, File outputDir) {
+    private void syncSchemaTables(DbPlatform dbPlatform, RichIterable<TableSyncSide> syncSides, File outputDir) {
         for (TableSyncSide syncSide : syncSides) {
             syncSide.enrichTables(dbPlatform);
         }
@@ -353,17 +353,17 @@ generate merges against the ideal table (if possible - change may be incompatibl
                             this.printSql(ps
                                     , "modifyNullable_" + col.getName()
                                     , "-- if the difference is in the nullable value, then set it to nullable for compatibility across instances\n"
-                                    + "ALTER TABLE " + col.getParent().getName() + " MODIFY " + col.getName() + " NULL");
+                                            + "ALTER TABLE " + col.getParent().getName() + " MODIFY " + col.getName() + " NULL");
                         } else if (fieldBreak.getFieldName().equals("width")) {
                             this.printSql(ps
                                     , "modifyWidth_" + col.getName()
                                     , "-- if the difference is in the width value, then set it to the max value\n"
-                                    + "ALTER TABLE " + col.getParent().getName() + " MODIFY " + col.getName() + " " + col.getColumnDataType());
+                                            + "ALTER TABLE " + col.getParent().getName() + " MODIFY " + col.getName() + " " + col.getColumnDataType());
                         } else if (fieldBreak.getFieldName().equals("default")) {
                             this.printSql(ps
                                     , "modifyDefault_" + col.getName()
                                     , "-- if the difference is in the default value, then change it\n"
-                                    + "ALTER TABLE " + col.getParent().getName() + " MODIFY " + col.getName() + " DEFAULT " + col.getDefaultValue());
+                                            + "ALTER TABLE " + col.getParent().getName() + " MODIFY " + col.getName() + " DEFAULT " + col.getDefaultValue());
                         } else {
                             this.printSql(ps, "unhandled", fieldBreak.getCompareSubject() + " for field " + fieldBreak.getFieldName() + " had value " + fieldBreak.getLeftVal() + " in left but " + fieldBreak.getRightVal() + " in right");
                         }
@@ -378,12 +378,10 @@ generate merges against the ideal table (if possible - change may be incompatibl
                     } else if (fieldBreak.getLeft() instanceof DaTable) {
                         if (fieldBreak.getFieldName().equals("primaryKey")) {
                             if (fieldBreak.getLeftVal() == null) {
-                                DaIndex uniqueIndex = table.getIndices().detect(Predicates.attributeEqual
-                                        (DaIndex.TO_COLUMN_STRING, DaIndex.TO_COLUMN_STRING.valueOf((DaIndex) fieldBreak.getRightVal())));
+                                DaIndex uniqueIndex = table.getIndices().detect(Predicates.attributeEqual(DaIndex.TO_COLUMN_STRING, DaIndex.TO_COLUMN_STRING.valueOf((DaIndex) fieldBreak.getRightVal())));
                                 if (uniqueIndex != null) {
                                     this.printSql(ps, "dropAsUnique" + uniqueIndex.getName(),
-                                            "DROP INDEX " + table.getName() + "." + uniqueIndex.getName
-                                                    ());
+                                            "DROP INDEX " + table.getName() + "." + uniqueIndex.getName());
                                 }
                                 DaPrimaryKey primaryKey = idealTable.getPrimaryKey();
                                 this.printSql(ps, "createAsPk" + primaryKey.getName(),

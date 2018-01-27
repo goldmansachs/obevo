@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -49,7 +49,7 @@ abstract class AbstractScalarHandler<T> implements ResultSetHandler<T> {
      * Creates a new instance of ScalarHandler.  The first column will
      * be returned from <code>handle()</code>.
      */
-    public AbstractScalarHandler() {
+    AbstractScalarHandler() {
         this(1, null);
     }
 
@@ -57,9 +57,9 @@ abstract class AbstractScalarHandler<T> implements ResultSetHandler<T> {
      * Creates a new instance of ScalarHandler.
      *
      * @param columnIndex The index of the column to retrieve from the
-     *                    <code>ResultSet</code>.
+     * <code>ResultSet</code>.
      */
-    public AbstractScalarHandler(int columnIndex) {
+    protected AbstractScalarHandler(int columnIndex) {
         this(columnIndex, null);
     }
 
@@ -67,9 +67,9 @@ abstract class AbstractScalarHandler<T> implements ResultSetHandler<T> {
      * Creates a new instance of ScalarHandler.
      *
      * @param columnName The name of the column to retrieve from the
-     *                   <code>ResultSet</code>.
+     * <code>ResultSet</code>.
      */
-    public AbstractScalarHandler(String columnName) {
+    protected AbstractScalarHandler(String columnName) {
         this(1, columnName);
     }
 
@@ -77,9 +77,9 @@ abstract class AbstractScalarHandler<T> implements ResultSetHandler<T> {
      * Helper constructor
      *
      * @param columnIndex The index of the column to retrieve from the
-     *                    <code>ResultSet</code>.
-     * @param columnName  The name of the column to retrieve from the
-     *                    <code>ResultSet</code>.
+     * <code>ResultSet</code>.
+     * @param columnName The name of the column to retrieve from the
+     * <code>ResultSet</code>.
      */
     private AbstractScalarHandler(int columnIndex, String columnName) {
         this.columnIndex = columnIndex;
@@ -94,7 +94,7 @@ abstract class AbstractScalarHandler<T> implements ResultSetHandler<T> {
      * @param rs <code>ResultSet</code> to process.
      * @return The column or <code>null</code> if there are no rows in
      * the <code>ResultSet</code>.
-     * @throws SQLException       if a database access error occurs
+     * @throws SQLException if a database access error occurs
      * @throws ClassCastException if the class datatype does not match the column type
      * @see ResultSetHandler#handle(ResultSet)
      */

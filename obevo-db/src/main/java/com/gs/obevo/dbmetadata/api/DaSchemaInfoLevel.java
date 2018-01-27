@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -140,7 +140,7 @@ public class DaSchemaInfoLevel {
         return retrieveSequences;
     }
 
-    public DaSchemaInfoLevel setRetrieveSequences(boolean retrieveSequences) {
+    private DaSchemaInfoLevel setRetrieveSequences(boolean retrieveSequences) {
         this.retrieveSequences = retrieveSequences;
         return this;
     }
@@ -149,7 +149,7 @@ public class DaSchemaInfoLevel {
         return retrieveSynonyms;
     }
 
-    public DaSchemaInfoLevel setRetrieveSynonyms(boolean retrieveSynonyms) {
+    private DaSchemaInfoLevel setRetrieveSynonyms(boolean retrieveSynonyms) {
         this.retrieveSynonyms = retrieveSynonyms;
         return this;
     }
@@ -158,7 +158,7 @@ public class DaSchemaInfoLevel {
         return retrieveRules;
     }
 
-    public DaSchemaInfoLevel setRetrieveRules(boolean retrieveRules) {
+    private DaSchemaInfoLevel setRetrieveRules(boolean retrieveRules) {
         this.retrieveRules = retrieveRules;
         return this;
     }
@@ -176,7 +176,7 @@ public class DaSchemaInfoLevel {
         return retrieveUserDefinedColumnDataTypes;
     }
 
-    public DaSchemaInfoLevel setRetrieveUserDefinedColumnDataTypes(boolean retrieveUserDefinedColumnDataTypes) {
+    private DaSchemaInfoLevel setRetrieveUserDefinedColumnDataTypes(boolean retrieveUserDefinedColumnDataTypes) {
         this.retrieveUserDefinedColumnDataTypes = retrieveUserDefinedColumnDataTypes;
         return this;
     }

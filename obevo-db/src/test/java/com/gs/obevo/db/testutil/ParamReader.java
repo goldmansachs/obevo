@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -75,6 +75,7 @@ public class ParamReader {
             }
         }).toList();
     }
+
     public Collection<Object[]> getAppContextParams() {
         return getSysConfigs().flatCollect(new Function<Config, ListIterable<Object[]>>() {
             @Override
@@ -122,7 +123,7 @@ public class ParamReader {
             public Object[] valueOf(Config config) {
                 final PhysicalSchema schema = PhysicalSchema.parseFromString(config.getString("schema"));
 
-                return new Object[] {getJdbcDs(config, numConnections), schema};
+                return new Object[] { getJdbcDs(config, numConnections), schema };
             }
         });
     }
@@ -142,7 +143,7 @@ public class ParamReader {
                     public DbDeployerAppContext valueOf(int stepNumber) {
                         String stepSourcePath = replaceStepNumber(sourcePath, stepNumber, config);
 
-                        DbEnvironment dbEnvironment = DbEnvironmentFactory.getInstance().readOneFromSourcePath(stepSourcePath, envArg != null ? new String[] {envArg} : new String[0]);
+                        DbEnvironment dbEnvironment = DbEnvironmentFactory.getInstance().readOneFromSourcePath(stepSourcePath, envArg != null ? new String[] { envArg } : new String[0]);
                         if (username != null && password != null) {
                             return dbEnvironment.buildAppContext(username, password);
                         } else {

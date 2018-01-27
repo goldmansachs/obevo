@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -33,11 +33,11 @@ class EnvironmentLocator {
     private final RichIterable<FileConfigReader> configReaders;
     private final PlatformConfiguration platformConfiguration;
 
-    public EnvironmentLocator() {
+    EnvironmentLocator() {
         this(Lists.immutable.<FileConfigReader>of(new XmlFileConfigReader()));
     }
 
-    public EnvironmentLocator(RichIterable<FileConfigReader> configReaders) {
+    private EnvironmentLocator(RichIterable<FileConfigReader> configReaders) {
         this.configReaders = configReaders;
         this.platformConfiguration = PlatformConfiguration.getInstance();
     }
@@ -51,14 +51,14 @@ class EnvironmentLocator {
         }
     }
 
-    public <T extends Environment> DeploySystem<T> readSystemOptional(String sourcePathStr) {
+    private <T extends Environment> DeploySystem<T> readSystemOptional(String sourcePathStr) {
         for (FileRetrievalMode fileRetrievalMode : FileRetrievalMode.values()) {
             FileObject sourcePath;
             try {
                 sourcePath = fileRetrievalMode.resolveSingleFileObject(sourcePathStr);
                 if (sourcePath == null) {
                     LOG.debug("Source not found using " + fileRetrievalMode.name()
-                                            + " retrieval mode; will try the next ones");
+                            + " retrieval mode; will try the next ones");
                     continue;
                 }
             } catch (VFSFileSystemException exc) {
@@ -80,7 +80,6 @@ class EnvironmentLocator {
                     }
                 }
             }
-
         }
 
         return null;

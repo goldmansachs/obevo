@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -22,8 +22,8 @@ import org.eclipse.collections.api.collection.MutableCollection;
 /**
  * Factory class that facilitates reading environments from a given input file path.
  *
- * @deprecated use the {@link Obevo} API, deprecated since 6.5.0
  * @since 6.0.0
+ * @deprecated use the {@link Obevo} API, deprecated since 6.5.0
  */
 @Deprecated
 public class DbEnvironmentFactory {
@@ -33,7 +33,8 @@ public class DbEnvironmentFactory {
         return INSTANCE;
     }
 
-    protected DbEnvironmentFactory() {}
+    protected DbEnvironmentFactory() {
+    }
 
     public MutableCollection<DbEnvironment> readFromSourcePath(String sourcePath, String... envNames) {
         return Obevo.<DbEnvironment>readEnvironments(sourcePath, envNames).toList();

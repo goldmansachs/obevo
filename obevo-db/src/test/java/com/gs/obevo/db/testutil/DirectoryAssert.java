@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -17,20 +17,20 @@ package com.gs.obevo.db.testutil;
 
 import java.io.File;
 
-import org.eclipse.collections.api.block.function.Function;
-import org.eclipse.collections.api.list.MutableList;
-import org.eclipse.collections.impl.list.mutable.FastList;
 import junitx.framework.FileAssert;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.DirectoryFileFilter;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.impl.list.mutable.FastList;
 
 import static org.junit.Assert.assertEquals;
 
 public class DirectoryAssert {
-    public static final IOFileFilter DIR_FILE_FILTER = FileFilterUtils.makeCVSAware(FileFilterUtils
+    private static final IOFileFilter DIR_FILE_FILTER = FileFilterUtils.makeCVSAware(FileFilterUtils
             .makeSVNAware(DirectoryFileFilter.INSTANCE));
 
     /**
@@ -64,7 +64,7 @@ public class DirectoryAssert {
         }
     }
 
-    public static String getRelativePath(File childFile, File baseFile) {
+    private static String getRelativePath(File childFile, File baseFile) {
         if (childFile == null) {
             throw new IllegalArgumentException("childFile was not a child of the base file");
         } else if (childFile.equals(baseFile)) {

@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -33,8 +33,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class TextDependencyExtractorImplTest {
-    protected static final String SCHEMA1 = "schema1";
-    protected static final String SCHEMA2 = "schema2";
+    private static final String SCHEMA1 = "schema1";
+    private static final String SCHEMA2 = "schema2";
 
     private final TextDependencyExtractorImpl enricher = new TextDependencyExtractorImpl(Functions.getStringPassThru());
 
@@ -85,26 +85,26 @@ public class TextDependencyExtractorImplTest {
         assertEquals(Sets.mutable.with("sp1", "sp_3", "sp4"), dependencies);
     }
 
-    protected void verifyExpectedDependencies(TextDependencyExtractable item, SetIterable<CodeDependency> expectedDependencies) {
+    private void verifyExpectedDependencies(TextDependencyExtractable item, SetIterable<CodeDependency> expectedDependencies) {
         ArgumentCaptor<ImmutableSet> setDependencies = ArgumentCaptor.forClass(ImmutableSet.class);
         verify(item).setCodeDependencies(setDependencies.capture());
 
         assertEquals(expectedDependencies, setDependencies.getValue());
     }
 
-    protected TextDependencyExtractable newObject(String objectName, String content) {
+    private TextDependencyExtractable newObject(String objectName, String content) {
         return newObject(SCHEMA1, objectName, content);
     }
 
-    protected TextDependencyExtractable newObject(String schema, String objectName, String content) {
+    private TextDependencyExtractable newObject(String schema, String objectName, String content) {
         return newObject(schema, objectName, content, null, null);
     }
 
-    protected TextDependencyExtractable newObject(String objectName, String content, ImmutableSet<String> excludeDependencies, ImmutableSet<String> includeDependencies) {
+    private TextDependencyExtractable newObject(String objectName, String content, ImmutableSet<String> excludeDependencies, ImmutableSet<String> includeDependencies) {
         return newObject(SCHEMA1, objectName, content, excludeDependencies, includeDependencies);
     }
 
-    protected TextDependencyExtractable newObject(String schema, String objectName, String content, ImmutableSet<String> excludeDependencies, ImmutableSet<String> includeDependencies) {
+    private TextDependencyExtractable newObject(String schema, String objectName, String content, ImmutableSet<String> excludeDependencies, ImmutableSet<String> includeDependencies) {
         ChangeType changeType = mock(ChangeType.class);
         when(changeType.isEnrichableForDependenciesInText()).thenReturn(true);
 

@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -181,7 +181,7 @@ public class DbEnvironmentXmlEnricherTest {
         assertNull(env2.getTokens().get("key"));
         assertNull(env2.getTokens().get("key2"));
 
-        assertEquals("env specific\n\n            sql", env1.getAuditTableSql());
+        assertEquals("env specific\n\n                sql", env1.getAuditTableSql());
         assertEquals("global\nsql", env2.getAuditTableSql());
 
         assertEquals(Sets.immutable.with("overridenExt1", "overridenExt2", "overridenExt3"), env1.getAcceptedExtensions());
@@ -191,7 +191,6 @@ public class DbEnvironmentXmlEnricherTest {
         assertTrue(env1.isReorgCheckEnabled());
         assertFalse(env2.isInvalidObjectCheckEnabled());
         assertFalse(env2.isReorgCheckEnabled());
-
     }
 
     /**

@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,16 +16,11 @@
 package com.gs.obevo.db.api.factory;
 
 import com.gs.obevo.api.factory.PlatformConfiguration;
-import com.gs.obevo.api.platform.DeployerRuntimeException;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.typesafe.config.Config;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
-import org.eclipse.collections.api.map.ImmutableMap;
-import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.set.ImmutableSet;
-import org.eclipse.collections.impl.block.factory.Functions;
-import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.set.mutable.SetAdapter;
 import org.slf4j.Logger;
@@ -59,7 +54,7 @@ public class DbPlatformConfiguration extends PlatformConfiguration {
         return extraEnvAttrs;
     }
 
-    protected ImmutableSet<String> createExtraEnvAttrs() {
+    private ImmutableSet<String> createExtraEnvAttrs() {
         if (!this.getConfig().hasPath("extraEnvAttrs")) {
             return Sets.immutable.empty();
         }

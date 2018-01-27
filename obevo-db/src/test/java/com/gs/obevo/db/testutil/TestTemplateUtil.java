@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -26,7 +26,6 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
-import org.apache.commons.io.IOUtils;
 
 import static freemarker.template.Configuration.VERSION_2_3_0;
 
@@ -52,7 +51,7 @@ public class TestTemplateUtil {
     }
 
     public void writeTemplate(String templatePath, Map<String, Object> params, File outputFile) {
-        try (Writer writer = new FileWriter(outputFile)){
+        try (Writer writer = new FileWriter(outputFile)) {
             writeTemplate(templatePath, params, writer);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -70,5 +69,4 @@ public class TestTemplateUtil {
             throw new RuntimeException(e);
         }
     }
-
 }

@@ -6,7 +6,7 @@
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
 
-        http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on an
@@ -25,9 +25,10 @@
     <body>
         <section name="DB Project Structure">
             <p>Obevo allows users to maintain their database scripts in an object-based structure, such as the structure
-            below. This page describes how to implement this.</p>
+                below. This page describes how to implement this.
+            </p>
             <img src="images/db-kata-file-setup.jpg" alt="" />
-            <br/>
+            <br />
             <macro name="toc">
                 <param name="fromDepth" value="0" />
                 <param name="toDepth" value="1" />
@@ -42,26 +43,43 @@
                 </ul>
                 <p>system-config.xml defines:</p>
                 <ul>
-                    <li>The <u><i>logical schemas</i></u> that this unit of code would maintain (in this example, we only maintain 1 logical schema DEMOSCHEMA)
+                    <li>The
+                        <u>
+                            <i>logical schemas</i>
+                        </u>
+                        that this unit of code would maintain (in this example, we only maintain 1 logical schema DEMOSCHEMA)
                         <ul>
                             <li>By logical schema - we refer to the schema that we would ideally see in a particular production environment</li>
-                            <li>Compare this to the <u><i>physical schema</i></u>, which may have a suffix appended depending on the environment
+                            <li>Compare this to the
+                                <u>
+                                    <i>physical schema</i>
+                                </u>
+                                , which may have a suffix appended depending on the environment
                                 <ul>
                                     <li>e.g. in prod, we have DEMOSCHEMA</li>
-                                    <li>in uat, we have DEMO<i>SCHEMA</i>UAT1</li>
-                                    <li>in dev, we have DEMO<i>SCHEMA</i>DEV1</li>
+                                    <li>in uat, we have DEMO<i>SCHEMA</i>UAT1
+                                    </li>
+                                    <li>in dev, we have DEMO<i>SCHEMA</i>DEV1
+                                    </li>
                                     <li>and so on</li>
                                 </ul>
                             </li>
                             <li>The logical schema name should only contain alphanumeric characters and underscores</li>
-                            <li><font color="red">NOTE for Sybase ASE and SQL Server users: The "schema" term in Obevo is
-                                equivalent to the Sybase ASE "database".</font> By default, we assume the default user
+                            <li>
+                                <font
+                                    color="red">NOTE for Sybase ASE and SQL Server users: The "schema" term in Obevo is
+                                    equivalent to the Sybase ASE "database".
+                                </font>
+                                By default, we assume the default user
                                 during SQL execution. See the section below on how to use the database + schema.
                             </li>
                         </ul>
                     </li>
                     <li>The
-                        <u><i>db environments</i></u> that we plan on deploying to
+                        <u>
+                            <i>db environments</i>
+                        </u>
+                        that we plan on deploying to
                         <ul>
                             <li>e.g. dev1 environments deploys to myserver1.dev.me.com:1234, prod deploys to myserver1.prod.me.com:1234</li>
                         </ul>
@@ -80,7 +98,8 @@
                 <ul>
                     <li>via the jdbcUrl attribute, where you simply provide the JDBC url; e.g. db2://myhost1.me.com:1234/MYSERVER</li>
                     <li>via the dbHost, dbSchema, and dbServer attributes, where you provide those and the underlying
-                        JDBC url is constructed for you; e.g. dbHost=&quot;myhost1.me.com&quot; dbPort=&quot;1234&quot; dbServer=&quot;MYSERVER1&quot;</li>
+                        JDBC url is constructed for you; e.g. dbHost=&quot;myhost1.me.com&quot; dbPort=&quot;1234&quot; dbServer=&quot;MYSERVER1&quot;
+                    </li>
                     <li>via the dbDataSourceName, where you provide the LDAP name and the tool will look up the source in LDAP; e.g. dbDataSourceName=MYSERVER1</li>
                 </ul>
             </subsection>
@@ -144,7 +163,8 @@
                 <p>If you need to define your objects in a schema within the database, consider the following:</p>
                 <ul>
                     <li>If you want to manage multiple schemas within your database, you will need to map each database+schema
-                    combination to a logical schema</li>
+                        combination to a logical schema
+                    </li>
                     <li>Use the schemaOverride element to define the database/schema combination, e.g.
                         <source><![CDATA[<!--schema override example -->
 <dbSystemConfig type="SYBASE_ASE">
@@ -428,17 +448,61 @@ sp_rename 'OrigTable', 'NewTable']]></source>
             <p>This spans the following object types (and this would be the directory structure you'd apply for each)
             </p>
             <table>
-                <tr><th>Object Type</th><th>Directory</th><th>Vendor-specific Notes</th></tr>
-                <tr><td>Stored Procedures</td><td>/sp</td><td></td></tr>
-                <tr><td>Views</td><td>/view</td><td></td></tr>
-                <tr><td>Functions</td><td>/function</td><td></td></tr>
-                <tr><td>Sequences</td><td>/sequence</td><td></td></tr>
-                <tr><td>Triggers</td><td>/trigger</td><td></td></tr>
-                <tr><td>User Types</td><td>/usertype</td><td>Only Sybase ASE and MS SQL Server</td></tr>
-                <tr><td>Rule</td><td>/rule</td><td>Only Sybase ASE and MS SQL Server</td></tr>
-                <tr><td>Default</td><td>/default</td><td>Only Sybase ASE and MS SQL Server</td></tr>
-                <tr><td>Packages + Package Bodies</td><td>/routinepackage</td><td>Only for Oracle</td></tr>
-                <tr><td>Synonyms</td><td>/synonym</td><td>Currently only for Oracle; other vendors will be supported later</td></tr>
+                <tr>
+                    <th>Object Type</th>
+                    <th>Directory</th>
+                    <th>Vendor-specific Notes</th>
+                </tr>
+                <tr>
+                    <td>Stored Procedures</td>
+                    <td>/sp</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Views</td>
+                    <td>/view</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Functions</td>
+                    <td>/function</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Sequences</td>
+                    <td>/sequence</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Triggers</td>
+                    <td>/trigger</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>User Types</td>
+                    <td>/usertype</td>
+                    <td>Only Sybase ASE and MS SQL Server</td>
+                </tr>
+                <tr>
+                    <td>Rule</td>
+                    <td>/rule</td>
+                    <td>Only Sybase ASE and MS SQL Server</td>
+                </tr>
+                <tr>
+                    <td>Default</td>
+                    <td>/default</td>
+                    <td>Only Sybase ASE and MS SQL Server</td>
+                </tr>
+                <tr>
+                    <td>Packages + Package Bodies</td>
+                    <td>/routinepackage</td>
+                    <td>Only for Oracle</td>
+                </tr>
+                <tr>
+                    <td>Synonyms</td>
+                    <td>/synonym</td>
+                    <td>Currently only for Oracle; other vendors will be supported later</td>
+                </tr>
             </table>
             <p>Here is an example:</p>
             <source><![CDATA[CREATE PROCEDURE SP1 ()
@@ -472,12 +536,16 @@ GO]]></source>
                 <p>Obevo will take care of dropping each of the instances as needed</p>
             </subsection>
             <subsection name="Objects with BODY components, e.g. Oracle packages">
-                <p>Some database objects, such as <a href="https://docs.oracle.com/cd/B19306_01/appdev.102/b14261/packages.htm">Oracle packages</a>,
-                are defined across two SQL statements: a declaration of the object signature, and its implementation.</p>
+                <p>Some database objects, such as <a
+                    href="https://docs.oracle.com/cd/B19306_01/appdev.102/b14261/packages.htm">Oracle packages</a>,
+                    are defined across two SQL statements: a declaration of the object signature, and its implementation.
+                </p>
                 <p>The implementation can be more complex, esp. with referring to other objects, and so we would not want
-                to force the two to be deployed in sequence.</p>
+                    to force the two to be deployed in sequence.
+                </p>
                 <p>Hence, we allow the file content to be split in two using the "//// BODY" line; the content preceding
-                that line is the signature, and afterward the implementation body. See below for an example:</p>
+                    that line is the signature, and afterward the implementation body. See below for an example:
+                </p>
                 <source><![CDATA[CREATE OR REPLACE PACKAGE MY_EXAMPLE_PACKAGE
 AS
     FUNCTION MY_FUNC1 return integer;
@@ -800,12 +868,16 @@ insert into column_def (52, "txncol3")]]></source>
 
                 <p>Note that these kinds of SQLs can easily be executed within the /table files themselves, as
                     ultimately those just execute SQLs. In fact, the format of the /migration files is the same as the
-                    format of the /table files.</p>
+                    format of the /table files.
+                </p>
 
                 <p>So when would you define the changes in /migration files vs. /table files?</p>
 
                 <p>
-                    <u><b>Migrations in /table file?</b></u>: Very simple backfills of newly added columns (e.g. the snippet below)
+                    <u>
+                        <b>Migrations in /table file?</b>
+                    </u>
+                    : Very simple backfills of newly added columns (e.g. the snippet below)
                 </p>
                 <source><![CDATA[
 alter table TABLE_A add new column MYCOL
@@ -814,19 +886,25 @@ update TABLE_A set MYCOL = 0
 GO]]></source>
 
                 <p>
-                    <u><b>Migrations in /migration file?</b></u>: some use cases:
+                    <u>
+                        <b>Migrations in /migration file?</b>
+                    </u>
+                    : some use cases:
                     <ul>
                         <li>If the migration involved multiple tables; thus, it wouldn't make sense to house this in a
-                        table-specific file.</li>
+                            table-specific file.
+                        </li>
                         <li>A one-time update that you don't want to see continuously executed as part of your schema
                             definition, say for your test schemas or in-memory db schemas or correcting missing GRANT statements.
                         </li>
                         <li>For backwards-incompatible updates, where some new column/table needs to be populated from
-                        the old one, and then the old column/table needs to be dropped.</li>
+                            the old one, and then the old column/table needs to be dropped.
+                        </li>
                         <li>See the example below (note the "dependencies" attribute in the removeOldCol change and
                             migration2 file that<a href="#DB_Object_Deployment_Order">we mentioned above</a>): splitting
-                        the migration into a separate section lets us clearly see what the schema should look like in
-                        the /table file, while letting the migration be defined elsewhere.</li>
+                            the migration into a separate section lets us clearly see what the schema should look like in
+                            the /table file, while letting the migration be defined elsewhere.
+                        </li>
                     </ul>
                 </p>
                 <source><![CDATA[{/table/TABLE_A.sql file}
@@ -860,12 +938,16 @@ GO]]></source>
                 <p>Differences from /table representation:</p>
                 <p>A) The file name need not correspond to a db-object name. You are free to name this as you please.</p>
 
-                <p>B) You <b><i>are allowed to delete /migration CHANGE entriesafter being deployed</i></b>.
+                <p>B) You
+                    <b>
+                        <i>are allowed to delete /migration CHANGE entriesafter being deployed</i>
+                    </b>
+                    .
                     This is because we don't want/need migrations lying around in the
-                code, as they are one-time activities. Deleting the entries will <i>UNMANAGE</i> them from
-                Obevo, akin to the <i>UNMANAGE</i>/delete operation with static data tables. i.e. if the
-                migration file is deleted, the entry is removed from the audit table, and Obevo leaves the
-                table untouched otherwise.
+                    code, as they are one-time activities. Deleting the entries will <i>UNMANAGE</i> them from
+                    Obevo, akin to the <i>UNMANAGE</i>/delete operation with static data tables. i.e. if the
+                    migration file is deleted, the entry is removed from the audit table, and Obevo leaves the
+                    table untouched otherwise.
                 </p>
             </subsection>
         </section>

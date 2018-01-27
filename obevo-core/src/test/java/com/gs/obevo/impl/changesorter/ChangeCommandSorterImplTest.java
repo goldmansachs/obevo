@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -47,7 +47,6 @@ public class ChangeCommandSorterImplTest {
 
         this.sorter = new ChangeCommandSorterImpl(dialect, Functions.<Change, String>getFixedValue(null));
     }
-
 
     @Test
     public void testSortWithFk() throws Exception {
@@ -109,7 +108,6 @@ public class ChangeCommandSorterImplTest {
         final ExecuteChangeCommand aTab2 = newIncrementalCommand(tableChangeType(), "ATab", "2", Sets.immutable.<String>of(), 2);
         final ExecuteChangeCommand funcOnTab3 = newCommand(viewChangeType(), "FuncOnTab3", "n/a", Sets.immutable.<String>of("ATab"));
 
-
         ListIterable<ExecuteChangeCommand> sortedCommands = sorter.sort(Lists.mutable.of(
                 func1, func2, aTab1, aTab2, funcOnTab3
         ), false);
@@ -130,7 +128,6 @@ public class ChangeCommandSorterImplTest {
         when(change.getCodeDependencies()).thenReturn(dependencies.collectWith(CodeDependency.CREATE_WITH_TYPE, CodeDependencyType.EXPLICIT));
         change.getContentForDependencyCalculation();
 
-
         ExecuteChangeCommand command = mock(ExecuteChangeCommand.class);
         when(command.isDrop()).thenReturn(false);
         when(command.getChanges()).thenReturn(Lists.immutable.of(change));
@@ -147,7 +144,6 @@ public class ChangeCommandSorterImplTest {
         when(change.getChangeName()).thenReturn(changeName);
         when(change.getCodeDependencies()).thenReturn(dependencies.collectWith(CodeDependency.CREATE_WITH_TYPE, CodeDependencyType.EXPLICIT));
         when(change.getOrderWithinObject()).thenReturn(orderWithinObject);
-
 
         ExecuteChangeCommand command = mock(ExecuteChangeCommand.class);
         when(command.isDrop()).thenReturn(false);
@@ -169,5 +165,4 @@ public class ChangeCommandSorterImplTest {
         when(changeType.isRerunnable()).thenReturn(true);
         return changeType;
     }
-
 }

@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -41,7 +41,7 @@ class DbCommandSortKey implements SortableDependencyGroup {
         }
     };
 
-    public DbCommandSortKey(ExecuteChangeCommand changeCommand) {
+    private DbCommandSortKey(ExecuteChangeCommand changeCommand) {
         this.changeCommand = changeCommand;
         this.drop = changeCommand.isDrop();
         final Change candidateChange = changeCommand.getChanges().getFirst();
@@ -49,7 +49,6 @@ class DbCommandSortKey implements SortableDependencyGroup {
         this.objectName = candidateChange.getObjectName();
         this.orderWithinObject = candidateChange.getOrderWithinObject();
     }
-
 
     public static final Function<DbCommandSortKey, ExecuteChangeCommand> TO_CHANGE_COMMAND = new Function<DbCommandSortKey, ExecuteChangeCommand>() {
         @Override
@@ -69,7 +68,7 @@ class DbCommandSortKey implements SortableDependencyGroup {
         }
     };
 
-    public boolean isDrop() {
+    private boolean isDrop() {
         return this.drop;
     }
 
@@ -81,7 +80,7 @@ class DbCommandSortKey implements SortableDependencyGroup {
         }
     };
 
-    public ChangeType getChangeType() {
+    private ChangeType getChangeType() {
         return this.changeType;
     }
 
@@ -92,7 +91,7 @@ class DbCommandSortKey implements SortableDependencyGroup {
         }
     };
 
-    public String getObjectName() {
+    private String getObjectName() {
         return this.objectName;
     }
 
@@ -104,7 +103,7 @@ class DbCommandSortKey implements SortableDependencyGroup {
         }
     };
 
-    public int getOrder() {
+    private int getOrder() {
         return this.order;
     }
 

@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -15,9 +15,6 @@
  */
 package com.gs.obevo.db.impl.core;
 
-import com.gs.obevo.api.appdata.Change;
-import com.gs.obevo.api.appdata.ObjectKey;
-import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.Platform;
 import com.gs.obevo.dbmetadata.api.DaSchema;
@@ -28,8 +25,7 @@ import org.junit.Before;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-
-public class DbDeployerTest {
+class DbDeployerTest {
     public static final String AUDIT_TABLE = "audit";
     private final String schema1 = "schema1";
     private final String schema2 = "schema2";

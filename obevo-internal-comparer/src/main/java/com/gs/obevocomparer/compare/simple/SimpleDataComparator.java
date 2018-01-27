@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -48,7 +48,7 @@ public class SimpleDataComparator implements CatoDataComparator {
         return this.compare(val1, val2, true);
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings( { "rawtypes", "unchecked" })
     private int compare(Object val1, Object val2, boolean compareKey) {
         if (val1 == null && val2 == null) {
             return 0;

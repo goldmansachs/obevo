@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -23,7 +23,7 @@ public class DatabaseConfig extends DataSourceConfig {
 
     private String password;
 
-    private String URL;
+    private String url;
 
     private String query;
 
@@ -65,21 +65,21 @@ public class DatabaseConfig extends DataSourceConfig {
     }
 
     public String getURL() {
-        return this.URL;
+        return this.url;
     }
 
-    public void setURL(String URL) {
-        this.URL = URL;
+    public void setURL(String url) {
+        this.url = url;
     }
 
     @Override
     public String toString() {
-        return "Name - " + this.getName() + ", User - " + this.user + ", URL - " + this.URL + ", Query - " + this.query;
+        return "Name - " + this.getName() + ", User - " + this.user + ", URL - " + this.url + ", Query - " + this.query;
     }
 
     @Override
     public Object clone() throws CloneNotSupportedException {
-        DatabaseConfig cloneConfig = new DatabaseConfig("Copy of " + this.getName(), this.user, this.password, this.URL, this.query);
+        DatabaseConfig cloneConfig = new DatabaseConfig("Copy of " + this.getName(), this.user, this.password, this.url, this.query);
         cloneConfig.setSorted(this.getSorted());
         return cloneConfig;
     }

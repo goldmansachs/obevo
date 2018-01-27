@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -26,13 +26,13 @@ public abstract class AbstractDerivedField<T> implements CatoDerivedField {
     private final String targetField;
     private final Class<T> clazz;
 
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractDerivedField.class);
+    static final Logger LOG = LoggerFactory.getLogger(AbstractDerivedField.class);
 
-    protected AbstractDerivedField(String field, Class<T> clazz) {
+    AbstractDerivedField(String field, Class<T> clazz) {
         this(field, field, clazz);
     }
 
-    protected AbstractDerivedField(String sourceField, String targetField, Class<T> clazz) {
+    AbstractDerivedField(String sourceField, String targetField, Class<T> clazz) {
         this.sourceField = sourceField;
         this.targetField = targetField;
         this.clazz = clazz;

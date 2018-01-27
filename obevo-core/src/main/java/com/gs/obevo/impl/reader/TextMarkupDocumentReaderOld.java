@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -32,7 +32,7 @@ import static com.gs.obevo.impl.reader.TextMarkupDocumentReader.TAG_METADATA;
 import static com.gs.obevo.impl.reader.TextMarkupDocumentReader.TAG_ROLLBACK;
 import static com.gs.obevo.impl.reader.TextMarkupDocumentReader.TAG_ROLLBACK_IF_ALREADY_DEPLOYED;
 
-public class TextMarkupDocumentReaderOld {
+class TextMarkupDocumentReaderOld {
     private final MutableList<String> firstLevelElements = Lists.mutable.with("CHANGE", TAG_METADATA, TAG_DROP_COMMAND);
     private final MutableList<String> secondLevelElements = Lists.mutable.with(TAG_ROLLBACK,
             TAG_ROLLBACK_IF_ALREADY_DEPLOYED);

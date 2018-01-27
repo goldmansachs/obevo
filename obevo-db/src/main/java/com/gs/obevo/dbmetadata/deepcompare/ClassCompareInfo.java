@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -38,7 +38,7 @@ public class ClassCompareInfo<T> {
         return new ClassCompareInfoBuilder<T>();
     }
 
-    public ClassCompareInfo(Class<T> clazz, Function<T, ?> keyFunction,
+    private ClassCompareInfo(Class<T> clazz, Function<T, ?> keyFunction,
             MutableCollection<Pair<String, Function<T, ?>>> compareFunctions,
             MutableCollection<CollectionFieldCompareInfo> collectionComparisonInfos) {
         this.clazz = clazz;
@@ -47,7 +47,7 @@ public class ClassCompareInfo<T> {
         this.collectionComparisonInfos = collectionComparisonInfos;
     }
 
-    public Class<T> getClazz() {
+    private Class<T> getClazz() {
         return this.clazz;
     }
 

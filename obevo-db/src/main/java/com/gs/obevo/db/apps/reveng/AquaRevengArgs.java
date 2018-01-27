@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -268,34 +268,43 @@ public class AquaRevengArgs {
         if (inputPath != null) {
             builder.append("inputPath=").append(inputPath).append(", ");
         }
-        if (tables != null)
+        if (tables != null) {
             builder.append("tables=").append(Arrays.toString(tables)).append(", ");
+        }
         if (outputPath != null) {
             builder.append("outputPath").append(outputPath).append(", ");
         }
         builder.append("tablespaceToken=").append(tablespaceToken).append(", tokenizeDefaultSchema=")
                 .append(tokenizeDefaultSchema).append(", generateBaseline=").append(generateBaseline).append(", ");
-        if (dbPlatform != null)
+        if (dbPlatform != null) {
             builder.append("dbPlatform=").append(dbPlatform).append(", ");
-        if (dbHost != null)
+        }
+        if (dbHost != null) {
             builder.append("dbHost=").append(dbHost).append(", ");
+        }
         builder.append("dbPort=").append(dbPort).append(", ");
-        if (dbServer != null)
+        if (dbServer != null) {
             builder.append("dbServer=").append(dbServer).append(", ");
-        if (dbSchema != null)
+        }
+        if (dbSchema != null) {
             builder.append("dbSchema=").append(dbSchema).append(", ");
-        if (username != null)
+        }
+        if (username != null) {
             builder.append("username=").append(username).append(", ");
-        if (driverClass != null)
+        }
+        if (driverClass != null) {
             builder.append("driverClass=").append(driverClass).append(", ");
-        if (mode != null)
+        }
+        if (mode != null) {
             builder.append("mode=").append(mode).append(", ");
-        if (updateTimeColumns != null)
+        }
+        if (updateTimeColumns != null) {
             builder.append("updateTimeColumns=").append(updateTimeColumns).append(", ");
-        if (nameCombinePattern != null)
+        }
+        if (nameCombinePattern != null) {
             builder.append("nameCombinePattern=").append(nameCombinePattern).append(", ");
+        }
         builder.append("preprocessSchemaTokens=").append(preprocessSchemaTokens).append("]");
         return builder.toString();
     }
-    
 }

@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -42,7 +42,7 @@ public class GraphSorter {
     /**
      * Sorts the graph to provide a consistent topological ordering. The vertices of the graph must implement {@link Comparable}
      *
-     * @param graph          The input graph
+     * @param graph The input graph
      * @param subsetVertices The subset vertices of the graph we want to sort
      */
     public <T> ImmutableList<T> sortChanges(DirectedGraph<T, DefaultEdge> graph, RichIterable<T> subsetVertices) {
@@ -52,9 +52,9 @@ public class GraphSorter {
     /**
      * Sorts the graph to provide a consistent topological ordering.
      *
-     * @param graph          The input graph
+     * @param graph The input graph
      * @param subsetVertices The subset vertices of the graph we want to sort
-     * @param comparator     The comparator on which to order the vertices to guarantee a consistent topological ordering
+     * @param comparator The comparator on which to order the vertices to guarantee a consistent topological ordering
      */
     public <T> ImmutableList<T> sortChanges(DirectedGraph<T, DefaultEdge> graph, RichIterable<T> subsetVertices, Comparator<? super T> comparator) {
         if (subsetVertices.toSet().size() != subsetVertices.size()) {
@@ -86,7 +86,7 @@ public class GraphSorter {
     /**
      * Sorts the graph to provide a consistent topological ordering.
      *
-     * @param graph      The input graph - all vertices in the graph will be returned in the output list
+     * @param graph The input graph - all vertices in the graph will be returned in the output list
      * @param comparator The comparator on which to order the vertices to guarantee a consistent topological ordering
      */
     public <T> ImmutableList<T> sortChanges(final DirectedGraph<T, DefaultEdge> graph, Comparator<? super T> comparator) {

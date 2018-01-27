@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -25,7 +25,7 @@ import org.eclipse.collections.impl.tuple.Tuples;
 /**
  * TODO write a unit test for this
  */
-public class DbDataComparisonExample {
+class DbDataComparisonExample {
     public static void main(String[] args) throws Exception {
         new DbDataComparisonUtil().execute(DbDataComparisonConfigFactory
                 .createFromProperties("dbComparisonConfigExample.properties"), new File("./comps"));

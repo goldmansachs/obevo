@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -24,9 +24,9 @@ import org.junit.Test;
 
 public class SimpleDataObjectTest {
 
-    static SimpleDataObject obj;
-    static SimpleDataObject obj2;
-    static final SimpleDataSchema schema = TestUtil.createSchema();
+    private static SimpleDataObject obj;
+    private static SimpleDataObject obj2;
+    private static final SimpleDataSchema schema = TestUtil.createSchema();
 
     @BeforeClass
     public static void setUp() {

@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -33,7 +33,6 @@ import com.gs.obevo.api.appdata.Environment;
 public interface EnvironmentInfraSetup<E extends Environment> {
     /**
      * Sets up the environment - should be an idempotent call. See {@link EnvironmentInfraSetup} javadoc for details.
-     * @param failOnSetupException
      */
     void setupEnvInfra(boolean failOnSetupException);
 }

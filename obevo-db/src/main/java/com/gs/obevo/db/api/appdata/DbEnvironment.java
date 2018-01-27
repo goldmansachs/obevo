@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -28,7 +28,6 @@ import com.gs.obevo.util.inputreader.Credential;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.map.ImmutableMap;
-import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.Lists;
@@ -185,7 +184,7 @@ public class DbEnvironment extends Environment<DbPlatform> {
         this.setPlatform(dbPlatform);
     }
 
-    public DbPlatform getSystemDbPlatform() {
+    private DbPlatform getSystemDbPlatform() {
         return this.systemDbPlatform != null ? this.systemDbPlatform : this.getPlatform();
     }
 

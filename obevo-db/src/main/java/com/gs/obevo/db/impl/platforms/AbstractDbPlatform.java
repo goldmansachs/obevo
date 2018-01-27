@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -81,7 +81,7 @@ public abstract class AbstractDbPlatform implements DbPlatform {
      * Returns the default DeployerAppContext class. This is overridable to let various layers of subclasses override
      * the default builder as needed.
      */
-    public abstract Class<? extends DeployerAppContext> initializeAppContextBuilderClass();
+    protected abstract Class<? extends DeployerAppContext> initializeAppContextBuilderClass();
 
     /**
      * Returns the default driver fully-qualified class name. This is overridable to let various layers of subclasses override
@@ -180,6 +180,7 @@ public abstract class AbstractDbPlatform implements DbPlatform {
     protected DbChangeType getChangeType(MutableList<ChangeType> inputs, String changeTypeName) {
         return (DbChangeType) inputs.detect(Predicates.attributeEqual(ChangeType.TO_NAME, changeTypeName));
     }
+
     /**
      * Internal method meant to help subclasses modify the changeType list.
      */
@@ -292,7 +293,7 @@ public abstract class AbstractDbPlatform implements DbPlatform {
      */
     @Override
     public Timestamp getTimestampValue(Object obj) {
-        return (Timestamp)obj;
+        return (Timestamp) obj;
     }
 
     /**

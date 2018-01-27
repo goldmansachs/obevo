@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -29,7 +29,7 @@ public class FileSourceParams {
     private final String defaultSourceEncoding;
     private final boolean legacyDirectoryStructureEnabled;
 
-    public FileSourceParams(RichIterable<FileObject> files, ImmutableSet<String> schemaNames, boolean baseline, ImmutableList<ChangeType> changeTypes, ImmutableSet<String> acceptedExtensions, String defaultSourceEncoding, boolean legacyDirectoryStructureEnabled) {
+    private FileSourceParams(RichIterable<FileObject> files, ImmutableSet<String> schemaNames, boolean baseline, ImmutableList<ChangeType> changeTypes, ImmutableSet<String> acceptedExtensions, String defaultSourceEncoding, boolean legacyDirectoryStructureEnabled) {
         this.files = files;
         this.schemaNames = schemaNames;
         this.baseline = baseline;
@@ -66,7 +66,6 @@ public class FileSourceParams {
     public boolean isLegacyDirectoryStructureEnabled() {
         return legacyDirectoryStructureEnabled;
     }
-
 
     public static FileSourceParamsBuilder newBuilder() {
         return new FileSourceParamsBuilder();
@@ -122,4 +121,5 @@ public class FileSourceParams {
         public FileSourceParams build() {
             return new FileSourceParams(files, schemaNames, baseline, changeTypes, acceptedExtensions, defaultSourceEncoding, legacyDirectoryStructureEnabled);
         }
-    }}
+    }
+}

@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -56,7 +56,7 @@ public class SqlTranslatorConfigHelper {
         return columnSqlTranslators;
     }
 
-    public void setColumnSqlTranslators(MutableList<ColumnSqlTranslator> columnSqlTranslators) {
+    private void setColumnSqlTranslators(MutableList<ColumnSqlTranslator> columnSqlTranslators) {
         this.columnSqlTranslators = columnSqlTranslators;
     }
 
@@ -64,7 +64,7 @@ public class SqlTranslatorConfigHelper {
         return this.postColumnSqlTranslators;
     }
 
-    public void setPostColumnSqlTranslators(MutableList<PostColumnSqlTranslator> postColumnSqlTranslators) {
+    private void setPostColumnSqlTranslators(MutableList<PostColumnSqlTranslator> postColumnSqlTranslators) {
         this.postColumnSqlTranslators = postColumnSqlTranslators;
     }
 
@@ -72,7 +72,7 @@ public class SqlTranslatorConfigHelper {
         return this.postParsedSqlTranslators;
     }
 
-    public void setPostParsedSqlTranslators(MutableList<PostParsedSqlTranslator> postParsedSqlTranslators) {
+    private void setPostParsedSqlTranslators(MutableList<PostParsedSqlTranslator> postParsedSqlTranslators) {
         this.postParsedSqlTranslators = postParsedSqlTranslators;
     }
 
@@ -80,7 +80,7 @@ public class SqlTranslatorConfigHelper {
         return this.preParsedSqlTranslators;
     }
 
-    public void setPreParsedSqlTranslators(MutableList<PreParsedSqlTranslator> preParsedSqlTranslators) {
+    private void setPreParsedSqlTranslators(MutableList<PreParsedSqlTranslator> preParsedSqlTranslators) {
         this.preParsedSqlTranslators = preParsedSqlTranslators;
     }
 
@@ -88,7 +88,7 @@ public class SqlTranslatorConfigHelper {
         return this.unparsedSqlTranslators;
     }
 
-    public void setUnparsedSqlTranslators(MutableList<UnparsedSqlTranslator> unparsedSqlTranslators) {
+    private void setUnparsedSqlTranslators(MutableList<UnparsedSqlTranslator> unparsedSqlTranslators) {
         this.unparsedSqlTranslators = unparsedSqlTranslators;
     }
 }

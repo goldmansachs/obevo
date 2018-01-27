@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -84,7 +84,7 @@ public class PlatformConfiguration {
      * Returns the default name-to-platform mappings. We put this in a separate protected method to allow external
      * distributions to override these values as needed.
      */
-    protected ImmutableMap<String, String> getDbPlatformMap() {
+    private ImmutableMap<String, String> getDbPlatformMap() {
         MutableMap<String, String> platformByName = Maps.mutable.empty();
 
         for (String platformName : platformConfigs.root().keySet()) {

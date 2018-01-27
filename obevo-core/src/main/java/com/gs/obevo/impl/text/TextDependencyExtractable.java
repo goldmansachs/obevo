@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -40,6 +40,7 @@ public interface TextDependencyExtractable {
     /**
      * The object's identity. The {@link TextDependencyExtractor} would use the names from the identities as the
      * dependencies to try to extract from the text (see {@link #getContentForDependencyCalculation()}.
+     *
      * @since 6.0.0
      */
     ObjectKey getObjectKey();
@@ -47,6 +48,7 @@ public interface TextDependencyExtractable {
     /**
      * The object's dependencies. Note that this may be set beforehand; if so, then no additional dependency calculation
      * would be done.
+     *
      * @since 6.4.0
      */
     ImmutableSet<CodeDependency> getCodeDependencies();
@@ -54,6 +56,7 @@ public interface TextDependencyExtractable {
     /**
      * The object's dependencies. Note that this may be set beforehand; if so, then no additional dependency calculation
      * would be done.
+     *
      * @since 6.0.0
      * @deprecated Use {@link #getCodeDependencies()}. Remove in 7.0.0
      */
@@ -62,12 +65,14 @@ public interface TextDependencyExtractable {
 
     /**
      * Sets the dependencies on the object. This would be called by the {@link TextDependencyExtractor} only.
+     *
      * @since 6.4.0
      */
     void setCodeDependencies(ImmutableSet<CodeDependency> codeDependencies);
 
     /**
      * Sets the dependencies on the object. This would be called by the {@link TextDependencyExtractor} only.
+     *
      * @deprecated Use {@link #setCodeDependencies(ImmutableSet)}. Remove in 7.0.0
      */
     @Deprecated
@@ -76,6 +81,7 @@ public interface TextDependencyExtractable {
     /**
      * The dependencies to exclude from the text. This is to let the user specify the false-positive dependencies that
      * the {@link TextDependencyExtractor} may extract.
+     *
      * @since 6.0.0
      */
     ImmutableSet<String> getExcludeDependencies();
@@ -83,12 +89,14 @@ public interface TextDependencyExtractable {
     /**
      * The dependencies to force-include. This is to let the user specify the false-negative dependencies that
      * the {@link TextDependencyExtractor} may omit.
+     *
      * @since 6.0.0
      */
     ImmutableSet<String> getIncludeDependencies();
 
     /**
      * The content that would be analyzed by the {@link TextDependencyExtractor} for dependencies.
+     *
      * @since 6.0.0
      */
     String getContentForDependencyCalculation();

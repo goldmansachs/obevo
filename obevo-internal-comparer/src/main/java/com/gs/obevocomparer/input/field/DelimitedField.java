@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -22,13 +22,13 @@ import java.util.StringTokenizer;
 
 public class DelimitedField extends AbstractDerivedField<String> {
 
-    final String delim;
+    private final String delim;
 
     public DelimitedField(String field, String delim) {
         this(field, field, delim);
     }
 
-    public DelimitedField(String sourceField, String targetField, String delim) {
+    private DelimitedField(String sourceField, String targetField, String delim) {
         super(sourceField, targetField, String.class);
         this.delim = delim;
     }

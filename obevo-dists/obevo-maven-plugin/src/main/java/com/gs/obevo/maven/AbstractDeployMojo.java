@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -26,9 +26,9 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.collections.api.collection.MutableCollection;
 
-public abstract class AbstractDeployMojo extends AbstractMojo {
+abstract class AbstractDeployMojo extends AbstractMojo {
     @Parameter(property = "da.env")
-    protected String env;
+    private String env;
 
     @Parameter(property = "da.user")
     private String user;
@@ -53,22 +53,22 @@ public abstract class AbstractDeployMojo extends AbstractMojo {
      * depending on the context of the mojo
      */
     @Parameter(property = "da.cleanFirst", defaultValue = "false")
-    protected Boolean cleanFirst;
+    Boolean cleanFirst;
 
     @Parameter(property = "da.noPrompt", defaultValue = "false")
-    protected Boolean noPrompt;
+    private Boolean noPrompt;
 
     @Parameter(property = "da.validateBaseline", defaultValue = "false")
-    protected boolean validateBaseline;
+    private boolean validateBaseline;
 
     @Parameter(property = "da.performInitOnly", defaultValue = "false")
-    protected boolean performInitOnly;
+    private boolean performInitOnly;
 
     @Parameter(property = "da.preview", defaultValue = "false")
-    protected boolean preview;
+    private boolean preview;
 
     @Parameter(property = "da.rollback", defaultValue = "false")
-    protected boolean rollback;
+    private boolean rollback;
 
     /**
      * Only would need to be used for test deployments where we want to guarantee that all are deployed.
@@ -88,19 +88,19 @@ public abstract class AbstractDeployMojo extends AbstractMojo {
         this.password = password;
     }
 
-    public void setCleanFirst(boolean cleanFirst) {
+    void setCleanFirst(boolean cleanFirst) {
         this.cleanFirst = cleanFirst;
     }
 
-    public void setNoPrompt(boolean noPrompt) {
+    void setNoPrompt(boolean noPrompt) {
         this.noPrompt = noPrompt;
     }
 
-    public void setPerformInitOnly(boolean performInitOnly) {
+    void setPerformInitOnly(boolean performInitOnly) {
         this.performInitOnly = performInitOnly;
     }
 
-    public void setPreview(boolean preview) {
+    void setPreview(boolean preview) {
         this.preview = preview;
     }
 
@@ -108,23 +108,23 @@ public abstract class AbstractDeployMojo extends AbstractMojo {
         this.rollback = rollback;
     }
 
-    public void setAllChangesets(boolean allChangesets) {
+    void setAllChangesets(boolean allChangesets) {
         this.allChangesets = allChangesets;
     }
 
-    protected void validateIsPopulated(Object obj, String message) throws MojoExecutionException {
+    void validateIsPopulated(Object obj, String message) throws MojoExecutionException {
         if (obj == null) {
             throw new MojoExecutionException("Must pass in the " + message + " parameter");
         }
     }
 
-    protected void validateIsSourcePathPopulated() throws MojoExecutionException {
+    void validateIsSourcePathPopulated() throws MojoExecutionException {
         if (this.sourcePath == null) {
             throw new MojoExecutionException("Must pass in the -sourcePath parameter");
         }
     }
 
-    protected String getSourcePath() {
+    String getSourcePath() {
         return sourcePath;
     }
 
@@ -159,7 +159,7 @@ public abstract class AbstractDeployMojo extends AbstractMojo {
         }
     }
 
-    protected Credential getCredential() {
+    Credential getCredential() {
         String passwordToUse = password;
         if ("BLANK".equals(passwordToUse)) {
             // maven can't handle blank passwords, say for unit test envs. Hence, we allow for this

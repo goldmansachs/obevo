@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -31,7 +31,7 @@ public abstract class AbstractAggregateField<T, AT> implements AggregateField {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractAggregateField.class);
 
-    protected AbstractAggregateField(String name, String baseField, boolean aggregateNulls, Class<T> clazz) {
+    AbstractAggregateField(String name, String baseField, boolean aggregateNulls, Class<T> clazz) {
         this.name = name;
         this.baseField = baseField;
         this.aggregateNulls = aggregateNulls;

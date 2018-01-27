@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -62,8 +62,7 @@ public class Main {
         RELADOMOREVENG,
         INIT,
         PREVIEW,
-        DBDATACOMPARE,
-        ;
+        DBDATACOMPARE,;
     }
 
     public static void main(String[] args) {
@@ -72,14 +71,14 @@ public class Main {
 
     private final ImmutableMap<String, Procedure<String[]>> commandMap;
 
-    protected Main() {
+    private Main() {
         // use the hashing strategy to allow commands of any case to be handled
         UnifiedMapWithHashingStrategy<String, Procedure<String[]>> commandMap = new UnifiedMapWithHashingStrategy<String, Procedure<String[]>>(HashingStrategies.fromFunction(StringFunctions.toLowerCase()));
         commandMap.putAll(getCommandMap().toMap());
         this.commandMap = commandMap.toImmutable();
     }
 
-    protected void execute(String[] args) {
+    private void execute(String[] args) {
         execute(args, new Runnable() {
             @Override
             public void run() {
@@ -98,7 +97,7 @@ public class Main {
      * packages.
      */
     @VisibleForTesting
-    public void execute(String[] args, Runnable exitSuccessMethod, Runnable exitFailureMethod) {
+    private void execute(String[] args, Runnable exitSuccessMethod, Runnable exitFailureMethod) {
         Pair<String, Procedure<String[]>> commandEntry = getDeployCommand(args, exitFailureMethod);
 
         LogUtil.FileLogger logAppender = LogUtil.getLogAppender(commandEntry.getOne());
@@ -168,7 +167,7 @@ public class Main {
         System.out.println("If you just put in the command w/ no args, you will be prompted with further options");
     }
 
-    protected ImmutableMap<String, Procedure<String[]>> getCommandMap() {
+    private ImmutableMap<String, Procedure<String[]>> getCommandMap() {
         MutableMap<String, Procedure<String[]>> commandMap = Maps.mutable.empty();
         commandMap.put("deploy", new Procedure<String[]>() {
             @Override

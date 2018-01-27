@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 public class UnparseVisitor implements SqlParserVisitor {
     private static final Logger LOG = LoggerFactory.getLogger(UnparseVisitor.class);
 
-    protected final PrintStream out;
+    private final PrintStream out;
     private CreateIndex createIndex;
     private AlterTableDrop alterTableDrop;
 
@@ -34,9 +34,9 @@ public class UnparseVisitor implements SqlParserVisitor {
         this.out = o;
     }
 
-    static final boolean debug = false;
+    private static final boolean debug = false;
 
-    public Object print(SimpleNode node, Object data) {
+    private Object print(SimpleNode node, Object data) {
         if (debug) {
             this.out.println(">>>> Calling print from " + node.getClass() + " ***");
         }
@@ -68,7 +68,7 @@ public class UnparseVisitor implements SqlParserVisitor {
         return data;
     }
 
-    protected void print(Token t) {
+    private void print(Token t) {
         Token tt = t.specialToken;
         if (tt != null) {
             while (tt.specialToken != null) {
@@ -106,7 +106,7 @@ public class UnparseVisitor implements SqlParserVisitor {
         }
     }
 
-    StringBuilder currentSb() {
+    private StringBuilder currentSb() {
         if (this.sbs.isEmpty()) {
             return new StringBuilder(); // essentially writing to null
         } else {
@@ -158,7 +158,7 @@ public class UnparseVisitor implements SqlParserVisitor {
         return obj;
     }
 
-    String tableName = null;
+    private String tableName = null;
 
     @Override
     public Object visit(ASTTableName node, Object data) {
@@ -169,7 +169,7 @@ public class UnparseVisitor implements SqlParserVisitor {
         return obj;
     }
 
-    String dropObjectName = null;
+    private String dropObjectName = null;
 
     @Override
     public Object visit(ASTDropObjectName node, Object data) {

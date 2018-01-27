@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -40,11 +40,11 @@ public class DbMetadataComparisonUtil {
                 .addCompareFunction("primaryKey", DaTable.TO_PRIMARY_KEY)
                 .addCollectionComparisonInfo(new CollectionFieldCompareInfo(DaColumn.class, DaTable.TO_COLUMNS))
                 .addCollectionComparisonInfo(new CollectionFieldCompareInfo(DaIndex.class, DaTable.TO_INDICES))
-                        // the fields below are not yet activated for comparison
-//				.addCollectionComparisonInfo(new CollectionFieldCompareInfo(ForeignKey.class, TABLE_TO_FOREIGN_KEYS))
-//				.addCollectionComparisonInfo(new CollectionFieldCompareInfo(Index.class, TABLE_TO_INDICES))
-//				.addCollectionComparisonInfo(new CollectionFieldCompareInfo(Privilege.class, TABLE_TO_PRIVILEGES))
-//				.addCollectionComparisonInfo(new CollectionFieldCompareInfo(Trigger.class, TABLE_TO_TRIGGERS))
+                // the fields below are not yet activated for comparison
+//                .addCollectionComparisonInfo(new CollectionFieldCompareInfo(ForeignKey.class, TABLE_TO_FOREIGN_KEYS))
+//                .addCollectionComparisonInfo(new CollectionFieldCompareInfo(Index.class, TABLE_TO_INDICES))
+//                .addCollectionComparisonInfo(new CollectionFieldCompareInfo(Privilege.class, TABLE_TO_PRIVILEGES))
+//                .addCollectionComparisonInfo(new CollectionFieldCompareInfo(Trigger.class, TABLE_TO_TRIGGERS))
                 .build();
         ClassCompareInfo columnCompareInfo = ClassCompareInfo.newBuilder()
                 .setClazz(DaColumn.class)

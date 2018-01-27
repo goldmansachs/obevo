@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -13,6 +13,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+package com.gs.obevo.impl.command;
 /**
  * This package defines the commands and interfaces that can be applied against an {@link com.gs.obevo.api.appdata.Environment}.
  *
@@ -21,4 +23,3 @@
  *
  * In terms of "how" the deployments are applied to the environments, that is elsewhere (e.g. {@link com.gs.obevo.api.platform.ChangeType}).
  */
-package com.gs.obevo.impl.command;

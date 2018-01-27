@@ -6,7 +6,7 @@
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
 
-        http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on an
@@ -40,7 +40,15 @@
                 <li>Choose all the objects that you want to include in the schema you want to include</li>
                 <li>Choose the options for reverse-engineering as indicated in the Aqua Data Studio picture below
                     <ul>
-                        <li><font color="Red"><b><u><i>NOTE #1 - if your Aqua Data Studio is not showing all the options there, you may need to expand your window horizontally and vertically (ADS quirk...). The screenshot below is from 7.0.39</i></u></b></font></li>
+                        <li>
+                            <font color="Red">
+                                <b>
+                                    <u>
+                                        <i>NOTE #1 - if your Aqua Data Studio is not showing all the options there, you may need to expand your window horizontally and vertically (ADS quirk...). The screenshot below is from 7.0.39</i>
+                                    </u>
+                                </b>
+                            </font>
+                        </li>
                         <li>NOTE #2 - In Aqua Data Studio >= 8, the &quot;Tables: Script full table (Indexes, Triggers)&quot; seems to be disabled for some people. You can proceed anyway. (note - if you do have the option to choose it, do ensure that it is checked)</li>
                     </ul>
                     <br />
@@ -72,7 +80,8 @@
                 <li>Once you have these files, do the final touches on them as you see fit (e.g. delete junk tables), and
                     proceed to the next step
                     <ul>
-                        <li><font color="Red">Note the warning in your output - if you see any directories with a name containing
+                        <li><font
+                            color="Red">Note the warning in your output - if you see any directories with a name containing
                             &quot;-pleaseAnalyze&quot; in the result of the DBREVENG script</font>, then the tool could not figure out what to do w/ those
                             sql snippets. Either manually figure out where to put them and do so, or if you find too many
                             such cases, reach out to the product team via Github, including a zip file of your reveng contents
@@ -85,8 +94,10 @@
                 permissioning functionality instead
             </p>
 
-            <p>Once done, return to the <a href="existing-onboarding-guide.html">Existing Onboarding Guide</a> to continue
-            the onboarding process</p>
+            <p>Once done, return to the <a href="existing-onboarding-guide.html">Existing Onboarding Guide
+            </a> to continue
+                the onboarding process
+            </p>
         </section>
     </body>
 </document>

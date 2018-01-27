@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -43,7 +43,7 @@ public class IqOldOdbcDataSourceFactory extends AbstractIqDataSourceFactory {
         return Tuples.pair(url, credential.getPassword());
     }
 
-    protected final String getIanywhereDriverProperty(String ianywhereDriverProperty) {
+    private String getIanywhereDriverProperty(String ianywhereDriverProperty) {
         if (ianywhereDriverProperty != null) {
             return ianywhereDriverProperty;
         } else if (SystemUtils.IS_OS_WINDOWS) {

@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -44,51 +44,51 @@ import static org.mockito.Mockito.when;
 
 public class DbDirectoryChangesetReaderTest {
     private static final String CONTENT = "";
-    
+
     private final ChangeType viewChangeType = mock(ChangeType.class);
     private final ChangeType spChangeType = mock(ChangeType.class);
     private final ChangeType fkChangeType = mock(ChangeType.class);
     private final ChangeType tableChangeType = mock(ChangeType.class);
     private final ChangeType staticDataChangeType = mock(ChangeType.class);
 
-    final Change sp1Change = new ChangeRerunnable(viewChangeType, "schema1", "sp1", "hash", CONTENT);
-    final Change sp2Change = new ChangeRerunnable(viewChangeType, "schema1", "sp2", "hash", CONTENT);
-    final Change view1Change = new ChangeRerunnable(spChangeType, "schema1", "view1", "hash", CONTENT);
-    final Change view2Change = new ChangeRerunnable(spChangeType, "schema1", "view2", "hash", CONTENT);
-    final Change table1Change = new ChangeIncremental(tableChangeType, "schema1", "table", "ch1", 0, "hash",
+    private final Change sp1Change = new ChangeRerunnable(viewChangeType, "schema1", "sp1", "hash", CONTENT);
+    private final Change sp2Change = new ChangeRerunnable(viewChangeType, "schema1", "sp2", "hash", CONTENT);
+    private final Change view1Change = new ChangeRerunnable(spChangeType, "schema1", "view1", "hash", CONTENT);
+    private final Change view2Change = new ChangeRerunnable(spChangeType, "schema1", "view2", "hash", CONTENT);
+    private final Change table1Change = new ChangeIncremental(tableChangeType, "schema1", "table", "ch1", 0, "hash",
             CONTENT);
-    final Change table2Change = new ChangeIncremental(fkChangeType, "schema1", "table", "ch2", 1,
+    private final Change table2Change = new ChangeIncremental(fkChangeType, "schema1", "table", "ch2", 1,
             "hash", CONTENT);
-    final Change table3Change = new ChangeIncremental(tableChangeType, "schema1", "table", "ch3", 2, "hash",
+    private final Change table3Change = new ChangeIncremental(tableChangeType, "schema1", "table", "ch3", 2, "hash",
             CONTENT);
-    final Change deltab1Change = new ChangeIncremental(tableChangeType, "schema1", "deletedtable", "ch1", 0,
+    private final Change deltab1Change = new ChangeIncremental(tableChangeType, "schema1", "deletedtable", "ch1", 0,
             "hash", CONTENT);
-    final Change deltab2Change = new ChangeIncremental(fkChangeType, "schema1", "deletedtable",
+    private final Change deltab2Change = new ChangeIncremental(fkChangeType, "schema1", "deletedtable",
             "ch2", 1, "hash", CONTENT);
     //    Change deltab3Change = new ChangeIncremental(ChangeType.DROP_TABLE, "schema1", "deletedtable",
 //            "ch3", 2, "hash", CONTENT);
-    final Change deltab3Change = new ChangeIncremental(null, "schema1", "deletedtable",
+    private final Change deltab3Change = new ChangeIncremental(null, "schema1", "deletedtable",
             "ch3", 2, "hash", CONTENT);
-    final Change data1Change = new ChangeRerunnable(staticDataChangeType, "schema1", "table", "hash",
+    private final Change data1Change = new ChangeRerunnable(staticDataChangeType, "schema1", "table", "hash",
             CONTENT);
-    final Change data2Change = new ChangeRerunnable(staticDataChangeType, "schema1", "table2", "hash",
+    private final Change data2Change = new ChangeRerunnable(staticDataChangeType, "schema1", "table2", "hash",
             CONTENT);
-    final Change sch2sp3Change = new ChangeRerunnable(viewChangeType, "schema2", "sp3", "hash2", CONTENT);
-    final Change sch2sp2Change = new ChangeRerunnable(viewChangeType, "schema2", "sp2", "hash2", CONTENT);
-    final Change sch2view1Change = new ChangeRerunnable(spChangeType, "schema2", "view1", "hash2", CONTENT);
-    final Change sch2view3Change = new ChangeRerunnable(spChangeType, "schema2", "view3", "hash2", CONTENT);
-    final Change sch2table1Change = new ChangeIncremental(tableChangeType, "schema2", "table", "ch1", 0,
+    private final Change sch2sp3Change = new ChangeRerunnable(viewChangeType, "schema2", "sp3", "hash2", CONTENT);
+    private final Change sch2sp2Change = new ChangeRerunnable(viewChangeType, "schema2", "sp2", "hash2", CONTENT);
+    private final Change sch2view1Change = new ChangeRerunnable(spChangeType, "schema2", "view1", "hash2", CONTENT);
+    private final Change sch2view3Change = new ChangeRerunnable(spChangeType, "schema2", "view3", "hash2", CONTENT);
+    private final Change sch2table1Change = new ChangeIncremental(tableChangeType, "schema2", "table", "ch1", 0,
             "hash2", CONTENT);
-    final Change sch2table3Change = new ChangeIncremental(tableChangeType, "schema2", "table3", "ch1", 0,
+    private final Change sch2table3Change = new ChangeIncremental(tableChangeType, "schema2", "table3", "ch1", 0,
             "hash2", CONTENT);
-    final Change sch2data1Change = new ChangeRerunnable(staticDataChangeType, "schema2", "table", "hash2",
+    private final Change sch2data1Change = new ChangeRerunnable(staticDataChangeType, "schema2", "table", "hash2",
             CONTENT);
-    final Change sch2data3Change = new ChangeRerunnable(staticDataChangeType, "schema2", "table3", "hash2",
+    private final Change sch2data3Change = new ChangeRerunnable(staticDataChangeType, "schema2", "table3", "hash2",
             CONTENT);
 
-    final Change sptestexclude = new ChangeRerunnable(viewChangeType, "schema1", "sptestexclude", "hash",
+    private final Change sptestexclude = new ChangeRerunnable(viewChangeType, "schema1", "sptestexclude", "hash",
             CONTENT);
-    final Change sptestinclude = new ChangeRerunnable(viewChangeType, "schema1", "sptestinclude", "hash",
+    private final Change sptestinclude = new ChangeRerunnable(viewChangeType, "schema1", "sptestinclude", "hash",
             CONTENT);
 
     /**
@@ -103,7 +103,7 @@ public class DbDirectoryChangesetReaderTest {
         String includeEnvName = "inclEnv";
         this.sptestexclude.setRestrictions(
                 Lists.immutable.<ArtifactRestrictions>of(
-                    new ArtifactEnvironmentRestrictions(null, UnifiedSet.newSetWith(excludeEnvName))
+                        new ArtifactEnvironmentRestrictions(null, UnifiedSet.newSetWith(excludeEnvName))
                 ));
         this.sptestinclude.setRestrictions(
                 Lists.immutable.<ArtifactRestrictions>of(
@@ -243,7 +243,6 @@ public class DbDirectoryChangesetReaderTest {
         assertFalse(DbDirectoryChangesetReader.CHANGES_WILDCARD_FILTER.accept(getFileSelectInfo("mytable.changes")));
         assertFalse(DbDirectoryChangesetReader.CHANGES_WILDCARD_FILTER.accept(getFileSelectInfo("my_changes.txt")));
         assertFalse(DbDirectoryChangesetReader.CHANGES_WILDCARD_FILTER.accept(getFileSelectInfo("mytable.changes_my")));
-
     }
 
     private FileSelectInfo getFileSelectInfo(String fileBaseName) {

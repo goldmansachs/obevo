@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,7 +16,6 @@
 package com.gs.obevo.db.impl.platforms.sybasease;
 
 import java.sql.Connection;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.sql.DataSource;
@@ -54,7 +53,7 @@ public class AseSqlExecutor extends AbstractSqlExecutor {
     /**
      * To be implemented.
      */
-    protected int getPercentLogFullInDb(Connection conn, JdbcHelper jdbc) {
+    private int getPercentLogFullInDb(Connection conn, JdbcHelper jdbc) {
         return 0;  // TODO implement this check; for now, return 0 to allow the statement to go through
     }
 

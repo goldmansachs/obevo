@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -20,12 +20,12 @@ import java.util.regex.Pattern;
 
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.impl.reader.TextMarkupDocumentReader;
 import com.gs.obevo.db.impl.platforms.sqltranslator.ColumnSqlTranslator;
 import com.gs.obevo.db.impl.platforms.sqltranslator.PostColumnSqlTranslator;
 import com.gs.obevo.db.impl.platforms.sqltranslator.PostParsedSqlTranslator;
 import com.gs.obevo.db.sqlparser.syntaxparser.CreateTable;
 import com.gs.obevo.db.sqlparser.syntaxparser.CreateTableColumn;
+import com.gs.obevo.impl.reader.TextMarkupDocumentReader;
 
 public class AseToHsqlSqlTranslator implements ColumnSqlTranslator, PostColumnSqlTranslator, PostParsedSqlTranslator {
     private final Pattern varbinaryDefaultPattern = Pattern.compile("(?i)varbinary\\s*([^\\(])");

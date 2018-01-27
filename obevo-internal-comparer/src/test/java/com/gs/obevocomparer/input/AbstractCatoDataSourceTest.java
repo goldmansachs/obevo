@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -32,8 +32,8 @@ import static org.mockito.Mockito.when;
 
 public class AbstractCatoDataSourceTest {
 
-    TestDataSource source;
-    final CatoDataSchema schema = TestUtil.createSchema();
+    private TestDataSource source;
+    private final CatoDataSchema schema = TestUtil.createSchema();
 
     @Before
     public void setUp() {
@@ -171,19 +171,19 @@ public class AbstractCatoDataSourceTest {
         private boolean open = false;
         private boolean closed = false;
 
-        public TestDataSource(String name) {
+        TestDataSource(String name) {
             super(name, new StringTypeConverter());
         }
 
-        public TestDataSource(String name, String shortName) {
+        TestDataSource(String name, String shortName) {
             super(name, shortName, new StringTypeConverter());
         }
 
-        public boolean isOpen() {
+        boolean isOpen() {
             return this.open;
         }
 
-        public boolean isClosed() {
+        boolean isClosed() {
             return this.closed;
         }
 
@@ -198,7 +198,7 @@ public class AbstractCatoDataSourceTest {
         }
 
         @Override
-        public CatoDataObject nextDataObject() throws Exception {
+        protected CatoDataObject nextDataObject() throws Exception {
             if (!this.iter.hasNext()) {
                 return null;
             }

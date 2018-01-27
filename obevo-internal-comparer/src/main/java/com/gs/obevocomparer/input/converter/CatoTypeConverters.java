@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,7 +18,7 @@ package com.gs.obevocomparer.input.converter;
 import com.gs.obevocomparer.input.CatoTypeConverter;
 import org.eclipse.collections.api.block.function.Function;
 
-public class CatoTypeConverters {
+class CatoTypeConverters {
 
     public static CatoTypeConverter newStringType() {
         return new StringTypeConverter();

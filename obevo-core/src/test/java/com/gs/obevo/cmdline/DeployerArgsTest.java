@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -35,14 +35,14 @@ public class DeployerArgsTest {
     public void testEnvs() {
         DeployerArgs args = parseArgs("-sourcePath abc -env e1,e2,e3");
         assertEquals("abc", args.getSourcePath());
-        assertArrayEquals(new String[]{"e1", "e2", "e3"}, args.getEnvNames());
+        assertArrayEquals(new String[] { "e1", "e2", "e3" }, args.getEnvNames());
     }
 
     @Test
     public void testChangesets() {
         DeployerArgs args = parseArgs("-sourcePath abc -changesets c1,c2,c3");
         assertEquals("abc", args.getSourcePath());
-        assertArrayEquals(new String[]{"c1", "c2", "c3"}, args.getChangesets());
+        assertArrayEquals(new String[] { "c1", "c2", "c3" }, args.getChangesets());
     }
 
     private DeployerArgs parseArgs(String argsStr) {

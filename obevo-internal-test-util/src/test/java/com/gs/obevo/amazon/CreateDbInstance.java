@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -23,11 +23,11 @@ import com.amazonaws.services.rds.model.DeleteDBInstanceRequest;
 import com.amazonaws.services.rds.model.DescribeDBInstancesRequest;
 import com.amazonaws.services.rds.model.DescribeDBInstancesResult;
 
-public class CreateDbInstance {
+class CreateDbInstance {
     private static final AmazonRDS client = AmazonRDSClientBuilder.defaultClient();
     public static final String oracleDbInstanceId = "dbdeploy-oracle-12-1";
     public static final String postgresDbInstanceId = "dbdeploy-postgres-9-6";
-    public static final String sqlserverDbInstanceId = "dbdeploy-sqlserver-13-0";
+    private static final String sqlserverDbInstanceId = "dbdeploy-sqlserver-13-0";
 
     public static void main(String[] args) throws Exception {
         CreateDbInstance instance = new CreateDbInstance();
@@ -51,8 +51,7 @@ public class CreateDbInstance {
                 .withDBInstanceIdentifier(dbInstanceIdentifier)
                 .withDBName("DBDEPLOY")
                 .withMasterUsername("deploybuilddbo")
-                .withMasterUserPassword("deploybuilddb0")
-                ;
+                .withMasterUserPassword("deploybuilddb0");
         DBInstance response = client.createDBInstance(request);
         System.out.println(response);
 
@@ -72,15 +71,14 @@ public class CreateDbInstance {
                 .withDBInstanceIdentifier(dbInstanceIdentifier)
                 .withDBName("DBDEPLOY")
                 .withMasterUsername("deploybuilddbo")
-                .withMasterUserPassword("deploybuilddb0")
-                ;
+                .withMasterUserPassword("deploybuilddb0");
         DBInstance response = client.createDBInstance(request);
         System.out.println(response);
 
         describe(dbInstanceIdentifier);
     }
 
-    public void createSqlServer(String dbInstanceIdentifier) throws Exception {
+    private void createSqlServer(String dbInstanceIdentifier) throws Exception {
         // http://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_CreateDBInstance.html
         CreateDBInstanceRequest request = new CreateDBInstanceRequest()
                 .withEngine("sqlserver-ex")
@@ -93,15 +91,14 @@ public class CreateDbInstance {
                 .withDBInstanceIdentifier(dbInstanceIdentifier)
                 //.withDBName("DBDEPLOY")
                 .withMasterUsername("deploybuilddbo")
-                .withMasterUserPassword("deploybuilddb0")
-                ;
+                .withMasterUserPassword("deploybuilddb0");
         DBInstance response = client.createDBInstance(request);
         System.out.println(response);
 
         describe(dbInstanceIdentifier);
     }
 
-    public void describe(String dbInstanceIdentifier) throws Exception {
+    private void describe(String dbInstanceIdentifier) throws Exception {
         while (true) {
             DescribeDBInstancesRequest request = new DescribeDBInstancesRequest()
                     .withDBInstanceIdentifier(dbInstanceIdentifier);

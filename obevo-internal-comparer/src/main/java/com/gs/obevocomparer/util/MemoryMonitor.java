@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -20,7 +20,7 @@ import java.text.DecimalFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MemoryMonitor extends Thread {
+class MemoryMonitor extends Thread {
 
     private double maxMemory = 0;
     private double currentMemory = 0;
@@ -32,7 +32,7 @@ public class MemoryMonitor extends Thread {
     private final DecimalFormat df = new DecimalFormat("#.##");
     private static final Logger LOG = LoggerFactory.getLogger(MemoryMonitor.class);
 
-    public MemoryMonitor() {
+    private MemoryMonitor() {
         this(2000, true);
     }
 
@@ -63,7 +63,7 @@ public class MemoryMonitor extends Thread {
         }
     }
 
-    public void logMemoryUsage() {
+    private void logMemoryUsage() {
         LOG.info("Currently using {}", this.printMemory(this.currentMemory));
         LOG.info("At peak used {}", this.printMemory(this.maxMemory));
     }

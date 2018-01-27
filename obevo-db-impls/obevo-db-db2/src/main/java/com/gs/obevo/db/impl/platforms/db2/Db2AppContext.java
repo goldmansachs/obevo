@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -17,13 +17,13 @@ package com.gs.obevo.db.impl.platforms.db2;
 
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.ChangeTypeBehavior;
-import com.gs.obevo.impl.ChangeTypeBehaviorRegistry.ChangeTypeBehaviorRegistryBuilder;
 import com.gs.obevo.db.api.platform.DbChangeType;
 import com.gs.obevo.db.api.platform.SqlExecutor;
 import com.gs.obevo.db.impl.core.DbDeployerAppContextImpl;
 import com.gs.obevo.db.impl.core.envinfrasetup.EnvironmentInfraSetup;
 import com.gs.obevo.db.impl.core.jdbc.DataSourceFactory;
 import com.gs.obevo.db.impl.platforms.db2.changetypes.Db2RoutineChangeTypeBehavior;
+import com.gs.obevo.impl.ChangeTypeBehaviorRegistry.ChangeTypeBehaviorRegistryBuilder;
 import com.gs.obevo.impl.PostDeployAction;
 import org.eclipse.collections.api.block.function.Function0;
 import org.eclipse.collections.impl.block.factory.Predicates;

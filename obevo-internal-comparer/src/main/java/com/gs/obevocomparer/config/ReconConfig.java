@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -116,7 +116,7 @@ public class ReconConfig {
         }
     }
 
-    public ReconFieldConfig getField(String name) {
+    private ReconFieldConfig getField(String name) {
         for (ReconFieldConfig rfc : this.allFields) {
             if (rfc.getName().equals(name)) {
                 return rfc;

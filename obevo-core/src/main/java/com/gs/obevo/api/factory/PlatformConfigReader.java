@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -180,26 +180,26 @@ class PlatformConfigReader {
             }
         };
 
-        public PropertyInput(String fileName, URL propertyFilePath, int priority, Properties props) {
+        PropertyInput(String fileName, URL propertyFilePath, int priority, Properties props) {
             this.fileName = fileName;
             this.propertyFilePath = propertyFilePath;
             this.priority = priority;
             this.props = props;
         }
 
-        public String getFileName() {
+        String getFileName() {
             return fileName;
         }
 
-        public URL getPropertyFilePath() {
+        URL getPropertyFilePath() {
             return propertyFilePath;
         }
 
-        public int getPriority() {
+        int getPriority() {
             return priority;
         }
 
-        public Properties getProps() {
+        Properties getProps() {
             return props;
         }
     }

@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -19,11 +19,11 @@ import java.sql.Connection;
 
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
-import com.gs.obevo.impl.PrepareDbChange;
 import com.gs.obevo.db.impl.platforms.DefaultDbTranslationDialect;
 import com.gs.obevo.db.impl.platforms.sqltranslator.InMemoryTranslator;
 import com.gs.obevo.db.impl.platforms.sqltranslator.SqlTranslatorConfigHelper;
 import com.gs.obevo.db.impl.platforms.sqltranslator.impl.DateFormatterPostParsedSqlTranslator;
+import com.gs.obevo.impl.PrepareDbChange;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.factory.Lists;

@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -47,7 +47,6 @@ public class GraphSorterTest {
     public ExpectedException thrown = ExpectedException.none();
 
     private final GraphSorter sorter = new GraphSorter();
-
 
     @Test
     public void testBasicOrdering() {
@@ -113,7 +112,6 @@ public class GraphSorterTest {
         assertEquals(Lists.immutable.with(sp2, sp1, sp3, sp5, sp4), sorted);
     }
 
-
     @Test
     public void expectExceptionIfNonComparableElementsAreProvidedForSorting() {
         SortableDependency sp1 = newVertex("sp1");
@@ -158,7 +156,6 @@ public class GraphSorterTest {
         // Now check that we can achieve a consistent order too (for easier debuggability for clients)
         assertEquals(Lists.immutable.with(sp2, sp1, sp3), sorted);
     }
-
 
     @Test
     public void testCycleDetection() {

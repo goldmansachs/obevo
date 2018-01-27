@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -24,11 +24,11 @@ import org.junit.Test;
 public class DisabledOnboardingStrategyTest {
     private final OnboardingStrategy strategy = new DisabledOnboardingStrategy();
     private final FileObject rootDir = FileRetrievalMode.FILE_SYSTEM.resolveSingleFileObject("./src/test/resources/OnboardingStrategyTests");
-    private final String EXCEPTION = "testExceptionDirs";
-    private final String EXCEPTION2 = "testExceptionDirs2";
-    private final String NOEXCEPTION = "testNoExceptionDirs";
-    private final String ANALYZEFOLDER = "testAnalyzeFolder";
-    private final String OTHER = "otherDir";
+    private static final String EXCEPTION = "testExceptionDirs";
+    private static final String EXCEPTION2 = "testExceptionDirs2";
+    private static final String NOEXCEPTION = "testNoExceptionDirs";
+    private static final String ANALYZEFOLDER = "testAnalyzeFolder";
+    private static final String OTHER = "otherDir";
 
     @Test(expected = IllegalArgumentException.class)
     public void validateShouldFailInputDirsWithExceptions() throws Exception {

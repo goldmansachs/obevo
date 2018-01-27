@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -49,6 +49,7 @@ public interface DbMetadataManager {
 
     /**
      * Returns a DaCatalog reference if that catalog exists - this serves as a quick "exists" check on that catalog.
+     *
      * @deprecated Use {@link #getDatabaseOptional(String)}, as it is more clearly named.
      */
     @Deprecated
@@ -56,18 +57,21 @@ public interface DbMetadataManager {
 
     /**
      * Returns a DaCatalog reference if that catalog exists - this serves as a quick "exists" check on that catalog.
+     *
      * @since 6.3.0
      */
     DaCatalog getDatabaseOptional(String physicalSchema);
 
     /**
      * Returns a DaCatalog reference if that catalog exists - this serves as a quick "exists" check on that catalog.
+     *
      * @since 6.4.0
      */
     DaCatalog getDatabaseOptional(PhysicalSchema physicalSchema);
 
     /**
      * Retrieves the metadata for the requested table.
+     *
      * @deprecated Use the PhysicalSchema overload {@link #getTableInfo(PhysicalSchema, String)}
      */
     @Deprecated
@@ -75,6 +79,7 @@ public interface DbMetadataManager {
 
     /**
      * Retrieves the metadata for the requested table.
+     *
      * @deprecated Use the PhysicalSchema overload {@link #getTableInfo(PhysicalSchema, String, DaSchemaInfoLevel)}
      */
     @Deprecated
@@ -82,18 +87,21 @@ public interface DbMetadataManager {
 
     /**
      * Retrieves the metadata for the requested table.
+     *
      * @since 6.4.0
      */
     DaTable getTableInfo(PhysicalSchema physicalSchema, String tableName);
 
     /**
      * Retrieves the metadata for the requested table.
+     *
      * @since 6.4.0
      */
     DaTable getTableInfo(PhysicalSchema physicalSchema, String tableName, DaSchemaInfoLevel schemaInfoLevel);
 
     /**
      * Retrieves the metadata for the requested routine.
+     *
      * @deprecated Use the PhysicalSchema overload {@link #getRoutineInfo(PhysicalSchema, String)}
      */
     @Deprecated
@@ -101,6 +109,7 @@ public interface DbMetadataManager {
 
     /**
      * Retrieves the metadata for the requested routine.
+     *
      * @deprecated Use the PhysicalSchema overload {@link #getRoutineInfo(PhysicalSchema, String, DaSchemaInfoLevel)}
      */
     @Deprecated
@@ -108,12 +117,14 @@ public interface DbMetadataManager {
 
     /**
      * Retrieves the metadata for the requested routine.
+     *
      * @since 6.4.0
      */
     ImmutableCollection<DaRoutine> getRoutineInfo(PhysicalSchema physicalSchema, String routineName);
 
     /**
      * Retrieves the metadata for the requested routine.
+     *
      * @since 6.4.0
      */
     ImmutableCollection<DaRoutine> getRoutineInfo(PhysicalSchema physicalSchema, String routineName, DaSchemaInfoLevel schemaInfoLevel);

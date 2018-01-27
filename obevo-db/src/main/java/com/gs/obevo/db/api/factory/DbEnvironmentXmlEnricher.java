@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -15,7 +15,6 @@
  */
 package com.gs.obevo.db.api.factory;
 
-import com.gs.obevo.impl.AbstractEnvironmentEnricher;
 import com.gs.obevo.api.platform.Platform;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.appdata.Grant;
@@ -24,6 +23,7 @@ import com.gs.obevo.db.api.appdata.Group;
 import com.gs.obevo.db.api.appdata.Permission;
 import com.gs.obevo.db.api.appdata.User;
 import com.gs.obevo.db.api.platform.DbPlatform;
+import com.gs.obevo.impl.AbstractEnvironmentEnricher;
 import com.gs.obevo.util.Tokenizer;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.eclipse.collections.api.block.function.Function;
@@ -87,7 +87,6 @@ public class DbEnvironmentXmlEnricher extends AbstractEnvironmentEnricher<DbEnvi
         if (csvVersion != null) {
             dbEnv.setCsvVersion(csvVersion);
         }
-
 
         MutableMap<String, String> extraEnvAttrs = Maps.mutable.empty();
         for (String extraEnvAttr : dbPlatformConfiguration.getExtraEnvAttrs()) {

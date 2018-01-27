@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -24,7 +24,7 @@ import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.list.mutable.FastList;
 
-public class DefaultSqlTranslatorConfigHelper {
+class DefaultSqlTranslatorConfigHelper {
     private SqlTranslatorNameMapper nameMapper = new DefaultSqlTranslatorNameMapper();
     private MutableList<PostColumnSqlTranslator> postColumnSqlTranslators = Lists.mutable.empty();
     private MutableList<PostParsedSqlTranslator> postParsedSqlTranslators = FastList.<PostParsedSqlTranslator>newListWith(new ForeignKeyNameRemovalSqlTranslator());

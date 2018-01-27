@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -45,7 +45,8 @@ import com.gs.obevocomparer.util.Factory;
  */
 public class CatoSimpleJavaConfiguration implements CatoConfiguration {
     @Resource  // we keep the resource annotation here to help w/ the Spring config subclass, and it is harmless here
-    protected CatoProperties properties;
+    private
+    CatoProperties properties;
 
     public CatoSimpleJavaConfiguration() {
     }
@@ -69,15 +70,15 @@ public class CatoSimpleJavaConfiguration implements CatoConfiguration {
                 this.breakCollectionFactory(), this.dataCollectionFactory());
     }
 
-    public Factory<Collection<Break>> breakCollectionFactory() {
+    private Factory<Collection<Break>> breakCollectionFactory() {
         return new CollectionFactory<Break>(ArrayList.class);
     }
 
-    public Factory<Collection<CatoDataObject>> dataCollectionFactory() {
+    private Factory<Collection<CatoDataObject>> dataCollectionFactory() {
         return new CollectionFactory<CatoDataObject>(ArrayList.class);
     }
 
-    public CatoDataComparator dataComparator() {
+    private CatoDataComparator dataComparator() {
         return new SimpleDataComparator(this.properties.getDecimalPrecision());
     }
 

@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -39,6 +39,7 @@ import org.eclipse.collections.api.list.ImmutableList;
  * tables/views read in.
  *
  * Most methods will just delegate to the incoming DbDeployerAppContext; a few are explicitly defined.
+ *
  * @deprecated Should be removed once clients move off setTables and setViews in UnitTestDbBuilder
  */
 @Deprecated
@@ -46,7 +47,7 @@ class UnitTestDbDeployerAppContext implements DbDeployerAppContext {
     private final DbDeployerAppContext delegate;
     private final MainDeployerArgs defaultArgs;
 
-    public UnitTestDbDeployerAppContext(DbDeployerAppContext delegate, MainDeployerArgs defaultArgs) {
+    UnitTestDbDeployerAppContext(DbDeployerAppContext delegate, MainDeployerArgs defaultArgs) {
         this.delegate = delegate;
         this.defaultArgs = defaultArgs;
     }

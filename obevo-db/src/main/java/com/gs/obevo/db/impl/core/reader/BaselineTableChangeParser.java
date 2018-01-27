@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -21,9 +21,9 @@ import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.ChangeIncremental;
 import com.gs.obevo.api.appdata.doc.TextMarkupDocumentSection;
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.impl.util.MultiLineStringSplitter;
 import com.gs.obevo.db.impl.core.util.RegexpPatterns;
 import com.gs.obevo.impl.reader.DbChangeFileParser;
+import com.gs.obevo.impl.util.MultiLineStringSplitter;
 import com.gs.obevo.util.hash.DbChangeHashStrategy;
 import com.gs.obevo.util.hash.OldWhitespaceAgnosticDbChangeHashStrategy;
 import com.gs.obevo.util.vfs.FileObject;

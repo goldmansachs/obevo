@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,8 +18,6 @@ package com.gs.obevo.api.factory;
 import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.api.platform.DeployerAppContext;
 import com.gs.obevo.api.platform.DeployerRuntimeException;
-import com.gs.obevo.api.platform.FileSourceContext;
-import com.gs.obevo.api.platform.Platform;
 import com.gs.obevo.util.inputreader.Credential;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 
@@ -29,7 +27,8 @@ import org.eclipse.collections.api.collection.ImmutableCollection;
  * @since 6.5.0
  */
 public final class Obevo {
-    private Obevo() {}
+    private Obevo() {
+    }
 
     public static DeployerAppContext buildContext(Environment env, String username, String password) {
         return buildContext(env, new Credential(username, password));

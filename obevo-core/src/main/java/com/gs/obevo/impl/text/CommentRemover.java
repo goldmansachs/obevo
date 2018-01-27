@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -36,7 +36,7 @@ public class CommentRemover {
     public static String removeComments(String content, String logMessage) {
         try {
             MutableList<SqlToken> sqlTokens = new SqlTokenParser().parseTokens(content);
-            MutableList<SqlToken> nonCommentTokens = sqlTokens.reject(Predicates.attributeEqual(SqlToken::getTokenType,
+            MutableList<SqlToken> nonCommentTokens = sqlTokens.reject(Predicates.attributeEqual(SqlToken.TO_TOKEN_TYPE,
                     SqlTokenType.COMMENT));
 
             // makeString returns a space due to the current kludge that the SqlTokenParser also stripes newline from

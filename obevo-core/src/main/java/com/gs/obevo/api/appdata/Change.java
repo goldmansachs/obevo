@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -41,7 +41,6 @@ import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 
 public abstract class Change implements Restrictable, SortableDependency, SortableDependencyGroup, TextDependencyExtractable {
     public static final int DEFAULT_CHANGE_ORDER = 500;  // only used to control relative order changes (e.g. within a given class of changes like stored procs)
-    private static final Pattern CREATE_OR_REPLACE_PATTERN = Pattern.compile("(?i)create\\s+or\\s+replace");
 
     public static final Function<Change, String> TO_SCHEMA = new Function<Change, String>() {
         @Override
@@ -119,6 +118,8 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
         }
     };
 
+    private static final Pattern CREATE_OR_REPLACE_PATTERN = Pattern.compile("(?i)create\\s+or\\s+replace");
+
     private transient ObjectKey objectKey;
     private transient ChangeKey changeKey;
     private String changeName;
@@ -153,9 +154,18 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
     private Timestamp timeUpdated;
     private Timestamp timeInserted;
     private String changeset;
+    /**
+     * We have this setter kludge here for the static data dependency calculation (where we derive it based on the
+     * information in the associated table file, but the two objects are currently separated).
+     */
+    private String contentForDependencyCalculation;
+
+    private final ImmutableList<DbChangeHashStrategy> contentHashStrategies = Lists.immutable.with(
+            new OldWhitespaceAgnosticDbChangeHashStrategy(),
+            new ExactDbChangeHashStrategy()
+    );
 
     protected Change() {
-
     }
 
     @Override
@@ -234,7 +244,7 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
         this.restrictions = restrictions;
     }
 
-    public Change withRestrictions(ImmutableList<ArtifactRestrictions> restrictions) {
+    Change withRestrictions(ImmutableList<ArtifactRestrictions> restrictions) {
         this.setRestrictions(restrictions);
         return this;
     }
@@ -242,12 +252,6 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
     public String getContent() {
         return this.content;
     }
-
-    /**
-     * We have this setter kludge here for the static data dependency calculation (where we derive it based on the
-     * information in the associated table file, but the two objects are currently separated).
-     */
-    private String contentForDependencyCalculation;
 
     public String getContentForDependencyCalculation() {
         if (this.contentForDependencyCalculation == null) {
@@ -261,11 +265,6 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
         this.contentForDependencyCalculation = contentForDependencyCalculation;
     }
 
-    private final ImmutableList<DbChangeHashStrategy> CONTENT_HASH_STRATEGIES = Lists.immutable.with(
-            new OldWhitespaceAgnosticDbChangeHashStrategy(),
-            new ExactDbChangeHashStrategy()
-    );
-
     public void setContent(String content) {
         this.content = content;
     }
@@ -274,8 +273,8 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
      * TODO rename this to something more appropriate (i.e. not hiding the convertedContent field)
      */
     public String getConvertedContent() {
-        return this.isRollbackActivated() ? this.getRollbackToBeExecutedContent() : this.convertedContent != null ?
-                this.convertedContent : this.content;
+        return this.isRollbackActivated() ? this.getRollbackToBeExecutedContent() : this.convertedContent != null
+                ? this.convertedContent : this.content;
     }
 
     public void setConvertedContent(String convertedContent) {
@@ -331,7 +330,7 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
         return this.toStringBuilder().toString();
     }
 
-    protected ToStringBuilder toStringBuilder() {
+    ToStringBuilder toStringBuilder() {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
                 .append(this.getSchema())
                 .append(this.getChangeName())
@@ -392,9 +391,9 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
         /**
          * This is here for backwards-compatibility w/ systems that were doing the hashing prior to making all the
          * hashing agnostic of the white-space (before, we only had the table changes be white-space agnostic).
-         * We need the various CONTENT_HASH_STRATEGIES to account for past versions of the algorithm.
+         * We need the various contentHashStrategies to account for past versions of the algorithm.
          */
-        return this.CONTENT_HASH_STRATEGIES.flatCollect(new Function<DbChangeHashStrategy, Iterable<String>>() {
+        return this.contentHashStrategies.flatCollect(new Function<DbChangeHashStrategy, Iterable<String>>() {
             @Override
             public Iterable<String> valueOf(DbChangeHashStrategy hashStrategy) {
                 MutableSet<String> acceptableHashes = UnifiedSet.newSet();
@@ -446,13 +445,11 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
     }
 
     @Override
-    @Deprecated
     public ImmutableSet<String> getDependencies() {
         return this.dependencies != null ? this.dependencies.collect(CodeDependency.TO_TARGET) : null;
     }
 
     @Override
-    @Deprecated
     public void setDependencies(ImmutableSet<String> dependencies) {
         this.dependencies = dependencies == null ? null : dependencies.collectWith(CodeDependency.CREATE_WITH_TYPE, CodeDependencyType.EXPLICIT);
     }
@@ -494,15 +491,15 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
         this.order = order;
     }
 
-    public boolean isRollbackActivated() {
+    boolean isRollbackActivated() {
         return false;
     }
 
-    public String getRollbackToBeExecutedContent() {
+    String getRollbackToBeExecutedContent() {
         return null;
     }
 
-    public String getConvertedRollbackContent() {
+    String getConvertedRollbackContent() {
         return this.convertedRollbackContent == null ? this.rollbackContent : this.convertedRollbackContent;
     }
 
@@ -526,7 +523,7 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
         this.orderWithinObject = orderWithinObject;
     }
 
-    public Timestamp getTimeInserted() {
+    private Timestamp getTimeInserted() {
         return timeInserted != null ? timeInserted : timeUpdated;
     }
 

@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -290,7 +290,6 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
         return deployedChanges;
     }
 
-
     private DeployStrategy getDeployMode(MainDeployerArgs deployerArgs) {
         if (deployerArgs.isPerformInitOnly()) {
             return ForceInitDeployStrategy.INSTANCE;
@@ -314,16 +313,16 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
             }
         };
 
-        public FailedChange(ExecuteChangeCommand changeCommand, Exception exception) {
+        FailedChange(ExecuteChangeCommand changeCommand, Exception exception) {
             this.changeCommand = changeCommand;
             this.exception = exception;
         }
 
-        public ExecuteChangeCommand getChangeCommand() {
+        ExecuteChangeCommand getChangeCommand() {
             return this.changeCommand;
         }
 
-        public Exception getException() {
+        Exception getException() {
             return this.exception;
         }
     }
@@ -412,7 +411,7 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
         }
     }
 
-    public static void printCommands(RichIterable<? extends ChangeCommand> commands, String message) {
+    private static void printCommands(RichIterable<? extends ChangeCommand> commands, String message) {
         if (commands.notEmpty()) {
             LOG.info("The following " + message + ":");
             for (ChangeCommand changeCommand : commands) {
@@ -432,7 +431,7 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
         } else if (args.isNoPrompt()) {
             LOG.info("-noPrompt parameter was passed; hence, we can proceed w/out user prompting");
             return true;
-        } else if (!artifactsToProcess.isDeploymentNeeded()){
+        } else if (!artifactsToProcess.isDeploymentNeeded()) {
             LOG.info("No artifacts to deploy, hence we can proceed without user prompting.");
             LOG.info("Will only update the Artifact Execution tables ");
             return true;
@@ -450,7 +449,7 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
         return false;
     }
 
-    protected void printArtifactsToProcessForUser(Changeset artifactsToProcess, DeployStrategy deployStrategy, E env, ImmutableCollection<Change> deployedChanges, ImmutableCollection<Change> sourceChanges) {
+    private void printArtifactsToProcessForUser(Changeset artifactsToProcess, DeployStrategy deployStrategy, E env, ImmutableCollection<Change> deployedChanges, ImmutableCollection<Change> sourceChanges) {
         printCommands(artifactsToProcess.getInserts(), "DB Changes are to be " + deployStrategy.getDeployVerbMessage());
         printCommands(artifactsToProcess.getAuditChanges(), "auditTable-only changes are to be deployed");
         printCommands(artifactsToProcess.getChangeWarnings(), "warnings/errors are for your information (no changes " +

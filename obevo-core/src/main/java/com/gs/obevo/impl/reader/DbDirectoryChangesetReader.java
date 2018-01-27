@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -22,10 +22,10 @@ import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.DeployMetrics;
 import com.gs.obevo.api.platform.FileSourceContext;
 import com.gs.obevo.api.platform.FileSourceParams;
-import com.gs.obevo.impl.reader.TableChangeParser.GetChangeType;
 import com.gs.obevo.impl.DeployMetricsCollector;
 import com.gs.obevo.impl.DeployMetricsCollectorImpl;
 import com.gs.obevo.impl.OnboardingStrategy;
+import com.gs.obevo.impl.reader.TableChangeParser.GetChangeType;
 import com.gs.obevo.util.VisibleForTesting;
 import com.gs.obevo.util.hash.OldWhitespaceAgnosticDbChangeHashStrategy;
 import com.gs.obevo.util.vfs.BasicFileSelector;
@@ -102,7 +102,7 @@ public class DbDirectoryChangesetReader implements FileSourceContext {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.gs.obevo.db.newdb.DbChangeReader#readChanges(java.io.File)
      */
     @Override
@@ -155,7 +155,6 @@ public class DbDirectoryChangesetReader implements FileSourceContext {
 
                         staticDataChange.setContentForDependencyCalculation(fkContent);
                     }
-
 
                     allChanges.addAll(schemaChanges);
                 } else {
@@ -312,7 +311,6 @@ public class DbDirectoryChangesetReader implements FileSourceContext {
                 }
             }
         });
-
     }
 
     private ImmutableList<Change> findChanges(final ChangeType changeType, FileObject dir, final DbChangeFileParser changeParser,

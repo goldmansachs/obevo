@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -33,21 +33,20 @@ public class AseToH2SqlTranslatorTest {
     }
 
     @Test
-    public void testNotNullToSetNotNullTranslation(){
+    public void testNotNullToSetNotNullTranslation() {
         /*transform*/
         assertEquals("Should insert \"SET\" keyword", "ALTER  TABLE  some_Table  ALTER   COLUMN  abcCol   SET NOT   NULL",
-                this.translator.handleAnySqlPostTranslation("ALTER  TABLE  some_Table  ALTER   COLUMN  abcCol   NOT   NULL",null));
+                this.translator.handleAnySqlPostTranslation("ALTER  TABLE  some_Table  ALTER   COLUMN  abcCol   NOT   NULL", null));
         assertEquals("Should insert \"SET\" keyword", "ALTER  TABLE  some_Table  ALTER   COLUMN  abcCol SET NULL",
-                this.translator.handleAnySqlPostTranslation("ALTER  TABLE  some_Table  ALTER   COLUMN  abcCol NULL",null));
+                this.translator.handleAnySqlPostTranslation("ALTER  TABLE  some_Table  ALTER   COLUMN  abcCol NULL", null));
         /*ignore*/
         assertEquals("Should not touch", "ALTER foo some_Table ALTER COLUMN abcCol NOT NULL",
-                this.translator.handleAnySqlPostTranslation("ALTER foo some_Table ALTER COLUMN abcCol NOT NULL",null));
+                this.translator.handleAnySqlPostTranslation("ALTER foo some_Table ALTER COLUMN abcCol NOT NULL", null));
         assertEquals("Should not touch", "ALTER TABLE some_Table ALTER FOO abcCol NOT NULL",
-                this.translator.handleAnySqlPostTranslation("ALTER TABLE some_Table ALTER FOO abcCol NOT NULL",null));
+                this.translator.handleAnySqlPostTranslation("ALTER TABLE some_Table ALTER FOO abcCol NOT NULL", null));
         assertEquals("Should not touch", "ALTER TABLE some_Table ALTER COLUMN abcCol FoO NULL",
-                this.translator.handleAnySqlPostTranslation("ALTER TABLE some_Table ALTER COLUMN abcCol FoO NULL",null));
+                this.translator.handleAnySqlPostTranslation("ALTER TABLE some_Table ALTER COLUMN abcCol FoO NULL", null));
         assertEquals("Should not touch", "ALTER TABLE some_Table ALTER COLUMN abcCol SET blahh",
-                this.translator.handleAnySqlPostTranslation("ALTER TABLE some_Table ALTER COLUMN abcCol SET blahh",null));
+                this.translator.handleAnySqlPostTranslation("ALTER TABLE some_Table ALTER COLUMN abcCol SET blahh", null));
     }
-
 }

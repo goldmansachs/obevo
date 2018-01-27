@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -44,7 +44,7 @@ public abstract class JdbcDataSourceFactory implements DataSourceFactory {
                 numThreads, environment.getDbTranslationDialect().getInitSqls(), getExtraConnectionProperties(credential));
     }
 
-    protected Properties getExtraConnectionProperties(Credential credential) {
+    private Properties getExtraConnectionProperties(Credential credential) {
         return null;
     }
 

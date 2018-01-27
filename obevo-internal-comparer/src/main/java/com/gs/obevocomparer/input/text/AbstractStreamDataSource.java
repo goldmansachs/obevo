@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -31,20 +31,20 @@ import org.eclipse.collections.impl.factory.Lists;
 public abstract class AbstractStreamDataSource extends AbstractCatoDataSource {
 
     private final Reader reader;
-    protected MutableList<String> fields = Lists.mutable.empty();
+    MutableList<String> fields = Lists.mutable.empty();
 
-    protected boolean hasHeader = false;
+    boolean hasHeader = false;
     private int stripFirst = 0;
     private int stripLast = 0;
 
-    BufferedReader bufferedReader;
-    Queue<String> lines;
+    private BufferedReader bufferedReader;
+    private Queue<String> lines;
 
     protected AbstractStreamDataSource(String name, InputStream stream) {
         this(name, new InputStreamReader(stream));
     }
 
-    protected AbstractStreamDataSource(String name, Reader reader) {
+    AbstractStreamDataSource(String name, Reader reader) {
         super(name, new StringTypeConverter());
         this.reader = reader;
     }
@@ -100,7 +100,7 @@ public abstract class AbstractStreamDataSource extends AbstractCatoDataSource {
         this.bufferedReader.close();
     }
 
-    protected String getField(int index) {
+    private String getField(int index) {
         if (this.fields.size() <= index) {
             for (int i = this.fields.size(); i <= index; i++) {
                 this.fields.add("Field " + (i + 1));
@@ -116,7 +116,7 @@ public abstract class AbstractStreamDataSource extends AbstractCatoDataSource {
         return this.hasHeader;
     }
 
-    public void setHeader(boolean hasHeader) {
+    void setHeader(boolean hasHeader) {
         this.hasHeader = hasHeader;
     }
 

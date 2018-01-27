@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -31,8 +31,8 @@ import com.gs.obevo.db.api.platform.SqlExecutor;
 import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
 import com.gs.obevo.db.apps.reveng.AseDdlgenReveng;
 import com.gs.obevo.db.apps.reveng.ChangeEntry;
-import com.gs.obevo.impl.reader.TextMarkupDocumentReader;
 import com.gs.obevo.db.impl.platforms.AbstractDbPlatform;
+import com.gs.obevo.impl.reader.TextMarkupDocumentReader;
 import org.apache.commons.lang3.ObjectUtils;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
@@ -69,7 +69,6 @@ public class AseDbPlatform extends AbstractDbPlatform {
 
     /**
      * Sybase allows the object names to differ from the generated file names in case of duplicates; hence, we enable.
-     * @return
      */
     @Override
     public boolean isDuplicateCheckRequiredForReverseEngineering() {

@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -19,16 +19,12 @@ import java.io.File;
 
 import com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder;
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.api.platform.Platform;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.db.testutil.DirectoryAssert;
 import org.apache.commons.io.FileUtils;
-import org.eclipse.collections.api.list.ListIterable;
 import org.eclipse.collections.impl.block.factory.Functions;
-import org.eclipse.collections.impl.factory.Lists;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

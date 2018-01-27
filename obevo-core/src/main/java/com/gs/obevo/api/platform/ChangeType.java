@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -22,10 +22,10 @@ import org.eclipse.collections.api.block.predicate.Predicate;
 /**
  * Represents a kind of object to be maintained in a {@link Platform}. This defines the general parameters of how to
  * maintain this object type in code, e.g.
- *  * <ul>
- *     <li>How to deploy / undeploy it</li>
- *     <li>How to maintain it in code</li>
- *     <li>How to sort and treat its dependencies.</li>
+ * <ul>
+ * <li>How to deploy / undeploy it</li>
+ * <li>How to maintain it in code</li>
+ * <li>How to sort and treat its dependencies.</li>
  * </ul>
  *
  * Note that this extends {@link ChangeTypeBehavior} - the idea here is that some methods require a live application
@@ -117,6 +117,7 @@ public interface ChangeType {
     /**
      * The legacy directory name that is checked for this change type. This is used as a fallback to the regular
      * {@link #getDirectoryName()}.
+     *
      * @deprecated Would like to wean folks off of this
      */
     @Deprecated
@@ -132,8 +133,6 @@ public interface ChangeType {
     /**
      * Whether the object type for that implementation requires that its dependent object be recreated if this object
      * changes.
-     *
-     * @return
      */
     boolean isDependentObjectRecalculationRequired();
 

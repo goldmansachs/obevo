@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -37,14 +37,14 @@ public enum FileRetrievalMode implements FileResolverStrategy {
     @Override
     public ListIterable<FileObject> resolveFileObjects(String path) {
         switch (this) {
-            case FILE_SYSTEM:
-                FileObject fileObject = this.getFileObjectFromFileSystem(path);
-                return isValidFileObject(fileObject) ? Lists.mutable.of(fileObject)
-                                                     : Lists.mutable.<FileObject>empty();
-            case CLASSPATH:
-                return this.getFileObjectsFromClasspath(path);
-            default:
-                throw new IllegalArgumentException("Not expecting this enum: " + path);
+        case FILE_SYSTEM:
+            FileObject fileObject = this.getFileObjectFromFileSystem(path);
+            return isValidFileObject(fileObject) ? Lists.mutable.of(fileObject)
+                    : Lists.mutable.<FileObject>empty();
+        case CLASSPATH:
+            return this.getFileObjectsFromClasspath(path);
+        default:
+            throw new IllegalArgumentException("Not expecting this enum: " + path);
         }
     }
 
@@ -65,11 +65,11 @@ public enum FileRetrievalMode implements FileResolverStrategy {
         return VFS.getManager().resolveFile("file:" + new File(path).getAbsolutePath());
     }
 
-    public ListIterable<FileObject> getFileObjectsFromClasspath(String path) {
+    private ListIterable<FileObject> getFileObjectsFromClasspath(String path) {
         MutableList<FileObject> fileObjects = Lists.mutable.empty();
 
         Collection<URL> resources = getResourcesFromClasspath(path);
-        for (URL resource: resources) {
+        for (URL resource : resources) {
             FileObject fileObject = getFileObjectUsingURL(resource);
             if (isValidFileObject(fileObject)) {
                 fileObjects.add(fileObject);
@@ -98,7 +98,7 @@ public enum FileRetrievalMode implements FileResolverStrategy {
         return filePath.substring(filePath.lastIndexOf("file:") + 5);
     }
 
-    public static List<URL> getResourcesFromClasspath(String path) {
+    private static List<URL> getResourcesFromClasspath(String path) {
         try {
             return Collections.list(classLoader(path).getResources(path));
         } catch (IOException e) {
@@ -107,8 +107,9 @@ public enum FileRetrievalMode implements FileResolverStrategy {
     }
 
     private static ClassLoader classLoader(String resourcePath) {
-        if (FileRetrievalMode.class.getClassLoader().getResource(resourcePath) != null)
+        if (FileRetrievalMode.class.getClassLoader().getResource(resourcePath) != null) {
             return FileRetrievalMode.class.getClassLoader();
+        }
 
         return Thread.currentThread().getContextClassLoader();
     }

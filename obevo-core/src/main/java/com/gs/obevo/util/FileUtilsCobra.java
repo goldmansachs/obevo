@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -19,13 +19,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.lang3.SystemUtils;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.list.mutable.FastList;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
-import org.apache.commons.lang3.SystemUtils;
 
 /**
  * Wrapper around FileUtils to 1) convert to Caramel lists w/ generic args defined 2) converting Checked exceptions to
@@ -102,7 +102,7 @@ public class FileUtilsCobra {
         return removeFilePrefix(targetFile, prefix.getAbsolutePath());
     }
 
-    public static String removeFilePrefix(String targetFile, String prefix) {
+    private static String removeFilePrefix(String targetFile, String prefix) {
         if (targetFile.equals(prefix)) {
             return "";
         } else {

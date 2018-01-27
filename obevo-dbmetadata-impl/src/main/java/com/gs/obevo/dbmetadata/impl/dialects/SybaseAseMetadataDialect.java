@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -64,10 +64,10 @@ import schemacrawler.schemacrawler.SchemaCrawlerOptions;
  * See here for information on the metadata tables: http://infocenter.sybase.com/archive/index.jsp?topic=/com.sybase.help.ase_15.0.tables/html/tables/tables25.htm
  *
  * TODO Add support for Sybase DEFAULTs?
- *      But, we don't have a way yet to distinguish between pre-defined defaults (i.e. Omni) and regular defaults
- *      SELECT 10 ord, 'DEFAULT' objtype, s1.name objname, 'DROP DEFAULT ' +  s1.name sqlstatement
- *      FROM ${schemaName}..sysobjects s1
- *      WHERE s1.type = 'D'
+ * But, we don't have a way yet to distinguish between pre-defined defaults (i.e. Omni) and regular defaults
+ * SELECT 10 ord, 'DEFAULT' objtype, s1.name objname, 'DROP DEFAULT ' +  s1.name sqlstatement
+ * FROM ${schemaName}..sysobjects s1
+ * WHERE s1.type = 'D'
  */
 public class SybaseAseMetadataDialect extends AbstractMetadataDialect {
     @Override

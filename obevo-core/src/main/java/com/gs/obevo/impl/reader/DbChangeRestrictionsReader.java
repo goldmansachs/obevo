@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -27,8 +27,7 @@ import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.eclipse.collections.impl.tuple.Tuples;
 
-public class DbChangeRestrictionsReader {
-
+class DbChangeRestrictionsReader {
     public ImmutableList<ArtifactRestrictions> valueOf(TextMarkupDocumentSection section) {
         if (section == null) {
             return Lists.immutable.of();

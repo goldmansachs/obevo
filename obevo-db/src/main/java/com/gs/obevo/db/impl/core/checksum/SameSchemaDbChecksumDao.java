@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -21,7 +21,6 @@ import java.util.Map;
 
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.db.api.appdata.Grant;
 import com.gs.obevo.db.api.appdata.GrantTargetType;
 import com.gs.obevo.db.api.appdata.Permission;
@@ -32,6 +31,7 @@ import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
 import com.gs.obevo.dbmetadata.api.DaSchemaInfoLevel;
 import com.gs.obevo.dbmetadata.api.DaTable;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
+import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
 import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.collections.api.block.function.Function;
@@ -117,7 +117,7 @@ public class SameSchemaDbChecksumDao implements DbChecksumDao {
                     public void value(Connection conn) {
                         jdbc.execute(conn, checksumTableSql);
 
-                        DbChangeTypeBehavior tableChangeType = (DbChangeTypeBehavior)changeTypeBehaviorRegistry.getChangeTypeBehavior(ChangeType.TABLE_STR);
+                        DbChangeTypeBehavior tableChangeType = (DbChangeTypeBehavior) changeTypeBehaviorRegistry.getChangeTypeBehavior(ChangeType.TABLE_STR);
                         tableChangeType.applyGrants(conn, physicalSchema, checksumTableName, Lists.immutable.with(new Permission("artifacTable",
                                 Lists.immutable.with(new Grant(Lists.immutable.with("SELECT"), Multimaps.immutable.list.with(GrantTargetType.PUBLIC, "PUBLIC"))))));
                     }

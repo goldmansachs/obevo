@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -44,7 +44,7 @@ import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 public class CatoResources {
-    static final Logger LOG = LoggerFactory.getLogger(CatoResources.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CatoResources.class);
 
     private Map<String, DataSourceConfig> dataSources;
 
@@ -56,12 +56,12 @@ public class CatoResources {
         this.initialize(is);
     }
 
-    public CatoResources(String resfile) throws CatoResourcesException {
+    private CatoResources(String resfile) throws CatoResourcesException {
         this(new File(resfile));
         this.resourcesFilePath = resfile;
     }
 
-    public CatoResources(File resFile) throws CatoResourcesException {
+    private CatoResources(File resFile) throws CatoResourcesException {
         File resourcesFile = resFile;
         try {
             FileInputStream fis = new FileInputStream(resourcesFile);
@@ -218,7 +218,7 @@ public class CatoResources {
         this.saveResources(this.resourcesFilePath);
     }
 
-    public void saveResources(String saveLocation) throws CatoResourcesException {
+    private void saveResources(String saveLocation) throws CatoResourcesException {
         if (this.resourcesFilePath == null) {
             LOG.error("Save is unavailable as the resources file path is null/empty.");
             throw new CatoResourcesException(

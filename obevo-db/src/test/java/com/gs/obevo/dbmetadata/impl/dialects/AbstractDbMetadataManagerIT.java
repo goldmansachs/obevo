@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -38,16 +38,13 @@ import com.gs.obevo.dbmetadata.api.DaView;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
 import com.gs.obevo.dbmetadata.api.RuleBinding;
 import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.lang3.ObjectUtils;
 import org.eclipse.collections.api.collection.ImmutableCollection;
-import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.multimap.ImmutableMultimap;
 import org.eclipse.collections.api.multimap.Multimap;
 import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.block.factory.Predicates;
-import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.test.Verify;
 import org.junit.Before;
@@ -82,19 +79,19 @@ public abstract class AbstractDbMetadataManagerIT {
         this.physicalSchema = physicalSchema;
     }
 
-    protected PhysicalSchema getPhysicalSchema() {
+    PhysicalSchema getPhysicalSchema() {
         return physicalSchema;
     }
 
-    protected final String getSchemaName() {
+    final String getSchemaName() {
         return physicalSchema.getPhysicalName();
     }
 
-    protected String getSubschemaString() {
+    String getSubschemaString() {
         return getPhysicalSchema().getSubschema() != null ? getPhysicalSchema().getSubschema() + "." : "";
     }
 
-    protected final DataSource getDataSource() {
+    private DataSource getDataSource() {
         return dataSource;
     }
 
@@ -106,7 +103,7 @@ public abstract class AbstractDbMetadataManagerIT {
 
     protected abstract String getAddSqlFile();
 
-    protected boolean isPmdKnownBroken() {
+    boolean isPmdKnownBroken() {
         return false;
     }
 
@@ -274,7 +271,7 @@ public abstract class AbstractDbMetadataManagerIT {
         }
     }
 
-    protected void verify_SP_WITH_OVERLOAD(Multimap<String, DaRoutine> routinesByName, String routineName) {
+    private void verify_SP_WITH_OVERLOAD(Multimap<String, DaRoutine> routinesByName, String routineName) {
         if (isSpOverloadSupported() == OverLoadSupport.SEPARATE_OBJECT) {
             routineName = convertName(routineName);
             Verify.assertSize(3, routinesByName.get(routineName));
@@ -374,7 +371,7 @@ public abstract class AbstractDbMetadataManagerIT {
         assertThat(routine.getSpecificName(), not(isEmptyString()));
     }
 
-    protected void verify_VIEW1(Multimap<String, DaTable> tablesByName, String tableName) {
+    void verify_VIEW1(Multimap<String, DaTable> tablesByName, String tableName) {
         tableName = convertName(tableName);
         Verify.assertSize(1, tablesByName.get(tableName));
         DaView view = (DaView) tablesByName.get(tableName).toList().get(0);
@@ -481,7 +478,7 @@ public abstract class AbstractDbMetadataManagerIT {
         assertEquals(convertName("A2_ID"), fk.getColumnReferences().get(1).getPrimaryKeyColumn().getName());
     }
 
-    public static String[] splitSql(String sqlContent) throws Exception {
+    private static String[] splitSql(String sqlContent) throws Exception {
         Pattern splitter = Pattern.compile("(?i)^GO$", Pattern.MULTILINE);
         return splitter.split(sqlContent);
     }
@@ -492,91 +489,91 @@ public abstract class AbstractDbMetadataManagerIT {
         SEPARATE_OBJECT,;
     }
 
-    protected boolean isInvalidViewPossible() {
+    boolean isInvalidViewPossible() {
         return true;
     }
 
-    protected boolean isViewSupported() {
+    private boolean isViewSupported() {
         return true;
     }
 
-    protected boolean isFuncOverloadSupported() {
+    boolean isFuncOverloadSupported() {
         return true;
     }
 
-    protected boolean isStoredProcedureSupported() {
+    boolean isStoredProcedureSupported() {
         return true;
     }
 
-    protected boolean isFunctionSupported() {
+    boolean isFunctionSupported() {
         return true;
     }
 
-    protected boolean isOnlySpSupported() {
+    boolean isOnlySpSupported() {
         return false;
     }
 
-    protected boolean isSequenceSupported() {
+    boolean isSequenceSupported() {
         return true;
     }
 
-    protected boolean isSynonymSupported() {
+    boolean isSynonymSupported() {
         return false;
     }
 
-    protected OverLoadSupport isSpOverloadSupported() {
+    OverLoadSupport isSpOverloadSupported() {
         return OverLoadSupport.SEPARATE_OBJECT;
     }
 
-    protected boolean isRuleBindingSupported() {
+    boolean isRuleBindingSupported() {
         return false;
     }
 
-    protected boolean isRuleSupported() {
+    boolean isRuleSupported() {
         return false;
     }
 
-    protected boolean isUserTypeSupported() {
+    boolean isUserTypeSupported() {
         return false;
     }
 
-    protected String get_SP_WITH_OVERLOAD_1() {
+    String get_SP_WITH_OVERLOAD_1() {
         throw new UnsupportedOperationException("Please implement me if this test defines this object");
     }
 
-    protected String get_SP_WITH_OVERLOAD_2() {
+    String get_SP_WITH_OVERLOAD_2() {
         throw new UnsupportedOperationException("Please implement me if this test defines this object");
     }
 
-    protected String get_SP_WITH_OVERLOAD_3() {
+    String get_SP_WITH_OVERLOAD_3() {
         throw new UnsupportedOperationException("Please implement me if this test defines this object");
     }
 
-    protected String get_FUNC_WITH_OVERLOAD_1() {
+    String get_FUNC_WITH_OVERLOAD_1() {
         throw new UnsupportedOperationException("Please implement me if this test defines this object");
     }
 
-    protected String get_FUNC_WITH_OVERLOAD_2() {
+    String get_FUNC_WITH_OVERLOAD_2() {
         throw new UnsupportedOperationException("Please implement me if this test defines this object");
     }
 
-    protected String get_FUNC_WITH_OVERLOAD_3() {
+    String get_FUNC_WITH_OVERLOAD_3() {
         throw new UnsupportedOperationException("Please implement me if this test defines this object");
     }
 
-    protected String get_SP1() {
+    String get_SP1() {
         throw new UnsupportedOperationException("Please implement me if this test defines this object");
     }
 
-    protected String get_FUNC1() {
+    String get_FUNC1() {
         throw new UnsupportedOperationException("Please implement me if this test defines this object");
     }
 
-    protected String get_VIEW1() {
+    String get_VIEW1() {
         throw new UnsupportedOperationException("Please implement me if this test defines this object");
     }
 
-    protected String get_INVALID_VIEW() {
+    String get_INVALID_VIEW() {
         throw new UnsupportedOperationException("Please implement me if this test defines this object");
     }
 }

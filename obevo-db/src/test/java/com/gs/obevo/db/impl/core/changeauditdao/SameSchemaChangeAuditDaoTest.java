@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -64,9 +64,8 @@ public abstract class SameSchemaChangeAuditDaoTest {
     private Connection conn;
     private SameSchemaChangeAuditDao artifactDeployerDao;
     private SameSchemaDeployExecutionDao deployExecutionDao;
-    String myVersion = "myVersion";
-    String myVersion2 = "myVersion2";
-
+    private String myVersion = "myVersion";
+    private String myVersion2 = "myVersion2";
 
     @Before
     public void setup() throws Exception {
@@ -108,7 +107,8 @@ public abstract class SameSchemaChangeAuditDaoTest {
     private void updateAndIgnoreError(String sql) {
         try {
             jdbcHelper.update(conn, sql);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
     }
 
     private void setup5_3Upgrade() {
@@ -153,13 +153,10 @@ public abstract class SameSchemaChangeAuditDaoTest {
                 2L, "conduit.version.name", myVersion2
         );
 
-
         // verify that the new code can still handle a pre-upgraded schema
         ImmutableCollection<DeployExecution> preUpgradeExecutions = deployExecutionDao.getDeployExecutions(logicalSchema1);
 
         assertThat(preUpgradeExecutions.toList(), hasSize(2));
-
-
 
         deployExecutionDao.init();
 

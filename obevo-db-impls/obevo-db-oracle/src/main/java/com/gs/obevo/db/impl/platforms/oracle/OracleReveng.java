@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -51,11 +51,11 @@ import org.eclipse.collections.impl.factory.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class OracleReveng extends AbstractDdlReveng {
+class OracleReveng extends AbstractDdlReveng {
     private static final Logger LOG = LoggerFactory.getLogger(OracleReveng.class);
     private static final String QUOTE = "\"";
 
-    public OracleReveng() {
+    OracleReveng() {
         super(
                 new OracleDbPlatform(),
                 new MultiLineStringSplitter("~", true),
@@ -76,7 +76,7 @@ public class OracleReveng extends AbstractDdlReveng {
         setEndQuote(QUOTE);
     }
 
-    static ImmutableList<RevengPattern> getRevengPatterns() {
+    private static ImmutableList<RevengPattern> getRevengPatterns() {
         final String schemaNameSubPattern = getSchemaObjectPattern(QUOTE, QUOTE);
         String schemaSysNamePattern = getSchemaObjectWithPrefixPattern(QUOTE, QUOTE, "SYS_");
         NamePatternType namePatternType = NamePatternType.TWO;
@@ -118,19 +118,17 @@ public class OracleReveng extends AbstractDdlReveng {
         DataSource ds = jdbcFactory.createDataSource(env, new Credential(args.getUsername(), args.getPassword()), 1);
         JdbcHelper jdbc = new JdbcHelper(null, false);
 
-
         Path interim = new File(args.getOutputPath(), "interim").toPath();
         interim.toFile().mkdirs();
         try (Connection conn = ds.getConnection();
              BufferedWriter fileWriter = Files.newBufferedWriter(interim.resolve("output.sql"), Charset.defaultCharset())) {
-
             // https://docs.oracle.com/database/121/ARPLS/d_metada.htm#BGBJBFGE
             // Note - can't remap schema name, object name, tablespace name within JDBC calls; we will leave that to the existing code in AbstractDdlReveng
             jdbc.update(conn, "{ CALL DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM,'STORAGE',false) }");
 
             MutableList<Map<String, Object>> maps = jdbc.queryForList(conn,
                     "SELECT CASE WHEN OBJECT_TYPE = 'TABLE' THEN 1 WHEN OBJECT_TYPE = 'INDEX' THEN 2 ELSE 3 END SORT_ORDER,\n" +
-                    "    OBJECT_TYPE,\n" +
+                            "    OBJECT_TYPE,\n" +
                             "    dbms_metadata.get_ddl(REPLACE(object_type,' ','_'), object_name, owner) || ';' AS object_ddl\n" +
                             "FROM DBA_OBJECTS WHERE OWNER = '" + args.getDbSchema() + "' AND OBJECT_TYPE NOT IN ('PACKAGE BODY', 'LOB','MATERIALIZED VIEW', 'TABLE PARTITION')\n" +
                             "ORDER BY 1");
