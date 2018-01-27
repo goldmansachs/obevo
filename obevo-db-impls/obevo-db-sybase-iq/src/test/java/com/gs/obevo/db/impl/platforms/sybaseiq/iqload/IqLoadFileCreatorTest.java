@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -180,7 +180,7 @@ public class IqLoadFileCreatorTest {
         // TODO would like a better insertion - possibly on the data too
     }
 
-    public static class TestBean {
+    static class TestBean {
         private final Integer myInt;
         private final String myString;
         private final long myCmId;
@@ -189,7 +189,7 @@ public class IqLoadFileCreatorTest {
         private final LocalDate dateFieldJoda;
         private final LocalDateTime timestampFieldJoda;
 
-        public TestBean(Integer myInt, String myString, long myCmId, Date dateFieldJdk, Timestamp timestampFieldJdk,
+        TestBean(Integer myInt, String myString, long myCmId, Date dateFieldJdk, Timestamp timestampFieldJdk,
                 LocalDate dateFieldJoda, LocalDateTime timestampFieldJoda) {
             this.myInt = myInt;
             this.myString = myString;

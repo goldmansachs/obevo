@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -15,17 +15,17 @@
  */
 package com.gs.obevo.util.hash;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.eclipse.collections.api.block.HashingStrategy;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.list.ImmutableList;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 
-public class CompoundHashingStrategy<T> implements HashingStrategy<T> {
+class CompoundHashingStrategy<T> implements HashingStrategy<T> {
     private final ImmutableList<Function<T, ?>> keyAttrs;
 
-    public CompoundHashingStrategy(ImmutableList<? extends Function<T, ?>> keyAttrs) {
+    CompoundHashingStrategy(ImmutableList<? extends Function<T, ?>> keyAttrs) {
         this.keyAttrs = (ImmutableList<Function<T, ?>>) keyAttrs;
     }
 

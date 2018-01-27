@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -73,23 +73,23 @@ public abstract class AbstractComparisonWriter implements CatoComparisonWriter {
         }
     }
 
-    protected CatoContentFormatter getSummaryFormatter() {
+    private CatoContentFormatter getSummaryFormatter() {
         return new SimpleSummaryFormatter(this.writeLegend);
     }
 
-    protected CatoContentFormatter getBreakFormatter() {
+    private CatoContentFormatter getBreakFormatter() {
         return new SimpleBreakFormatter(false);
     }
 
-    protected CatoContentFormatter getExcludedBreakFormatter() {
+    private CatoContentFormatter getExcludedBreakFormatter() {
         return new SimpleBreakFormatter(true);
     }
 
-    protected CatoContentFormatter getLeftDataSetFormatter() {
+    private CatoContentFormatter getLeftDataSetFormatter() {
         return new SimpleDataSetFormatter(CatoDataSide.LEFT);
     }
 
-    protected CatoContentFormatter getRightDataSetFormatter() {
+    private CatoContentFormatter getRightDataSetFormatter() {
         return new SimpleDataSetFormatter(CatoDataSide.RIGHT);
     }
 }

@@ -6,7 +6,7 @@
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
 
-        http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on an
@@ -16,7 +16,8 @@
     under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.goldmansachs.obevo</groupId>
@@ -73,8 +74,8 @@
         <url>https://github.com/goldmansachs/obevo/</url>
         <connection>scm:git:https://github.com/goldmansachs/obevo.git</connection>
         <developerConnection>scm:git:https://github.com/goldmansachs/obevo.git</developerConnection>
-      <tag>6.0.0</tag>
-  </scm>
+        <tag>6.0.0</tag>
+    </scm>
 
 
     <issueManagement>
@@ -93,12 +94,12 @@
             <id>ossrh</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
-<!--
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
--->
+        <!--
+                <repository>
+                    <id>ossrh</id>
+                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                </repository>
+        -->
     </distributionManagement>
 
     <properties>
@@ -561,6 +562,8 @@
                             <logViolationsToConsole>true</logViolationsToConsole>
                             <propertyExpansion>import-control.directory=${build-resources.workdir}</propertyExpansion>
                             <failOnViolation>true</failOnViolation>
+                            <excludes></excludes>
+                            <excludes>**/sqlparser/**/*,**/HelpMojo*</excludes>
                         </configuration>
                     </execution>
                 </executions>
@@ -615,15 +618,15 @@
                             <rules>
                                 <rule>
                                     <element>BUNDLE</element>
-<!--
-                                    <limits>
-                                        <limit>
-                                            <counter>COMPLEXITY</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>0.25</minimum>
-                                        </limit>
-                                    </limits>
--->
+                                    <!--
+                                                                        <limits>
+                                                                            <limit>
+                                                                                <counter>COMPLEXITY</counter>
+                                                                                <value>COVEREDRATIO</value>
+                                                                                <minimum>0.25</minimum>
+                                                                            </limit>
+                                                                        </limits>
+                                    -->
                                 </rule>
                             </rules>
                         </configuration>
@@ -745,7 +748,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing,
 software distributed under the License is distributed on an

@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -24,7 +24,7 @@ import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.factory.Lists;
 
-public class DbMergeInfo {
+class DbMergeInfo {
     private final String name;
     private final File inputDir;
     private String driverClassName;
@@ -33,7 +33,7 @@ public class DbMergeInfo {
     private String password;
     private String physicalSchema;
 
-    public DbMergeInfo(String name, File inputDir) {
+    private DbMergeInfo(String name, File inputDir) {
         this.name = name;
         this.inputDir = inputDir;
     }
@@ -74,7 +74,7 @@ public class DbMergeInfo {
         return this.driverClassName;
     }
 
-    public void setDriverClassName(String driverClassName) {
+    private void setDriverClassName(String driverClassName) {
         this.driverClassName = driverClassName;
     }
 
@@ -82,7 +82,7 @@ public class DbMergeInfo {
         return this.url;
     }
 
-    public void setUrl(String url) {
+    private void setUrl(String url) {
         this.url = url;
     }
 
@@ -90,7 +90,7 @@ public class DbMergeInfo {
         return this.username;
     }
 
-    public void setUsername(String username) {
+    private void setUsername(String username) {
         this.username = username;
     }
 
@@ -98,7 +98,7 @@ public class DbMergeInfo {
         return this.password;
     }
 
-    public void setPassword(String password) {
+    private void setPassword(String password) {
         this.password = password;
     }
 
@@ -106,7 +106,7 @@ public class DbMergeInfo {
         return this.physicalSchema;
     }
 
-    public void setPhysicalSchema(String physicalSchema) {
+    private void setPhysicalSchema(String physicalSchema) {
         this.physicalSchema = physicalSchema;
     }
 }

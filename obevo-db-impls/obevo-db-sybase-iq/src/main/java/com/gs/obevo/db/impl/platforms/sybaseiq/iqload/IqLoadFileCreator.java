@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -37,7 +37,7 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-public class IqLoadFileCreator {
+class IqLoadFileCreator {
     private final DataExtractor dataExtractor;
     private final String tableName;
 
@@ -63,7 +63,7 @@ public class IqLoadFileCreator {
     private final String filePathToLoad;
     private final File fileToWrite;
 
-    public IqLoadFileCreator(String tableName, MutableList<FieldToColumnMapping> fieldToColumnMappings, File iqLoadDir,
+    IqLoadFileCreator(String tableName, MutableList<FieldToColumnMapping> fieldToColumnMappings, File iqLoadDir,
             String loadFilePrefix, IqLoadMode iqLoadMode, DataExtractor dataExtractor) {
         this.tableName = tableName;
 
@@ -112,7 +112,7 @@ public class IqLoadFileCreator {
         }
     }
 
-    public void writeToFile(Object obj) {
+    private void writeToFile(Object obj) {
         // read the bean contents via reflection and write them to a file
         MutableList<String> text = Lists.mutable.empty();
         for (FieldToColumnMapping mapping : this.mappingsWithoutDefaults) {
@@ -190,10 +190,10 @@ public class IqLoadFileCreator {
 
     /*
      * set temporary option CORE_Options54 = 1 ;
-     * 
+     *
      * load table :wrkSchema.:wrkTable (cm_id '~@#~', :loadColList, upd_cd '~@#|') from :file quotes off escapes off
      * notify 1000000;
-     * 
+     *
      * set temporary option CORE_Options54 = 0 ;
      */
 
@@ -225,8 +225,8 @@ public class IqLoadFileCreator {
             } else if (arg1 instanceof Date) {
 
                 // we need to create the date format object here, because it is not thread safe.
-                DateFormat JDK_DATETIME_FORMAT = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
-                return JDK_DATETIME_FORMAT.format((Date) arg1);
+                DateFormat jdkDatetimeFormat = new SimpleDateFormat(DATE_TIME_FORMAT_STRING);
+                return jdkDatetimeFormat.format((Date) arg1);
             } else {
                 return arg1.toString();
             }

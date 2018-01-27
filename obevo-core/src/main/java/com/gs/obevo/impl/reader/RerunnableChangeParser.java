@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -97,7 +97,7 @@ public class RerunnableChangeParser extends AbstractDbChangeFileParser {
         if (bodySection != null) {
             ChangeType bodyChangeType = changeType.getBodyChangeType();
             if (bodyChangeType == null) {
-                throw new IllegalArgumentException("Cannot specify a //// " + TextMarkupDocumentReader.TAG_BODY + " section for an object type without a body type configured: ["+ changeType + "]");
+                throw new IllegalArgumentException("Cannot specify a //// " + TextMarkupDocumentReader.TAG_BODY + " section for an object type without a body type configured: [" + changeType + "]");
             }
             ChangeRerunnable bodyChange = createRerunnableChange(bodyChangeType, file, objectName, schema, bodySection.getContent(), bodySection, permissionScheme);
             bodyChange.setChangeName("body");
@@ -190,7 +190,6 @@ public class RerunnableChangeParser extends AbstractDbChangeFileParser {
         } else if (contentIndex != -1 && dropIndexIndex != -1 && contentIndex > dropIndexIndex) {
             throw new IllegalArgumentException("Improper section ordering: content section must come before the " + TextMarkupDocumentReader.TAG_DROP_COMMAND + " section");
         }
-
     }
 
     private TextMarkupDocumentSection getMainSection(TextMarkupDocument doc, boolean backwardsCompatibleModeUsed) {

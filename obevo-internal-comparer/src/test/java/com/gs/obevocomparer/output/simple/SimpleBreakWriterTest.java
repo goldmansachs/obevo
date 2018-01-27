@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -55,19 +55,19 @@ public class SimpleBreakWriterTest {
         breaks.add(new DataObjectBreak(this.create("a", 1, "b", 4, "c", 10, "d", 11, "x", 15, "y", 16), RIGHT));
         breaks.add(new DataObjectBreak(this.create("a", 1, "b", 5, "c", 11, "d", 12, "e", 15, "x", 15, "y", 16), RIGHT));
 
-        this.assertSheetValues(this.getContentRows(breaks), new Object[][]{
-                {"Break Type", "a", "b", "c", "d", "f", "e", "x", "y"},
-                {"Only in C", 1, 2, 3, 4, 10, null, 5, 6},
-                {"Only in C", 1, 3, 8, 9, null, null, 10, 11},
-                {"Only in R", 1, 4, 10, 11, null, null, 15, 16},
-                {"Only in R", 1, 5, 11, 12, null, 15, 15, 16}});
+        this.assertSheetValues(this.getContentRows(breaks), new Object[][] {
+                { "Break Type", "a", "b", "c", "d", "f", "e", "x", "y" },
+                { "Only in C", 1, 2, 3, 4, 10, null, 5, 6 },
+                { "Only in C", 1, 3, 8, 9, null, null, 10, 11 },
+                { "Only in R", 1, 4, 10, 11, null, null, 15, 16 },
+                { "Only in R", 1, 5, 11, 12, null, 15, 15, 16 } });
 
-        this.assertSheetColors(this.getContentRows(breaks), new ValueType[][]{
-                {N, K, K, N, N, N, N, E, E},
-                {A, A, A, A, A, A, A, E, E},
-                {A, A, A, A, A, A, A, E, E},
-                {M, M, M, M, M, M, M, E, E},
-                {M, M, M, M, M, M, M, E, E}});
+        this.assertSheetColors(this.getContentRows(breaks), new ValueType[][] {
+                { N, K, K, N, N, N, N, E, E },
+                { A, A, A, A, A, A, A, E, E },
+                { A, A, A, A, A, A, A, E, E },
+                { M, M, M, M, M, M, M, E, E },
+                { M, M, M, M, M, M, M, E, E } });
     }
 
     @Test
@@ -81,19 +81,19 @@ public class SimpleBreakWriterTest {
 
         breaks.add(new GroupBreak(this.create("a", 1, "b", 3, "c", 3, "d", 4, "e", 5, "x", 5, "y", 6), LEFT, asList("e"), 2));
 
-        this.assertSheetValues(this.getContentRows(breaks), new Object[][]{
-                {"Break Type", "Group", "a", "b", "c", "d", "e", "x", "y"},
-                {"Only in C group", 1, 1, 2, 3, 4, 5, 5, 6},
-                {"Only in R group", 1, 1, 2, 8, 9, 21, 10, 11},
-                {"Only in R group", 1, 1, 2, 10, 11, 22, 15, 16},
-                {"Only in C group", 2, 1, 3, 3, 4, 5, 5, 6}});
+        this.assertSheetValues(this.getContentRows(breaks), new Object[][] {
+                { "Break Type", "Group", "a", "b", "c", "d", "e", "x", "y" },
+                { "Only in C group", 1, 1, 2, 3, 4, 5, 5, 6 },
+                { "Only in R group", 1, 1, 2, 8, 9, 21, 10, 11 },
+                { "Only in R group", 1, 1, 2, 10, 11, 22, 15, 16 },
+                { "Only in C group", 2, 1, 3, 3, 4, 5, 5, 6 } });
 
-        this.assertSheetColors(this.getContentRows(breaks), new ValueType[][]{
-                {N, N, K, K, F, N, F, E, E},
-                {A, A, A, A, F, A, A, E, E},
-                {M, M, M, M, F, M, M, E, E},
-                {M, M, M, M, F, M, M, E, E},
-                {A, A, A, A, A, A, F, E, E}});
+        this.assertSheetColors(this.getContentRows(breaks), new ValueType[][] {
+                { N, N, K, K, F, N, F, E, E },
+                { A, A, A, A, F, A, A, E, E },
+                { M, M, M, M, F, M, M, E, E },
+                { M, M, M, M, F, M, M, E, E },
+                { A, A, A, A, A, A, F, E, E } });
     }
 
     @Test
@@ -111,17 +111,17 @@ public class SimpleBreakWriterTest {
         br.setExcluded("f", true);
         breaks.add(br);
 
-        this.assertSheetValues(this.getContentRows(breaks), new Object[][]{
-                {"Break Type", "a", "b", "c", "c (R)", "d", "e", "e (R)", "f", "f (R)", "x", "y"},
-                {"Different values", 1, 2, 3, 5, 4, 5, null, 6, null, 5, 6},
-                {"Different values", 1, 3, 8, 6, 9, 21, 25, 6, null, 10, 11},
-                {"Different values", 1, 4, 10, 11, 11, 22, 26, 6, 10, 15, 16}});
+        this.assertSheetValues(this.getContentRows(breaks), new Object[][] {
+                { "Break Type", "a", "b", "c", "c (R)", "d", "e", "e (R)", "f", "f (R)", "x", "y" },
+                { "Different values", 1, 2, 3, 5, 4, 5, null, 6, null, 5, 6 },
+                { "Different values", 1, 3, 8, 6, 9, 21, 25, 6, null, 10, 11 },
+                { "Different values", 1, 4, 10, 11, 11, 22, 26, 6, 10, 15, 16 } });
 
-        this.assertSheetColors(this.getContentRows(breaks), new ValueType[][]{
-                {N, K, K, F, R, N, F, R, E, R, E, E},
-                {N, N, N, F, R, N, N, N, N, N, E, E},
-                {N, N, N, F, R, N, F, R, N, N, E, E},
-                {N, N, N, F, R, N, E, R, E, R, E, E}});
+        this.assertSheetColors(this.getContentRows(breaks), new ValueType[][] {
+                { N, K, K, F, R, N, F, R, E, R, E, E },
+                { N, N, N, F, R, N, N, N, N, N, E, E },
+                { N, N, N, F, R, N, F, R, N, N, E, E },
+                { N, N, N, F, R, N, E, R, E, R, E, E } });
     }
 
     @Test
@@ -144,23 +144,23 @@ public class SimpleBreakWriterTest {
         breaks.add(new GroupBreak(this.create("a", 1, "b", 6, "c", 8, "d", 9, "e", 21, "f", 7, "x", 10, "y", 11),
                 RIGHT, asList("c", "f"), 1));
 
-        this.assertSheetValues(this.getContentRows(breaks), new Object[][]{
-                {"Break Type", "Group", "a", "b", "c", "c (R)", "d", "e", "e (R)", "f", "x", "y"},
-                {"Only in C", null, 1, 10, 1, null, 2, 5, null, 6, 3, 4},
-                {"Different values", null, 1, 2, 3, 5, 4, 5, null, 6, 5, 6},
-                {"Different values", null, 1, 3, 8, 6, 9, 21, 25, 6, 10, 11},
-                {"Only in R", null, 1, 11, 1, null, 2, 5, null, null, 3, 4},
-                {"Only in C group", 1, 1, 6, 3, null, 4, 5, null, 6, 5, 6},
-                {"Only in R group", 1, 1, 6, 8, null, 9, 21, null, 7, 10, 11}});
+        this.assertSheetValues(this.getContentRows(breaks), new Object[][] {
+                { "Break Type", "Group", "a", "b", "c", "c (R)", "d", "e", "e (R)", "f", "x", "y" },
+                { "Only in C", null, 1, 10, 1, null, 2, 5, null, 6, 3, 4 },
+                { "Different values", null, 1, 2, 3, 5, 4, 5, null, 6, 5, 6 },
+                { "Different values", null, 1, 3, 8, 6, 9, 21, 25, 6, 10, 11 },
+                { "Only in R", null, 1, 11, 1, null, 2, 5, null, null, 3, 4 },
+                { "Only in C group", 1, 1, 6, 3, null, 4, 5, null, 6, 5, 6 },
+                { "Only in R group", 1, 1, 6, 8, null, 9, 21, null, 7, 10, 11 } });
 
-        this.assertSheetColors(this.getContentRows(breaks), new ValueType[][]{
-                {N, N, K, K, F, R, N, F, R, F, E, E},
-                {A, A, A, A, A, A, A, A, A, A, E, E},
-                {N, N, N, N, F, R, N, N, N, N, E, E},
-                {N, N, N, N, F, R, N, F, R, N, E, E},
-                {M, M, M, M, M, M, M, M, M, M, E, E},
-                {A, A, A, A, F, A, A, A, A, F, E, E},
-                {M, M, M, M, F, M, M, M, M, F, E, E}});
+        this.assertSheetColors(this.getContentRows(breaks), new ValueType[][] {
+                { N, N, K, K, F, R, N, F, R, F, E, E },
+                { A, A, A, A, A, A, A, A, A, A, E, E },
+                { N, N, N, N, F, R, N, N, N, N, E, E },
+                { N, N, N, N, F, R, N, F, R, N, E, E },
+                { M, M, M, M, M, M, M, M, M, M, E, E },
+                { A, A, A, A, F, A, A, A, A, F, E, E },
+                { M, M, M, M, F, M, M, M, M, F, E, E } });
     }
 
     @Test
@@ -174,17 +174,17 @@ public class SimpleBreakWriterTest {
         CatoComparison comparison = this.getComparison(breaks);
         comparison.getProperties().getMappedFields().put("c", "d");
 
-        this.assertSheetValues(this.getContentRows(breaks, comparison), new Object[][]{
-                {"Break Type", "a", "b", "c", "d", "e", "x"},
-                {"Different values", 1, 2, 3, 15, 5, 5},
-                {"Only in C", 1, 3, 8, null, 21, 10},
-                {"Only in R", 1, 4, null, 9, 21, 10}});
+        this.assertSheetValues(this.getContentRows(breaks, comparison), new Object[][] {
+                { "Break Type", "a", "b", "c", "d", "e", "x" },
+                { "Different values", 1, 2, 3, 15, 5, 5 },
+                { "Only in C", 1, 3, 8, null, 21, 10 },
+                { "Only in R", 1, 4, null, 9, 21, 10 } });
 
-        this.assertSheetColors(this.getContentRows(breaks, comparison), new ValueType[][]{
-                {N, K, K, F, R, N, E},
-                {N, N, N, F, R, N, E},
-                {A, A, A, A, A, A, E},
-                {M, M, M, M, M, M, E}});
+        this.assertSheetColors(this.getContentRows(breaks, comparison), new ValueType[][] {
+                { N, K, K, F, R, N, E },
+                { N, N, N, F, R, N, E },
+                { A, A, A, A, A, A, E },
+                { M, M, M, M, M, M, E } });
     }
 
     @Test
@@ -200,17 +200,17 @@ public class SimpleBreakWriterTest {
         comparison.getProperties().getMappedFields().put("c", "d");
         comparison.getProperties().getMappedFields().put("e", "d");
 
-        this.assertSheetValues(this.getContentRows(breaks, comparison), new Object[][]{
-                {"Break Type", "a", "b", "c", "d (R)", "d", "d (R)", "e", "x"},
-                {"Different values", 1, 2, 3, 15, 4, 15, 15, 5},
-                {"Only in C", 1, 3, 8, null, 9, null, 21, 10},
-                {"Only in R", 1, 4, null, null, 9, null, 21, 10}});
+        this.assertSheetValues(this.getContentRows(breaks, comparison), new Object[][] {
+                { "Break Type", "a", "b", "c", "d (R)", "d", "d (R)", "e", "x" },
+                { "Different values", 1, 2, 3, 15, 4, 15, 15, 5 },
+                { "Only in C", 1, 3, 8, null, 9, null, 21, 10 },
+                { "Only in R", 1, 4, null, null, 9, null, 21, 10 } });
 
-        this.assertSheetColors(this.getContentRows(breaks, comparison), new ValueType[][]{
-                {N, K, K, F, R, F, R, N, E},
-                {N, N, N, F, R, F, R, N, E},
-                {A, A, A, A, A, A, A, A, E},
-                {M, M, M, M, M, M, M, M, E}});
+        this.assertSheetColors(this.getContentRows(breaks, comparison), new ValueType[][] {
+                { N, K, K, F, R, F, R, N, E },
+                { N, N, N, F, R, F, R, N, E },
+                { A, A, A, A, A, A, A, A, E },
+                { M, M, M, M, M, M, M, M, E } });
     }
 
     @Test
@@ -222,19 +222,19 @@ public class SimpleBreakWriterTest {
         breaks.add(new DataObjectBreak(this.create("x", 15, "c", 10, "a", 1, "y", 16, "b", 4, "d", 11), RIGHT));
         breaks.add(new DataObjectBreak(this.create("x", 15, "c", 11, "a", 1, "y", 16, "b", 5, "d", 12, "e", 15, "f", 10), RIGHT));
 
-        this.assertSheetValues(this.getContentRows(breaks), new Object[][]{
-                {"Break Type", "a", "b", "c", "d", "f", "e", "x", "y"},
-                {"Only in C", 1, 2, 3, 4, 10, null, 5, 6},
-                {"Only in C", 1, 3, 8, 9, null, null, 10, 11},
-                {"Only in R", 1, 4, 10, 11, null, null, 15, 16},
-                {"Only in R", 1, 5, 11, 12, 10, 15, 15, 16}});
+        this.assertSheetValues(this.getContentRows(breaks), new Object[][] {
+                { "Break Type", "a", "b", "c", "d", "f", "e", "x", "y" },
+                { "Only in C", 1, 2, 3, 4, 10, null, 5, 6 },
+                { "Only in C", 1, 3, 8, 9, null, null, 10, 11 },
+                { "Only in R", 1, 4, 10, 11, null, null, 15, 16 },
+                { "Only in R", 1, 5, 11, 12, 10, 15, 15, 16 } });
 
-        this.assertSheetColors(this.getContentRows(breaks), new ValueType[][]{
-                {N, K, K, N, N, N, N, E, E},
-                {A, A, A, A, A, A, A, E, E},
-                {A, A, A, A, A, A, A, E, E},
-                {M, M, M, M, M, M, M, E, E},
-                {M, M, M, M, M, M, M, E, E}});
+        this.assertSheetColors(this.getContentRows(breaks), new ValueType[][] {
+                { N, K, K, N, N, N, N, E, E },
+                { A, A, A, A, A, A, A, E, E },
+                { A, A, A, A, A, A, A, E, E },
+                { M, M, M, M, M, M, M, E, E },
+                { M, M, M, M, M, M, M, E, E } });
     }
 
     private void assertSheetValues(List<CatoContentRow> rows, Object[][] values) {
@@ -261,7 +261,7 @@ public class SimpleBreakWriterTest {
         return TestUtil.createDataObjectWithKeys(fields);
     }
 
-    public static Map<String, Object> createBreakMap(Object... data) {
+    private static Map<String, Object> createBreakMap(Object... data) {
         Map<String, Object> map = new HashMap<String, Object>();
         for (int i = 0; i < data.length; i += 2) {
             map.put(data[i].toString(), data[i + 1]);

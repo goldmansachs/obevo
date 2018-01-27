@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -22,7 +22,6 @@ import com.gs.obevo.api.appdata.ChangeIncremental;
 import com.gs.obevo.api.platform.ChangeCommand;
 import com.gs.obevo.api.platform.ChangePair;
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.impl.DeployMetricsCollectorImpl;
 import com.gs.obevo.impl.command.AlreadyDroppedTableWarning;
 import com.gs.obevo.impl.command.BaselineChangeCommand;
 import com.gs.obevo.impl.command.DeployChangeCommand;
@@ -35,10 +34,8 @@ import com.gs.obevo.impl.command.UpdateAuditTableOnlyCommand;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.ListIterable;
-import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Sets;
-import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.eclipse.collections.impl.test.Verify;
 import org.junit.Test;
 
@@ -298,7 +295,6 @@ public class IncrementalChangeTypeCommandCalculatorTest {
         when(changeType.getName()).thenReturn("fk");
         return changeType;
     }
-
 
     static Predicate<ChangeCommand> assertValue(final Class expectedClass, final Change expectedArtifact) {
         return new Predicate<ChangeCommand>() {

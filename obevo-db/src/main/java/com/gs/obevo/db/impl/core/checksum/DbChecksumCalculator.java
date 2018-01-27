@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -15,7 +15,6 @@
  */
 package com.gs.obevo.db.impl.core.checksum;
 
-import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.dbmetadata.api.DaCatalog;
 import com.gs.obevo.dbmetadata.api.DaColumn;
@@ -32,7 +31,7 @@ import org.eclipse.collections.impl.factory.Lists;
  * Returns the checksum entries for the given {@link DaCatalog}. Many checksums can be returned from a single DaCatalog;
  * this class will recurse into the child objects (e.g. tables, views, ...) to pull the checksums out of those.
  */
-public class DbChecksumCalculator {
+class DbChecksumCalculator {
     public ImmutableCollection<ChecksumEntry> getChecksums(DaCatalog database) {
         MutableCollection<ChecksumEntry> checksums = Lists.mutable.empty();
 

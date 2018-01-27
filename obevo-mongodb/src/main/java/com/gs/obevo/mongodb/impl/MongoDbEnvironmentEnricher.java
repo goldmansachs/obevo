@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -15,8 +15,8 @@
  */
 package com.gs.obevo.mongodb.impl;
 
-import com.gs.obevo.impl.AbstractEnvironmentEnricher;
 import com.gs.obevo.api.platform.Platform;
+import com.gs.obevo.impl.AbstractEnvironmentEnricher;
 import com.gs.obevo.mongodb.api.appdata.MongoDbEnvironment;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 
@@ -28,7 +28,7 @@ public class MongoDbEnvironmentEnricher extends AbstractEnvironmentEnricher<Mong
 
     @Override
     protected void createEnv(MongoDbEnvironment env, HierarchicalConfiguration sysCfg, HierarchicalConfiguration envCfg, Platform systemDbPlatform) {
-        env.setPlatform((MongoDbPlatform)systemDbPlatform);
+        env.setPlatform((MongoDbPlatform) systemDbPlatform);
         env.setConnectionURI(envCfg.getString("[@connectionURI]"));
     }
 }

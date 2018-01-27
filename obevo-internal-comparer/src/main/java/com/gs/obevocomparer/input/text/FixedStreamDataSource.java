@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -22,7 +22,7 @@ import java.util.List;
 
 public class FixedStreamDataSource extends AbstractStreamDataSource {
 
-    final List<FixedField> fixedFields = new ArrayList<FixedField>();
+    private final List<FixedField> fixedFields = new ArrayList<FixedField>();
 
     public FixedStreamDataSource(String name, Reader reader, Object... fieldInput) {
         super(name, reader);
@@ -76,11 +76,11 @@ public class FixedStreamDataSource extends AbstractStreamDataSource {
     }
 
     private static class FixedField implements Comparable<FixedField> {
-        public final String field;
-        public final int start;
-        public final int end;
+        final String field;
+        final int start;
+        final int end;
 
-        public FixedField(String field, int start, int end) {
+        FixedField(String field, int start, int end) {
             this.field = field;
             this.start = start;
             this.end = end;

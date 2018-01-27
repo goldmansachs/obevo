@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -69,7 +69,7 @@ public class CsvStaticDataWriterTest {
         args.setJdbcUrl(url);
         args.setDriverClass(org.h2.Driver.class.getName());
         args.setDbSchema(schema);
-        args.setTables(new String[] {table});
+        args.setTables(new String[] { table });
         args.setUsername("sa");
         args.setPassword("");
         File outputPath = new File("./target/csvoutput");

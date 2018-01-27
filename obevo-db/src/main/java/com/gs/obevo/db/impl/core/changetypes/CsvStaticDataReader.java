@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -26,7 +26,7 @@ import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.eclipse.collections.api.block.function.Function;
 
 public class CsvStaticDataReader {
-    public static final int CSV_V1 = 1;  // 1 is the original
+    private static final int CSV_V1 = 1;  // 1 is the original
     public static final int CSV_V2 = 2;  // 2 is latest that fixes a number of CSV issues
 
     public CsvReaderDataSource getFileDataSource(int csvVersion, DaTable table, String content, char dataDelimiter, String nullToken, Function<String, String> convertDbObjectName) {
@@ -67,7 +67,7 @@ public class CsvStaticDataReader {
         private final Class targetClass;
         private final String nullToken;
 
-        public MyDerivedField(int csvVersion, String field, Class targetClass, ConvertUtilsBean cub, String nullToken) {
+        MyDerivedField(int csvVersion, String field, Class targetClass, ConvertUtilsBean cub, String nullToken) {
             this.csvVersion = csvVersion;
             this.field = field;
             this.cub = cub;

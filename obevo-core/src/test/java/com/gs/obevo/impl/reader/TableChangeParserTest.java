@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,9 +18,9 @@ package com.gs.obevo.impl.reader;
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.ChangeIncremental;
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.impl.reader.TableChangeParser.GetChangeType;
 import com.gs.obevo.impl.DeployMetricsCollectorImpl;
 import com.gs.obevo.impl.graph.SortableDependency;
+import com.gs.obevo.impl.reader.TableChangeParser.GetChangeType;
 import com.gs.obevo.util.hash.DbChangeHashStrategy;
 import com.gs.obevo.util.vfs.FileObject;
 import org.apache.commons.vfs2.FileName;
@@ -243,7 +243,6 @@ public class TableChangeParserTest {
         parser.value(tableChangeType, null, fileContent, objectName, "schema", null);
     }
 
-
     @Test
     public void testDbChange() {
         ChangeIncremental change = (ChangeIncremental) new TableChangeParser(new EmptyContentHashStrategy(), getChangeType)
@@ -260,12 +259,11 @@ public class TableChangeParserTest {
         assertTrue(change.getApplyGrants());
     }
 
-
     @Test
     public void testDbChange2DiffValues() {
         ChangeIncremental change = (ChangeIncremental) new TableChangeParser(new EmptyContentHashStrategy(), getChangeType)
                 .value(tableChangeType,
-                        null,"//// CHANGE name=chng5Rollback INACTIVE baselinedChanges=\"a,b,c\" \nmychange\n\n// ROLLBACK-IF-ALREADY-DEPLOYED\nmyrollbackcommand\n", objectName
+                        null, "//// CHANGE name=chng5Rollback INACTIVE baselinedChanges=\"a,b,c\" \nmychange\n\n// ROLLBACK-IF-ALREADY-DEPLOYED\nmyrollbackcommand\n", objectName
                         , "schem", null).get(0);
         assertEquals("schem", change.getSchema());
         assertEquals("chng5Rollback", change.getChangeName());

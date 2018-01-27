@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -23,31 +23,25 @@ import org.eclipse.collections.api.list.ImmutableList;
 public class DefaultDeployerPlugin implements DeployerPlugin {
     @Override
     public void validateSetup() {
-
     }
 
     @Override
     public void initializeSchema(Environment env, PhysicalSchema schema) {
-
     }
 
     @Override
     public void printArtifactsToProcessForUser2(Changeset artifactsToProcess, DeployStrategy deployStrategy, Environment env, ImmutableCollection deployedChanges, ImmutableCollection sourceChanges) {
-
     }
 
     @Override
     public void validatePriorToDeployment(Environment env, DeployStrategy deployStrategy, ImmutableList sourceChanges, ImmutableCollection deployedChanges, Changeset artifactsToProcess) {
-
     }
 
     @Override
     public void doPostDeployAction(Environment env, ImmutableList sourceChanges) {
-
     }
 
     @Override
     public void logEnvironmentMetrics(Environment env) {
-
     }
 }

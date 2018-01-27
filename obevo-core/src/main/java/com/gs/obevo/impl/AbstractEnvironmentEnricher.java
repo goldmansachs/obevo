@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -75,7 +75,7 @@ public abstract class AbstractEnvironmentEnricher<E extends Environment> impleme
 
     protected abstract void createEnv(E env, HierarchicalConfiguration sysCfg, HierarchicalConfiguration envCfg, Platform systemDbPlatform);
 
-    protected void enrich(Environment dbEnv, HierarchicalConfiguration sysCfg, HierarchicalConfiguration envCfg, FileObject sourcePath, Platform systemDbPlatform) {
+    private void enrich(Environment dbEnv, HierarchicalConfiguration sysCfg, HierarchicalConfiguration envCfg, FileObject sourcePath, Platform systemDbPlatform) {
         MutableList<String> sourceDirs = ListAdapter.adapt(sysCfg.getList("[@sourceDirs]"));
         ImmutableSet<String> acceptedExtensions = ListAdapter.adapt(sysCfg.getList("[@acceptedExtensions]")).toSet().toImmutable();
         FileObject rootDir = sourcePath.getType() == FileType.FILE ? sourcePath.getParent() : sourcePath;
@@ -192,7 +192,6 @@ public abstract class AbstractEnvironmentEnricher<E extends Environment> impleme
                         if (iterString(excludesConfig, "procedure").notEmpty() || iterString(excludesConfig, "procedurePattern").notEmpty()) {
                             throw new IllegalArgumentException("The procedure and procedurePattern elements are no longer supported. Use <sp> only, with wildcards (% or *) if  needed");
                         }
-
                     }
                 }
 

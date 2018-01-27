@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -43,13 +43,14 @@ import org.slf4j.LoggerFactory;
 
 public class Db2SqlExecutor extends AbstractSqlExecutor {
     private static final Logger LOG = LoggerFactory.getLogger(Db2SqlExecutor.class);
+    private static final MutableList<Integer> REORG_ERROR_CODES = Lists.mutable.with(-20054, -668);
 
     private final DbEnvironment env;
     private final boolean autoReorgEnabled;
     private String currentPathSql;
     private final Object currentPathSqlLock = new Object();
 
-    public Db2SqlExecutor(DataSource ds, DbEnvironment env) {
+    Db2SqlExecutor(DataSource ds, DbEnvironment env) {
         super(ds);
         this.env = env;
         this.autoReorgEnabled = env.isAutoReorgEnabled();
@@ -122,8 +123,6 @@ public class Db2SqlExecutor extends AbstractSqlExecutor {
             if (e.getRootCause() instanceof SQLException) {
                 SQLException cause = (SQLException) e.getRootCause();
                 // Do not throw back the exception if error code = -20054
-                MutableList<Integer> REORG_ERROR_CODES =
-                        Lists.mutable.with(-20054, -668);
                 SQLException next = cause.getNextException();
                 if (next != null) {
                     cause = next;
@@ -157,12 +156,13 @@ public class Db2SqlExecutor extends AbstractSqlExecutor {
 
     private static final Pattern PATTERN_20054 = Pattern.compile("SQLERRMC[\\W]+\\s*(\\w+)\\.(\\w+);");
     private static final Pattern PATTERN_668 = Pattern.compile("SQLERRMC[\\W]+\\s*7;(\\w+)\\.(\\w+)");
+
     /**
      * Finds the table name from SQL Exception. Based on the documentation as defined at
      * http://publib.boulder.ibm.com/infocenter/db2luw/v8/index.jsp?topic=/com.ibm.db2.udb.doc/ad/tjvjcerr.htm
      *
      * @param exception An instance of SQL Exception
-     *                  TODO handle the hardcoding of these errorCodes a little bit better
+     * TODO handle the hardcoding of these errorCodes a little bit better
      * @return The table name from SQL Exception
      */
     Pair<PhysicalSchema, String> findTableNameFromException(Exception exception, int errorCode) {

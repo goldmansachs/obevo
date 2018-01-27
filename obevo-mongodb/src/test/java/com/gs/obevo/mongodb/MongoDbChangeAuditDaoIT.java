@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -69,12 +69,9 @@ public class MongoDbChangeAuditDaoIT {
         DeployExecutionImpl exec = new DeployExecutionImpl("requester", "executor", "schema", "1.0.0", new Timestamp(new Date().getTime()), false, false, "1.0.0", "reason", Sets.immutable.<DeployExecutionAttribute>empty());
         exec.setId(1L);
 
-
         Change change = new ChangeIncremental(changeType, "mydb", "obj1", "c1", 0, "hash", "content");
 
         changeAuditDao.insertNewChange(change, exec);
         assertEquals(1, changeAuditDao.getDeployedChanges().size());
-
     }
-
 }

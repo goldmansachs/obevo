@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -19,9 +19,9 @@ import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.platform.ChangeCommand;
 import com.gs.obevo.api.platform.ChangePair;
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.impl.AuditChangeCommand;
 import com.gs.obevo.impl.ChangeCommandWarning;
+import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.impl.Changeset;
 import com.gs.obevo.impl.ChangesetCreator;
 import com.gs.obevo.impl.ExecuteChangeCommand;
@@ -129,12 +129,10 @@ public class ChangesetCreatorImpl implements ChangesetCreator {
 
     /**
      * Casts the collection (needed prior to Java 8).
-     * @param collection
+     *
      * @param clazz class to cast to; not used in the actual implementation
-     * @param <T>
-     * @return
      */
-    private static <T> RichIterable<T> cast(RichIterable<? super T> collection, Class<T> clazz){
-        return (RichIterable<T>)collection;
+    private static <T> RichIterable<T> cast(RichIterable<? super T> collection, Class<T> clazz) {
+        return (RichIterable<T>) collection;
     }
 }

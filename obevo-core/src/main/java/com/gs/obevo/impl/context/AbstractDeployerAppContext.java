@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -21,8 +21,6 @@ import java.util.Collection;
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.api.platform.ChangeAuditDao;
-import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
-import com.gs.obevo.impl.ChangeTypeBehaviorRegistry.ChangeTypeBehaviorRegistryBuilder;
 import com.gs.obevo.api.platform.ChangeTypeSemantic;
 import com.gs.obevo.api.platform.DeployExecutionDao;
 import com.gs.obevo.api.platform.DeployMetrics;
@@ -31,23 +29,20 @@ import com.gs.obevo.api.platform.FileSourceContext;
 import com.gs.obevo.api.platform.FileSourceParams;
 import com.gs.obevo.api.platform.MainDeployerArgs;
 import com.gs.obevo.api.platform.Platform;
-import com.gs.obevo.impl.FileSourceReaderStrategy;
-import com.gs.obevo.impl.InputSourceReaderStrategy;
-import com.gs.obevo.impl.reader.CachedDbChangeReader;
-import com.gs.obevo.impl.reader.DbChangeFileParser;
-import com.gs.obevo.impl.reader.DbDirectoryChangesetReader;
-import com.gs.obevo.impl.PrepareDbChange;
-import com.gs.obevo.impl.reader.TableChangeParser.GetChangeType;
-import com.gs.obevo.impl.reader.TextMarkupDocumentReader;
+import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
+import com.gs.obevo.impl.ChangeTypeBehaviorRegistry.ChangeTypeBehaviorRegistryBuilder;
 import com.gs.obevo.impl.ChangesetCreator;
 import com.gs.obevo.impl.DefaultDeployerPlugin;
 import com.gs.obevo.impl.DeployMetricsCollector;
 import com.gs.obevo.impl.DeployMetricsCollectorImpl;
 import com.gs.obevo.impl.DeployerPlugin;
+import com.gs.obevo.impl.FileSourceReaderStrategy;
+import com.gs.obevo.impl.InputSourceReaderStrategy;
 import com.gs.obevo.impl.MainDeployer;
 import com.gs.obevo.impl.MainInputReader;
 import com.gs.obevo.impl.NoOpPostDeployAction;
 import com.gs.obevo.impl.PostDeployAction;
+import com.gs.obevo.impl.PrepareDbChange;
 import com.gs.obevo.impl.changecalc.ChangesetCreatorImpl;
 import com.gs.obevo.impl.changesorter.ChangeCommandSorter;
 import com.gs.obevo.impl.changesorter.ChangeCommandSorterImpl;
@@ -56,6 +51,11 @@ import com.gs.obevo.impl.changetypes.IncrementalChangeTypeSemantic;
 import com.gs.obevo.impl.changetypes.RerunnableChangeTypeSemantic;
 import com.gs.obevo.impl.graph.GraphEnricher;
 import com.gs.obevo.impl.graph.GraphEnricherImpl;
+import com.gs.obevo.impl.reader.CachedDbChangeReader;
+import com.gs.obevo.impl.reader.DbChangeFileParser;
+import com.gs.obevo.impl.reader.DbDirectoryChangesetReader;
+import com.gs.obevo.impl.reader.TableChangeParser.GetChangeType;
+import com.gs.obevo.impl.reader.TextMarkupDocumentReader;
 import com.gs.obevo.impl.text.TextDependencyExtractor;
 import com.gs.obevo.impl.text.TextDependencyExtractorImpl;
 import com.gs.obevo.util.inputreader.Credential;
@@ -101,7 +101,7 @@ public abstract class AbstractDeployerAppContext<E extends Environment, Self ext
         return (Self) this;
     }
 
-    public Credential getCredential() {
+    private Credential getCredential() {
         return this.credential;
     }
 
@@ -181,7 +181,7 @@ public abstract class AbstractDeployerAppContext<E extends Environment, Self ext
         return new ChangeCommandSorterImpl(env.getPlatform(), getDefinitionFromEnvironmentFunction());
     }
 
-    protected Function<Change,String> getDefinitionFromEnvironmentFunction() {
+    private Function<Change, String> getDefinitionFromEnvironmentFunction() {
         return new Function<Change, String>() {
             @Override
             public String valueOf(Change object) {
@@ -224,7 +224,7 @@ public abstract class AbstractDeployerAppContext<E extends Environment, Self ext
 
     protected abstract ChangeTypeBehaviorRegistryBuilder getChangeTypeBehaviors();
 
-    protected MainDeployer getDeployer() {
+    private MainDeployer getDeployer() {
         return this.singleton("deployer", new Function0<MainDeployer>() {
             @Override
             public MainDeployer value() {
@@ -282,7 +282,7 @@ public abstract class AbstractDeployerAppContext<E extends Environment, Self ext
         return new GraphEnricherImpl(env.getPlatform().convertDbObjectName());
     }
 
-    protected static class ReaderContext {
+    public static class ReaderContext {
         private final Environment env;
         private final DeployMetricsCollector deployStatsTracker;
         private final GetChangeType getChangeType;
@@ -303,15 +303,13 @@ public abstract class AbstractDeployerAppContext<E extends Environment, Self ext
 
             return new CachedDbChangeReader(underlyingChangesetReader);
         }
-
     }
 
     protected ImmutableList<PrepareDbChange> getArtifactTranslators() {
         return Lists.immutable.empty();
     }
 
-    public final MainInputReader getInputReader() {
+    protected final MainInputReader getInputReader() {
         return new MainInputReader(env, getDbChangeFilter(), getArtifactTranslators(), deployStatsTracker());
     }
-
 }

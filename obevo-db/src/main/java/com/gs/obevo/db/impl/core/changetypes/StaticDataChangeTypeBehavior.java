@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -21,9 +21,9 @@ import java.util.regex.Pattern;
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.platform.ChangeTypeBehavior;
 import com.gs.obevo.api.platform.CommandExecutionContext;
-import com.gs.obevo.impl.changetypes.GroupChangeTypeSemantic;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.platform.SqlExecutor;
+import com.gs.obevo.impl.changetypes.GroupChangeTypeSemantic;
 import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.list.ListIterable;
 import org.slf4j.Logger;

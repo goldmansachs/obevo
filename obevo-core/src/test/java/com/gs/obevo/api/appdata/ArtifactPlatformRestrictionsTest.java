@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -43,7 +43,7 @@ public class ArtifactPlatformRestrictionsTest {
     }
 
     private void assertTest(boolean result, final String platformName, final MutableSet<String> includes,
-                            final MutableSet<String> excludes) {
+            final MutableSet<String> excludes) {
         Environment env = new Environment();
 
         Platform platform = mock(Platform.class);
@@ -59,6 +59,4 @@ public class ArtifactPlatformRestrictionsTest {
 
         Assert.assertEquals(result, ArtifactRestrictions.apply().accept(restrictable, env));
     }
-
-
 }

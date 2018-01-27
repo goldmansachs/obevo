@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -32,12 +32,12 @@ import org.slf4j.LoggerFactory;
 /**
  * Recompiling views after deployments as this is causing issues often in IQ.
  */
-public class IqPostDeployAction implements PostDeployAction<DbEnvironment> {
+class IqPostDeployAction implements PostDeployAction<DbEnvironment> {
     private static final Logger LOG = LoggerFactory.getLogger(IqPostDeployAction.class);
 
     private final SqlExecutor dataSourceForEditsFactory;
 
-    public IqPostDeployAction(SqlExecutor dataSourceForEditsFactory) {
+    IqPostDeployAction(SqlExecutor dataSourceForEditsFactory) {
         this.dataSourceForEditsFactory = dataSourceForEditsFactory;
     }
 

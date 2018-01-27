@@ -5,7 +5,7 @@
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
 
-        http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on an
@@ -23,10 +23,10 @@
         <environment name="test1" connectionURI="mongodb://localhost:10000" />
         <environment name="test2" connectionURI="mongodb://localhost:10001">
             <schemaOverrides>
-                <schemaOverride schema="MYSCHEMA" overrideValue="MYSCHEMA_TEST2"/>
+                <schemaOverride schema="MYSCHEMA" overrideValue="MYSCHEMA_TEST2" />
             </schemaOverrides>
             <tokens>
-                <token key="key" value="val"/>
+                <token key="key" value="val" />
             </tokens>
         </environment>
     </environments>

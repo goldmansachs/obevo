@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -55,7 +55,7 @@ public class PostgreSqlPgDumpReveng extends AbstractDdlReveng {
         ));
     }
 
-    static ImmutableList<RevengPattern> getRevengPatterns() {
+    private static ImmutableList<RevengPattern> getRevengPatterns() {
         String schemaNameSubPattern = getObjectPattern("", "");
 
         NamePatternType namePatternType = NamePatternType.ONE;
@@ -76,7 +76,7 @@ public class PostgreSqlPgDumpReveng extends AbstractDdlReveng {
     @Override
     protected File printInstructions(PrintStream out, AquaRevengArgs args) {
         out.println("1) Run the following command to generate the DDL file:");
-        out.println(getCommandWithDefaults(args, "<username>", "<password>", "<dbHost>", "<dbPortNumber>", "<dbName>","<dbSchema>", "<outputFile>"));
+        out.println(getCommandWithDefaults(args, "<username>", "<password>", "<dbHost>", "<dbPortNumber>", "<dbName>", "<dbSchema>", "<outputFile>"));
         out.println("");
         out.println("Here is an example command (in case your values are not filled in):");
         out.println(getCommandWithDefaults(args, "myuser", "mypassword", "myhost.myplace.com", "12345", "mydb", "myschema", "H:\\sybase-ddl-output.txt"));

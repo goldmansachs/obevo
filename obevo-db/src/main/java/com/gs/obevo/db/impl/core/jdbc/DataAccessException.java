@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -36,9 +36,8 @@ public class DataAccessException extends RuntimeException {
     /**
      * Constructor for DataAccessException.
      *
-     * @param msg   the detail message
-     * @param cause the root cause (usually from using a underlying
-     *              data access API such as JDBC)
+     * @param msg the detail message
+     * @param cause the root cause (usually from using a underlying data access API such as JDBC)
      */
     public DataAccessException(String msg, Throwable cause) {
         super(msg, cause);

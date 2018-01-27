@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -146,7 +146,7 @@ public class MainDeployerArgs {
         return reason;
     }
 
-    public void setReason(String reason) {
+    private void setReason(String reason) {
         this.reason = reason;
     }
 
@@ -159,7 +159,7 @@ public class MainDeployerArgs {
         return deployExecutionAttributes;
     }
 
-    public void setDeployExecutionAttributes(ImmutableSet<? extends DeployExecutionAttribute> deployExecutionAttributes) {
+    private void setDeployExecutionAttributes(ImmutableSet<? extends DeployExecutionAttribute> deployExecutionAttributes) {
         this.deployExecutionAttributes = deployExecutionAttributes != null ? deployExecutionAttributes : Sets.immutable.<DeployExecutionAttribute>empty();
     }
 
@@ -172,7 +172,7 @@ public class MainDeployerArgs {
         return deployRequesterId;
     }
 
-    public void setDeployRequesterId(String deployRequesterId) {
+    private void setDeployRequesterId(String deployRequesterId) {
         this.deployRequesterId = deployRequesterId;
     }
 
@@ -185,7 +185,7 @@ public class MainDeployerArgs {
         return changesetPredicate;
     }
 
-    public void setChangesetPredicate(Predicate<? super ChangeCommand> changesetPredicate) {
+    private void setChangesetPredicate(Predicate<? super ChangeCommand> changesetPredicate) {
         this.changesetPredicate = changesetPredicate;
     }
 

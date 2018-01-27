@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -19,7 +19,6 @@ import java.io.File;
 import java.util.regex.Pattern;
 
 import com.gs.obevo.api.appdata.Environment;
-import com.gs.obevo.api.factory.EnvironmentEnricher;
 import com.gs.obevo.api.factory.Obevo;
 import com.gs.obevo.api.platform.DeployerAppContext;
 import com.gs.obevo.util.FileUtilsCobra;
@@ -42,7 +41,7 @@ public abstract class AbstractMain<EnvType extends Environment> {
         return Obevo.<EnvType>readEnvironments(sourcePath).toList();
     }
 
-    public RichIterable<EnvType> getRequestedEnvironments(String sourcePath, String... envNames) {
+    private RichIterable<EnvType> getRequestedEnvironments(String sourcePath, String... envNames) {
         MutableCollection<EnvType> environments = getRequestedSystem(sourcePath);
 
         MutableList<EnvType> requestedEnvs = Lists.mutable.empty();
@@ -85,7 +84,7 @@ public abstract class AbstractMain<EnvType extends Environment> {
         }
     }
 
-    public DeployerAppContext createRuntimeContext(EnvType env, DeployerArgs args) {
+    private DeployerAppContext createRuntimeContext(EnvType env, DeployerArgs args) {
         final File workDir;
         if (args.getWorkDir() == null) {
             workDir = FileUtilsCobra.createTempDir("deploy-" + env.getName());
@@ -103,7 +102,7 @@ public abstract class AbstractMain<EnvType extends Environment> {
         return createRuntimeContext(env, workDir, credential);
     }
 
-    public DeployerAppContext createRuntimeContext(EnvType env, File workDir, Credential credential) {
+    private DeployerAppContext createRuntimeContext(EnvType env, File workDir, Credential credential) {
         return (DeployerAppContext) env.getAppContextBuilder()
                 .setEnvironment(env)
                 .setCredential(credential)
@@ -126,5 +125,5 @@ public abstract class AbstractMain<EnvType extends Environment> {
         }
     }
 
-    public abstract void start(DeployerAppContext ctxt, DeployerArgs args);
+    protected abstract void start(DeployerAppContext ctxt, DeployerArgs args);
 }

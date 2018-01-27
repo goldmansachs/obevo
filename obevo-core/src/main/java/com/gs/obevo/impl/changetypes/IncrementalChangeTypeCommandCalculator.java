@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -225,7 +225,7 @@ public class IncrementalChangeTypeCommandCalculator implements ChangeTypeCommand
             if (objectChangePairs.allSatisfy(Predicates.attributeNotNull(ChangePair.TO_SOURCE_CHANGE).and(Predicates.attributeIsNull(ChangePair.TO_DEPLOYED_CHANGE)))) {
                 RichIterable<Change> sourceChanges = objectChangePairs.collect(ChangePair.TO_SOURCE_CHANGE);
                 Change lastChange = sourceChanges.maxBy(Change.TO_ORDER_WITHIN_OBJECT);
-                if (((ChangeIncremental)lastChange).isDrop() && !((ChangeIncremental)lastChange).isForceDropForEnvCleaning()) {
+                if (((ChangeIncremental) lastChange).isDrop() && !((ChangeIncremental) lastChange).isForceDropForEnvCleaning()) {
                     dropOnlyObjectKeys.add(objectKey);
                 }
             }

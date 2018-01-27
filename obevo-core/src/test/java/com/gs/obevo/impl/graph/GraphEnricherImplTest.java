@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -37,8 +37,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class GraphEnricherImplTest {
-    protected GraphEnricher enricher = new GraphEnricherImpl(Functions.getStringPassThru());
-    ;
+    private GraphEnricher enricher = new GraphEnricherImpl(Functions.getStringPassThru());
 
     private final String schema1 = "schema1";
     private final String schema2 = "schema2";
@@ -60,7 +59,7 @@ public class GraphEnricherImplTest {
      * If we pass caseInsensitive == true, then we enable that mode in the graph enricher and tweak the object names
      * a bit so that we can verify that the resolution works either way.
      */
-    public void testSchemaObjectDependencies(boolean caseInsensitive) {
+    private void testSchemaObjectDependencies(boolean caseInsensitive) {
         this.enricher = new GraphEnricherImpl(caseInsensitive ? StringFunctions.toUpperCase() : Functions.getStringPassThru());
 
         SortableDependencyGroup sch1Obj1 = newChange(schema1, type1, "obj1", Sets.immutable.with("obj3", schema2 + ".obj2"));
@@ -80,7 +79,6 @@ public class GraphEnricherImplTest {
         validateChange(sortGraph, sch2Obj1, Sets.immutable.with(sch2Obj2), Sets.immutable.<SortableDependencyGroup>with());
         validateChange(sortGraph, sch2Obj2, Sets.immutable.with(sch1Obj3), Sets.immutable.with(sch1Obj1, sch2Obj1));
     }
-
 
     @Test
     public void testSchemaObjectChangeDependenciesCaseSensitiveAndRegular() {
@@ -160,7 +158,6 @@ public class GraphEnricherImplTest {
         }
     }
 
-
     @Test
     public void testGetChangesCaseInsensitive() {
         this.enricher = new GraphEnricherImpl(StringFunctions.toUpperCase());
@@ -185,8 +182,6 @@ public class GraphEnricherImplTest {
         validateChange(sortGraph, sp1Schema2, Sets.immutable.with(sp2Schema2, sp3), Sets.immutable.<SortableDependencyGroup>with());
         validateChange(sortGraph, sp2Schema2, Sets.immutable.<SortableDependencyGroup>with(), Sets.immutable.with(sp1Schema2));
     }
-
-
 
     @Test
     public void testCycleValidation() {
@@ -213,7 +208,6 @@ public class GraphEnricherImplTest {
             assertThat(exc.getMessage(), containsString("Found cycles"));
         }
     }
-
 
     @Test
     public void testCycleValidationWithIncrementalChanges() {
@@ -246,11 +240,11 @@ public class GraphEnricherImplTest {
         return newChange("schema1", "SP", objectName, "n/a", 0, dependencies);
     }
 
-    protected SortableDependencyGroup newChange(String schema, String changeType, String objectName, ImmutableSet<String> dependencies) {
+    private SortableDependencyGroup newChange(String schema, String changeType, String objectName, ImmutableSet<String> dependencies) {
         return newChange(schema, changeType, objectName, "n/a", 0, dependencies);
     }
 
-    protected SortableDependencyGroup newChange(String schema, String changeTypeName, String objectName, String changeName, int orderWithinObject, ImmutableSet<String> dependencies) {
+    private SortableDependencyGroup newChange(String schema, String changeTypeName, String objectName, String changeName, int orderWithinObject, ImmutableSet<String> dependencies) {
         ChangeType changeType = mock(ChangeType.class);
         when(changeType.getName()).thenReturn(changeTypeName);
         when(changeType.isRerunnable()).thenReturn(true);

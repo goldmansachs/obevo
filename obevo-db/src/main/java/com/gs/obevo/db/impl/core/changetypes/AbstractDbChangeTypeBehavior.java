@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -53,7 +53,7 @@ public abstract class AbstractDbChangeTypeBehavior implements DbChangeTypeBehavi
     private final DbSimpleArtifactDeployer baseArtifactDeployer;
     private final GrantChangeParser grantChangeParser;
 
-    public AbstractDbChangeTypeBehavior(DbEnvironment env, DbChangeType dbChangeType, SqlExecutor sqlExecutor, DbSimpleArtifactDeployer baseArtifactDeployer, GrantChangeParser grantChangeParser) {
+    AbstractDbChangeTypeBehavior(DbEnvironment env, DbChangeType dbChangeType, SqlExecutor sqlExecutor, DbSimpleArtifactDeployer baseArtifactDeployer, GrantChangeParser grantChangeParser) {
         this.env = env;
         this.dbChangeType = dbChangeType;
         this.sqlExecutor = sqlExecutor;
@@ -77,7 +77,6 @@ public abstract class AbstractDbChangeTypeBehavior implements DbChangeTypeBehavi
             }
         });
     }
-
 
     protected abstract boolean shouldApplyGrants(Change artifact);
 
@@ -185,7 +184,7 @@ public abstract class AbstractDbChangeTypeBehavior implements DbChangeTypeBehavi
         }
     }
 
-    protected DbSimpleArtifactDeployer getBaseArtifactDeployer() {
+    DbSimpleArtifactDeployer getBaseArtifactDeployer() {
         return baseArtifactDeployer;
     }
 

@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -23,7 +23,7 @@ class ComparisonSummaryRow {
     private final String table;
     private final MutableMap<String, ComparisonResult> results = UnifiedMap.newMap();
 
-    public ComparisonSummaryRow(String table) {
+    ComparisonSummaryRow(String table) {
         this.table = table;
     }
 
@@ -35,7 +35,7 @@ class ComparisonSummaryRow {
         this.results.put(comparisonResultKey, result);
     }
 
-    public ComparisonResult getResult(String comparisonResultKey) {
+    private ComparisonResult getResult(String comparisonResultKey) {
         return this.results.get(comparisonResultKey);
     }
 

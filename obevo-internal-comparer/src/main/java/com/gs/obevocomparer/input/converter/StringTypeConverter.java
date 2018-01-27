@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -45,7 +45,7 @@ public class StringTypeConverter extends SimpleTypeConverter {
         return str;
     }
 
-    protected Object handleString(Object value) {
+    Object handleString(Object value) {
         String str = value.toString().trim();
 
         if (str.length() == 0) {
@@ -84,7 +84,7 @@ public class StringTypeConverter extends SimpleTypeConverter {
         return str;
     }
 
-    protected Double handlePrecision(Double valueOf) {
+    Double handlePrecision(Double valueOf) {
         if (this.precision >= 0 && valueOf > Long.MIN_VALUE && valueOf < Long.MAX_VALUE) {
 
             double factor = Math.pow(10, this.precision);

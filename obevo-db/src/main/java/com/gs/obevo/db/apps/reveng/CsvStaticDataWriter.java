@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -34,11 +34,11 @@ import com.gs.obevo.db.api.platform.DbDeployerAppContext;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.db.api.platform.SqlExecutor;
 import com.gs.obevo.db.impl.core.changetypes.CsvReaderDataSource;
-import com.gs.obevo.impl.reader.TextMarkupDocumentReader;
 import com.gs.obevo.dbmetadata.api.DaNamedObject;
 import com.gs.obevo.dbmetadata.api.DaSchemaInfoLevel;
 import com.gs.obevo.dbmetadata.api.DaTable;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
+import com.gs.obevo.impl.reader.TextMarkupDocumentReader;
 import com.gs.obevo.util.FileUtilsCobra;
 import com.gs.obevo.util.inputreader.Credential;
 import com.gs.obevo.util.inputreader.CredentialReader;
@@ -55,7 +55,7 @@ import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Sets;
 
-public class CsvStaticDataWriter {
+class CsvStaticDataWriter {
     private static final CredentialReader credentialReader = new CredentialReader();
     private final SqlExecutor sqlExecutor;
     private final DbMetadataManager metadataManager;
@@ -153,13 +153,13 @@ public class CsvStaticDataWriter {
                             int columnCount = rs.getMetaData().getColumnCount();
 
                             // print headers
-                            for(int i = 1; i <= columnCount; ++i) {
+                            for (int i = 1; i <= columnCount; ++i) {
                                 writer.print(rs.getMetaData().getColumnName(i));
                             }
                             writer.println();
 
-                            while(rs.next()) {
-                                for(int i = 1; i <= columnCount; ++i) {
+                            while (rs.next()) {
+                                for (int i = 1; i <= columnCount; ++i) {
                                     Object object = rs.getObject(i);
                                     if (object != null) {
                                         switch (rs.getMetaData().getColumnType(i)) {
@@ -174,7 +174,7 @@ public class CsvStaticDataWriter {
                                         case Types.CHAR:
                                             // escape the string text if declared so that the input CSV can also handle the escapes
                                             if (csvFormat.getEscapeCharacter() != null && object instanceof String) {
-                                                object = ((String)object).replace("" + csvFormat.getEscapeCharacter(), "" + csvFormat.getEscapeCharacter() + csvFormat.getEscapeCharacter());
+                                                object = ((String) object).replace("" + csvFormat.getEscapeCharacter(), "" + csvFormat.getEscapeCharacter() + csvFormat.getEscapeCharacter());
                                             }
                                             break;
                                         }

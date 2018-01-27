@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -31,8 +31,8 @@ import java.util.regex.Pattern;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.platform.DbPlatform;
-import com.gs.obevo.impl.util.MultiLineStringSplitter;
 import com.gs.obevo.impl.changetypes.UnclassifiedChangeType;
+import com.gs.obevo.impl.util.MultiLineStringSplitter;
 import com.gs.obevo.util.FileUtilsCobra;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
@@ -119,7 +119,7 @@ public abstract class AbstractDdlReveng {
         }
     };
 
-    public AbstractDdlReveng(DbPlatform platform, MultiLineStringSplitter stringSplitter, ImmutableList<Predicate<String>> skipPredicates, ImmutableList<RevengPattern> revengPatterns, Procedure2<ChangeEntry, String> postProcessChange) {
+    protected AbstractDdlReveng(DbPlatform platform, MultiLineStringSplitter stringSplitter, ImmutableList<Predicate<String>> skipPredicates, ImmutableList<RevengPattern> revengPatterns, Procedure2<ChangeEntry, String> postProcessChange) {
         this.platform = platform;
         this.stringSplitter = stringSplitter;
         this.skipPredicates = skipPredicates;
@@ -133,13 +133,15 @@ public abstract class AbstractDdlReveng {
         this.postProcessChange = ObjectUtils.firstNonNull(postProcessChange, noOpProcedure);
     }
 
-    protected static String getCatalogSchemaObjectPattern(String startQuoteStr, String endQuoteStr) {
-        return    "(?:" + namePattern(startQuoteStr, endQuoteStr) + "\\.)?"
+    static String getCatalogSchemaObjectPattern(String startQuoteStr, String endQuoteStr) {
+        return "(?:" + namePattern(startQuoteStr, endQuoteStr) + "\\.)?"
                 + "(?:" + namePattern(startQuoteStr, endQuoteStr) + "\\.)?" + namePattern(startQuoteStr, endQuoteStr);
     }
+
     protected static String getSchemaObjectPattern(String startQuoteStr, String endQuoteStr) {
         return "(?:" + namePattern(startQuoteStr, endQuoteStr) + "\\.)?" + namePattern(startQuoteStr, endQuoteStr);
     }
+
     protected static String getObjectPattern(String startQuoteStr, String endQuoteStr) {
         return namePattern(startQuoteStr, endQuoteStr);
     }
@@ -151,6 +153,7 @@ public abstract class AbstractDdlReveng {
     private static String namePattern(String startQuoteStr, String endQuoteStr) {
         return "(?:(?:" + startQuoteStr + ")?(\\w+)(?:" + endQuoteStr + ")?)";
     }
+
     private static String nameWithPrefixPattern(String startQuoteStr, String endQuoteStr, String prefix) {
         return "(?:(?:" + startQuoteStr + ")?(" + prefix + "\\w+)(?:" + endQuoteStr + ")?)";
     }
@@ -181,15 +184,15 @@ public abstract class AbstractDdlReveng {
         }
     }
 
-    public void setSkipLinePredicates(ImmutableList<Predicate<String>> skipLinePredicates) {
+    protected void setSkipLinePredicates(ImmutableList<Predicate<String>> skipLinePredicates) {
         this.skipLinePredicates = skipLinePredicates;
     }
 
-    public void setStartQuote(String startQuote) {
+    protected void setStartQuote(String startQuote) {
         this.startQuote = startQuote;
     }
 
-    public void setEndQuote(String endQuote) {
+    protected void setEndQuote(String endQuote) {
         this.endQuote = endQuote;
     }
 
@@ -197,7 +200,7 @@ public abstract class AbstractDdlReveng {
      * Temporary feature to allow us to handle subschemas in MS SQL. We should retire this once we fully support
      * database + schema combos in Obevo.
      */
-    public void setSkipSchemaValidation(boolean skipSchemaValidation) {
+    protected void setSkipSchemaValidation(boolean skipSchemaValidation) {
         this.skipSchemaValidation = skipSchemaValidation;
     }
 
@@ -234,23 +237,20 @@ public abstract class AbstractDdlReveng {
             }
         }
 
-
-
         MutableList<FileProcessingContext> fileProcessingContexts = files.collect(new Function<File, FileProcessingContext>() {
             @Override
             public FileProcessingContext valueOf(File file) {
                 MutableList<String> sqlSnippets = getSqlSnippets(file);
 
                 final MutableList<Pair<String, RevengPatternOutput>> snippetPatternMatchPairs = sqlSnippets
-                        .collect(PATTERN_MATCH_SNIPPET)
+                        .collect(patternMatchSnippet)
                         .reject(new Predicate<Pair<String, RevengPatternOutput>>() {
                             @Override
                             public boolean accept(Pair<String, RevengPatternOutput> each) {
                                 RevengPatternOutput patternMatch = each.getTwo();
                                 return !skipSchemaValidation && patternMatch != null && patternMatch.getSchema() != null && patternMatch.getSubSchema() == null && !patternMatch.getSchema().equalsIgnoreCase(args.getDbSchema());
                             }
-                        })
-                        ;
+                        });
                 return new FileProcessingContext(file, snippetPatternMatchPairs);
             }
         });
@@ -285,16 +285,16 @@ public abstract class AbstractDdlReveng {
         private final File file;
         private final MutableList<Pair<String, RevengPatternOutput>> snippetPatternMatchPairs;
 
-        public FileProcessingContext(File file, MutableList<Pair<String, RevengPatternOutput>> snippetPatternMatchPairs) {
+        FileProcessingContext(File file, MutableList<Pair<String, RevengPatternOutput>> snippetPatternMatchPairs) {
             this.file = file;
             this.snippetPatternMatchPairs = snippetPatternMatchPairs;
         }
 
-        public File getFile() {
+        File getFile() {
             return file;
         }
 
-        public MutableList<Pair<String, RevengPatternOutput>> getSnippetPatternMatchPairs() {
+        MutableList<Pair<String, RevengPatternOutput>> getSnippetPatternMatchPairs() {
             return snippetPatternMatchPairs;
         }
     }
@@ -363,8 +363,7 @@ public abstract class AbstractDdlReveng {
         return changeEntries;
     }
 
-
-    private Function<String, Pair<String, RevengPatternOutput>> PATTERN_MATCH_SNIPPET = new Function<String, Pair<String, RevengPatternOutput>>() {
+    private final Function<String, Pair<String, RevengPatternOutput>> patternMatchSnippet = new Function<String, Pair<String, RevengPatternOutput>>() {
         @Override
         public Pair<String, RevengPatternOutput> valueOf(String sqlSnippet) {
             for (RevengPattern revengPattern : revengPatterns) {
@@ -382,7 +381,7 @@ public abstract class AbstractDdlReveng {
         private final MutableSetMultimap<String, String> objectToSchemasMap = Multimaps.mutable.set.empty();
         private final MutableSetMultimap<String, String> objectToSubSchemasMap = Multimaps.mutable.set.empty();
 
-        public void addPatternMatch(RevengPatternOutput patternMatch) {
+        void addPatternMatch(RevengPatternOutput patternMatch) {
             if (patternMatch != null) {
                 LOG.debug("Found object: {}", patternMatch);
                 objectNames.add(patternMatch);
@@ -395,7 +394,7 @@ public abstract class AbstractDdlReveng {
             }
         }
 
-        public String replaceSnippet(String sqlSnippet) {
+        String replaceSnippet(String sqlSnippet) {
             for (RevengPatternOutput objectOutput : objectNames) {
                 MutableSet<String> replacerSchemas = objectToSchemasMap.get(objectOutput.getPrimaryName());
                 if (replacerSchemas == null || replacerSchemas.isEmpty()) {
@@ -464,7 +463,7 @@ public abstract class AbstractDdlReveng {
 //            return sQuote + inputSchema + eQuote + "." + sQuote + objectName + eQuote;
     }
 
-    protected String replaceSchemaSubschemaObject(String inputSchema, String inputSubschema, String objectName, String sQuote, String eQuote) {
+    private String replaceSchemaSubschemaObject(String inputSchema, String inputSubschema, String objectName, String sQuote, String eQuote) {
         return objectName;
 //            return sQuote + inputSchema + eQuote + "." + sQuote + inputSubschema + eQuote + "." + sQuote + objectName + eQuote;
     }
@@ -552,7 +551,7 @@ public abstract class AbstractDdlReveng {
     /**
      * TODO move to Sybase subclass.
      */
-    public String removeQuotesFromProcxmode(String input) {
+    private String removeQuotesFromProcxmode(String input) {
         Pattern compile = Pattern.compile("sp_procxmode '(?:\")(.*?)(?:\")'", Pattern.DOTALL);
 
         Matcher matcher = compile.matcher(input);
@@ -590,17 +589,16 @@ public abstract class AbstractDdlReveng {
             tokens.put(key, value);
         }
 
-        public LineParseOutput withToken(String key, String value) {
+        LineParseOutput withToken(String key, String value) {
             tokens.put(key, value);
             return this;
         }
     }
 
     public enum NamePatternType {
-        ONE (1),
-        TWO (2),
-        THREE (3),
-        ;
+        ONE(1),
+        TWO(2),
+        THREE(3),;
 
         private final int numParts;
 
@@ -608,7 +606,7 @@ public abstract class AbstractDdlReveng {
             this.numParts = numParts;
         }
 
-        public Integer getSchemaIndex(int groupIndex) {
+        Integer getSchemaIndex(int groupIndex) {
             switch (numParts) {
             case 2:
                 return groupIndex * numParts - 1;
@@ -619,7 +617,7 @@ public abstract class AbstractDdlReveng {
             }
         }
 
-        public Integer getSubSchemaIndex(int groupIndex) {
+        Integer getSubSchemaIndex(int groupIndex) {
             switch (numParts) {
             case 3:
                 return groupIndex * numParts - 1;
@@ -628,7 +626,7 @@ public abstract class AbstractDdlReveng {
             }
         }
 
-        public int getObjectIndex(int groupIndex) {
+        int getObjectIndex(int groupIndex) {
             return groupIndex * numParts;
         }
     }
@@ -667,7 +665,7 @@ public abstract class AbstractDdlReveng {
             this.annotation = annotation;
         }
 
-        public String getChangeType() {
+        String getChangeType() {
             return changeType;
         }
 
@@ -687,18 +685,18 @@ public abstract class AbstractDdlReveng {
             return secondaryNameIndex;
         }
 
-        public String getAnnotation() {
+        String getAnnotation() {
             return annotation;
         }
 
-        public MutableList<Function<String, LineParseOutput>> getPostProcessSqls() {
+        MutableList<Function<String, LineParseOutput>> getPostProcessSqls() {
             return postProcessSqls;
         }
 
         /**
          * See {@link #withSuggestedOrder(Integer)}.
          */
-        public Integer getSuggestedOrder() {
+        Integer getSuggestedOrder() {
             return suggestedOrder;
         }
 
@@ -741,7 +739,6 @@ public abstract class AbstractDdlReveng {
                     if (subSchema == null) {
                         subSchema = getme(matcher, namePatternType.getSubSchemaIndex(secondaryNameIndex));
                     }
-
                 }
                 return new RevengPatternOutput(this, primaryName, secondaryName, schema, subSchema, input);
             }
@@ -771,7 +768,7 @@ public abstract class AbstractDdlReveng {
         private final String subSchema;
         private final String revisedLine;
 
-        public RevengPatternOutput(RevengPattern revengPattern, String primaryName, String secondaryName, String schema, String subSchema, String revisedLine) {
+        RevengPatternOutput(RevengPattern revengPattern, String primaryName, String secondaryName, String schema, String subSchema, String revisedLine) {
             this.revengPattern = revengPattern;
             this.primaryName = primaryName;
             this.secondaryName = secondaryName;
@@ -780,7 +777,7 @@ public abstract class AbstractDdlReveng {
             this.revisedLine = revisedLine;
         }
 
-        public RevengPattern getRevengPattern() {
+        RevengPattern getRevengPattern() {
             return revengPattern;
         }
 
@@ -788,15 +785,15 @@ public abstract class AbstractDdlReveng {
             return primaryName;
         }
 
-        public String getSecondaryName() {
+        String getSecondaryName() {
             return secondaryName;
         }
 
-        public String getSchema() {
+        String getSchema() {
             return schema;
         }
 
-        public String getSubSchema() {
+        String getSubSchema() {
             return subSchema;
         }
 

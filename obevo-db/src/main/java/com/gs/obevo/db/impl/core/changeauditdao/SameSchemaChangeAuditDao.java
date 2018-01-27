@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -30,7 +30,6 @@ import com.gs.obevo.api.appdata.ObjectKey;
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.api.platform.DeployExecutionDao;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.appdata.Grant;
@@ -42,6 +41,7 @@ import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
 import com.gs.obevo.dbmetadata.api.DaSchemaInfoLevel;
 import com.gs.obevo.dbmetadata.api.DaTable;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
+import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.util.VisibleForTesting;
 import com.gs.obevo.util.knex.InternMap;
 import org.apache.commons.dbutils.handlers.MapListHandler;
@@ -69,27 +69,27 @@ import org.slf4j.LoggerFactory;
  */
 public class SameSchemaChangeAuditDao implements ChangeAuditDao {
     private static final Logger LOG = LoggerFactory.getLogger(SameSchemaChangeAuditDao.class);
-    protected static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+    private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
 
-    protected final SqlExecutor sqlExecutor;
-    protected final DbEnvironment env;
-    protected final DbMetadataManager dbMetadataManager;
-    protected final String deployUserId;
+    private final SqlExecutor sqlExecutor;
+    private final DbEnvironment env;
+    private final DbMetadataManager dbMetadataManager;
+    private final String deployUserId;
     private final SameSchemaDeployExecutionDao deployExecutionDao;
     private final ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry;
 
-    protected final String dbChangeTable;
-    protected final String changeNameColumn;
-    protected final String changeTypeColumn;
-    protected final String deployUserIdColumn;
-    protected final String timeInsertedColumn;
-    protected final String timeUpdatedColumn;
-    protected final String rollbackContentColumn;
-    protected final String insertDeployExecutionIdColumn;
-    protected final String updateDeployExecutionIdColumn;
+    private final String dbChangeTable;
+    private final String changeNameColumn;
+    private final String changeTypeColumn;
+    private final String deployUserIdColumn;
+    private final String timeInsertedColumn;
+    private final String timeUpdatedColumn;
+    private final String rollbackContentColumn;
+    private final String insertDeployExecutionIdColumn;
+    private final String updateDeployExecutionIdColumn;
 
     // older version of static data
-    protected static final String OLD_STATICDATA_CHANGETYPE = "METADATA";
+    private static final String OLD_STATICDATA_CHANGETYPE = "METADATA";
 
     public SameSchemaChangeAuditDao(DbEnvironment env, SqlExecutor sqlExecutor, DbMetadataManager dbMetadataManager,
             String deployUserId, DeployExecutionDao deployExecutionDao, ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry) {
@@ -141,13 +141,13 @@ public class SameSchemaChangeAuditDao implements ChangeAuditDao {
             // We only grant SELECT access to PUBLIC so that folks can read the audit table without DBO permission
             // (we don't grant R/W access, as we assume whatever login that executes deployments already has DBO access,
             // and so can modify this table)
-            DbChangeTypeBehavior tableChangeType = (DbChangeTypeBehavior)changeTypeBehaviorRegistry.getChangeTypeBehavior(ChangeType.TABLE_STR);
+            DbChangeTypeBehavior tableChangeType = (DbChangeTypeBehavior) changeTypeBehaviorRegistry.getChangeTypeBehavior(ChangeType.TABLE_STR);
 
             tableChangeType.applyGrants(conn, physicalSchema, dbChangeTable, Lists.immutable.with(new Permission("artifacTable",
                     Lists.immutable.with(new Grant(Lists.immutable.with("SELECT"), Multimaps.immutable.list.with(GrantTargetType.PUBLIC, "PUBLIC"))))));
         } else {
             // We will still grant this here to make up for the existing DBs that did not have the grants given
-            DbChangeTypeBehavior tableChangeType = (DbChangeTypeBehavior)changeTypeBehaviorRegistry.getChangeTypeBehavior(ChangeType.TABLE_STR);
+            DbChangeTypeBehavior tableChangeType = (DbChangeTypeBehavior) changeTypeBehaviorRegistry.getChangeTypeBehavior(ChangeType.TABLE_STR);
 
             String schemaPlusTable = env.getPlatform().getSubschemaPrefix(physicalSchema) + dbChangeTable;
 
@@ -447,11 +447,11 @@ public class SameSchemaChangeAuditDao implements ChangeAuditDao {
         );
     }
 
-    protected Timestamp getCurrentTimestamp() {
+    private Timestamp getCurrentTimestamp() {
         return new Timestamp(new DateTime().getMillis());
     }
 
-    protected String resolveColumnName(String colName) {
+    private String resolveColumnName(String colName) {
         return colName;
     }
 }

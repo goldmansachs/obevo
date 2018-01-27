@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -27,11 +27,11 @@ import com.gs.obevo.api.platform.Platform;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.platform.DbDeployerAppContext;
 import com.gs.obevo.db.api.platform.DbPlatform;
-import com.gs.obevo.impl.util.MultiLineStringSplitter;
 import com.gs.obevo.dbmetadata.api.DaCatalog;
 import com.gs.obevo.dbmetadata.api.DaSchemaInfoLevel;
 import com.gs.obevo.dbmetadata.api.RuleBinding;
 import com.gs.obevo.impl.changetypes.UnclassifiedChangeType;
+import com.gs.obevo.impl.util.MultiLineStringSplitter;
 import com.gs.obevo.util.FileUtilsCobra;
 import com.gs.obevo.util.inputreader.Credential;
 import com.gs.obevo.util.inputreader.CredentialReader;
@@ -59,15 +59,12 @@ import org.eclipse.collections.impl.tuple.Tuples;
 
 public class AquaRevengMain {
     private static final CredentialReader credentialReader = new CredentialReader();
-    public static final FileFilter VCS_FILE_FILTER = FileFilterUtils.makeCVSAware(
+    private static final FileFilter VCS_FILE_FILTER = FileFilterUtils.makeCVSAware(
             FileFilterUtils.makeSVNAware(
                     FileFilterUtils.trueFileFilter()));
 
     private boolean tablespaceToken;
     private boolean preprocessSchemaTokens;
-    /**
-     * @deprecated
-     */
     @Deprecated
     private boolean tokenizeDefaultSchema;
     private boolean generateBaseline;
@@ -166,8 +163,7 @@ public class AquaRevengMain {
                 .withKeyValue(ChangeType.DEFAULT_STR, Pattern.compile("(?i)create\\s+default\\s+(\\w+)", Pattern.DOTALL))
                 .withKeyValue(ChangeType.RULE_STR, Pattern.compile("(?i)create\\s+rule\\s+(\\w+)", Pattern.DOTALL))
                 .withKeyValue(ChangeType.USERTYPE_STR, Pattern.compile("(?i)^\\s*sp_addtype\\s+", Pattern.DOTALL))
-                .withKeyValue(ChangeType.INDEX_STR, Pattern.compile("(?i)create\\s+(?:unique\\s+)?(?:\\w+\\s+)?index\\s+\\w+\\s+on\\s+(\\w+)", Pattern.DOTALL))
-        ;
+                .withKeyValue(ChangeType.INDEX_STR, Pattern.compile("(?i)create\\s+(?:unique\\s+)?(?:\\w+\\s+)?index\\s+\\w+\\s+on\\s+(\\w+)", Pattern.DOTALL));
 
         MutableMap<ChangeType, Pattern> patternMap = Maps.mutable.<ChangeType, Pattern>with();
         for (String changeTypeName : params.keysView()) {
@@ -238,10 +234,6 @@ public class AquaRevengMain {
                         file.getName(), false), wholeFileString, "n/a", null, 0));
             }
         }
-        //public RevEngDestination(String content, ChangeType dbObjectType, String schema, String objectName,
-        //boolean duplicate, int order) {
-
-
 
         ChangeTypeInfo contentObjectInfo = this.determineChangeType(wholeFileString);
         ChangeType objType = contentObjectInfo.getChangeType();
@@ -456,7 +448,7 @@ public class AquaRevengMain {
         private final int startIndex;
         private final String objectName;
 
-        public static final Function<ChangeTypeInfo, Integer> TO_START_INDEX = new Function<ChangeTypeInfo, Integer>() {
+        static final Function<ChangeTypeInfo, Integer> TO_START_INDEX = new Function<ChangeTypeInfo, Integer>() {
             @Override
             public Integer valueOf(ChangeTypeInfo object) {
                 return object.getStartIndex();
@@ -469,15 +461,15 @@ public class AquaRevengMain {
             this.objectName = objectName;
         }
 
-        public ChangeType getChangeType() {
+        ChangeType getChangeType() {
             return this.changeType;
         }
 
-        public int getStartIndex() {
+        int getStartIndex() {
             return this.startIndex;
         }
 
-        public String getObjectName() {
+        String getObjectName() {
             return this.objectName;
         }
     }

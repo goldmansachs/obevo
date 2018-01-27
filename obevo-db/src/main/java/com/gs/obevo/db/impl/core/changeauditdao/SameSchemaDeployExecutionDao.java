@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -27,7 +27,6 @@ import com.gs.obevo.api.appdata.DeployExecutionImpl;
 import com.gs.obevo.api.appdata.DeployExecutionStatus;
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.api.platform.DeployExecutionDao;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.appdata.Grant;
@@ -40,6 +39,7 @@ import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
 import com.gs.obevo.dbmetadata.api.DaSchemaInfoLevel;
 import com.gs.obevo.dbmetadata.api.DaTable;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
+import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.util.VisibleForTesting;
 import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -153,7 +153,7 @@ public class SameSchemaDeployExecutionDao implements DeployExecutionDao {
     }
 
     private void init(Connection conn, PhysicalSchema physicalSchema) {
-        DbChangeTypeBehavior tableChangeType = (DbChangeTypeBehavior)changeTypeBehaviorRegistry.getChangeTypeBehavior(ChangeType.TABLE_STR);
+        DbChangeTypeBehavior tableChangeType = (DbChangeTypeBehavior) changeTypeBehaviorRegistry.getChangeTypeBehavior(ChangeType.TABLE_STR);
 
         if (!isDaoInitialized(physicalSchema)) {
             // create main table
@@ -185,7 +185,6 @@ public class SameSchemaDeployExecutionDao implements DeployExecutionDao {
                 // let's now try to backfill the column, but it's tricky as we may be missing some information
                 backfillDbSchemaColumn(conn, physicalSchema);
             }
-
         }
 
         Long maxId = getMaxId(conn, physicalSchema);
@@ -230,7 +229,7 @@ public class SameSchemaDeployExecutionDao implements DeployExecutionDao {
      * We keep in separate methods to allow for easy testing of the upgrades in SameSchemaChangeAuditDaoTest for different DBMSs
      */
     @VisibleForTesting
-    String get5_3TableSql(PhysicalSchema physicalSchema) {
+    private String get5_3TableSql(PhysicalSchema physicalSchema) {
         return "CREATE TABLE " + platform.getSchemaPrefix(physicalSchema) + deployExecutionTableName + " (" +
                 idColName + " " + platform.getBigIntType() + " NOT NULL," +
                 statusColName + " CHAR(1) NOT NULL," +
@@ -349,7 +348,6 @@ public class SameSchemaDeployExecutionDao implements DeployExecutionDao {
                 return getDeployExecutions(conn, schema, null);
             }
         });
-
     }
 
     @Override

@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -58,7 +58,6 @@ public class OnboardingDeployTest {
         assertTrue(new File(destDir, "SCHEMA1/view/exceptions/VIEW_WITH_ERROR.sql").exists());
         assertTrue(new File(destDir, "SCHEMA1/view/dependentOnExceptions/VIEW_DEPENDING_ON_BAD_VIEW.sql").exists());
 
-
         LOG.info("Part 2 - rerun the deploy and ensure the data remains as is");
         deployContext = DbEnvironmentFactory.getInstance().readOneFromSourcePath(destDir.getAbsolutePath(), "test")
                 .buildAppContext();
@@ -77,7 +76,6 @@ public class OnboardingDeployTest {
         assertTrue(new File(destDir, "SCHEMA1/table/exceptions/TABLE_WITH_ERROR.ddl").exists());
         assertTrue(new File(destDir, "SCHEMA1/view/exceptions/VIEW_WITH_ERROR.sql").exists());
         assertTrue(new File(destDir, "SCHEMA1/view/dependentOnExceptions/VIEW_DEPENDING_ON_BAD_VIEW.sql").exists());
-
 
         LOG.info("Part 3 - fix the view and verify that it is moved back to the regular folder");
         FileUtils.copyFile(new File(srcDir, "VIEW_WITH_ERROR.corrected.sql"), new File(destDir, "SCHEMA1/view/exceptions/VIEW_WITH_ERROR.sql"));

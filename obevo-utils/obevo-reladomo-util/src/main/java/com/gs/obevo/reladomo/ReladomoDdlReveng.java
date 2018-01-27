@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -28,7 +28,8 @@ import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.impl.block.factory.StringPredicates;
 import org.eclipse.collections.impl.factory.Lists;
 
-class ReladomoDdlReveng extends AbstractDdlReveng {
+public class ReladomoDdlReveng extends AbstractDdlReveng {
+    @SuppressWarnings("WeakerAccess")
     public ReladomoDdlReveng(DbPlatform dbPlatform) {
         super(dbPlatform,
                 new MultiLineStringSplitter(getSplitterToken(dbPlatform), false),
@@ -42,8 +43,6 @@ class ReladomoDdlReveng extends AbstractDdlReveng {
     /**
      * The splitter is generated differently in Reladomo per DBMS type. We have to read Reladomo code to
      * find this out (see class AbstractGeneratorDatabaseType in Reladomo).
-     * @param dbPlatform
-     * @return
      */
     private static String getSplitterToken(DbPlatform dbPlatform) {
         if ("ORACLE".equalsIgnoreCase(dbPlatform.getName())) {
@@ -55,7 +54,7 @@ class ReladomoDdlReveng extends AbstractDdlReveng {
         }
     }
 
-    static ImmutableList<RevengPattern> getRevengPatterns() {
+    private static ImmutableList<RevengPattern> getRevengPatterns() {
         String schemaNameSubPattern = getObjectPattern("", "");
         NamePatternType namePatternType = NamePatternType.ONE;
         return Lists.immutable.with(

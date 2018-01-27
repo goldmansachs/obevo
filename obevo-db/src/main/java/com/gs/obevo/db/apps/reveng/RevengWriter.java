@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -83,6 +83,7 @@ public class RevengWriter {
         };
     }
 
+    @SuppressWarnings("WeakerAccess")
     public RevengWriter() {
         this.templateConfig = new Configuration();
 
@@ -163,7 +164,7 @@ public class RevengWriter {
                             if (prevChange == null || !prevChange.equals(changeEntry.getName())) {
                                 lines.add(String.format("//// CHANGE%1$s name=%2$s"
                                         , StringUtils.isNotEmpty(changeEntry.getChangeAnnotation())
-                                        ? " " + changeEntry.getChangeAnnotation() : ""
+                                                ? " " + changeEntry.getChangeAnnotation() : ""
                                         , changeEntry.getName()));
                             }
 

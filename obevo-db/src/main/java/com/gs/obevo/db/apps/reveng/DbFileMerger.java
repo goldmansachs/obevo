@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -42,7 +42,7 @@ import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.tuple.Tuples;
 
 public class DbFileMerger {
-    public static class FileComparison {
+    static class FileComparison {
         private final String schemaName;
         private final String name;
         private final MutableSet<String> distinctValues = Sets.mutable.of();
@@ -51,53 +51,53 @@ public class DbFileMerger {
         private final MutableList<Pair<String, FileObject>> filePairs = Lists.mutable.empty();
         private int count = 0;
 
-        public FileComparison(String schemaName, ChangeType changeType, String name) {
+        FileComparison(String schemaName, ChangeType changeType, String name) {
             this.schemaName = schemaName;
             this.name = name;
             this.changeType = changeType;
         }
 
-        public String getSchemaName() {
+        String getSchemaName() {
             return this.schemaName;
         }
 
-        public String getName() {
+        String getName() {
             return this.name;
         }
 
-        public MutableSet<String> getDistinctValues() {
+        MutableSet<String> getDistinctValues() {
             return this.distinctValues;
         }
 
-        public void addDistinctValue(String distinctValue) {
+        void addDistinctValue(String distinctValue) {
             this.distinctValues.add(distinctValue);
         }
 
-        public MutableList<String> getContentValues() {
+        MutableList<String> getContentValues() {
             return this.contentValues;
         }
 
-        public void addContentValues(String contentValues) {
+        void addContentValues(String contentValues) {
             this.contentValues.add(contentValues);
         }
 
-        public int getCount() {
+        int getCount() {
             return this.count;
         }
 
-        public void incrementCount() {
+        void incrementCount() {
             this.count++;
         }
 
-        public ChangeType getChangeType() {
+        ChangeType getChangeType() {
             return this.changeType;
         }
 
-        public MutableList<Pair<String, FileObject>> getFilePairs() {
+        MutableList<Pair<String, FileObject>> getFilePairs() {
             return this.filePairs;
         }
 
-        public void addFilePair(Pair<String, FileObject> filePair) {
+        void addFilePair(Pair<String, FileObject> filePair) {
             this.filePairs.add(filePair);
         }
 
@@ -155,7 +155,7 @@ public class DbFileMerger {
         }
     }
 
-    public void generateDiffs(DbPlatform dialect, MutableCollection<DbMergeInfo> dbNameLocationPairs, File outputDir) {
+    private void generateDiffs(DbPlatform dialect, MutableCollection<DbMergeInfo> dbNameLocationPairs, File outputDir) {
         System.out.println("Generating diffs for " + dbNameLocationPairs);
         MultiKeyMap objectMap = new MultiKeyMap();
         for (DbMergeInfo dbNameLocationPair : dbNameLocationPairs) {

@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,10 +16,10 @@
 package com.gs.obevo.dbmetadata.api;
 
 import com.gs.obevo.api.appdata.PhysicalSchema;
+import com.gs.obevo.dbmetadata.deepcompare.CompareBreak;
 import com.gs.obevo.dbmetadata.impl.DbMetadataDialect;
 import com.gs.obevo.dbmetadata.impl.DbMetadataManagerImpl;
 import com.gs.obevo.dbmetadata.impl.dialects.H2MetadataDialect;
-import com.gs.obevo.dbmetadata.deepcompare.CompareBreak;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;
 import org.eclipse.collections.api.collection.MutableCollection;

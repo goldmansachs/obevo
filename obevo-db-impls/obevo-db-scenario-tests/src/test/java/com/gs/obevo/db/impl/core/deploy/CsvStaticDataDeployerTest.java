@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -30,7 +30,6 @@ import com.gs.obevo.db.api.platform.SqlExecutor;
 import com.gs.obevo.db.impl.core.changetypes.CsvStaticDataDeployer;
 import com.gs.obevo.db.impl.core.jdbc.JdbcDataSourceFactory;
 import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
-import com.gs.obevo.impl.reader.TextMarkupDocumentReader;
 import com.gs.obevo.db.impl.platforms.h2.H2DbPlatform;
 import com.gs.obevo.db.impl.platforms.h2.H2JdbcDataSourceFactory;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
@@ -38,6 +37,7 @@ import com.gs.obevo.dbmetadata.impl.DbMetadataDialect;
 import com.gs.obevo.dbmetadata.impl.DbMetadataManagerImpl;
 import com.gs.obevo.dbmetadata.impl.dialects.H2MetadataDialect;
 import com.gs.obevo.impl.ExecuteChangeCommand;
+import com.gs.obevo.impl.reader.TextMarkupDocumentReader;
 import com.gs.obevo.util.inputreader.Credential;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.handlers.MapListHandler;
@@ -83,11 +83,10 @@ public class CsvStaticDataDeployerTest {
     @After
     public void teardown() {
         DbUtils.closeQuietly(conn);
-
     }
 
-    /** Used to test for overriding primary key requirement with //// METADATA primaryKeys = col1,col2,col3
-     *
+    /**
+     * Used to test for overriding primary key requirement with //// METADATA primaryKeys = col1,col2,col3
      */
     @Test
     public void testPrimaryKey() {
@@ -145,6 +144,7 @@ public class CsvStaticDataDeployerTest {
     public void testNormalInsertAndDeleteUseCase() {
         this.testNormalInsertAndDeleteUseCase(false);
     }
+
     /**
      * This use case is here to simulate if we wrote the CSV files for a case-sensitive DB like Sybase ASE, but then
      * we do the translation to run in H2, which is case-INsensitive. So we need to ensure that this still works
@@ -175,7 +175,6 @@ public class CsvStaticDataDeployerTest {
         when(artifact.getObjectName()).thenReturn(table);
         when(artifact.getMetadataAttribute(TextMarkupDocumentReader.ATTR_UPDATE_TIME_COLUMN)).thenReturn(
                 "UPDATETIMEFIELD");
-
 
         String columnHeaders = "aId^bId^stringField^timestampField^cId";
         if (!caseSensitiveCsv) {
@@ -248,7 +247,7 @@ public class CsvStaticDataDeployerTest {
     public ExpectedException expectedEx = ExpectedException.none();
 
     @Test
-    public void testMissingPrimaryKeys(){
+    public void testMissingPrimaryKeys() {
         expectedEx.expect(IllegalStateException.class);
         expectedEx.expectMessage("Require a primary key or unique index on table " + table.toUpperCase()
                 + " to support CSV-based static data support");
@@ -274,14 +273,13 @@ public class CsvStaticDataDeployerTest {
 
         CsvStaticDataDeployer csvStaticDataDeployer = new CsvStaticDataDeployer(env, getSqlExecutor(), this.ds, metadataManager, new H2DbPlatform());
         csvStaticDataDeployer.deployArtifact(artifact);
-
     }
 
     /**
      * test the case where table created with a primary key but user specifies override tag as well
      */
     @Test
-    public void testOverrideAndPrimaryKey(){
+    public void testOverrideAndPrimaryKey() {
         expectedEx.expect(IllegalStateException.class);
         expectedEx.expectMessage("Cannot specify primary key and override tag on table " + table.toUpperCase()
                 + " to support CSV-based static data support");

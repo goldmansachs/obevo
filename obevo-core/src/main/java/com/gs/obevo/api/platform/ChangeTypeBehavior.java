@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -15,11 +15,11 @@
  */
 package com.gs.obevo.api.platform;
 
+import com.gs.obevo.api.appdata.Change;
+
 /**
  * Defines the behavior for deploying a change. This class will be Platform-specific.
  */
-import com.gs.obevo.api.appdata.Change;
-
 public interface ChangeTypeBehavior {
     /**
      * Deploys the given change.
@@ -36,7 +36,7 @@ public interface ChangeTypeBehavior {
      *
      * @param change The change to drop
      * @param dropForRecreate whether the drop is being called to recreate the object (thus will hide exceptions at the
-     *                        moment), or a permanent drop
+     * moment), or a permanent drop
      */
     void dropObject(Change change, boolean dropForRecreate);
 

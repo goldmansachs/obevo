@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -45,7 +45,7 @@ public class HsqlJdbcDataSourceFactory extends JdbcDataSourceFactory {
         return getUrl(dbName, false);
     }
 
-    public static String getUrl(final String dbName, final boolean persistToFile) {
+    private static String getUrl(final String dbName, final boolean persistToFile) {
         String key = dbName + ":" + persistToFile;
         return dbNameToFileUrlMap.getIfAbsentPut(key, new Function0<String>() {
             @Override

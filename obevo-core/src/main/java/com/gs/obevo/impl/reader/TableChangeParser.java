@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -138,7 +138,6 @@ public class TableChangeParser extends AbstractDbChangeFileParser {
         ImmutableList<Pair<String, ImmutableList<Change>>> fileToChangePairs = templateParamsList.collect(new Function<MapIterable<String, String>, Pair<String, ImmutableList<Change>>>() {
             @Override
             public Pair<String, ImmutableList<Change>> valueOf(MapIterable<String, String> templateParams) {
-
                 Tokenizer tokenizer = new Tokenizer(templateParams, "${", "}");
 
                 final String objectName = tokenizer.tokenizeString(nonTokenizedObjectName);
@@ -154,7 +153,6 @@ public class TableChangeParser extends AbstractDbChangeFileParser {
 
                             @Override
                             public Change valueOf(TextMarkupDocumentSection section) {
-
                                 ChangeIncremental change = value(tableChangeType, section, schema, objectName, this.i++);
                                 ImmutableList<ArtifactRestrictions> changeLevelRestrictions = new DbChangeRestrictionsReader().valueOf(section);
                                 change.setRestrictions(mergeRestrictions(fileLevelRestrictions, changeLevelRestrictions));
@@ -247,7 +245,6 @@ public class TableChangeParser extends AbstractDbChangeFileParser {
         Validate.isTrue(doc.getSections().get(0).getName() != null || contentEmpty,
                 "First content of the file must be the //// CHANGE line, or a //// "
                         + TextMarkupDocumentReader.TAG_METADATA + " line, or just a blank");
-
     }
 
     /**
@@ -267,7 +264,7 @@ public class TableChangeParser extends AbstractDbChangeFileParser {
                 .toList().toImmutable();
     }
 
-    public ChangeIncremental value(ChangeType tableChangeType, TextMarkupDocumentSection section, String schema, String objectName,
+    private ChangeIncremental value(ChangeType tableChangeType, TextMarkupDocumentSection section, String schema, String objectName,
             int changeIndex) {
         ChangeType changeType = getChangeType.getChangeType(section, tableChangeType);
         boolean drop = section.isTogglePresent(TOGGLE_DROP_TABLE);

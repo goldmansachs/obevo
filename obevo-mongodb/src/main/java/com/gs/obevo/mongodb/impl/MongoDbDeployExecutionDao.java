@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -118,7 +118,6 @@ public class MongoDbDeployExecutionDao implements DeployExecutionDao {
 //            nextIdBySchema.get(physicalSchema).setValue(maxId != null ? maxId.longValue() + 1 : 1);
             // TODO set this value from DB
         }
-
     }
 
     @Override
@@ -128,7 +127,7 @@ public class MongoDbDeployExecutionDao implements DeployExecutionDao {
 
         MutableInt mutableInt = nextIdBySchema.get(physicalSchema);
         mutableInt.increment();
-        ((DeployExecutionImpl)deployExecution).setId(mutableInt.longValue());
+        ((DeployExecutionImpl) deployExecution).setId(mutableInt.longValue());
         Document doc = getDocumentFromDeployExecution(deployExecution, false);
         auditCollection.insertOne(doc);
     }

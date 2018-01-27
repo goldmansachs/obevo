@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -52,6 +52,7 @@ public class DeployerArgs {
     private String productVersion;
     /**
      * No longer used.
+     *
      * @deprecated see {@link #strictSetupEnvInfra}
      */
     @Deprecated
@@ -284,24 +285,30 @@ public class DeployerArgs {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("DeployerArgs [");
-        if (envNames != null)
+        if (envNames != null) {
             builder.append("envNames=").append(Arrays.toString(envNames)).append(", ");
-        if (actions != null)
+        }
+        if (actions != null) {
             builder.append("actions=").append(Arrays.toString(actions)).append(", ");
+        }
         builder.append("setupEnvInfra=").append(setupEnvInfra).append(", setupEnvInfraOnly=").append(setupEnvInfraOnly)
                 .append(", cleanFirst=").append(cleanFirst).append(", cleanOnly=").append(cleanOnly)
                 .append(", noPrompt=").append(noPrompt).append(", useBaseline=").append(useBaseline)
                 .append(", onboardingMode=").append(onboardingMode)
                 .append(", ");
-        if (includeFile != null)
+        if (includeFile != null) {
             builder.append("includeFile=").append(includeFile).append(", ");
+        }
         builder.append("useKerberosAuth=").append(useKerberosAuth).append(", ");
-        if (sourcePath != null)
+        if (sourcePath != null) {
             builder.append("sourcePath=").append(sourcePath).append(", ");
-        if (workDir != null)
+        }
+        if (workDir != null) {
             builder.append("workDir=").append(workDir).append(", ");
-        if (deployUserId != null)
+        }
+        if (deployUserId != null) {
             builder.append("deployUserId=").append(deployUserId).append(", ");
+        }
         builder.append("performInitOnly=").append(performInitOnly).append(", preview=").append(preview)
                 .append(", rollback=").append(rollback).append(", ");
         builder.append("]");
@@ -355,17 +362,21 @@ public class DeployerArgs {
 
     /**
      * No longer used, as this is lenient by default.
+     *
      * @deprecated See {@link #isStrictSetupEnvInfra()}
      */
+    @Deprecated
     public boolean isLenientSetupEnvInfra() {
         return lenientSetupEnvInfra;
     }
 
     /**
      * No longer used, as this is lenient by default.
+     *
      * @deprecated See {@link #isStrictSetupEnvInfra()}
      */
     @Argument(value = "lenientSetupEnvInfra", description = "Deprecated - the setupEnvironmentInfra command is now lenient by default. See the -strictSetupEnvInfra option instead if you'd like it strict")
+    @Deprecated
     public void setLenientSetupEnvInfra(boolean lenientSetupEnvInfra) {
         this.lenientSetupEnvInfra = lenientSetupEnvInfra;
     }

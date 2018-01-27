@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -44,7 +44,10 @@ import org.jgrapht.traverse.DepthFirstIterator;
 /**
  * Utility class to work w/ graphs in the JGraphT library. There are a couple usages that need syntax sugar...
  */
-public class GraphUtil {
+final class GraphUtil {
+    private GraphUtil() {
+    }
+
     public static <T> SetIterable<T> getDependentNodes(final DirectedGraph<T, DefaultEdge> graph, T vertex) {
         return SetAdapter.adapt(graph.outgoingEdgesOf(vertex)).collect(new Function<DefaultEdge, T>() {
             @Override
@@ -89,6 +92,7 @@ public class GraphUtil {
                     DepthFirstIterator<T, E> iterator = new DepthFirstIterator<T, E>(cycleSubgraph) {
                         boolean started = false;
                         boolean afterCycle = false;
+
                         @Override
                         protected void encounterVertex(T vertex, E edge) {
                             if (!started) {

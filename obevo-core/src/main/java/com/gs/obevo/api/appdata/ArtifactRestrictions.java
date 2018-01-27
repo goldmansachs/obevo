@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -30,7 +30,7 @@ public abstract class ArtifactRestrictions implements Predicate<Environment> {
     private final MutableSet<String> includes;
     private final MutableSet<String> excludes;
 
-    public ArtifactRestrictions(MutableSet<String> includes, MutableSet<String> excludes) {
+    ArtifactRestrictions(MutableSet<String> includes, MutableSet<String> excludes) {
         this.includes = includes == null ? UnifiedSet.<String>newSet() : includes;
         this.excludes = excludes == null ? UnifiedSet.<String>newSet() : excludes;
 
@@ -83,5 +83,4 @@ public abstract class ArtifactRestrictions implements Predicate<Environment> {
             }
         };
     }
-
 }

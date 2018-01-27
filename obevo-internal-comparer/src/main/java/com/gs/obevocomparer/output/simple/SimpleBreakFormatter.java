@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -41,9 +41,9 @@ public class SimpleBreakFormatter implements CatoContentFormatter {
     private static final String BREAK_TYPE = "Break Type";
     private static final String BREAK_GROUP = "Group";
 
-    protected final boolean excludeWriter;
+    private final boolean excludeWriter;
 
-    protected static final Logger LOG = LoggerFactory.getLogger(SimpleBreakFormatter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SimpleBreakFormatter.class);
 
     public SimpleBreakFormatter(boolean excludeWriter) {
         this.excludeWriter = excludeWriter;

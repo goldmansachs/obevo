@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -19,14 +19,14 @@ package com.gs.obevo.db.sqlparser.syntaxparser;
 
 public class SimpleNode implements Node {
 
-    protected Node parent;
-    protected Node[] children;
-    protected final int id;
-    protected Object value;  // not used?
-    protected SqlParser parser;
+    private Node parent;
+    private Node[] children;
+    private final int id;
+    private Object value;  // not used?
+    private SqlParser parser;
 
-    protected Token first;
-    protected Token last;  // new
+    private Token first;
+    private Token last;  // new
 
     public SimpleNode(int i) {
         this.id = i;
@@ -125,14 +125,14 @@ public class SimpleNode implements Node {
         return SqlParserTreeConstants.jjtNodeName[this.id];
     }
 
-    public String toString(String prefix) {
+    private String toString(String prefix) {
         return prefix + this.toString();
     }
 
   /* Override this method if you want to customize how the node dumps
      out its children. */
 
-    public void dump(String prefix) {
+    private void dump(String prefix) {
         System.out.println(this.toString(prefix));
         if (this.children != null) {
             for (int i = 0; i < this.children.length; ++i) {

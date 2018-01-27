@@ -6,7 +6,7 @@
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
 
-        http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on an
@@ -140,7 +140,8 @@
                         anywhere. But ensure that your code is committed)
                         <ul>
                             <li>However, from an SDLC perspective, this is not recommended. Please try to abide by your
-                            team's/firm's build and release practices.</li>
+                                team's/firm's build and release practices.
+                            </li>
                         </ul>
                     </li>
                 </ol>
@@ -201,7 +202,8 @@ $OBEVO_HOME/bin/deploy.bat DEPLOY -env prod -sourcePath /home/myuser/mypackage/1
                                 CHANGE
                             </li>
                             <li>Note: the ROLLBACK section should not be blank, as it will be ignored and not considered
-                            during rollback execution. This will be corrected in a future release.</li>
+                                during rollback execution. This will be corrected in a future release.
+                            </li>
                         </ul>
                     </li>
                 </ul>
@@ -221,7 +223,9 @@ GO
 ALTER TABLE TABLE_A DROP COLUMN C_ID
 GO]]></source>
                 <p>In case you are interested in the technical details behind this: {panel}First, let's review how
-                    regular deployments are done and changes detect (see <a href="design-walkthrough.html">Design Walkthrough</a> doc)
+                    regular deployments are done and changes detect (see <a
+                        href="design-walkthrough.html">Design Walkthrough
+                    </a> doc)
                 </p>
                 <ul>
                     <li>For stateless objects (sp, view, ...): when we detect a change between the source code and what
@@ -266,7 +270,8 @@ GO]]></source>
                     deployed in subsequent releases and in the UAT environments that you deployed to. If you want to
                     remove this
                     change entirely (i.e. not let it come back in the next release), see the section below for &quot;(Special
-                    Case) Undoing a table/incremental change permanently in non-prod or after rollback&quot;</p>
+                    Case) Undoing a table/incremental change permanently in non-prod or after rollback&quot;
+                </p>
             </subsection>
             <subsection name="Anti-Pattern Paradigm: Backing up individual tables before deployment">
                 <p>This involves creating a backup of the table during your deployment (e.g. MY<i>TABLE</i>BAK20141017),

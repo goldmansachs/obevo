@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -28,12 +28,10 @@ import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
 import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
-import com.gs.obevo.db.apps.reveng.ChangeEntry;
 import com.gs.obevo.db.impl.core.jdbc.JdbcDataSourceFactory;
 import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
 import com.gs.obevo.util.inputreader.Credential;
 import org.eclipse.collections.api.block.predicate.Predicate;
-import org.eclipse.collections.api.block.procedure.Procedure2;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.impl.block.factory.StringPredicates;
 import org.eclipse.collections.impl.factory.Lists;
@@ -68,7 +66,7 @@ public class HsqlReveng extends AbstractDdlReveng {
         setEndQuote(QUOTE);
     }
 
-    static ImmutableList<RevengPattern> getRevengPatterns() {
+    private static ImmutableList<RevengPattern> getRevengPatterns() {
         String schemaNameSubPattern = getSchemaObjectPattern(QUOTE, QUOTE);
         String schemaSysNamePattern = getSchemaObjectWithPrefixPattern(QUOTE, QUOTE, "SYS_");
         NamePatternType namePatternType = NamePatternType.TWO;
@@ -94,7 +92,6 @@ public class HsqlReveng extends AbstractDdlReveng {
         JdbcDataSourceFactory jdbcFactory = new HsqlJdbcDataSourceFactory();
         DataSource ds = jdbcFactory.createDataSource(env, new Credential(args.getUsername(), args.getPassword()), 1);
         JdbcHelper jdbc = new JdbcHelper(null, false);
-
 
         Path interim = new File(args.getOutputPath(), "interim").toPath();
         interim.toFile().mkdirs();

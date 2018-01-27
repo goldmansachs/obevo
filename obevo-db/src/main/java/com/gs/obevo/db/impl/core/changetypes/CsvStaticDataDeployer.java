@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -23,6 +23,20 @@ import java.util.Date;
 
 import javax.sql.DataSource;
 
+import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.PhysicalSchema;
+import com.gs.obevo.api.platform.DeployerRuntimeException;
+import com.gs.obevo.db.api.appdata.DbEnvironment;
+import com.gs.obevo.db.api.platform.DbPlatform;
+import com.gs.obevo.db.api.platform.SqlExecutor;
+import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
+import com.gs.obevo.dbmetadata.api.DaColumn;
+import com.gs.obevo.dbmetadata.api.DaIndex;
+import com.gs.obevo.dbmetadata.api.DaNamedObject;
+import com.gs.obevo.dbmetadata.api.DaSchemaInfoLevel;
+import com.gs.obevo.dbmetadata.api.DaTable;
+import com.gs.obevo.dbmetadata.api.DbMetadataManager;
+import com.gs.obevo.impl.reader.TextMarkupDocumentReader;
 import com.gs.obevocomparer.compare.CatoComparison;
 import com.gs.obevocomparer.compare.CatoProperties;
 import com.gs.obevocomparer.compare.breaks.Break;
@@ -31,20 +45,6 @@ import com.gs.obevocomparer.compare.breaks.FieldBreak;
 import com.gs.obevocomparer.compare.simple.SimpleCatoProperties;
 import com.gs.obevocomparer.input.CatoDataSource;
 import com.gs.obevocomparer.util.CatoBaseUtil;
-import com.gs.obevo.api.appdata.Change;
-import com.gs.obevo.api.appdata.PhysicalSchema;
-import com.gs.obevo.api.platform.DeployerRuntimeException;
-import com.gs.obevo.db.api.appdata.DbEnvironment;
-import com.gs.obevo.db.api.platform.DbPlatform;
-import com.gs.obevo.db.api.platform.SqlExecutor;
-import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
-import com.gs.obevo.impl.reader.TextMarkupDocumentReader;
-import com.gs.obevo.dbmetadata.api.DaColumn;
-import com.gs.obevo.dbmetadata.api.DaIndex;
-import com.gs.obevo.dbmetadata.api.DaNamedObject;
-import com.gs.obevo.dbmetadata.api.DaSchemaInfoLevel;
-import com.gs.obevo.dbmetadata.api.DaTable;
-import com.gs.obevo.dbmetadata.api.DbMetadataManager;
 import org.apache.commons.lang3.Validate;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.function.Function;
@@ -81,8 +81,8 @@ public class CsvStaticDataDeployer {
     private static final Logger LOG = LoggerFactory.getLogger(CsvStaticDataDeployer.class);
 
     private final DbEnvironment env;
-    protected final DbMetadataManager metadataManager;
-    protected final DbPlatform dbPlatform;
+    private final DbMetadataManager metadataManager;
+    private final DbPlatform dbPlatform;
     private final SqlExecutor sqlExecutor;
     protected final JdbcHelper jdbcTemplate;
     private final DataSource dataSource;
@@ -141,7 +141,7 @@ public class CsvStaticDataDeployer {
         }
     }
 
-    public final StaticDataChangeRows getStaticDataChangesForTable(DbEnvironment env, Change artifact) {
+    private StaticDataChangeRows getStaticDataChangesForTable(DbEnvironment env, Change artifact) {
         DaTable table = Validate.notNull(
                 this.metadataManager.getTableInfo(artifact.getPhysicalSchema(env), artifact.getObjectName(), new DaSchemaInfoLevel()
                                 .setRetrieveTables(true)
@@ -190,15 +190,13 @@ public class CsvStaticDataDeployer {
         boolean overrideKeys = keySpecified != null;
         ImmutableList<String> keyFields;
         DaIndex uniqueKey = this.getUniqueKey(table);
-        if(overrideKeys && uniqueKey == null){
+        if (overrideKeys && uniqueKey == null) {
             keyFields = Lists.immutable.with(artifact.getMetadataAttribute(TextMarkupDocumentReader.ATTR_PRIMARY_KEYS).split(","));
-        }
-        else if(overrideKeys && uniqueKey != null){
+        } else if (overrideKeys && uniqueKey != null) {
             throw new IllegalStateException("Cannot specify primary key and override tag on table " + table.getName()
                     + " to support CSV-based static data support");
-        }
-        else{
-            if(uniqueKey == null){
+        } else {
+            if (uniqueKey == null) {
                 throw new IllegalStateException("Require a primary key or unique index on table " + table.getName()
                         + " to support CSV-based static data support");
             }
@@ -358,7 +356,7 @@ public class CsvStaticDataDeployer {
     /**
      * See executeInserts javadoc for why we don't leverage batching here
      */
-    protected void executeUpdates(Connection conn, StaticDataChangeRows changeRows) {
+    private void executeUpdates(Connection conn, StaticDataChangeRows changeRows) {
         for (StaticDataUpdateRow update : changeRows.getUpdateRows()) {
             MutableList<String> updatePieces = Lists.mutable.empty();
             MutableList<String> whereClauseParts = Lists.mutable.empty();
@@ -387,7 +385,7 @@ public class CsvStaticDataDeployer {
     /**
      * See executeInserts javadoc for why we don't leverage batching here
      */
-    protected void executeDeletes(Connection conn, StaticDataChangeRows changeRows) {
+    private void executeDeletes(Connection conn, StaticDataChangeRows changeRows) {
         for (StaticDataDeleteRow delete : changeRows.getDeleteRows()) {
             MutableList<Object> paramVals = Lists.mutable.empty();
             MutableList<String> whereClauseParts = Lists.mutable.empty();
@@ -430,6 +428,5 @@ public class CsvStaticDataDeployer {
             return table.getPrimaryKey();
         }
         return null;
-
     }
 }

@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -29,9 +29,9 @@ import org.slf4j.LoggerFactory;
  * {@link DataSourceFactory} for the Sybase IQ implementation, which has additional complications compared to other
  * DBMS types:
  * <ul>
- *     <li>Returns an {@link IqDataSource} instead of a regular DataSource, as we need to have separate datasources and
- *     connections across IQ schemas due to a lack of a DBO account in typical cases</li>
- *     <li>Determining which driver to use, whether using JDBC or ODBC.</li>
+ * <li>Returns an {@link IqDataSource} instead of a regular DataSource, as we need to have separate datasources and
+ * connections across IQ schemas due to a lack of a DBO account in typical cases</li>
+ * <li>Determining which driver to use, whether using JDBC or ODBC.</li>
  * </ul>
  */
 public class IqJdbcDataSourceFactory implements DataSourceFactory {
@@ -49,7 +49,7 @@ public class IqJdbcDataSourceFactory implements DataSourceFactory {
         return new IqDataSource(env, credential, numThreads, subDataSourceFactory);
     }
 
-    protected IqDataSourceFactory determineSubDataSourceFactory(DbEnvironment env, Class<? extends Driver> driverClass) {
+    private IqDataSourceFactory determineSubDataSourceFactory(DbEnvironment env, Class<? extends Driver> driverClass) {
         for (IqDataSourceFactory factory : iqDsFactories) {
             if (factory.isDriverAccepted(driverClass)) {
                 return factory;

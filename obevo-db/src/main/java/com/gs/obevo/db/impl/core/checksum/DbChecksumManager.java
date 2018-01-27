@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -31,8 +31,8 @@ public interface DbChecksumManager {
      * Calculates the checksum differences between the actual database and the checksum audit table.
      *
      * @param checksumEntryInclusionPredicate Filter for only including certain objects from the actual database; this
-     *                                        is to handle cases of objects that are explicitly not managed in this
-     *                                        code base and thus should not add to the noise for checksums
+     * is to handle cases of objects that are explicitly not managed in this
+     * code base and thus should not add to the noise for checksums
      */
     ImmutableCollection<ChecksumBreak> determineChecksumDifferences(Predicate<? super ChecksumEntry> checksumEntryInclusionPredicate);
 

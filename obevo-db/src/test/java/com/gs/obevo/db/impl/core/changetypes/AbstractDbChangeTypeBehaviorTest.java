@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -18,7 +18,7 @@ package com.gs.obevo.db.impl.core.changetypes;
 /**
  * Test methods in DbChangeIncrementalCommand.
  */
-public class AbstractDbChangeTypeBehaviorTest {
+class AbstractDbChangeTypeBehaviorTest {
     
 /*  TODO put this back
     @Test
@@ -35,7 +35,7 @@ public class AbstractDbChangeTypeBehaviorTest {
     public void testShouldApplyGrantsWhenCommentsBeforeCreateTable() throws Exception {
         final ChangeIncremental artifact = mock(ChangeIncremental.class);
         when(artifact.getConvertedContent()).thenReturn("// Here's a comment\n*/
-/* and another one *//*
+    /* and another one *//*
 \ncreate table bar");
         when(artifact.getApplyGrants()).thenReturn(null);
 

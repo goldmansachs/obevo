@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -41,7 +41,7 @@ public class BaselineValidatorMain {
     private static final Logger LOG = LoggerFactory.getLogger(BaselineValidatorMain.class);
     private final DbMetadataComparisonUtil dbMetadataComparisonUtil = new DbMetadataComparisonUtil();
 
-    public static final Function<Class, String> CLASS_TO_NAME = new Function<Class, String>() {
+    private static final Function<Class, String> CLASS_TO_NAME = new Function<Class, String>() {
         @Override
         public String valueOf(Class object) {
             return object.getName();
@@ -52,7 +52,7 @@ public class BaselineValidatorMain {
         validateNoBaselineBreaks(appContext, Predicates.alwaysFalse());
     }
 
-    public void validateNoBaselineBreaks(DbDeployerAppContext appContext, Predicate<? super CompareBreak> breakIgnorePredicate) {
+    private void validateNoBaselineBreaks(DbDeployerAppContext appContext, Predicate<? super CompareBreak> breakIgnorePredicate) {
         MutableList<CompareBreak> sortedCompareBreaks = this.calculateBaselineBreaks(appContext).toList().sortThis(
                 Comparators.fromFunctions(
                         CompareBreak.TO_COMPARE_SUBJECT,

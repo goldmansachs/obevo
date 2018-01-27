@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -21,8 +21,6 @@ import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.doc.TextMarkupDocumentSection;
 import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
-import com.gs.obevo.impl.ChangeTypeBehaviorRegistry.ChangeTypeBehaviorRegistryBuilder;
 import com.gs.obevo.api.platform.DeployExecutionDao;
 import com.gs.obevo.api.platform.FileSourceContext;
 import com.gs.obevo.api.platform.FileSourceParams;
@@ -50,13 +48,15 @@ import com.gs.obevo.db.impl.core.envinfrasetup.NoOpEnvironmentInfraSetup;
 import com.gs.obevo.db.impl.core.jdbc.DataSourceFactory;
 import com.gs.obevo.db.impl.core.jdbc.SingleConnectionDataSource;
 import com.gs.obevo.db.impl.core.reader.BaselineTableChangeParser;
-import com.gs.obevo.impl.PrepareDbChange;
 import com.gs.obevo.db.impl.core.reader.PrepareDbChangeForDb;
-import com.gs.obevo.impl.reader.TableChangeParser.GetChangeType;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
+import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
+import com.gs.obevo.impl.ChangeTypeBehaviorRegistry.ChangeTypeBehaviorRegistryBuilder;
 import com.gs.obevo.impl.DeployerPlugin;
+import com.gs.obevo.impl.PrepareDbChange;
 import com.gs.obevo.impl.changepredicate.ChangeKeyPredicateBuilder;
 import com.gs.obevo.impl.context.AbstractDeployerAppContext;
+import com.gs.obevo.impl.reader.TableChangeParser.GetChangeType;
 import com.gs.obevo.util.CollectionUtil;
 import com.gs.obevo.util.inputreader.Credential;
 import org.apache.commons.lang3.Validate;
@@ -73,6 +73,7 @@ public abstract class DbDeployerAppContextImpl extends AbstractDeployerAppContex
 
     /**
      * Renamed.
+     *
      * @deprecated Renamed to {@link #isStrictSetupEnvInfra()}
      */
     @Deprecated
@@ -115,7 +116,7 @@ public abstract class DbDeployerAppContextImpl extends AbstractDeployerAppContex
         return this;
     }
 
-    protected void validateChangeTypes(ImmutableList<ChangeType> changeTypes, final ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry) {
+    private void validateChangeTypes(ImmutableList<ChangeType> changeTypes, final ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry) {
         ImmutableList<ChangeType> unenrichedChangeTypes = changeTypes.reject(new Predicate<ChangeType>() {
             @Override
             public boolean accept(ChangeType changeType) {
@@ -127,7 +128,6 @@ public abstract class DbDeployerAppContextImpl extends AbstractDeployerAppContex
         }
 
         CollectionUtil.verifyNoDuplicates(changeTypes, ChangeType.TO_NAME, "Not expecting multiple ChangeTypes with the same name");
-
     }
 
     protected DbPlatform platform() {
@@ -159,7 +159,7 @@ public abstract class DbDeployerAppContextImpl extends AbstractDeployerAppContex
             builder.put(rerunnableChange.getName(), rerunnableSemantic(), behavior);
         }
         for (ChangeType incrementalChange : rerunnablePartition.getRejected()) {
-            IncrementalDbChangeTypeBehavior behavior =  new IncrementalDbChangeTypeBehavior(
+            IncrementalDbChangeTypeBehavior behavior = new IncrementalDbChangeTypeBehavior(
                     env, (DbChangeType) incrementalChange, getSqlExecutor(), simpleArtifactDeployer(), grantChangeParser()
             );
             builder.put(incrementalChange.getName(), incrementalSemantic(), behavior);
@@ -239,7 +239,6 @@ public abstract class DbDeployerAppContextImpl extends AbstractDeployerAppContex
             }
         }
     }
-
 
     @Override
     protected ImmutableList<PrepareDbChange> getArtifactTranslators() {
@@ -326,7 +325,6 @@ public abstract class DbDeployerAppContextImpl extends AbstractDeployerAppContex
         return env.getPlatform().getTableSuffixSql(env);
     }
 
-
     @Override
     protected DeployerPlugin getDeployerPlugin() {
         return this.singleton("getDeployerPlugin", new Function0<DeployerPlugin>() {
@@ -344,7 +342,7 @@ public abstract class DbDeployerAppContextImpl extends AbstractDeployerAppContex
         });
     }
 
-    public final DbEnvironmentCleaner getEnvironmentCleaner() {
+    private DbEnvironmentCleaner getEnvironmentCleaner() {
         return this.singleton("getEnvironmentCleaner", new Function0<DbEnvironmentCleaner>() {
             @Override
             public DbEnvironmentCleaner value() {
@@ -356,7 +354,7 @@ public abstract class DbDeployerAppContextImpl extends AbstractDeployerAppContex
 
     protected abstract DataSourceFactory getDataSourceFactory();
 
-    public EnvironmentInfraSetup getEnvironmentInfraSetup() {
+    protected EnvironmentInfraSetup getEnvironmentInfraSetup() {
         return new NoOpEnvironmentInfraSetup();
     }
 

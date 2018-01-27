@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -228,8 +228,8 @@ public class Environment<T extends Platform> {
     }
 
     /**
-     *
-     * @deprecated
+     * Sets appContextBuilderClass; should no longer be used.
+     * @deprecated This should be set from the Platform instance
      */
     @Deprecated
     public void setAppContextBuilderClass(Class<? extends DeployerAppContext> appContextBuilderClass) {
@@ -285,7 +285,7 @@ public class Environment<T extends Platform> {
         this.dbSchemaSuffix = (null == dbSchemaSuffix) ? "" : dbSchemaSuffix;
     }
 
-    private final Function<String, PhysicalSchema> CONVERT_TO_PHYSICAL_SCHEMA = new Function<String, PhysicalSchema>() {
+    private final Function<String, PhysicalSchema> convertToPhysicalSchema = new Function<String, PhysicalSchema>() {
         @Override
         public PhysicalSchema valueOf(String schema) {
             // do not append the suffix from the getDeployer metadata if an override is specified
@@ -297,15 +297,15 @@ public class Environment<T extends Platform> {
     };
 
     public PhysicalSchema getPhysicalSchema(String schema) {
-        return this.CONVERT_TO_PHYSICAL_SCHEMA.valueOf(schema);
+        return this.convertToPhysicalSchema.valueOf(schema);
     }
 
     public ImmutableSet<PhysicalSchema> getPhysicalSchemas() {
-        return this.getSchemas().collect(Schema.TO_NAME).collect(this.CONVERT_TO_PHYSICAL_SCHEMA);
+        return this.getSchemas().collect(Schema.TO_NAME).collect(this.convertToPhysicalSchema);
     }
 
     public ImmutableSet<PhysicalSchema> getAllPhysicalSchemas() {
-        return this.getAllSchemas().collect(Schema.TO_NAME).collect(this.CONVERT_TO_PHYSICAL_SCHEMA);
+        return this.getAllSchemas().collect(Schema.TO_NAME).collect(this.convertToPhysicalSchema);
     }
 
     public void setSchemaNameOverrides(ImmutableMap<String, String> schemaNameOverrides) {

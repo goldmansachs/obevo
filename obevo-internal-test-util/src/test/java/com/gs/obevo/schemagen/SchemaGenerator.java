@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -43,7 +43,7 @@ import org.eclipse.collections.impl.list.primitive.IntInterval;
  */
 public class SchemaGenerator {
 
-    public static final Function<String, String> CONVERT_NAME_FUNCTION = StringFunctions.toUpperCase();
+    private static final Function<String, String> CONVERT_NAME_FUNCTION = StringFunctions.toUpperCase();
 
     public static void main(String[] args) {
         new SchemaGenerator().generate("MYLARGESCHEMA");
@@ -69,14 +69,13 @@ public class SchemaGenerator {
 
     private final Random rand = new Random();
 
-    public void generate(String schema) {
+    private void generate(String schema) {
         MutableSet<MyInput> inputs = Sets.mutable.empty();
 
         inputs.withAll(getUserTypes(numTypes));
         inputs.withAll(getTables());
         inputs.withAll(getViews());
         inputs.withAll(getSps());
-
 
         MutableSet<String> types = Sets.mutable.of("table", "view", "sp", "usertype");
         File outputDir = new File("./target/testoutput");
@@ -94,7 +93,6 @@ public class SchemaGenerator {
             outputFile.getParentFile().mkdirs();
             TestTemplateUtil.getInstance().writeTemplate("schemagen/" + input.getType() + ".sql.ftl", params, outputFile);
         }
-
     }
 
     private ImmutableList<MyInput> getUserTypes(int numTypes) {
@@ -194,7 +192,6 @@ public class SchemaGenerator {
                     params.put("view", "view" + depNum);
                 }
 
-
                 // aiming to avoid circular dependencies, so we split SPs into groups to ensure that one group can only depend on another in an acyclical manner
                 MutableList<Integer> potentialSpDependencies = spGroups.get(spGroupMapping[spNum]);
                 int spNumTypes = spToSpsRatio.getValue();
@@ -217,21 +214,21 @@ public class SchemaGenerator {
         private final String type;
         private final Multimap<String, String> dependenciesByType;
 
-        public MyInput(String name, String type, Multimap<String, String> dependenciesByType, Function<String, String> convertNameFunction) {
+        MyInput(String name, String type, Multimap<String, String> dependenciesByType, Function<String, String> convertNameFunction) {
             this.name = convertNameFunction.valueOf(name);
             this.type = type;
             this.dependenciesByType = dependenciesByType.collectValues(StringFunctions.toUpperCase());
         }
 
-        public String getName() {
+        String getName() {
             return name;
         }
 
-        public String getType() {
+        String getType() {
             return type;
         }
 
-        public Multimap<String, String> getDependenciesByType() {
+        Multimap<String, String> getDependenciesByType() {
             return dependenciesByType;
         }
     }
@@ -246,18 +243,18 @@ public class SchemaGenerator {
         }, min, max);
     }
 
-    public static class MinMaxSupplier {
+    static class MinMaxSupplier {
         private final DoubleFunction0 supplier;
         private final int min;
         private final int max;
 
-        public MinMaxSupplier(DoubleFunction0 supplier, int min, int max) {
+        MinMaxSupplier(DoubleFunction0 supplier, int min, int max) {
             this.supplier = supplier;
             this.min = min;
             this.max = max;
         }
 
-        public int getValue() {
+        int getValue() {
             long sampleValue = Math.round(supplier.value());
             sampleValue = Math.min(sampleValue, min);
             sampleValue = Math.max(sampleValue, max);

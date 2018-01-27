@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -27,8 +27,8 @@ import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.list.fixed.ArrayAdapter;
 
-import static com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder.PREDICATE_SPLITTER;
 import static com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder.PART_SPLITTER;
+import static com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder.PREDICATE_SPLITTER;
 import static com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder.SINGLE_PREDICATE_SPLITTER;
 
 /**
@@ -93,7 +93,7 @@ public class ChangeKeyPredicateBuilder {
             return this.setSchemas(Lists.immutable.with(schemas));
         }
 
-        public ChangeKeyInclusionPredicateBuilder setSchemas(ImmutableCollection<String> schemas) {
+        ChangeKeyInclusionPredicateBuilder setSchemas(ImmutableCollection<String> schemas) {
             this.schemas = schemas;
             return this;
         }
@@ -120,7 +120,7 @@ public class ChangeKeyPredicateBuilder {
             return this.setChangeNames(Lists.immutable.with(changeNames));
         }
 
-        public ChangeKeyInclusionPredicateBuilder setChangeNames(ImmutableCollection<String> changeNames) {
+        ChangeKeyInclusionPredicateBuilder setChangeNames(ImmutableCollection<String> changeNames) {
             this.changeNames = changeNames;
             return this;
         }

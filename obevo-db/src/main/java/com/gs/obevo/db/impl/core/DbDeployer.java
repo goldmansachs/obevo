@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -62,9 +62,9 @@ import org.slf4j.LoggerFactory;
  * Deployer implementation targeted specifically for DBMS platforms.
  */
 public class DbDeployer implements DeployerPlugin<DbPlatform, DbEnvironment> {
-    public static final String INIT_WARNING_MESSAGE =
+    private static final String INIT_WARNING_MESSAGE =
             "WARNING: An INIT was requested; however, the system has been initialized in the past.\n" +
-            "Please double-check that you need this INIT.";
+                    "Please double-check that you need this INIT.";
 
     private static final Logger LOG = LoggerFactory.getLogger(DbDeployer.class);
 

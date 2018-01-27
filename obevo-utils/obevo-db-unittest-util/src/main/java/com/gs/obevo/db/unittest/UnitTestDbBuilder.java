@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -124,6 +124,7 @@ public class UnitTestDbBuilder {
 
     /**
      * Specify this to restrict the tables deployed to just the ones provided. If not specified, all tables will be deployed.
+     *
      * @deprecated Specify these fields to remove in the {@link DbDeployerAppContext#deploy(MainDeployerArgs)} arguments itself.
      */
     @Deprecated
@@ -134,6 +135,7 @@ public class UnitTestDbBuilder {
 
     /**
      * Specify this to restrict the views deployed to just the ones provided. If not specified, all views will be deployed.
+     *
      * @deprecated Specify these fields to remove in the {@link DbDeployerAppContext#deploy(MainDeployerArgs)} arguments itself.
      */
     @Deprecated
@@ -164,9 +166,6 @@ public class UnitTestDbBuilder {
     }
 
     /**
-     *
-     * @param grantsDisabled
-     * @return
      * @deprecated Clients should move off this. Leverage the groups and users sections in your DbEnvironment configuration to have the grants created
      */
     @Deprecated
@@ -187,7 +186,6 @@ public class UnitTestDbBuilder {
 
     /**
      * (optional) credential defaults to username==sa and password==&lt;blank&gt;, per the default convention of h2/hsql
-     * @param credential
      */
     public UnitTestDbBuilder setCredential(Credential credential) {
         this.credential = credential;
@@ -224,7 +222,7 @@ public class UnitTestDbBuilder {
     private DbDeployerAppContext buildContextUncached() {
         validateBuilder();
 
-        String[] envsToRequest = this.referenceEnvName != null ? new String[]{this.referenceEnvName} : new String[0];
+        String[] envsToRequest = this.referenceEnvName != null ? new String[] { this.referenceEnvName } : new String[0];
         DbEnvironment referenceEnv = DbEnvironmentFactory.getInstance().readFromSourcePath(this.sourcePath, envsToRequest)
                 .getFirst();
 

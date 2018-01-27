@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -25,7 +25,7 @@ public class DbChangeTypeImpl extends ChangeTypeImpl implements DbChangeType {
     private final String grantObjectQualifier;
     private final String defaultObjectKeyword;
 
-    protected DbChangeTypeImpl(String name, boolean rerunnable, int deployOrderPriority, String directoryNameOld, boolean enrichableForDependenciesInText, boolean dependentObjectRecalculationRequired, String grantObjectQualifier, String defaultObjectKeyword, String directoryName, ChangeType bodyChangeType) {
+    private DbChangeTypeImpl(String name, boolean rerunnable, int deployOrderPriority, String directoryNameOld, boolean enrichableForDependenciesInText, boolean dependentObjectRecalculationRequired, String grantObjectQualifier, String defaultObjectKeyword, String directoryName, ChangeType bodyChangeType) {
         super(name, rerunnable, deployOrderPriority, directoryNameOld, enrichableForDependenciesInText, dependentObjectRecalculationRequired, directoryName, bodyChangeType);
         this.grantObjectQualifier = grantObjectQualifier;
         this.defaultObjectKeyword = defaultObjectKeyword;
@@ -65,14 +65,14 @@ public class DbChangeTypeImpl extends ChangeTypeImpl implements DbChangeType {
         private String grantObjectQualifier = "";
         private ChangeType bodyChangeType;
 
-        protected DbChangeTypeBuilder(String name, boolean rerunnable, int deployOrderPriority, String defaultObjectKeyword) {
+        DbChangeTypeBuilder(String name, boolean rerunnable, int deployOrderPriority, String defaultObjectKeyword) {
             this.name = name;
             this.rerunnable = rerunnable;
             this.deployOrderPriority = deployOrderPriority;
             this.defaultObjectKeyword = defaultObjectKeyword;
         }
 
-        protected DbChangeTypeBuilder(DbChangeType dbChangeType) {
+        DbChangeTypeBuilder(DbChangeType dbChangeType) {
             this.name = dbChangeType.getName();
             this.rerunnable = dbChangeType.isRerunnable();
             this.deployOrderPriority = dbChangeType.getDeployOrderPriority();

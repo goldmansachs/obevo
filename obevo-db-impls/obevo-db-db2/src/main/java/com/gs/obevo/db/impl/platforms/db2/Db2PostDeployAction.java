@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -39,18 +39,18 @@ import org.slf4j.LoggerFactory;
 /**
  * Performs standard health checks on a DB2 environments. e.g.
  * <ul>
- *     <li>Checking for invalid views</li>
- *     <li>Checking for tables requiring reorg</li>
+ * <li>Checking for invalid views</li>
+ * <li>Checking for tables requiring reorg</li>
  * </ul>
  */
-public class Db2PostDeployAction implements PostDeployAction<DbEnvironment> {
+class Db2PostDeployAction implements PostDeployAction<DbEnvironment> {
     private static final Logger LOG = LoggerFactory.getLogger(Db2PostDeployAction.class);
 
     static final String POST_DEPLOY_WARNINGS = DeployMetrics.WARNINGS_PREFIX + ".postDeployWarnings";
     private final Db2SqlExecutor stmtExecutor;
     private final DeployMetricsCollector deployMetricsCollector;
 
-    public Db2PostDeployAction(Db2SqlExecutor stmtExec, DeployMetricsCollector deployMetricsCollector) {
+    Db2PostDeployAction(Db2SqlExecutor stmtExec, DeployMetricsCollector deployMetricsCollector) {
         this.stmtExecutor = stmtExec;
         this.deployMetricsCollector = deployMetricsCollector;
     }
@@ -200,11 +200,11 @@ public class Db2PostDeployAction implements PostDeployAction<DbEnvironment> {
         private String name;
         private String objecttype;
 
-        public PhysicalSchema getPhysicalSchema() {
+        PhysicalSchema getPhysicalSchema() {
             return PhysicalSchema.parseFromString(this.schema);
         }
 
-        public String getSchema() {
+        String getSchema() {
             return this.schema;
         }
 

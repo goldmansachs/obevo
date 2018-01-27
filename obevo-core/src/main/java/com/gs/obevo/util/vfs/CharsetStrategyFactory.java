@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -30,8 +30,6 @@ public class CharsetStrategyFactory {
      * "systemdefault" means to use the default system
      * "detect" means to automatically detect
      * Otherwise, it will assume standard values from the Java encodings.
-     * @param charsetStrategy
-     * @return
      */
     public static CharsetStrategy getCharsetStrategy(String charsetStrategy) {
         if (charsetStrategy == null || charsetStrategy.equalsIgnoreCase("systemdefault")) {

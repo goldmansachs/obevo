@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -17,10 +17,6 @@ package com.gs.obevo.db.impl.core.compare.data;
 
 import java.io.File;
 
-import com.gs.obevocomparer.compare.CatoComparison;
-import com.gs.obevocomparer.input.db.QueryDataSource;
-import com.gs.obevocomparer.output.html.HTMLComparisonWriter;
-import com.gs.obevocomparer.util.CatoBaseUtil;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.dbmetadata.api.DaColumn;
 import com.gs.obevo.dbmetadata.api.DaIndex;
@@ -28,6 +24,10 @@ import com.gs.obevo.dbmetadata.api.DaTable;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
 import com.gs.obevo.util.ArgsParser;
 import com.gs.obevo.util.FileUtilsCobra;
+import com.gs.obevocomparer.compare.CatoComparison;
+import com.gs.obevocomparer.input.db.QueryDataSource;
+import com.gs.obevocomparer.output.html.HTMLComparisonWriter;
+import com.gs.obevocomparer.util.CatoBaseUtil;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.factory.Lists;
@@ -55,7 +55,7 @@ public class DbDataComparisonUtil {
         }
     }
 
-    public void execute(DbDataComparisonArgs args) {
+    private void execute(DbDataComparisonArgs args) {
         try {
             this.execute(DbDataComparisonConfigFactory.createFromProperties(args.getConfigFile()),
                     new File(args.getOutputDir()));

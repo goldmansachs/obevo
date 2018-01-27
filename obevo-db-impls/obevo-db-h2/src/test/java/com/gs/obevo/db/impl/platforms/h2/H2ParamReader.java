@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -19,14 +19,14 @@ import com.gs.obevo.db.testutil.ParamReader;
 import com.typesafe.config.ConfigFactory;
 import org.eclipse.collections.impl.factory.Maps;
 
-public class H2ParamReader {
+class H2ParamReader {
     public static ParamReader getParamReader() {
         return new ParamReader(ConfigFactory.parseResources("h2-creds.properties"),
                 "h2", ConfigFactory.parseMap(Maps.mutable.<String, Object>of(
-                        "sysattrs.type", "H2",
-                        "logicalSchemas.schema1", "SCHEMA1",
-                        "logicalSchemas.schema2", "SCHEMA2"
-                ))
+                "sysattrs.type", "H2",
+                "logicalSchemas.schema1", "SCHEMA1",
+                "logicalSchemas.schema2", "SCHEMA2"
+        ))
         );
     }
 }

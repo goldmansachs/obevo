@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -62,7 +62,6 @@ public class GraphEnricherImpl implements GraphEnricher {
             }
         }
 
-
         final DefaultDirectedGraph<T, DefaultEdge> graph = new DefaultDirectedGraph<T, DefaultEdge>(DefaultEdge.class);
 
         // First - add the core objects to the graph
@@ -98,7 +97,6 @@ public class GraphEnricherImpl implements GraphEnricher {
                 }
             }
         }
-
 
         // Add in changes within incremental files to ensure proper order
         RichIterable<Pair<T, SortableDependency>> groupToComponentPairs = inputs.flatCollect(new Function<T, Iterable<Pair<T, SortableDependency>>>() {
@@ -161,7 +159,7 @@ public class GraphEnricherImpl implements GraphEnricher {
         }, new Function<DefaultEdge, String>() {
             @Override
             public String valueOf(DefaultEdge dependencyEdge) {
-                return "-" + ((DependencyEdge)dependencyEdge).getEdgeType();
+                return "-" + ((DependencyEdge) dependencyEdge).getEdgeType();
             }
         });
 
@@ -170,9 +168,9 @@ public class GraphEnricherImpl implements GraphEnricher {
 
     private interface ChangeIndex<T> {
         void add(T change);
+
         T retrieve(String schema, String dependency);
     }
-
 
     /**
      * Looks for the given dependency/object
@@ -259,7 +257,7 @@ public class GraphEnricherImpl implements GraphEnricher {
         private final T target;
         private final CodeDependencyType edgeType;
 
-        public DependencyEdge(T source, T target, CodeDependencyType edgeType) {
+        DependencyEdge(T source, T target, CodeDependencyType edgeType) {
             this.source = source;
             this.target = target;
             this.edgeType = edgeType;
@@ -275,7 +273,7 @@ public class GraphEnricherImpl implements GraphEnricher {
             return target;
         }
 
-        public CodeDependencyType getEdgeType() {
+        CodeDependencyType getEdgeType() {
             return edgeType;
         }
 

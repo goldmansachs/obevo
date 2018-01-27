@@ -6,7 +6,7 @@
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
 
-        http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on an
@@ -29,7 +29,8 @@
         </macro>
         <section name="In-memory DBs for unit testing">
             <p>Obevo can create an in-memory db from your existing SQLs, thus guaranteeing that the same
-            DDLs you use to deploy to prod are the same ones for your testing</p>
+                DDLs you use to deploy to prod are the same ones for your testing
+            </p>
 
             Some translation happens to ensure that your prod SQLs work against an in-mem environment (notably to
             simplify some SQLs, as we don't need to support as much rich logic in an in-mem environment)

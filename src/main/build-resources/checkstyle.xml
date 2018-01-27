@@ -6,7 +6,7 @@
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
 
-        http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
     Unless required by applicable law or agreed to in writing,
     software distributed under the License is distributed on an
@@ -38,280 +38,287 @@
 
     <!-- Checks whether files end with a new line.                        -->
     <!-- See http://checkstyle.sf.net/config_misc.html#NewlineAtEndOfFile -->
-    <!--
-        <module name="NewlineAtEndOfFile">
-            <property name="lineSeparator" value="system" />
-            <property name="fileExtensions" value="java, xml" />
-        </module>
-    -->
+    <module name="NewlineAtEndOfFile">
+        <property name="lineSeparator" value="system" />
+        <property name="fileExtensions" value="java, xml" />
+    </module>
+
     <module name="TreeWalker">
         <module name="ImportControl">
             <property name="file" value="${import-control.directory}/checkstyle-import-control.xml" />
         </module>
+        <property name="tabWidth" value="4" />
+
+        <module name="RequireThis">
+            <property name="checkFields" value="false" />
+        </module>
+        <!-- Checks for Naming Conventions.                  -->
+        <!-- See http://checkstyle.sf.net/config_naming.html -->
+
+        <!--<module name="ConstantName" />-->
+        <module name="LocalFinalVariableName" />
+        <module name="LocalVariableName" />
+<!--
+        <module name="MemberName" />
+-->
+        <module name="MethodName">
+            <property name="format" value="^[a-z][a-zA-Z0-9_]*$" />
+        </module>
+        <module name="MethodTypeParameterName">
+            <property name="format" value="^[A-Z0-9]+$" />
+        </module>
+
+        <module name="PackageName">
+            <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$" />
+        </module>
+
+        <module name="ParameterName" />
+        <module name="StaticVariableName" />
+        <module name="TypeName" />
+
+        <module name="AvoidStarImport">
+            <property name="allowStaticMemberImports" value="true" />
+        </module>
+
+        <module name="IllegalImport" />
+        <module name="RedundantImport" />
+
+        <!-- Checks for whitespace                               -->
+        <!-- See http://checkstyle.sf.net/config_whitespace.html -->
+        <module name="EmptyForIteratorPad">
+            <property name="option" value="space" />
+        </module>
+        <module name="MethodParamPad" />
+        <module name="NoWhitespaceAfter">
+            <property name="tokens" value="BNOT,DEC,DOT,INC,LNOT,UNARY_MINUS,UNARY_PLUS" />
+        </module>
+
+        <module name="NoWhitespaceBefore">
+            <property name="tokens" value="POST_INC, POST_DEC" />
+        </module>
+
+<!--
+        <module name="OperatorWrap" />
+-->
+
+        <module name="ParenPad" />
+
+        <module name="TypecastParenPad" />
+
+        <module name="WhitespaceAfter" />
+
+        <module name="WhitespaceAround">
+            <property
+                name="tokens"
+                value="ASSIGN,BAND,BAND_ASSIGN,BOR,BOR_ASSIGN,BSR,BSR_ASSIGN,BXOR,BXOR_ASSIGN,COLON,DIV,DIV_ASSIGN,EQUAL,GE,GT,LAND,LCURLY,LE,LITERAL_ASSERT,LITERAL_CATCH,LITERAL_DO,LITERAL_ELSE,LITERAL_FINALLY,LITERAL_FOR,LITERAL_IF,LITERAL_RETURN,LITERAL_SYNCHRONIZED,LITERAL_TRY,LITERAL_WHILE,LOR,LT,MINUS,MINUS_ASSIGN,MOD,MOD_ASSIGN,NOT_EQUAL,PLUS,PLUS_ASSIGN,QUESTION,RCURLY,SL,SLIST,SL_ASSIGN,SR,SR_ASSIGN,STAR,STAR_ASSIGN,LITERAL_ASSERT,TYPE_EXTENSION_AND" />
+        </module>
+
+        <module name="EmptyLineSeparator">
+            <!--<property name="allowNoEmptyLineBetweenFields" value="true" />-->
+            <property name="allowNoEmptyLineBetweenFields" value="false" />
+            <property name="tokens"
+                value="IMPORT, CLASS_DEF, INTERFACE_DEF, ENUM_DEF, STATIC_INIT, INSTANCE_INIT, METHOD_DEF, CTOR_DEF" />
+        </module>
+
+        <module name="SeparatorWrap">
+            <property name="tokens" value="DOT" />
+            <property name="option" value="nl" />
+        </module>
+
+        <!--
+                <module name="SeparatorWrap">
+                    <property name="tokens" value="COMMA" />
+                    <property name="option" value="EOL" />
+                </module>
+        -->
+
+        <!-- Modifier Checks                                    -->
+        <!-- See http://checkstyle.sf.net/config_modifiers.html -->
+        <module name="ModifierOrder" />
+        <module name="RedundantModifier" />
+
+        <module name="LeftCurly" />
+
+        <module name="NeedBraces" />
+
+        <module name="RightCurly" />
+
+        <!-- Checks for common coding problems               -->
+        <!-- See http://checkstyle.sf.net/config_coding.html -->
+        <module name="EmptyStatement" />
+
+        <!-- Effective Java Item 8 - Always override hashCode when you override equals -->
+        <module name="EqualsHashCode" />
+
+        <!--<module name="HiddenField">-->
+        <!--<property name="severity" value="warning" />-->
+        <!--<property name="ignoreSetter" value="true" />-->
+        <!--<property name="ignoreConstructorParameter" value="true" />-->
+        <!--</module>-->
+
+        <!-- Effective Java Item 4 - Avoid creating duplicate objects -->
+        <module name="IllegalInstantiation">
+            <property name="severity" value="warning" />
+            <property
+                name="classes"
+                value="java.lang.Boolean,java.lang.Integer,java.lang.Long,java.lang.Short,java.lang.Character,java.lang.Byte,java.util.Timer,java.util.TimerTask" />
+        </module>
+
+        <module name="SimplifyBooleanExpression" />
+
+        <module name="SimplifyBooleanReturn" />
+
+<!--
+        <module name="FinalClass" />
+-->
+
+        <!--<module name="HideUtilityClassConstructor" />-->
+
+        <!-- Effective Java Item 17 - Use interfaces only to define types -->
+        <module name="InterfaceIsType">
+            <property name="severity" value="warning" />
+        </module>
+
+        <!-- Miscellaneous other checks.                   -->
+        <!-- See http://checkstyle.sf.net/config_misc.html -->
+        <module name="ArrayTypeStyle" />
+
+        <module name="Regexp">
+            <property name="illegalPattern" value="true" />
+            <property name="format" value="[’“”]" />
+            <property name="message" value="Curly quotes aren't allowed." />
+        </module>
+
+        <module name="Regexp">
+            <property name="illegalPattern" value="true" />
+            <property name="format" value="[ ]+$" />
+            <property name="message" value="Line has trailing spaces." />
+        </module>
+
+<!--
+        <module name="Regexp">
+            <property name="illegalPattern" value="true" />
+
+            <property
+                name="format"
+                value="System\.out\.println" />
+
+            <property
+                name="message"
+                value="System.out.println." />
+        </module>
+-->
+
+<!--
+        <module name="Regexp">
+            <property name="illegalPattern" value="true" />
+
+            <property
+                name="format"
+                value="System\.err\.println" />
+
+            <property
+                name="message"
+                value="System.err.println." />
+        </module>
+-->
+
+        <!-- Effective Java Item 6 - Avoid finalizers -->
+        <!--<module name="NoFinalizer" />-->
+
+        <module name="GenericWhitespace" />
+
+        <module name="IllegalThrows" />
+
+        <module name="UpperEll" />
+
+        <module name="SuperFinalize" />
+
+        <module name="SuperClone">
+            <property name="severity" value="warning" />
+        </module>
+
+
+        <module name="CovariantEquals" />
+
+<!--
+        <module name="AvoidStaticImport">
+            <property name="excludes"
+                value="org.junit.Assert.*,org.hamcrest.CoreMatchers.*,org.hamcrest.Matchers.*,org.eclipse.collections.impl.test.Verify.*,org.eclipse.collections.impl.factory.Iterables.*,org.eclipse.collections.test.IterableTestCase.*" />
+        </module>
+-->
+
+        <module name="MissingDeprecated">
+            <property name="skipNoJavadoc" value="true" />
+        </module>
+
+        <module name="AnnotationUseStyle" />
+
+<!--
+        <module name="DeclarationOrder" />
+-->
+
+        <module name="DefaultComesLast" />
+
+        <module name="FallThrough" />
+
+        <module name="ImportOrder">
+            <property name="groups" value="java,javax" />
+            <property name="separated" value="true" />
+        </module>
+
+        <module name="MultipleVariableDeclarations" />
+
+        <module name="MutableException" />
+
+        <module name="PackageDeclaration" />
+
+        <module name="MissingOverride">
+            <property name="javaFiveCompatibility" value="true" />
+        </module>
+
+        <module name="OneTopLevelClass" />
+
+        <module name="NoLineWrap" />
+
+        <module name="UnusedImports">
+            <property name="processJavadoc" value="true" />
+        </module>
+
+        <!-- Comment until the check handles lambda expression with throw statement. -->
+        <!-- <module name="OneStatementPerLine" /> -->
     </module>
 
     <!--
-        <module name="TreeWalker">
-            <property name="tabWidth" value="4" />
-
-            <property name="cacheFile" value="build/checkstyleCache" />
-
-            &lt;!&ndash; Checks for Naming Conventions.                  &ndash;&gt;
-            &lt;!&ndash; See http://checkstyle.sf.net/config_naming.html &ndash;&gt;
-
-            <module name="ConstantName" />
-            <module name="LocalFinalVariableName" />
-            <module name="LocalVariableName" />
-            <module name="MemberName" />
-            <module name="MethodName">
-                <property name="format" value="^[a-z][a-zA-Z0-9_]*$" />
-            </module>
-            <module name="MethodTypeParameterName">
-                <property name="format" value="^[A-Z0-9]+$" />
-            </module>
-
-            <module name="PackageName">
-                <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$" />
-            </module>
-
-            <module name="ParameterName" />
-            <module name="StaticVariableName" />
-            <module name="TypeName" />
-
-            <module name="AvoidStarImport">
-                <property name="allowStaticMemberImports" value="true" />
-            </module>
-
-            <module name="IllegalImport" />
-            <module name="RedundantImport" />
-
-            &lt;!&ndash; Checks for whitespace                               &ndash;&gt;
-            &lt;!&ndash; See http://checkstyle.sf.net/config_whitespace.html &ndash;&gt;
-            <module name="EmptyForIteratorPad">
-                <property name="option" value="space" />
-            </module>
-            <module name="MethodParamPad" />
-            <module name="NoWhitespaceAfter">
-                <property name="tokens" value="BNOT,DEC,DOT,INC,LNOT,UNARY_MINUS,UNARY_PLUS" />
-            </module>
-
-            <module name="NoWhitespaceBefore" />
-
-            <module name="OperatorWrap" />
-
-            <module name="ParenPad" />
-
-            <module name="TypecastParenPad" />
-
-            <module name="WhitespaceAfter" />
-
-            <module name="WhitespaceAround">
-                <property
-                    name="tokens"
-                    value="ASSIGN,BAND,BAND_ASSIGN,BOR,BOR_ASSIGN,BSR,BSR_ASSIGN,BXOR,BXOR_ASSIGN,COLON,DIV,DIV_ASSIGN,EQUAL,GE,GT,LAND,LCURLY,LE,LITERAL_ASSERT,LITERAL_CATCH,LITERAL_DO,LITERAL_ELSE,LITERAL_FINALLY,LITERAL_FOR,LITERAL_IF,LITERAL_RETURN,LITERAL_SYNCHRONIZED,LITERAL_TRY,LITERAL_WHILE,LOR,LT,MINUS,MINUS_ASSIGN,MOD,MOD_ASSIGN,NOT_EQUAL,PLUS,PLUS_ASSIGN,QUESTION,RCURLY,SL,SLIST,SL_ASSIGN,SR,SR_ASSIGN,STAR,STAR_ASSIGN,LITERAL_ASSERT,TYPE_EXTENSION_AND" />
-            </module>
-
-            <module name="EmptyLineSeparator">
-                <property name="allowNoEmptyLineBetweenFields" value="true" />
-            </module>
-
-            <module name="SeparatorWrap">
-                <property name="tokens" value="DOT" />
-                <property name="option" value="nl" />
-            </module>
-
-            <module name="SeparatorWrap">
-                <property name="tokens" value="COMMA" />
-                <property name="option" value="EOL" />
-            </module>
-
-            &lt;!&ndash; Modifier Checks                                    &ndash;&gt;
-            &lt;!&ndash; See http://checkstyle.sf.net/config_modifiers.html &ndash;&gt;
-            <module name="ModifierOrder" />
-            <module name="RedundantModifier" />
-
-            <module name="LeftCurly">
-                <property name="option" value="nl" />
-            </module>
-
-            <module name="NeedBraces" />
-
-            <module name="RightCurly">
-                <property name="option" value="alone" />
-            </module>
-
-            &lt;!&ndash; Checks for common coding problems               &ndash;&gt;
-            &lt;!&ndash; See http://checkstyle.sf.net/config_coding.html &ndash;&gt;
-            <module name="EmptyStatement" />
-
-            &lt;!&ndash; Effective Java Item 8 - Always override hashCode when you override equals &ndash;&gt;
-            <module name="EqualsHashCode" />
-
-            &lt;!&ndash;<module name="HiddenField">&ndash;&gt;
-            &lt;!&ndash;<property name="severity" value="warning" />&ndash;&gt;
-            &lt;!&ndash;<property name="ignoreSetter" value="true" />&ndash;&gt;
-            &lt;!&ndash;<property name="ignoreConstructorParameter" value="true" />&ndash;&gt;
-            &lt;!&ndash;</module>&ndash;&gt;
-
-            &lt;!&ndash; Effective Java Item 4 - Avoid creating duplicate objects &ndash;&gt;
-            <module name="IllegalInstantiation">
-                <property name="severity" value="warning" />
-                <property
-                    name="classes"
-                    value="java.lang.Boolean,java.lang.Integer,java.lang.Long,java.lang.Short,java.lang.Character,java.lang.Byte,java.util.Timer,java.util.TimerTask" />
-            </module>
-
-            <module name="RedundantThrows">
-                <property name="logLoadErrors" value="true" />
-                <property name="suppressLoadErrors" value="true" />
-            </module>
-
-            <module name="SimplifyBooleanExpression" />
-
-            <module name="SimplifyBooleanReturn" />
-
-            <module name="FinalClass" />
-
-            <module name="HideUtilityClassConstructor" />
-
-            &lt;!&ndash; Effective Java Item 17 - Use interfaces only to define types &ndash;&gt;
-            <module name="InterfaceIsType">
-                <property name="severity" value="warning" />
-            </module>
-
-            &lt;!&ndash; Miscellaneous other checks.                   &ndash;&gt;
-            &lt;!&ndash; See http://checkstyle.sf.net/config_misc.html &ndash;&gt;
-            <module name="ArrayTypeStyle" />
-
-            <module name="Regexp">
-                <property name="illegalPattern" value="true" />
-                <property name="format" value="[’“”]" />
-                <property name="message" value="Curly quotes aren't allowed." />
-            </module>
-
-            <module name="Regexp">
-                <property name="illegalPattern" value="true" />
-                <property name="format" value="[ ]+$" />
-                <property name="message" value="Line has trailing spaces." />
-            </module>
-
-            <module name="Regexp">
-                <property name="illegalPattern" value="true" />
-
-                <property
-                    name="format"
-                    value="System\.out\.println" />
-
-                <property
-                    name="message"
-                    value="System.out.println." />
-            </module>
-
-            <module name="Regexp">
-                <property name="illegalPattern" value="true" />
-
-                <property
-                    name="format"
-                    value="System\.err\.println" />
-
-                <property
-                    name="message"
-                    value="System.err.println." />
-            </module>
-
-            &lt;!&ndash; Effective Java Item 6 - Avoid finalizers &ndash;&gt;
-            <module name="NoFinalizer" />
-
-            <module name="GenericWhitespace" />
-
-            <module name="IllegalThrows" />
-
-            <module name="UpperEll" />
-
-            <module name="SuperFinalize" />
-
-            <module name="SuperClone">
-                <property name="severity" value="warning" />
-            </module>
-
-
-            <module name="CovariantEquals" />
-
-            <module name="AvoidStaticImport">
-                <property name="excludes"
-                    value="org.junit.Assert.*,org.hamcrest.CoreMatchers.*,org.hamcrest.Matchers.*" />
-            </module>
-
-            <module name="MissingDeprecated" />
-
-            <module name="AnnotationUseStyle" />
-
-            <module name="DeclarationOrder" />
-
-            <module name="DefaultComesLast" />
-
-            <module name="FallThrough" />
-
-            <module name="ImportOrder">
-                <property name="groups" value="java,javax" />
-                <property name="separated" value="true" />
-            </module>
-
-            <module name="MultipleVariableDeclarations" />
-
-            <module name="MutableException" />
-
-            <module name="PackageDeclaration" />
-
-            <module name="MissingOverride">
-                <property name="javaFiveCompatibility" value="true" />
-            </module>
-
-            <module name="OneTopLevelClass" />
-
-            <module name="NoLineWrap" />
-
-            <module name="OneStatementPerLine" />
-
-        </module>
-
         <module name="RegexpHeader">
             <property name="headerFile" value="java.header" />
-            <property name="multiLines" value="17, 18, 19, 21, 22" />
+            <property name="multiLines" value="11, 12, 13, 15, 16" />
             <property name="fileExtensions" value="java, scala" />
         </module>
-
-        <module name="FileTabCharacter" />
-
-        <module name="RegexpMultiline">
-            <property name="format" value="\{\r\r" />
-            <property name="message" value="First line after opening a scope may not be blank." />
-        </module>
-
-        <module name="RegexpMultiline">
-            <property name="format" value="\{\n\n" />
-            <property name="message" value="First line after opening a scope may not be blank." />
-        </module>
-
-        <module name="RegexpMultiline">
-            <property name="format" value="\{\r\n\r\n" />
-            <property name="message" value="First line after opening a scope may not be blank." />
-        </module>
-
-        <module name="RegexpMultiline">
-            <property name="format" value="\r\r[ ]*\}" />
-            <property name="message" value="Last line before closing a scope bay not be blank." />
-        </module>
-
-        <module name="RegexpMultiline">
-            <property name="format" value="\n\n[ ]*\}" />
-            <property name="message" value="Last line before closing a scope bay not be blank." />
-        </module>
-
-        <module name="RegexpMultiline">
-            <property name="format" value="\r\n\r\n[ ]*\}" />
-            <property name="message" value="Last line before closing a scope bay not be blank." />
-        </module>
     -->
+
+    <module name="FileTabCharacter" />
+
+    <module name="RegexpMultiline">
+        <property name="format" value="\{\n\n" />
+        <property name="message" value="First line after opening a scope may not be blank." />
+    </module>
+
+    <module name="RegexpMultiline">
+        <property name="format" value="\n\n[ ]*\}" />
+        <property name="message" value="Last line before closing a scope may not be blank." />
+    </module>
+
+    <module name="RegexpMultiline">
+        <property name="format" value="\n\n\n" />
+        <property name="message" value="Extra newline." />
+    </module>
+
+<!--
+    <module name="RegexpMultiline">
+        <property name="format" value="\r" />
+        <property name="message" value="Carriage return." />
+    </module>
+-->
 
 </module>

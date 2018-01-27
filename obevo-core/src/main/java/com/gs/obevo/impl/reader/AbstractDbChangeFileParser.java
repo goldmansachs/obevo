@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -30,7 +30,7 @@ import org.eclipse.collections.impl.tuple.primitive.PrimitiveTuples;
 /**
  * Common baseline for the DbChangeFileParsers with common implementation methods.
  */
-public abstract class AbstractDbChangeFileParser implements DbChangeFileParser {
+abstract class AbstractDbChangeFileParser implements DbChangeFileParser {
     private final ImmutableSet<String> disallowedSectionNames;
     private final ImmutableSet<String> allowedAttrs;
     private final ImmutableSet<String> allowedToggles;
@@ -38,7 +38,7 @@ public abstract class AbstractDbChangeFileParser implements DbChangeFileParser {
     private final DeployMetricsCollector deployMetricsCollector;
     private final TextMarkupDocumentReader textMarkupDocumentReader;
 
-    protected AbstractDbChangeFileParser(boolean backwardsCompatibleMode, DeployMetricsCollector deployMetricsCollector, ImmutableSet<String> allowedAttrs, ImmutableSet<String> allowedToggles, ImmutableSet<String> disallowedSectionNames, TextMarkupDocumentReader textMarkupDocumentReader) {
+    AbstractDbChangeFileParser(boolean backwardsCompatibleMode, DeployMetricsCollector deployMetricsCollector, ImmutableSet<String> allowedAttrs, ImmutableSet<String> allowedToggles, ImmutableSet<String> disallowedSectionNames, TextMarkupDocumentReader textMarkupDocumentReader) {
         this.disallowedSectionNames = disallowedSectionNames;
         this.allowedAttrs = allowedAttrs;
         this.allowedToggles = allowedToggles;
@@ -47,7 +47,7 @@ public abstract class AbstractDbChangeFileParser implements DbChangeFileParser {
         this.textMarkupDocumentReader = textMarkupDocumentReader;
     }
 
-    protected String getPermissionSchemeValue(TextMarkupDocument doc) {
+    String getPermissionSchemeValue(TextMarkupDocument doc) {
         TextMarkupDocumentSection section = doc.findSectionWithElementName(TextMarkupDocumentReader.TAG_METADATA);
         if (section != null) {
             String permScheme = section.getAttr(TextMarkupDocumentReader.TAG_PERM_SCHEME);
@@ -58,7 +58,7 @@ public abstract class AbstractDbChangeFileParser implements DbChangeFileParser {
         return null;
     }
 
-    protected final ObjectBooleanPair<TextMarkupDocument> readDocument(String fileContent, TextMarkupDocumentSection packageMetadata) {
+    final ObjectBooleanPair<TextMarkupDocument> readDocument(String fileContent, TextMarkupDocumentSection packageMetadata) {
         try {
             TextMarkupDocument doc = textMarkupDocumentReader.parseString(fileContent, packageMetadata);
             validateStructureNew(doc);
@@ -108,7 +108,7 @@ public abstract class AbstractDbChangeFileParser implements DbChangeFileParser {
         }
     }
 
-    protected TextMarkupDocumentSection getOrCreateMetadataNode(TextMarkupDocument doc) {
+    TextMarkupDocumentSection getOrCreateMetadataNode(TextMarkupDocument doc) {
         TextMarkupDocumentSection metadata = doc.findSectionWithElementName(TextMarkupDocumentReader.TAG_METADATA);
         if (metadata == null) {
             metadata = new TextMarkupDocumentSection(TextMarkupDocumentReader.TAG_METADATA, null);

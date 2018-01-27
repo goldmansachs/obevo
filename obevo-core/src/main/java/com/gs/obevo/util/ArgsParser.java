@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 public class ArgsParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArgsParser.class);
-    
+
     public <T> T parse(String[] args, T inputArgs) {
         return parse(args, inputArgs, Functions.<T, String>getFixedValue(null));
     }
@@ -57,11 +57,11 @@ public class ArgsParser {
         }
 
         LOG.info("Arguments parsed: " + inputArgs.toString());
-        
+
         return inputArgs;
     }
 
-    public static <T> void printUsageAndExit(T inputArgs, String message) {
+    private static <T> void printUsageAndExit(T inputArgs, String message) {
         Args.usage(inputArgs);
         System.err.println(message);
         System.exit(-1);

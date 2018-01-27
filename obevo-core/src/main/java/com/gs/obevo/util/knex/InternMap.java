@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -52,7 +52,7 @@ public final class InternMap {
     }
 
     @SuppressWarnings("unchecked")
-    InternMap() {
+    private InternMap() {
         this.stringCache = new WeakHashMap[SEGMENTS];
         this.timestampCache = new WeakHashMap[SEGMENTS];
         this.accesses = new AtomicLong[SEGMENTS];
@@ -153,7 +153,7 @@ public final class InternMap {
      * @param i The Integer to intern
      * @return A reference to a shared Integer object if the cache holds one of the same value as the Integer passed in.
      */
-    public Integer intern(Integer i) {
+    private Integer intern(Integer i) {
         if (i == null) {
             return i;
         } else if (i.equals(zeroInteger)) {
@@ -170,7 +170,7 @@ public final class InternMap {
      * @param l The Long to intern
      * @return A reference to a shared Long object if the cache holds one of the same value as the Long passed in.
      */
-    public Long intern(Long l) {
+    private Long intern(Long l) {
         if (l == null) {
             return l;
         } else if (l.equals(zeroLong)) {
@@ -187,7 +187,7 @@ public final class InternMap {
      * @param f The Float to intern
      * @return A reference to a shared Float object if the cache holds one of the same value as the Float passed in.
      */
-    public Float intern(Float f) {
+    private Float intern(Float f) {
         if (f == null) {
             return f;
         } else if (f.equals(zeroFloat)) {
@@ -204,7 +204,7 @@ public final class InternMap {
      * @param d The Double to intern
      * @return A reference to a shared Double object if the cache holds one of the same value as the Double passed in.
      */
-    public Double intern(Double d) {
+    private Double intern(Double d) {
         if (d == null) {
             return d;
         } else if (d.equals(zeroDouble)) {
@@ -223,7 +223,7 @@ public final class InternMap {
      * @return A reference to a shared BigDecimal object if the cache holds one of the same value as the BigDecimal
      * passed in.
      */
-    public BigDecimal intern(BigDecimal d) {
+    private BigDecimal intern(BigDecimal d) {
         if (d == null) {
             return d;
         } else if (d.equals(zeroDecimal)) {

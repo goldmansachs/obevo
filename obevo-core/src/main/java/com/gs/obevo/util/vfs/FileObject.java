@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -83,7 +83,7 @@ public class FileObject implements org.apache.commons.vfs2.FileObject {
         this.fileObject = fileObject;
     }
 
-    public URI getURI() {
+    private URI getURI() {
         try {
             // Doing some URL encoding here (e.g. replacing sharp, spaces)
             // TODO want a general way to handle the URL encoding; may need improvements from commons VFS ...
@@ -283,7 +283,7 @@ public class FileObject implements org.apache.commons.vfs2.FileObject {
     public void moveTo(org.apache.commons.vfs2.FileObject destFile) {
         try {
             if (destFile instanceof FileObject) {
-                destFile = ((FileObject)destFile).fileObject;
+                destFile = ((FileObject) destFile).fileObject;
             }
             this.fileObject.moveTo(destFile);
         } catch (FileSystemException e) {
@@ -377,7 +377,6 @@ public class FileObject implements org.apache.commons.vfs2.FileObject {
      * We must remove the BOM ourselves per the following JDK bugs.
      * http://bugs.java.com/view_bug.do?bug_id=4508058
      * http://bugs.java.com/view_bug.do?bug_id=6378911
-     *
      */
     private byte[] filterBomByteIfUtf(Charset charset, byte[] bytes) {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);

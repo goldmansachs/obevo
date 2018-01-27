@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -46,37 +46,32 @@ http://www.gnu.org/licenses/
 ========================================================================
 */
 
-
 import schemacrawler.schemacrawler.DatabaseSpecificOverrideOptionsBuilder;
 import schemacrawler.server.sybaseiq.SybaseIQDatabaseConnector;
 import schemacrawler.tools.databaseconnector.DatabaseConnector;
 import schemacrawler.tools.databaseconnector.DatabaseServerType;
 
-public final class SybaseIQFixedDatabaseConnector
-  extends DatabaseConnector
-{
+final class SybaseIQFixedDatabaseConnector
+        extends DatabaseConnector {
 
-  private static final long serialVersionUID = 1786572065393663455L;
+    private static final long serialVersionUID = 1786572065393663455L;
 
-  /**
-   * Same as in original {@link SybaseIQDatabaseConnector}.
-   */
-  public SybaseIQFixedDatabaseConnector()
-  {
-    super(new DatabaseServerType("sybaseiq", "SAP Sybase IQ"),
-          "/help/Connections.sybaseiq.txt",
-          "/schemacrawler-sybaseiq.config.properties",
-          "/sybaseiq.information_schema",
-          "notapplicable:.*");  // do not specify a value here as it conflicts with SAP Sybase ASE
-  }
+    /**
+     * Same as in original {@link SybaseIQDatabaseConnector}.
+     */
+    public SybaseIQFixedDatabaseConnector() {
+        super(new DatabaseServerType("sybaseiq", "SAP Sybase IQ"),
+                "/help/Connections.sybaseiq.txt",
+                "/schemacrawler-sybaseiq.config.properties",
+                "/sybaseiq.information_schema",
+                "notapplicable:.*");  // do not specify a value here as it conflicts with SAP Sybase ASE
+    }
 
-  /**
-   * Needs to just return the default value and not disable catalogs.
-   */
-  @Override
-  public DatabaseSpecificOverrideOptionsBuilder getDatabaseSpecificOverrideOptionsBuilder()
-  {
-    return super.getDatabaseSpecificOverrideOptionsBuilder();
-  }
-
+    /**
+     * Needs to just return the default value and not disable catalogs.
+     */
+    @Override
+    public DatabaseSpecificOverrideOptionsBuilder getDatabaseSpecificOverrideOptionsBuilder() {
+        return super.getDatabaseSpecificOverrideOptionsBuilder();
+    }
 }

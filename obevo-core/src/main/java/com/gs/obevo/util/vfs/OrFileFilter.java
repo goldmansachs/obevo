@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -17,18 +17,18 @@ package com.gs.obevo.util.vfs;
 
 import java.util.List;
 
-import org.eclipse.collections.impl.list.mutable.FastList;
 import org.apache.commons.vfs2.FileFilter;
 import org.apache.commons.vfs2.FileSelectInfo;
+import org.eclipse.collections.impl.list.mutable.FastList;
 
-public class OrFileFilter implements FileFilter {
+class OrFileFilter implements FileFilter {
     private final List<FileFilter> filters;
 
-    public OrFileFilter(FileFilter f1, FileFilter f2) {
+    OrFileFilter(FileFilter f1, FileFilter f2) {
         this(f1, f2, new FileFilter[0]);
     }
 
-    public OrFileFilter(FileFilter f1, FileFilter f2, FileFilter... rest) {
+    private OrFileFilter(FileFilter f1, FileFilter f2, FileFilter... rest) {
         this.filters = FastList.newListWith(f1, f2).with(rest);
     }
 

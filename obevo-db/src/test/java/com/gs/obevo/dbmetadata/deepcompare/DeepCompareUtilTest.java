@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -83,90 +83,90 @@ public class DeepCompareUtilTest {
         assertEquals(5, compareBreaks.size());
     }
 
-    public static class ParentA {
+    static class ParentA {
         private final String field1;
         private final int field2;
         private final ChildB childB;
         private final List<ChildC> childCs;
 
-        public static final Function<ParentA, String> TO_FIELD1 = new Function<ParentA, String>() {
+        static final Function<ParentA, String> TO_FIELD1 = new Function<ParentA, String>() {
             @Override
             public String valueOf(ParentA object) {
                 return object.getField1();
             }
         };
 
-        public static final Function<ParentA, Integer> TO_FIELD2 = new Function<ParentA, Integer>() {
+        static final Function<ParentA, Integer> TO_FIELD2 = new Function<ParentA, Integer>() {
             @Override
             public Integer valueOf(ParentA object) {
                 return object.getField2();
             }
         };
 
-        public static final Function<ParentA, ChildB> TO_CHILD_B = new Function<ParentA, ChildB>() {
+        static final Function<ParentA, ChildB> TO_CHILD_B = new Function<ParentA, ChildB>() {
             @Override
             public ChildB valueOf(ParentA object) {
                 return object.getChildB();
             }
         };
 
-        public static final Function<ParentA, List<ChildC>> TO_CHILD_CS = new Function<ParentA, List<ChildC>>() {
+        static final Function<ParentA, List<ChildC>> TO_CHILD_CS = new Function<ParentA, List<ChildC>>() {
             @Override
             public List<ChildC> valueOf(ParentA object) {
                 return object.getChildCs();
             }
         };
 
-        public ParentA(String field1, int field2, ChildB childB, List<ChildC> childCs) {
+        ParentA(String field1, int field2, ChildB childB, List<ChildC> childCs) {
             this.field1 = field1;
             this.field2 = field2;
             this.childB = childB;
             this.childCs = childCs;
         }
 
-        public String getField1() {
+        String getField1() {
             return this.field1;
         }
 
-        public int getField2() {
+        int getField2() {
             return this.field2;
         }
 
-        public ChildB getChildB() {
+        ChildB getChildB() {
             return this.childB;
         }
 
-        public List<ChildC> getChildCs() {
+        List<ChildC> getChildCs() {
             return this.childCs;
         }
 
-        public static class ParentABuilder {
+        static class ParentABuilder {
             private String field1;
             private int field2;
             private ChildB childB;
             private List<ChildC> childCs;
 
-            public ParentABuilder setField1(String field1) {
+            ParentABuilder setField1(String field1) {
                 this.field1 = field1;
                 return this;
             }
 
-            public ParentABuilder setField2(int field2) {
+            ParentABuilder setField2(int field2) {
                 this.field2 = field2;
                 return this;
             }
 
-            public ParentABuilder setChildB(ChildB childB) {
+            ParentABuilder setChildB(ChildB childB) {
                 this.childB = childB;
                 return this;
             }
 
-            public ParentABuilder setChildCs(List<ChildC> childCs) {
+            ParentABuilder setChildCs(List<ChildC> childCs) {
                 this.childCs = childCs;
                 return this;
             }
 
-            public ParentA createParentA() {
+            ParentA createParentA() {
                 return new ParentA(this.field1, this.field2, this.childB, this.childCs);
             }
         }
@@ -176,62 +176,62 @@ public class DeepCompareUtilTest {
         private final String field1;
         private final int field2;
 
-        public static final Function<ChildB, String> TO_FIELD1 = new Function<ChildB, String>() {
+        static final Function<ChildB, String> TO_FIELD1 = new Function<ChildB, String>() {
             @Override
             public String valueOf(ChildB object) {
                 return object.getField1();
             }
         };
 
-        public static final Function<ChildB, Integer> TO_FIELD2 = new Function<ChildB, Integer>() {
+        static final Function<ChildB, Integer> TO_FIELD2 = new Function<ChildB, Integer>() {
             @Override
             public Integer valueOf(ChildB object) {
                 return object.getField2();
             }
         };
 
-        public ChildB(String field1, int field2) {
+        ChildB(String field1, int field2) {
             this.field1 = field1;
             this.field2 = field2;
         }
 
-        public String getField1() {
+        String getField1() {
             return this.field1;
         }
 
-        public int getField2() {
+        int getField2() {
             return this.field2;
         }
     }
 
-    public static class ChildC {
+    static class ChildC {
         private final String field1;
         private final int field2;
 
-        public static final Function<ChildC, String> TO_FIELD1 = new Function<ChildC, String>() {
+        static final Function<ChildC, String> TO_FIELD1 = new Function<ChildC, String>() {
             @Override
             public String valueOf(ChildC object) {
                 return object.getField1();
             }
         };
 
-        public static final Function<ChildC, Integer> TO_FIELD2 = new Function<ChildC, Integer>() {
+        static final Function<ChildC, Integer> TO_FIELD2 = new Function<ChildC, Integer>() {
             @Override
             public Integer valueOf(ChildC object) {
                 return object.getField2();
             }
         };
 
-        public ChildC(String field1, int field2) {
+        ChildC(String field1, int field2) {
             this.field1 = field1;
             this.field2 = field2;
         }
 
-        public String getField1() {
+        String getField1() {
             return this.field1;
         }
 
-        public int getField2() {
+        int getField2() {
             return this.field2;
         }
     }

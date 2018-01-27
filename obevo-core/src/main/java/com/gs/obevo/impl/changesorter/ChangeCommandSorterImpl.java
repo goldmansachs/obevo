@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -84,7 +84,6 @@ public class ChangeCommandSorterImpl implements ChangeCommandSorter {
 
         return Lists.mutable.withAll(orderedDrops).withAll(orderedAdds).withAll(orderedDatas).collect(DbCommandSortKey.TO_CHANGE_COMMAND).toImmutable();
     }
-
 
     private ListIterable<DbCommandSortKey> sortAddCommands(RichIterable<DbCommandSortKey> addCommands, boolean rollback) {
         DirectedGraph<DbCommandSortKey, DefaultEdge> addGraph = enricher.createDependencyGraph(addCommands, rollback);

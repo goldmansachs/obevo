@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -23,8 +23,6 @@ import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.impl.core.changetypes.StaticDataChangeTypeBehavior;
-import com.gs.obevo.impl.PrepareDbChange;
-import com.gs.obevo.impl.util.MultiLineStringSplitter;
 import com.gs.obevo.db.impl.platforms.sqltranslator.impl.DefaultSqlTranslatorNameMapper;
 import com.gs.obevo.db.sqlparser.syntaxparser.AlterTableDrop;
 import com.gs.obevo.db.sqlparser.syntaxparser.Constraint;
@@ -35,7 +33,9 @@ import com.gs.obevo.db.sqlparser.syntaxparser.DropStatement;
 import com.gs.obevo.db.sqlparser.syntaxparser.NamedConstraint;
 import com.gs.obevo.db.sqlparser.syntaxparser.SqlSyntaxParser;
 import com.gs.obevo.db.sqlparser.syntaxparser.UnparseVisitor;
+import com.gs.obevo.impl.PrepareDbChange;
 import com.gs.obevo.impl.text.CommentRemover;
+import com.gs.obevo.impl.util.MultiLineStringSplitter;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.function.Function2;
@@ -55,7 +55,7 @@ public class InMemoryTranslator implements PrepareDbChange {
     private final ListIterable<PostColumnSqlTranslator> postColumnSqlTranslators;
     private final ListIterable<PostParsedSqlTranslator> postParsedSqlTranslators;
 
-    public InMemoryTranslator() {
+    private InMemoryTranslator() {
         this.nameMapper = new DefaultSqlTranslatorNameMapper();
         this.preParsedSqlTranslators = Lists.mutable.empty();
         this.unparsedSqlTranslators = Lists.mutable.empty();
@@ -93,7 +93,7 @@ public class InMemoryTranslator implements PrepareDbChange {
         return convertedSqls.makeString("\n\nGO\n\n");
     }
 
-    protected final String translateStatement(String sql, final Change change) {
+    private String translateStatement(String sql, final Change change) {
         sql = this.preParsedSqlTranslators.injectInto(sql, new Function2<String, PreParsedSqlTranslator, String>() {
             @Override
             public String value(String s, PreParsedSqlTranslator preParsedSqlTranslator) {
@@ -110,7 +110,7 @@ public class InMemoryTranslator implements PrepareDbChange {
         });
     }
 
-    protected String renderTree(String sql, final Change change) {
+    private String renderTree(String sql, final Change change) {
         UnparseVisitor parsedValue = new SqlSyntaxParser().getParsedValue(sql);
 
         if (parsedValue == null) {

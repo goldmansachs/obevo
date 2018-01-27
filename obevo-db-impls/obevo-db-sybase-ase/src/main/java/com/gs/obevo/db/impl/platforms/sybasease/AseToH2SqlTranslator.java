@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -42,19 +42,18 @@ public class AseToH2SqlTranslator implements PostColumnSqlTranslator, PostParsed
          */
         //if this is "ALTER TABLE XYZ ALTER COLUMN ABC" statement
         Matcher alterTableAlterColumnMatcher = Pattern.compile("(?i)(alter\\s+table\\s+\\w+\\s+alter\\s+column\\s+\\w+\\s+)(.+)").matcher(string);
-        if (alterTableAlterColumnMatcher.find()){
+        if (alterTableAlterColumnMatcher.find()) {
 
             //if this is ALTER TABLE ALTER COLUMN NULL/NOT NULL in Sybase dialect (without "SET" keyword)
-            if( ! StringUtils.containsIgnoreCase(alterTableAlterColumnMatcher.group(2), "set") &&
-                    StringUtils.containsIgnoreCase(alterTableAlterColumnMatcher.group(2), "null") ){
+            if (!StringUtils.containsIgnoreCase(alterTableAlterColumnMatcher.group(2), "set") &&
+                    StringUtils.containsIgnoreCase(alterTableAlterColumnMatcher.group(2), "null")) {
 
                 Matcher nullOrNotNull = Pattern.compile("(?i)(NOT\\s+NULL|NULL)(.*)").matcher(alterTableAlterColumnMatcher.group(2));
-                if(nullOrNotNull.matches()){
+                if (nullOrNotNull.matches()) {
                     string = alterTableAlterColumnMatcher.group(1) + "SET " + nullOrNotNull.group(1) + nullOrNotNull.group(2);
                 }
             }
         }
         return string;
     }
-
 }

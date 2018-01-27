@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -21,7 +21,7 @@ import com.gs.obevo.api.appdata.ChangeRerunnable;
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.appdata.Schema;
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
+import com.gs.obevo.api.platform.CommandExecutionContext;
 import com.gs.obevo.api.platform.DeployerRuntimeException;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.platform.SqlExecutor;
@@ -32,9 +32,9 @@ import com.gs.obevo.dbmetadata.api.DaRoutine;
 import com.gs.obevo.dbmetadata.api.DaSchemaInfoLevel;
 import com.gs.obevo.dbmetadata.api.DaTable;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
+import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.impl.Changeset;
 import com.gs.obevo.impl.ChangesetCreator;
-import com.gs.obevo.api.platform.CommandExecutionContext;
 import com.gs.obevo.impl.ExecuteChangeCommand;
 import com.gs.obevo.util.inputreader.ConsoleInputReader;
 import com.gs.obevo.util.inputreader.UserInputReader;
@@ -182,7 +182,6 @@ public class DbEnvironmentCleaner implements EnvironmentCleaner {
                 throw new DeployerRuntimeException("Could not clean schema after max " + tryCount + " tries; will exit with remaining exceptions: " + clearResults.getTwo().collect(TO_EXCEPTION_STACK_TRACE));
             }
         }
-
     }
 
     private static final Function<Exception, String> TO_EXCEPTION_STACK_TRACE = new Function<Exception, String>() {
@@ -271,7 +270,6 @@ public class DbEnvironmentCleaner implements EnvironmentCleaner {
             LOG.info("\t: {}", changeCommand.getCommandDescription());
         }
         LOG.info("");
-
 
         if (!noPrompt) {
             LOG.info("WARNING - The above database objects will get dropped!!!! ARE YOU SURE that you want to proceed? (Y/N)");
