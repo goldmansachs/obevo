@@ -30,7 +30,7 @@ import com.gs.obevo.api.appdata.ObjectKey;
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry;
+import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.api.platform.DeployExecutionDao;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.appdata.Grant;

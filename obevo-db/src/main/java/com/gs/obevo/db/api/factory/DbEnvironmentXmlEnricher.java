@@ -15,7 +15,7 @@
  */
 package com.gs.obevo.db.api.factory;
 
-import com.gs.obevo.api.factory.AbstractEnvironmentEnricher;
+import com.gs.obevo.impl.AbstractEnvironmentEnricher;
 import com.gs.obevo.api.platform.Platform;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.appdata.Grant;

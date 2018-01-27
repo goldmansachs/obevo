@@ -35,6 +35,7 @@ This product depends on (links to) the following software:
   Logback Classic Module under Eclipse Public License - v 1.0 or GNU Lesser General Public License
   Logback Core Module under Eclipse Public License - v 1.0 or GNU Lesser General Public License
   Microsoft JDBC Driver for SQL Server under MIT License
+  MongoDB Java Driver under The Apache Software License, Version 2.0
   obevo-core under The Apache License, Version 2.0
   obevo-db under The Apache License, Version 2.0
   obevo-db-client-alldbs under The Apache License, Version 2.0
@@ -48,6 +49,7 @@ This product depends on (links to) the following software:
   obevo-db-sybase-iq under The Apache License, Version 2.0
   obevo-dbmetadata-impl under The Apache License, Version 2.0
   obevo-internal-comparer under The Apache License, Version 2.0
+  obevo-mongodb under The Apache License, Version 2.0
   obevo-reladomo-util under The Apache License, Version 2.0
   opencsv under Apache 2
   PostgreSQL JDBC Driver - JDBC 4.1 under The PostgreSQL License

@@ -13,8 +13,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.gs.obevo.api.factory;
+package com.gs.obevo.impl;
 
+import com.gs.obevo.impl.AbstractEnvironmentEnricher;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;

@@ -13,7 +13,7 @@ Or looking to improve the DB Deployment of a years-old system with hundreds (or 
 Obevo has your use case covered.
 
 
-## Announcement: MongoDB and non-SQL platforms coming soon in 7.0.0
+## Announcement: MongoDB and non-SQL platforms coming soon in 6.5.0
 
 MongoDB support is coming soon! This is a proof of concept that we can deploy non-RDBMS platforms using the object-based
 management pattern described [here](https://www.infoq.com/articles/Obevo-Introduction)

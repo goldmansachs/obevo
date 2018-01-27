@@ -15,7 +15,6 @@
  */
 package com.gs.obevo.impl;
 
-import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.api.platform.CommandExecutionContext;
 
 /**

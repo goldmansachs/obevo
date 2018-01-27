@@ -13,10 +13,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.gs.obevo.mongodb;
+package com.gs.obevo.mongodb.impl;
 
-import com.gs.obevo.api.factory.AbstractEnvironmentEnricher;
+import com.gs.obevo.impl.AbstractEnvironmentEnricher;
 import com.gs.obevo.api.platform.Platform;
+import com.gs.obevo.mongodb.api.appdata.MongoDbEnvironment;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 
 public class MongoDbEnvironmentEnricher extends AbstractEnvironmentEnricher<MongoDbEnvironment> {
@@ -27,6 +28,7 @@ public class MongoDbEnvironmentEnricher extends AbstractEnvironmentEnricher<Mong
 
     @Override
     protected void createEnv(MongoDbEnvironment env, HierarchicalConfiguration sysCfg, HierarchicalConfiguration envCfg, Platform systemDbPlatform) {
+        env.setPlatform((MongoDbPlatform)systemDbPlatform);
         env.setConnectionURI(envCfg.getString("[@connectionURI]"));
     }
 }

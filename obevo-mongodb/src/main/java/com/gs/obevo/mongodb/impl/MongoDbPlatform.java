@@ -13,7 +13,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.gs.obevo.mongodb;
+package com.gs.obevo.mongodb.impl;
 
 import com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder;
 import com.gs.obevo.api.factory.EnvironmentEnricher;

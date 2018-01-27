@@ -13,7 +13,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.gs.obevo.mongodb;
+package com.gs.obevo.mongodb.impl;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -24,10 +24,10 @@ import com.gs.obevo.api.appdata.DeployExecution;
 import com.gs.obevo.api.appdata.DeployExecutionAttribute;
 import com.gs.obevo.api.appdata.DeployExecutionAttributeImpl;
 import com.gs.obevo.api.appdata.DeployExecutionImpl;
-import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.platform.DeployExecutionDao;
 import com.gs.obevo.api.platform.Platform;
+import com.gs.obevo.mongodb.api.appdata.MongoDbEnvironment;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -43,7 +43,7 @@ import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.list.mutable.ListAdapter;
 
-import static com.gs.obevo.mongodb.MongoDbChangeAuditDao.iterableToCollection;
+import static com.gs.obevo.mongodb.impl.MongoDbChangeAuditDao.iterableToCollection;
 
 public class MongoDbDeployExecutionDao implements DeployExecutionDao {
     private final MongoClient mongoClient;

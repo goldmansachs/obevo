@@ -19,7 +19,8 @@ import com.gs.obevo.api.factory.PlatformConfiguration;
 
 /**
  * Utility class to access the version of Obevo.
- * @deprecated use {@link PlatformConfiguration}
+ * @since 6.0.0
+ * @deprecated use {@link PlatformConfiguration} (deprecated in 6.3.0)
  */
 @Deprecated
 public class ToolVersion {

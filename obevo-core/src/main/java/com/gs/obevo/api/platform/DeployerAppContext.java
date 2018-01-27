@@ -50,4 +50,10 @@ public interface DeployerAppContext<E extends Environment, Self extends Deployer
     DeployMetrics getDeployMetrics();
 
     Self setFileSourceContext(FileSourceContext source);
+
+    Self setupEnvInfra();
+
+    Self setupEnvInfra(boolean strictSetupEnvInfra);
+
+    Self cleanEnvironment();
 }

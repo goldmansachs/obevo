@@ -16,7 +16,7 @@
 package com.gs.obevo.db.impl.platforms.sybasease;
 
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry.ChangeTypeBehaviorRegistryBuilder;
+import com.gs.obevo.impl.ChangeTypeBehaviorRegistry.ChangeTypeBehaviorRegistryBuilder;
 import com.gs.obevo.db.api.platform.DbChangeType;
 import com.gs.obevo.db.api.platform.SqlExecutor;
 import com.gs.obevo.db.impl.core.DbDeployerAppContextImpl;

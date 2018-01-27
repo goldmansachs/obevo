@@ -19,7 +19,6 @@ import com.gs.obevo.api.appdata.DeployExecution;
 import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeCommand;
-import com.gs.obevo.api.platform.ChangeTypeBehaviorRegistry;
 
 /**
  * A command that will only update the audit table in the {@link Environment}, but not actually modify anything else

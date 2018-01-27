@@ -35,7 +35,6 @@
     <properties>
         <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>  <!-- not deploying this module to Maven central -->
         <maven.deploy.skip>true</maven.deploy.skip>
-        <maven.install.skip>true</maven.install.skip>
     </properties>
 
     <build>

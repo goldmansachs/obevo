@@ -20,7 +20,6 @@ import java.util.regex.Pattern;
 
 import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.api.factory.EnvironmentEnricher;
-import com.gs.obevo.api.factory.EnvironmentLocator;
 import com.gs.obevo.api.factory.Obevo;
 import com.gs.obevo.api.platform.DeployerAppContext;
 import com.gs.obevo.util.FileUtilsCobra;
@@ -29,19 +28,18 @@ import com.gs.obevo.util.inputreader.Credential;
 import com.gs.obevo.util.inputreader.CredentialReader;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.function.Function;
-import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.factory.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractMain<EnvType extends Environment, ContextClass, ContextType extends DeployerAppContext<EnvType, ContextType>> {
+public abstract class AbstractMain<EnvType extends Environment> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractMain.class);
     private final CredentialReader credentialReader = new CredentialReader();
 
     private MutableCollection<EnvType> getRequestedSystem(String sourcePath) {
-        return Obevo.<EnvType>buildContext(sourcePath).toList();
+        return Obevo.<EnvType>readEnvironments(sourcePath).toList();
     }
 
     public RichIterable<EnvType> getRequestedEnvironments(String sourcePath, String... envNames) {
@@ -87,7 +85,7 @@ public abstract class AbstractMain<EnvType extends Environment, ContextClass, Co
         }
     }
 
-    public ContextType createRuntimeContext(EnvType env, DeployerArgs args) {
+    public DeployerAppContext createRuntimeContext(EnvType env, DeployerArgs args) {
         final File workDir;
         if (args.getWorkDir() == null) {
             workDir = FileUtilsCobra.createTempDir("deploy-" + env.getName());
@@ -105,8 +103,8 @@ public abstract class AbstractMain<EnvType extends Environment, ContextClass, Co
         return createRuntimeContext(env, workDir, credential);
     }
 
-    public ContextType createRuntimeContext(EnvType env, File workDir, Credential credential) {
-        return (ContextType) env.getAppContextBuilder()
+    public DeployerAppContext createRuntimeContext(EnvType env, File workDir, Credential credential) {
+        return (DeployerAppContext) env.getAppContextBuilder()
                 .setEnvironment(env)
                 .setCredential(credential)
                 .setWorkDir(workDir)
@@ -116,19 +114,17 @@ public abstract class AbstractMain<EnvType extends Environment, ContextClass, Co
     public void start(final DeployerArgs args) {
         RichIterable<EnvType> requestedEnvs = getRequestedEnvironments(args.getSourcePath(), args.getEnvNames());
 
-        RichIterable<ContextType> deployContexts = requestedEnvs.collect(new Function<EnvType, ContextType>() {
+        RichIterable<DeployerAppContext> deployContexts = requestedEnvs.collect(new Function<EnvType, DeployerAppContext>() {
             @Override
-            public ContextType valueOf(EnvType environment) {
+            public DeployerAppContext valueOf(EnvType environment) {
                 return createRuntimeContext(environment, args);
             }
         });
 
-        for (ContextType ctxt : deployContexts) {
+        for (DeployerAppContext ctxt : deployContexts) {
             this.start(ctxt, args);
         }
     }
 
-    protected abstract EnvironmentEnricher<EnvType> getEnvironmentEnricher();
-
-    public abstract void start(ContextType ctxt, DeployerArgs args);
+    public abstract void start(DeployerAppContext ctxt, DeployerArgs args);
 }

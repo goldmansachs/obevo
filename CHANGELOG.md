@@ -3,10 +3,14 @@
 ## 6.5.0
 
 ### Functionality Improvements
+#127: MongoDB Support (beta)
 
 ### Bug Fixes
 #122: Re-enabling the DB Merge Tool (was failing due to some exceptions before)
 #115: Reladomo DDL reverse engineering - removing "drop if exists" and splitting indices by leveraging common reverse-engineering utility
+
+### Technical Improvements
+#128: Refactorings to more easily support non-SQL implementations
 
 
 ## 6.4.0
@@ -75,7 +79,7 @@ Primary goal of this release was to support the reverse engineering lesson in th
 
 #50: Obevo BOM should not also expose third-party dependencies
 
-### Technical Fixes
+### Technical Improvements
 
 #57: Uploading test sources to Maven central
 
@@ -110,7 +114,7 @@ Obevo clients from past versions (<= 5.x) will need the following attribute in t
 <dbSystemConfig csvVersion=”2” …
 ```
 
-### Technical Fixes
+### Technical Improvements
 
 Assorted SDLC fixes  around the Maven Central upload, Travis CI, etc.
 
@@ -122,7 +126,7 @@ Initial open-source release
 Reverse Engineering: more improvements around the db2look reverse engineering for DB2. Work will continue on this in future releases
 
 
-### Technical Changes
+### Technical Improvements
 Obevo now builds on Java 7
 
 

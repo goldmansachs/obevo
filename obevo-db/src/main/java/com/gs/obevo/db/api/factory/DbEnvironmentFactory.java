@@ -15,14 +15,14 @@
  */
 package com.gs.obevo.db.api.factory;
 
-import com.gs.obevo.api.factory.EnvironmentFactory;
+import com.gs.obevo.api.factory.Obevo;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import org.eclipse.collections.api.collection.MutableCollection;
 
 /**
  * Factory class that facilitates reading environments from a given input file path.
  *
- * @deprecated use the generic {@link EnvironmentFactory} instead.
+ * @deprecated use the {@link Obevo} API, deprecated since 6.5.0
  * @since 6.0.0
  */
 @Deprecated
@@ -36,10 +36,10 @@ public class DbEnvironmentFactory {
     protected DbEnvironmentFactory() {}
 
     public MutableCollection<DbEnvironment> readFromSourcePath(String sourcePath, String... envNames) {
-        return EnvironmentFactory.getInstance().<DbEnvironment>readFromSourcePath(sourcePath, envNames).toList();
+        return Obevo.<DbEnvironment>readEnvironments(sourcePath, envNames).toList();
     }
 
     public DbEnvironment readOneFromSourcePath(String sourcePath, String... envNames) {
-        return EnvironmentFactory.getInstance().readOneFromSourcePath(sourcePath, envNames);
+        return Obevo.readEnvironment(sourcePath, envNames);
     }
 }

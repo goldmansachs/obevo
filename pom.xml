@@ -158,6 +158,11 @@
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.19.1</version>
+                    <configuration>
+                        <!--<jvm>/Library/Java/JavaVirtualMachines/jdk1.7.0_80.jdk/Contents/Home/bin/java</jvm>-->
+                        <!--<jvm>/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Home/bin/java</jvm>-->
+                        <jvm>${env.JAVA7_HOME}</jvm>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.jacoco</groupId>
@@ -196,14 +201,11 @@
                     <artifactId>maven-enforcer-plugin</artifactId>
                     <version>1.4.1</version>
                 </plugin>
-<!-- commenting out maven-notice-plugin until we confirm proper strategy going forward around notices -->
-<!--
                 <plugin>
                     <groupId>org.jasig.maven</groupId>
                     <artifactId>maven-notice-plugin</artifactId>
-                    <version>1.0.7-SNAPSHOT</version>
+                    <version>1.1.0</version>
                 </plugin>
--->
             </plugins>
         </pluginManagement>
 
@@ -222,8 +224,8 @@
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -449,28 +451,28 @@
                 </executions>
             </plugin>
 
-<!-- Will add this API compatibility check in the future
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
-                <artifactId>clirr-maven-plugin</artifactId>
-                <version>2.7</version>
+                <artifactId>animal-sniffer-maven-plugin</artifactId>
+                <version>1.16</version>
                 <configuration>
-                    <failOnError>false</failOnError>
-                    <logResults>true</logResults>
-                    <includes>
-                        <include>com/gs/obevo/api/**</include>
-                        <include>com/gs/obevo/db/api/**</include>
-                    </includes>
+                    <signature>
+                        <groupId>org.codehaus.mojo.signature</groupId>
+                        <artifactId>java17</artifactId>
+                        <version>1.0</version>
+                    </signature>
                 </configuration>
                 <executions>
                     <execution>
+                        <id>verify</id>
+                        <phase>package</phase>
                         <goals>
                             <goal>check</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
--->
+
 
             <plugin>
                 <!-- sharing common build files using mechanism described here: http://javasplitter.blogspot.com/2011/08/sharing-configuration-files-from-maven.html -->
@@ -520,8 +522,6 @@
                 </executions>
             </plugin>
 
-<!-- commenting out maven-notice-plugin until the 1.0.7 version is released -->
-<!--
             <plugin>
                 <groupId>org.jasig.maven</groupId>
                 <artifactId>maven-notice-plugin</artifactId>
@@ -536,6 +536,7 @@
                         <includeScopes>compile</includeScopes>
                         <includeScopes>runtime</includeScopes>
                     </includeScopes>
+                    <excludeOptional>true</excludeOptional>
                 </configuration>
                 <executions>
                     <execution>
@@ -547,7 +548,6 @@
                     </execution>
                 </executions>
             </plugin>
--->
 
             <plugin>
                 <artifactId>maven-checkstyle-plugin</artifactId>
@@ -571,6 +571,64 @@
                         <version>6.19</version>  <!-- Get latest checkstyle version on Java 7 -->
                     </dependency>
                 </dependencies>
+            </plugin>
+
+            <plugin>
+                <groupId>net.orfjackal.retrolambda</groupId>
+                <artifactId>retrolambda-maven-plugin</artifactId>
+                <version>2.5.3</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>process-main</goal>
+                            <goal>process-test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.0</version>
+                <executions>
+                    <execution>
+                        <id>default-prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-report</id>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+<!--
+                                    <limits>
+                                        <limit>
+                                            <counter>COMPLEXITY</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.25</minimum>
+                                        </limit>
+                                    </limits>
+-->
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -650,8 +708,6 @@
                     </plugin>
 
                     <!-- Generate the NOTICE.txt files -->
-<!-- commenting out maven-notice-plugin until we confirm proper strategy going forward around notices -->
-<!--
                     <plugin>
                         <groupId>org.jasig.maven</groupId>
                         <artifactId>maven-notice-plugin</artifactId>
@@ -665,7 +721,6 @@
                             </execution>
                         </executions>
                     </plugin>
--->
 
                 </plugins>
             </build>
@@ -730,6 +785,38 @@ under the License.]]></inlineHeader>
                                 <phase>validate</phase>
                                 <goals>
                                     <goal>format</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>api-compatibility-check</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.siom79.japicmp</groupId>
+                        <artifactId>japicmp-maven-plugin</artifactId>
+                        <version>0.11.0</version>
+                        <configuration>
+                            <parameter>
+                                <onlyBinaryIncompatible>true</onlyBinaryIncompatible>
+                                <!--<breakBuildOnBinaryIncompatibleModifications>true</breakBuildOnBinaryIncompatibleModifications>-->
+                                <ignoreMissingOldVersion>true</ignoreMissingOldVersion>
+                                <includes>
+                                    <include>com.gs.obevo.api</include>
+                                    <include>com.gs.obevo.db.api</include>
+                                    <include>com.gs.obevo.*.api</include>
+                                </includes>
+                            </parameter>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>cmp</goal>
                                 </goals>
                             </execution>
                         </executions>
