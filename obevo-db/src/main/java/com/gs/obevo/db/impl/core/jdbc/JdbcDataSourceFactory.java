@@ -44,7 +44,11 @@ public abstract class JdbcDataSourceFactory implements DataSourceFactory {
                 numThreads, environment.getDbTranslationDialect().getInitSqls(), getExtraConnectionProperties(credential));
     }
 
-    private Properties getExtraConnectionProperties(Credential credential) {
+    /**
+     * Return connection properties to initialize at startup. To be optionally overridden by subclasses.
+     */
+    @SuppressWarnings("WeakerAccess")
+    protected Properties getExtraConnectionProperties(Credential credential) {
         return null;
     }
 

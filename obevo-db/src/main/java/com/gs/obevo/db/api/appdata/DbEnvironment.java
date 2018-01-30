@@ -33,6 +33,7 @@ import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Maps;
 
+@SuppressWarnings("WeakerAccess")
 public class DbEnvironment extends Environment<DbPlatform> {
     private String dbHost;
     private int dbPort;
@@ -184,7 +185,7 @@ public class DbEnvironment extends Environment<DbPlatform> {
         this.setPlatform(dbPlatform);
     }
 
-    private DbPlatform getSystemDbPlatform() {
+    public DbPlatform getSystemDbPlatform() {
         return this.systemDbPlatform != null ? this.systemDbPlatform : this.getPlatform();
     }
 

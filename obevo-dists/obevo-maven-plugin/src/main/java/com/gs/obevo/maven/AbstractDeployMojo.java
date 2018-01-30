@@ -26,7 +26,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.collections.api.collection.MutableCollection;
 
-abstract class AbstractDeployMojo extends AbstractMojo {
+public abstract class AbstractDeployMojo extends AbstractMojo {
     @Parameter(property = "da.env")
     private String env;
 

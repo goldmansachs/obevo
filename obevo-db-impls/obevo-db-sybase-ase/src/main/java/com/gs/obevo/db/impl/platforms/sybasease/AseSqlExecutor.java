@@ -51,9 +51,10 @@ public class AseSqlExecutor extends AbstractSqlExecutor {
     }
 
     /**
-     * To be implemented.
+     * To be implemented/overriden
      */
-    private int getPercentLogFullInDb(Connection conn, JdbcHelper jdbc) {
+    @SuppressWarnings("WeakerAccess")
+    protected int getPercentLogFullInDb(Connection conn, JdbcHelper jdbc) {
         return 0;  // TODO implement this check; for now, return 0 to allow the statement to go through
     }
 

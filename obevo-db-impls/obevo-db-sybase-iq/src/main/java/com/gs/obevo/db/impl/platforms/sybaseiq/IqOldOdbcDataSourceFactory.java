@@ -43,7 +43,8 @@ public class IqOldOdbcDataSourceFactory extends AbstractIqDataSourceFactory {
         return Tuples.pair(url, credential.getPassword());
     }
 
-    private String getIanywhereDriverProperty(String ianywhereDriverProperty) {
+    @SuppressWarnings("WeakerAccess")
+    protected String getIanywhereDriverProperty(String ianywhereDriverProperty) {
         if (ianywhereDriverProperty != null) {
             return ianywhereDriverProperty;
         } else if (SystemUtils.IS_OS_WINDOWS) {
