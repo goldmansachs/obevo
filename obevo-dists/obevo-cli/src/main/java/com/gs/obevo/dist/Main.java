@@ -49,6 +49,7 @@ import org.eclipse.collections.impl.map.strategy.mutable.UnifiedMapWithHashingSt
 import org.eclipse.collections.impl.tuple.Tuples;
 import org.slf4j.Logger;
 
+@SuppressWarnings("WeakerAccess")
 public class Main {
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(Main.class);
     private static final ImmutableList<DeployCommand> COMMANDS = ArrayAdapter.adapt(DeployCommand.values()).toImmutable();
@@ -71,14 +72,14 @@ public class Main {
 
     private final ImmutableMap<String, Procedure<String[]>> commandMap;
 
-    private Main() {
+    protected Main() {
         // use the hashing strategy to allow commands of any case to be handled
         UnifiedMapWithHashingStrategy<String, Procedure<String[]>> commandMap = new UnifiedMapWithHashingStrategy<String, Procedure<String[]>>(HashingStrategies.fromFunction(StringFunctions.toLowerCase()));
         commandMap.putAll(getCommandMap().toMap());
         this.commandMap = commandMap.toImmutable();
     }
 
-    private void execute(String[] args) {
+    protected void execute(String[] args) {
         execute(args, new Runnable() {
             @Override
             public void run() {
@@ -97,7 +98,7 @@ public class Main {
      * packages.
      */
     @VisibleForTesting
-    private void execute(String[] args, Runnable exitSuccessMethod, Runnable exitFailureMethod) {
+    public void execute(String[] args, Runnable exitSuccessMethod, Runnable exitFailureMethod) {
         Pair<String, Procedure<String[]>> commandEntry = getDeployCommand(args, exitFailureMethod);
 
         LogUtil.FileLogger logAppender = LogUtil.getLogAppender(commandEntry.getOne());
@@ -167,7 +168,7 @@ public class Main {
         System.out.println("If you just put in the command w/ no args, you will be prompted with further options");
     }
 
-    private ImmutableMap<String, Procedure<String[]>> getCommandMap() {
+    protected ImmutableMap<String, Procedure<String[]>> getCommandMap() {
         MutableMap<String, Procedure<String[]>> commandMap = Maps.mutable.empty();
         commandMap.put("deploy", new Procedure<String[]>() {
             @Override
