@@ -31,7 +31,7 @@ fi
 OBEVO_HOME=$(dirname $0)/..
 
 # *** Set OBEVO_CLASSPATH for when we look to read the DB files from the classpath, esp. via the deployWithCp.bat script ***
-CLASSPATH=${OBEVO_CLASSPATH}:${OBEVO_HOME}/conf:${OBEVO_HOME}/lib/*
+CLASSPATH=${OBEVO_CLASSPATH}:${OBEVO_HOME}/conf:${OBEVO_HOME}/extlib/*:${OBEVO_HOME}/lib/*
 
 # *** Set OBEVO_LIBRARY_PATH if we need to add any library paths to the execution, e.g. for Sybase IQ client loads ***
 LD_LIBRARY_PATH=${OBEVO_LIBRARY_PATH}:${LD_LIBRARY_PATH}

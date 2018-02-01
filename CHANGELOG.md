@@ -4,6 +4,7 @@
 
 ### Functionality Improvements
 #127: MongoDB Support (beta)
+#134: Amazon Redshift Support
 
 ### Bug Fixes
 #122: Re-enabling the DB Merge Tool (was failing due to some exceptions before)

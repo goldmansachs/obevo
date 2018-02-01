@@ -45,6 +45,7 @@ As of this writing, this applies to the following DBMS types:
 
 * DB2
 * Oracle
+* Redshift
 * Sybase ASE
 * Sybase IQ
 
@@ -53,7 +54,7 @@ as follows:
 
 $h3 Zip binary distribution
 
-Add the JDBC drivers to the /lib folder
+Add the JDBC drivers to the /extlib or /lib folder
 
 
 $h3 Java API

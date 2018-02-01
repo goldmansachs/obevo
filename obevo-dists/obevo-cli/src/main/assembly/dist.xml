@@ -52,11 +52,12 @@
             <lineEnding>unix</lineEnding>
         </fileSet>
         <fileSet>
-            <directory>${basedir}/target/extlib</directory>
+            <!-- include a blank folder for extlib for clients -->
+            <directory>${basedir}/src/main/assembly</directory>
             <outputDirectory>extlib</outputDirectory>
-            <includes>
-                <include>**/*</include>
-            </includes>
+            <excludes>
+                <exclude>**/*</exclude>
+            </excludes>
             <fileMode>0644</fileMode>
             <directoryMode>0755</directoryMode>
         </fileSet>

@@ -37,6 +37,13 @@ public class PostgreSqlDbPlatform extends AbstractDbPlatform {
         super("POSTGRESQL");
     }
 
+    /**
+     * Protected constructor to allow for the Amazon-based platforms that leverage PostgreSQL as their SQL interface.
+     */
+    protected PostgreSqlDbPlatform(String name) {
+        super(name);
+    }
+
     @Override
     public Class<? extends DeployerAppContext> initializeAppContextBuilderClass() {
         return PostgreSqlAppContext.class;

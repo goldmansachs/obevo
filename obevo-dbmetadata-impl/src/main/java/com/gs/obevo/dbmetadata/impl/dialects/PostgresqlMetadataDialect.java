@@ -36,24 +36,35 @@ public class PostgresqlMetadataDialect extends AbstractMetadataDialect {
     public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema) {
         DatabaseSpecificOverrideOptionsBuilder dbSpecificOptionsBuilder = super.getDbSpecificOptionsBuilder(conn, physicalSchema);
 
-        dbSpecificOptionsBuilder.withInformationSchemaViews().withSequencesSql(
-                "SELECT\n" +
-                        "  NULL AS SEQUENCE_CATALOG,\n" +
-                        "  SEQUENCE_SCHEMA,\n" +
-                        "  SEQUENCE_NAME,\n" +
-                        "  INCREMENT,\n" +
-                        "  MINIMUM_VALUE,\n" +
-                        "  MAXIMUM_VALUE,\n" +
-                        "  CYCLE_OPTION\n" +
-                        "FROM\n" +
-                        "  INFORMATION_SCHEMA.SEQUENCES\n" +
-                        "WHERE SEQUENCE_SCHEMA = '" + physicalSchema.getPhysicalName() + "'\n" +
-                        "ORDER BY\n" +
-                        "  SEQUENCE_CATALOG,\n" +
-                        "  SEQUENCE_SCHEMA,\n" +
-                        "  SEQUENCE_NAME\n");
+        String sequenceSql = getSequenceSql(physicalSchema);
+        if (sequenceSql != null) {
+            // if null, then setting the sequences object to null won't help either
+            dbSpecificOptionsBuilder.withInformationSchemaViews().withSequencesSql(sequenceSql);
+        }
 
         return dbSpecificOptionsBuilder;
+    }
+
+    /**
+     * Gets the sequence SQL for the JDBC metadata.
+     * Protected visibility as subclasses may need to override.
+     */
+    protected String getSequenceSql(PhysicalSchema physicalSchema) {
+        return "SELECT\n" +
+                "  NULL AS SEQUENCE_CATALOG,\n" +
+                "  SEQUENCE_SCHEMA,\n" +
+                "  SEQUENCE_NAME,\n" +
+                "  INCREMENT,\n" +
+                "  MINIMUM_VALUE,\n" +
+                "  MAXIMUM_VALUE,\n" +
+                "  CYCLE_OPTION\n" +
+                "FROM\n" +
+                "  INFORMATION_SCHEMA.SEQUENCES\n" +
+                "WHERE SEQUENCE_SCHEMA = '" + physicalSchema.getPhysicalName() + "'\n" +
+                "ORDER BY\n" +
+                "  SEQUENCE_CATALOG,\n" +
+                "  SEQUENCE_SCHEMA,\n" +
+                "  SEQUENCE_NAME\n";
     }
 
     @Override

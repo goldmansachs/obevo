@@ -28,7 +28,23 @@
 
     <artifactId>obevo-db-postgresql</artifactId>
 
+    <!--
+    Replying on the Amazon repository to get access to the JDBC driver.
+    https://docs.aws.amazon.com/redshift/latest/mgmt/configure-jdbc-connection-with-maven.html
+    -->
+    <repositories>
+        <repository>
+            <id>redshift</id>
+            <url>http://redshift-maven-repository.s3-website-us-east-1.amazonaws.com/release</url>
+        </repository>
+    </repositories>
     <dependencies>
+        <dependency>
+            <groupId>com.amazon.redshift</groupId>
+            <artifactId>redshift-jdbc4-no-awssdk</artifactId>
+            <version>1.2.10.1009</version>
+            <optional>true</optional>  <!-- Must be optional (and not included by default in the distribution) due to driver license; see link above -->
+        </dependency>
         <dependency>
             <groupId>com.goldmansachs.obevo</groupId>
             <artifactId>obevo-db</artifactId>
