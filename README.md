@@ -12,27 +12,29 @@ Or looking to improve the DB Deployment of a years-old system with hundreds (or 
 
 Obevo has your use case covered.
 
+Supported platforms: DB2, H2, HSQLDB, MongoDB, Oracle, PostgreSQL, Redshift, Sybase ASE, Sybase IQ
 
-## Announcement: MongoDB and non-SQL platforms coming soon in 6.5.0
 
-MongoDB support is coming soon! This is a proof of concept that we can deploy non-RDBMS platforms using the object-based
-management pattern described [here](https://www.infoq.com/articles/Obevo-Introduction)
+## Announcement: MongoDB and non-SQL platforms coming soon
+
+MongoDB support is coming in the next version 6.5.0!
+
+This is the first non-RDBMS platform supported, which shows that the object-based management pattern described
+[here](https://www.infoq.com/articles/Obevo-Introduction) can be applicable elsewhere.
 
 
 ## Quick Links
 
-Getting Started
-* [Documentation](https://goldmansachs.github.io/obevo/)
-* [Quickstart Examples](https://github.com/goldmansachs/obevo-kata) (Setup a new database or Onboard an existing database)
+|Getting Started|
+|:---|
+|[Documentation](https://goldmansachs.github.io/obevo/)|
+|[Quickstart Examples](https://github.com/goldmansachs/obevo-kata) (Setup a new database or Onboard an existing database)|
+|[InfoQ Publication - Introducing Obevo: Get Your Database SDLC under Control](https://www.infoq.com/articles/Obevo-Introduction)|
 
-InfoQ Article:
-* [https://www.infoq.com/articles/Obevo-Introduction](https://www.infoq.com/articles/Obevo-Introduction)
-
-API Links
-* [Java API](https://goldmansachs.github.io/obevo/java-api.html)
-* [Command Line API](https://goldmansachs.github.io/obevo/command-line-api.html)
-* [Maven](https://goldmansachs.github.io/obevo/maven-api.html)
-* [Gradle](https://goldmansachs.github.io/obevo/gradle-api.html)
+|APIs|Build Integration|
+|:---|:---|
+|[Java API](https://goldmansachs.github.io/obevo/java-api.html)|[Maven](https://goldmansachs.github.io/obevo/maven-api.html)|
+|[Command Line API](https://goldmansachs.github.io/obevo/command-line-api.html)|[Gradle](https://goldmansachs.github.io/obevo/gradle-api.html)|
 
 
 ## Why Use Obevo?
@@ -81,12 +83,6 @@ Obevo is designed to allow your DB code to be packaged and deployed alongside yo
 
 Treat your DB code like you would treat your application code!
 
-
-### DBMS-specific features
-
-Obevo currently supports DB2, Sybase ASE, Sybase IQ, PostgreSQL, MS SQL Server, Oracle, HSQLDB, and H2
-
-It has special handling for DBMS, such as reorgs for DB2 and handling transaction log checks for Sybase ASE
 
 
 ## Acquiring Obevo

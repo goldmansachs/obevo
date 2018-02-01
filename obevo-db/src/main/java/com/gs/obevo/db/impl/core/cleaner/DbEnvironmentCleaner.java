@@ -285,7 +285,7 @@ public class DbEnvironmentCleaner implements EnvironmentCleaner {
             try {
                 executeChangeCommand.execute(changeTypeBehaviorRegistry, new CommandExecutionContext());  // no need to collect warnings here, so we ignore the ContextExecutionContext value
             } catch (Exception exc) {
-                LOG.info("Found error {}, will proceed with other objects (stack trace to come below)", exc.getMessage());
+                LOG.debug("Found error {}, will proceed with other objects (stack trace to come below)", exc.getMessage());
                 exceptions.add(exc);
             }
         }

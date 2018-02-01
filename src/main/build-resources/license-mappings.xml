@@ -113,4 +113,12 @@
         <version versionType="string">14.15.02</version>
         <license>Eclipse Public License - v 1.0</license>
     </artifact>
+
+    <!-- unsupported dependencies; needed here to allow the plugin to proceed, but we should not include this in any distributions -->
+    <artifact>
+        <groupId>com.amazon.redshift</groupId>
+        <artifactId>redshift-jdbc4-no-awssdk</artifactId>
+        <license>amazon - to exclude</license>
+    </artifact>
+
 </license-lookup>

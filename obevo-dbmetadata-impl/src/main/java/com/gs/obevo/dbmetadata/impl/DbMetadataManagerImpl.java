@@ -18,6 +18,7 @@ package com.gs.obevo.dbmetadata.impl;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Objects;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 
 import javax.sql.DataSource;
@@ -103,7 +104,11 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
         // Many of the DB metadata drivers like IQ/ASE/DB2 don't support the function metadata lookups and
         // schemacrawler complains (though the library still does the job). We set the log level here to avoid
         // excessive log messages
-        java.util.logging.Logger.getLogger("schemacrawler").setLevel(Level.SEVERE);
+        java.util.logging.Logger thisLogger = java.util.logging.Logger.getLogger("schemacrawler");
+        for (Handler handler : thisLogger.getHandlers()) {
+            thisLogger.removeHandler(handler);
+        }
+        thisLogger.setLevel(Level.SEVERE);
 
         Validate.notNull(physicalSchema, "physicalSchema must be specified");
         Connection conn = null;
