@@ -35,6 +35,7 @@ public class PostgresqlMetadataDialect extends AbstractMetadataDialect {
     @Override
     public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema) {
         DatabaseSpecificOverrideOptionsBuilder dbSpecificOptionsBuilder = super.getDbSpecificOptionsBuilder(conn, physicalSchema);
+//        dbSpecificOptionsBuilder.withoutSupportsCatalogs();
 
         dbSpecificOptionsBuilder.withInformationSchemaViews().withSequencesSql(
                 "SELECT\n" +
@@ -58,7 +59,8 @@ public class PostgresqlMetadataDialect extends AbstractMetadataDialect {
 
     @Override
     public String getSchemaExpression(PhysicalSchema physicalSchema) {
-        return "(?i)" + physicalSchema.getPhysicalName();
+//        return "(?i)" + physicalSchema.getPhysicalName();
+        return "(?i).*\\." + physicalSchema.getPhysicalName();
     }
 
     /**

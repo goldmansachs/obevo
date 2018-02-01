@@ -28,6 +28,7 @@ import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.block.factory.StringFunctions;
+import org.eclipse.collections.impl.factory.Lists;
 
 /**
  * PostgreSQL DBMS platform implementation.
@@ -44,16 +45,22 @@ public class PostgreSqlDbPlatform extends AbstractDbPlatform {
 
     @Override
     protected String initializeDefaultDriverClassName() {
-        return "org.postgresql.Driver";
+//        return "org.postgresql.Driver";
+        return "com.amazon.redshift.jdbc4.Driver";
     }
 
     @Override
     protected ImmutableList<ChangeType> initializeChangeTypes() {
         MutableList<ChangeType> changeTypes = super.initializeChangeTypes().toList();
 
+        // sequences are not supported in Redshift
+        changeTypes = changeTypes.reject(changeType -> Lists.fixedSize.of(ChangeType.SEQUENCE_STR).contains(changeType.getName()));
+
+/*
         DbChangeType sequenceType = getChangeType(changeTypes, ChangeType.SEQUENCE_STR);
         sequenceType = DbChangeTypeImpl.newDbChangeType(sequenceType).setGrantObjectQualifier("SEQUENCE").build();
         replaceChangeType(changeTypes, sequenceType);
+*/
 
         DbChangeType functionType = getChangeType(changeTypes, ChangeType.FUNCTION_STR);
         functionType = DbChangeTypeImpl.newDbChangeType(functionType).setGrantObjectQualifier("FUNCTION").build();
