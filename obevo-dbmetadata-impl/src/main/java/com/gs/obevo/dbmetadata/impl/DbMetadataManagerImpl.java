@@ -213,7 +213,6 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
         otherInfoLevel.setRetrieveAdditionalTableAttributes(schemaInfoLevel.isRetrieveTables());
 
         // table columns
-        otherInfoLevel.setRetrieveColumnDataTypes(schemaInfoLevel.isRetrieveTableColumns());
         otherInfoLevel.setRetrieveTableColumns(schemaInfoLevel.isRetrieveTableColumns());
         otherInfoLevel.setRetrieveAdditionalColumnAttributes(schemaInfoLevel.isRetrieveTableColumns());
 
@@ -236,6 +235,7 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
 
         // user types
         otherInfoLevel.setRetrieveUserDefinedColumnDataTypes(schemaInfoLevel.isRetrieveUserDefinedColumnDataTypes());  // TODO see if this takes care of domains
+        // otherInfoLevel.setRetrieveColumnDataTypes();  // note - setRetrieveColumnDataTypes will query all supported data types, including primitives. This is an expensive operation for some DBMS types. We can avoid it for now
 
         // table trigger
         otherInfoLevel.setRetrieveTriggerInformation(false);  // will implement this later
@@ -278,7 +278,7 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
 
     @Override
     public DaTable getTableInfo(PhysicalSchema physicalSchema, String tableName) {
-        return this.getTableInfo(physicalSchema, tableName, new DaSchemaInfoLevel().setRetrieveTableAndColumnDetails());
+        return this.getTableInfo(physicalSchema, tableName, new DaSchemaInfoLevel().setRetrieveTables(true));
     }
 
     @Override

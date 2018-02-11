@@ -48,7 +48,6 @@ import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.procedure.Procedure;
-import org.eclipse.collections.api.block.procedure.primitive.ObjectIntProcedure;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.multimap.list.MutableListMultimap;
@@ -132,7 +131,7 @@ public class SameSchemaChangeAuditDao implements ChangeAuditDao {
 
     private void init(Connection conn, String schema) {
         PhysicalSchema physicalSchema = env.getPhysicalSchema(schema);
-        DaTable artifactTable = this.dbMetadataManager.getTableInfo(physicalSchema, dbChangeTable, new DaSchemaInfoLevel().setRetrieveTableColumns(true));
+        DaTable artifactTable = queryAuditTable(physicalSchema);
         JdbcHelper jdbc = sqlExecutor.getJdbcTemplate();
         if (artifactTable == null) {
             String auditTableSql = get5_1Sql(physicalSchema);
@@ -199,6 +198,10 @@ public class SameSchemaChangeAuditDao implements ChangeAuditDao {
                 jdbc.execute(conn, String.format("UPDATE %s SET %s = %s", schemaPlusTable, updateDeployExecutionIdColumn, insertDeployExecutionIdColumn));
             }
         }
+    }
+
+    private DaTable queryAuditTable(PhysicalSchema physicalSchema) {
+        return this.dbMetadataManager.getTableInfo(physicalSchema, dbChangeTable, new DaSchemaInfoLevel().setRetrieveTableColumns(true));
     }
 
     /**
@@ -308,8 +311,7 @@ public class SameSchemaChangeAuditDao implements ChangeAuditDao {
                     @Override
                     public MutableList<Change> safeValueOf(Connection conn) throws Exception {
                         JdbcHelper jdbcTemplate = sqlExecutor.getJdbcTemplate();
-                        final DaTable artifactTable = dbMetadataManager.getTableInfo(physicalSchema,
-                                dbChangeTable, new DaSchemaInfoLevel().setRetrieveTableColumns(true));
+                        final DaTable artifactTable = queryAuditTable(physicalSchema);
 
                         if (artifactTable == null) {
                             // If the artifact tables does not exist, then return empty list for that schema
@@ -366,12 +368,7 @@ public class SameSchemaChangeAuditDao implements ChangeAuditDao {
         MutableListMultimap<ObjectKey, Change> incrementalChangeMap = incrementalChanges.groupBy(Change.TO_OBJECT_KEY);
         for (RichIterable<Change> objectChanges : incrementalChangeMap.multiValuesView()) {
             MutableList<Change> sortedObjectChanges = objectChanges.toSortedListBy(Change.TO_TIME_INSERTED);
-            sortedObjectChanges.forEachWithIndex(new ObjectIntProcedure<Change>() {
-                @Override
-                public void value(Change each, int index) {
-                    each.setOrderWithinObject(5000 + index);
-                }
-            });
+            sortedObjectChanges.forEachWithIndex((each, index) -> each.setOrderWithinObject(5000 + index));
         }
 
         return artfs.toSet().toList()
