@@ -168,7 +168,7 @@ public class SameSchemaDeployExecutionDao implements DeployExecutionDao {
             tableChangeType.applyGrants(conn, physicalSchema, deployExecutionAttributeTableName, Lists.immutable.with(new Permission("artifactTable",
                     Lists.immutable.with(new Grant(Lists.immutable.with("SELECT"), Multimaps.immutable.list.with(GrantTargetType.PUBLIC, "PUBLIC"))))));
         } else {
-            DaTable executionTable = this.dbMetadataManager.getTableInfo(physicalSchema, deployExecutionTableName, new DaSchemaInfoLevel().setRetrieveTables(true).setRetrieveTableColumns(true));
+            DaTable executionTable = queryAuditExecutionTable(physicalSchema);
 
             if (executionTable.getColumn(productVersionColName) == null) {
                 // add the column if missing
@@ -380,7 +380,7 @@ public class SameSchemaDeployExecutionDao implements DeployExecutionDao {
             return Lists.immutable.empty();
         }
 
-        DaTable tableInfo = this.dbMetadataManager.getTableInfo(physicalSchema, deployExecutionTableName, new DaSchemaInfoLevel().setRetrieveTables(true).setRetrieveTableColumns(true));
+        DaTable tableInfo = queryAuditExecutionTable(physicalSchema);
 
         MutableList<String> mainWhereClauses = Lists.mutable.empty();
         MutableList<String> attrWhereClauses = Lists.mutable.empty();
@@ -436,6 +436,10 @@ public class SameSchemaDeployExecutionDao implements DeployExecutionDao {
                 return deployExecution;
             }
         }).toImmutable();
+    }
+
+    private DaTable queryAuditExecutionTable(PhysicalSchema physicalSchema) {
+        return this.dbMetadataManager.getTableInfo(physicalSchema, deployExecutionTableName, new DaSchemaInfoLevel().setRetrieveTableColumns(true));
     }
 
     @Override

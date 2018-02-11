@@ -4,11 +4,15 @@
 
 ### Functionality Improvements
 #127: MongoDB Support (beta)
+
 #134: Amazon Redshift Support
 
 ### Bug Fixes
 #122: Re-enabling the DB Merge Tool (was failing due to some exceptions before)
+
 #115: Reladomo DDL reverse engineering - removing "drop if exists" and splitting indices by leveraging common reverse-engineering utility
+
+#81: Fixing performance issue: unnecessary call to get column data types from SchemaCrawler
 
 ### Technical Improvements
 #128: Refactorings to more easily support non-SQL implementations
@@ -18,77 +22,84 @@
 
 ### Functionality Improvements
 #84: Supporting subschema support in SQL Server and Sybase ASE (i.e. database.schema.object convention)
+
 #53: Allowing log level to be configured in command-line API
+
 #98: Clearer error messages on exceptions
 
 ### Bug Fixes
 #82: Clearer error messages on cyclic dependencies in user DDL files
+
 #94: Errors on granting permissions will no longer leave deployments in an inconsistent state
+
 #55: Adding clearer log messages on rollback
 
 ### Notable Dependency Upgrades
 Schemacrawler: to version 14.16.04-java7 (and 14.16.03-java7 for Sybase IQ)
+
 HSQLDB: from 2.3.2 to 2.3.4; needed to avoid log warnings on synonym lookups
 
 
 ## 6.3.0
 
 ### Functionality Improvements
-
 #42: Oracle package and package body support
+
 #74: Oracle synonym support
 
 
 ### Bug Fixes
-
 #73: Allowing the encoding to be specified when reading files.
+
 #72: Fixing JDBC URL creation for MS SQL Server
+
 #77: Adding includeDependencies attribute to TableChangeParser
+
 Fixed the Sequence retrieval in DBMetadataManager to use the SchemaCrawler implementation; along the way, fixed Oracle metadata tests
+
 #45: Ensure that an undeployed file w/ DROP_TABLE is not redeployed
+
 #4: If users specify "create or replace" in SQL, then that should not force it to be dropped on rerunnable objects
+
 #76: Clearer error message if schema was not found
+
 #80: Defaulting lenient environment setups to true
 
 
 ## 6.2.2
 
 ### Bug Fixes
-
 #49: Continuing fixes on DB2 Reorg
+
 Reverse engineering fixes - ensuring that MS SQL, Oracle, and PostgreSQL reverse-engineering can be invoked via command line
 
 
 ## 6.2.1
 
 ### Bug Fixes
-
 #49: Fixing DB2 Reorg detection - certain reorg error messages (incl. on batch update) were not getting parsed correctly
+
 #65: Added missing entries to the BOM
+
 #67: Documentation cleanups
 
 
 ## 6.2.0
-
 Primary goal of this release was to support the reverse engineering lesson in the Obevo kata.
 
 ### Functionality Improvements
-
 #51: Reverse-engineering added for HSQLDB
 
 ### Bug Fixes
-
 #50: Obevo BOM should not also expose third-party dependencies
 
 ### Technical Improvements
-
 #57: Uploading test sources to Maven central
 
 
 ## 6.1.0
 
 ### Functionality Improvements
-
 Reverse-engineering added for Oracle, Postgres, SQL Server
 
 #37: Allowing objects to be excluded during reverse engineering
@@ -104,6 +115,7 @@ SchemaCrawler logginq moved to error level to avoid excessive noise from unsuppo
 ### Bug Fixes
 
 ###### A number of fixes around the CSV static data file parsing:
+
 * Tolerates white space in the header columns
 * Tolerates white space around null tokens
 * Backslash \ character can now be loaded easily; does not need to be escaped a la Java strings
@@ -133,6 +145,7 @@ Obevo now builds on Java 7
 
 ### Bug Fixes
 Rollback functionality: fixed an issue where a no-op deployment could not be rolled back t
+
 Rollback fix to populate no-op deployments into table to facilitate rollback
 
 Oracle: Fix in audit data table persistence

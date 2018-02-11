@@ -17,6 +17,7 @@ package com.gs.obevo.db.impl.core.compare.data;
 
 import java.io.File;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.dbmetadata.api.DaColumn;
 import com.gs.obevo.dbmetadata.api.DaIndex;
@@ -33,7 +34,7 @@ import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.list.mutable.FastList;
 
-public class DbDataComparisonUtil {
+public final class DbDataComparisonUtil {
 
     private final DbPlatform dbPlatform;
 
@@ -41,6 +42,7 @@ public class DbDataComparisonUtil {
         new DbDataComparisonUtil().execute(new ArgsParser().parse(args, new DbDataComparisonArgs()));
     }
 
+    @SuppressWarnings("WeakerAccess")
     public DbDataComparisonUtil() {
         try {
             // The classname is hardcoded here via reflection from the original POC implementation, and didn't get a chance
@@ -140,8 +142,8 @@ public class DbDataComparisonUtil {
             DbMetadataManager rightdbMetaManager = dbPlatform.getDbMetadataManager();
             rightdbMetaManager.setDataSource(rightDbDs.getDs());
 
-            DaTable left = leftDbMetaManager.getTableInfo(leftDbDs.getSchema(), table);
-            DaTable right = rightdbMetaManager.getTableInfo(rightDbDs.getSchema(), table);
+            DaTable left = leftDbMetaManager.getTableInfo(new PhysicalSchema(leftDbDs.getSchema()), table);
+            DaTable right = rightdbMetaManager.getTableInfo(new PhysicalSchema(rightDbDs.getSchema()), table);
 
             if (left == null) {
                 return new ComparisonResult(comparisonCommand, null, ComparisonResultType.ONLY_ON_RIGHT_SIDE);
