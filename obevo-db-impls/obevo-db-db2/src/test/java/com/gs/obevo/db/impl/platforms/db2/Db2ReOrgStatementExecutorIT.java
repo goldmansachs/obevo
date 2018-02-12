@@ -25,7 +25,7 @@ import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.appdata.Schema;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
-import com.gs.obevo.db.impl.platforms.db2.Db2PostDeployAction.ReorgQueryResult;
+import com.gs.obevo.db.impl.platforms.db2.Db2PostDeployAction.SchemaObjectRow;
 import com.gs.obevo.impl.DeployMetricsCollectorImpl;
 import org.apache.commons.dbutils.handlers.ColumnListHandler;
 import org.eclipse.collections.api.block.procedure.Procedure;
@@ -91,11 +91,11 @@ public class Db2ReOrgStatementExecutorIT {
         });
 
         final Db2PostDeployAction postDeployAction = new Db2PostDeployAction(executor, new DeployMetricsCollectorImpl());
-        MutableList<ReorgQueryResult> tables = executor.executeWithinContext(physicalSchema, new ThrowingFunction<Connection, MutableList<ReorgQueryResult>>() {
+        MutableList<SchemaObjectRow> tables = executor.executeWithinContext(physicalSchema, new ThrowingFunction<Connection, MutableList<SchemaObjectRow>>() {
             @Override
-            public MutableList<ReorgQueryResult> safeValueOf(Connection conn) throws Exception {
+            public MutableList<SchemaObjectRow> safeValueOf(Connection conn) throws Exception {
                 return postDeployAction.getTablesNeedingReorg(conn, environment)
-                        .toList().sortThis(Comparators.fromFunctions(ReorgQueryResult.TO_SCHEMA, ReorgQueryResult.TO_NAME));
+                        .toList().sortThis(Comparators.fromFunctions(SchemaObjectRow::getSchema, SchemaObjectRow::getName));
             }
         });
 
