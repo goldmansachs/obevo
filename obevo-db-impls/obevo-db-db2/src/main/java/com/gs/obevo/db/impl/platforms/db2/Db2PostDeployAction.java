@@ -16,6 +16,7 @@
 package com.gs.obevo.db.impl.platforms.db2;
 
 import java.sql.Connection;
+import java.util.Objects;
 
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.platform.DeployMetrics;
@@ -30,6 +31,8 @@ import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
+import org.eclipse.collections.api.set.MutableSet;
+import org.eclipse.collections.api.set.SetIterable;
 import org.eclipse.collections.impl.collection.mutable.CollectionAdapter;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.list.mutable.ListAdapter;
@@ -82,7 +85,7 @@ class Db2PostDeployAction implements PostDeployAction<DbEnvironment> {
 
     @VisibleForTesting
     void checkForInvalidObjects(Connection conn, RichIterable<PhysicalSchema> physicalSchemas) {
-        MutableList<ReorgQueryResult> invalidObjects = this.getInvalidObjects(conn, physicalSchemas);
+        SetIterable<SchemaObjectRow> invalidObjects = this.getInvalidObjects(conn, physicalSchemas);
         if (!invalidObjects.isEmpty()) {
             LOG.info("Found invalid objects, will attempt to recompile: {}", invalidObjects);
             recompileInvalidObjects(physicalSchemas);
@@ -90,20 +93,37 @@ class Db2PostDeployAction implements PostDeployAction<DbEnvironment> {
     }
 
     @VisibleForTesting
-    MutableList<ReorgQueryResult> getInvalidObjects(Connection conn, RichIterable<PhysicalSchema> physicalSchemas) {
+    MutableSet<SchemaObjectRow> getInvalidObjects(Connection conn, RichIterable<PhysicalSchema> physicalSchemas) {
         LOG.info("Checking for invalid objects");
 
         String schemaInClause = physicalSchemas.collect(PhysicalSchema.TO_PHYSICAL_NAME).makeString("('", "','", "')");
 
+        MutableSet<SchemaObjectRow> oldInvalidObjects = queryOldInvalidObjects(conn, schemaInClause);
         try {
-            String sql = "SELECT OBJECTSCHEMA schema, OBJECTNAME name FROM SYSCAT.INVALIDOBJECTS WHERE OBJECTSCHEMA IN " + schemaInClause;
-            return ListAdapter.adapt(this.stmtExecutor.getJdbcTemplate().query(conn, sql, new BeanListHandler<ReorgQueryResult>(ReorgQueryResult.class)));
+            MutableSet<SchemaObjectRow> newInvalidObjects = queryNewInvalidObjects(conn, schemaInClause);
+
+            if (oldInvalidObjects.isEmpty() && newInvalidObjects.notEmpty()) {
+                deployMetricsCollector.addMetric("invalidObjectQuery.resultsOnlyInNew", true);
+            } else if (oldInvalidObjects.notEmpty() && newInvalidObjects.isEmpty()) {
+                deployMetricsCollector.addMetric("invalidObjectQuery.resultsOnlyInOld", true);
+            }
+
+            return oldInvalidObjects.withAll(newInvalidObjects);
         } catch (DataAccessException e) {
-            LOG.debug("Failed to execute new invalid objects SQL; falling back to old query");
             deployMetricsCollector.addMetric("oldInvalidObjectQueryRequired", true);
-            String sql = "SELECT CREATOR schema, NAME name FROM SYSIBM.SYSTABLES WHERE TYPE = 'V' AND STATUS = 'X' AND CREATOR IN " + schemaInClause;
-            return ListAdapter.adapt(this.stmtExecutor.getJdbcTemplate().query(conn, sql, new BeanListHandler<ReorgQueryResult>(ReorgQueryResult.class)));
+            LOG.debug("Failed to execute new invalid objects SQL; falling back to old query");
+            return oldInvalidObjects;
         }
+    }
+
+    private MutableSet<SchemaObjectRow> queryNewInvalidObjects(Connection conn, String schemaInClause) {
+        String sql = "SELECT OBJECTSCHEMA schema, OBJECTNAME name FROM SYSCAT.INVALIDOBJECTS WHERE OBJECTSCHEMA IN " + schemaInClause;
+        return ListAdapter.adapt(this.stmtExecutor.getJdbcTemplate().query(conn, sql, new BeanListHandler<>(SchemaObjectRow.class))).toSet();
+    }
+
+    private MutableSet<SchemaObjectRow> queryOldInvalidObjects(Connection conn, String schemaInClause) {
+        String sql = "SELECT CREATOR schema, NAME name FROM SYSIBM.SYSTABLES WHERE TYPE = 'V' AND STATUS = 'X' AND CREATOR IN " + schemaInClause;
+        return ListAdapter.adapt(this.stmtExecutor.getJdbcTemplate().query(conn, sql, new BeanListHandler<>(SchemaObjectRow.class))).toSet();
     }
 
     private void recompileInvalidObjects(RichIterable<PhysicalSchema> physicalSchemas) {
@@ -129,19 +149,19 @@ class Db2PostDeployAction implements PostDeployAction<DbEnvironment> {
     }
 
     private void checkForTablesNeedingReorg(Connection conn, DbEnvironment env) {
-        RichIterable<ReorgQueryResult> results = this.getTablesNeedingReorg(conn, env);
+        RichIterable<SchemaObjectRow> results = this.getTablesNeedingReorg(conn, env);
 
         if (results.isEmpty()) {
             LOG.info("No tables to reorg.");
         } else {
             LOG.info("The following tables require reorgs:");
-            for (ReorgQueryResult result : results) {
+            for (SchemaObjectRow result : results) {
                 LOG.info("* " + result.getPhysicalSchema() + "." + result.getName());
             }
 
             if (env.isAutoReorgEnabled()) {
                 LOG.info("autoReorg is enabled; executing the reorgs now...");
-                for (ReorgQueryResult result : results) {
+                for (SchemaObjectRow result : results) {
                     LOG.info("Reorging table: " + result.getPhysicalSchema() + "." + result.getName());
                     Db2SqlExecutor.executeReorg(this.stmtExecutor.getJdbcTemplate(), conn, result.getPhysicalSchema(), result.getName());
                 }
@@ -151,16 +171,16 @@ class Db2PostDeployAction implements PostDeployAction<DbEnvironment> {
         }
     }
 
-    ImmutableSet<ReorgQueryResult> getTablesNeedingReorg(final Connection conn, final DbEnvironment env) {
+    ImmutableSet<SchemaObjectRow> getTablesNeedingReorg(final Connection conn, final DbEnvironment env) {
         // keeping as system.out for now to facilitate output to maven output
         LOG.info("Starting DB2 post-deploy action: Querying for tables in reorg-ending state (this may take a minute)");
         // trim the schema as DB2 seems to sometimes return the schema w/ spaces (even though where clauses can still
         // work w/out the spaces)
 
         try {
-            return env.getPhysicalSchemas().flatCollect(new Function<PhysicalSchema, Iterable<ReorgQueryResult>>() {
+            return env.getPhysicalSchemas().flatCollect(new Function<PhysicalSchema, Iterable<SchemaObjectRow>>() {
                 @Override
-                public Iterable<ReorgQueryResult> valueOf(PhysicalSchema physicalSchema) {
+                public Iterable<SchemaObjectRow> valueOf(PhysicalSchema physicalSchema) {
                     final String sql = String.format(
                             "select '%1$s' schema, trim(TABNAME) name, NUM_REORG_REC_ALTERS, REORG_PENDING\n" +
                                     "FROM TABLE (SYSPROC.ADMIN_GET_TAB_INFO('%1$s', null)) WHERE REORG_PENDING = 'Y'"
@@ -168,7 +188,7 @@ class Db2PostDeployAction implements PostDeployAction<DbEnvironment> {
                     LOG.debug("Executing SQL: " + sql);
 
                     return stmtExecutor.getJdbcTemplate()
-                            .query(conn, sql, new BeanListHandler<ReorgQueryResult>(ReorgQueryResult.class));
+                            .query(conn, sql, new BeanListHandler<SchemaObjectRow>(SchemaObjectRow.class));
                 }
             });
         } catch (RuntimeException e) {
@@ -179,23 +199,11 @@ class Db2PostDeployAction implements PostDeployAction<DbEnvironment> {
                     "FROM SYSIBMADM.ADMINTABINFO WHERE REORG_PENDING = 'Y'\n" +
                     "AND TABSCHEMA IN ('" + env.getPhysicalSchemas().makeString("','") + "')";
             return CollectionAdapter.wrapSet(Db2PostDeployAction.this.stmtExecutor.getJdbcTemplate()
-                    .query(conn, sql, new BeanListHandler<ReorgQueryResult>(ReorgQueryResult.class))).toImmutable();
+                    .query(conn, sql, new BeanListHandler<SchemaObjectRow>(SchemaObjectRow.class))).toImmutable();
         }
     }
 
-    public static class ReorgQueryResult {
-        public static final Function<ReorgQueryResult, String> TO_SCHEMA = new Function<ReorgQueryResult, String>() {
-            @Override
-            public String valueOf(ReorgQueryResult object) {
-                return object.getSchema();
-            }
-        };
-        public static final Function<ReorgQueryResult, String> TO_NAME = new Function<ReorgQueryResult, String>() {
-            @Override
-            public String valueOf(ReorgQueryResult object) {
-                return object.getName();
-            }
-        };
+    public static class SchemaObjectRow {
         private String schema;
         private String name;
         private String objecttype;
@@ -231,6 +239,25 @@ class Db2PostDeployAction implements PostDeployAction<DbEnvironment> {
         @Override
         public String toString() {
             return this.schema + "." + this.name;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            SchemaObjectRow that = (SchemaObjectRow) o;
+            return Objects.equals(schema, that.schema) &&
+                    Objects.equals(name, that.name) &&
+                    Objects.equals(objecttype, that.objecttype);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(schema, name, objecttype);
         }
     }
 }

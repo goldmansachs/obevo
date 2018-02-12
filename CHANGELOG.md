@@ -14,6 +14,8 @@
 
 #81: Fixing performance issue: unnecessary call to get column data types from SchemaCrawler
 
+#145: DB2 Invalid Object detection should always leverage INVALIDOBJECTS and SYSTABLES instead of just one of them.
+
 ### Technical Improvements
 #128: Refactorings to more easily support non-SQL implementations
 
