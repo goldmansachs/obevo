@@ -444,14 +444,19 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
         this.dependencies = dependencies;
     }
 
+    /**
+     * Gets the dependencies.
+     * @deprecated Use {@link #getCodeDependencies()}
+     */
     @Override
+    @Deprecated
     public ImmutableSet<String> getDependencies() {
-        return this.dependencies != null ? this.dependencies.collect(CodeDependency.TO_TARGET) : null;
+        return this.dependencies != null ? this.dependencies.collect(CodeDependency::getTarget) : null;
     }
 
     @Override
     public void setDependencies(ImmutableSet<String> dependencies) {
-        this.dependencies = dependencies == null ? null : dependencies.collectWith(CodeDependency.CREATE_WITH_TYPE, CodeDependencyType.EXPLICIT);
+        this.dependencies = dependencies == null ? null : dependencies.collectWith(CodeDependency::new, CodeDependencyType.EXPLICIT);
     }
 
     @Override

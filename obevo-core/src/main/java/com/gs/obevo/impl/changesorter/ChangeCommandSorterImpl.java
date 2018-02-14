@@ -82,19 +82,14 @@ public class ChangeCommandSorterImpl implements ChangeCommandSorter {
         ListIterable<DbCommandSortKey> orderedDrops = sortDropCommands(dropPartition.getSelected());
         ListIterable<DbCommandSortKey> orderedDatas = sortDataCommands(dataCommandPartition.getSelected());
 
-        return Lists.mutable.withAll(orderedDrops).withAll(orderedAdds).withAll(orderedDatas).collect(DbCommandSortKey.TO_CHANGE_COMMAND).toImmutable();
+        return Lists.mutable.withAll(orderedDrops).withAll(orderedAdds).withAll(orderedDatas).collect(DbCommandSortKey::getChangeCommand).toImmutable();
     }
 
     private ListIterable<DbCommandSortKey> sortAddCommands(RichIterable<DbCommandSortKey> addCommands, boolean rollback) {
         DirectedGraph<DbCommandSortKey, DefaultEdge> addGraph = enricher.createDependencyGraph(addCommands, rollback);
 
         ListIterable<DbCommandSortKey> addChanges = graphSorter.sortChanges(addGraph, SortableDependencyGroup.GRAPH_SORTER_COMPARATOR);
-        addChanges.forEachWithIndex(new ObjectIntProcedure<DbCommandSortKey>() {
-            @Override
-            public void value(DbCommandSortKey command, int order) {
-                command.setOrder(order);
-            }
-        });
+        addChanges.forEachWithIndex(DbCommandSortKey::setOrder);
 
         return addCommands.toSortedListBy(DbCommandSortKey.TO_ORDER);
     }

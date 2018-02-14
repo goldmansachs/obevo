@@ -129,7 +129,7 @@ public class RerunnableChangeParser extends AbstractDbChangeFileParser {
         }
 
         if (dependenciesStr != null) {
-            change.setCodeDependencies(Sets.immutable.with(dependenciesStr.split(",")).reject(StringPredicates.empty()).collectWith(CodeDependency.CREATE_WITH_TYPE, CodeDependencyType.EXPLICIT));
+            change.setCodeDependencies(Sets.immutable.with(dependenciesStr.split(",")).reject(StringPredicates.empty()).collectWith(CodeDependency::new, CodeDependencyType.EXPLICIT));
         } else {
             if (excludeDependenciesStr != null) {
                 change.setExcludeDependencies(Sets.immutable.with(excludeDependenciesStr.split(",")).reject(StringPredicates.empty()));

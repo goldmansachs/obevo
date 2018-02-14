@@ -50,13 +50,6 @@ class DbCommandSortKey implements SortableDependencyGroup {
         this.orderWithinObject = candidateChange.getOrderWithinObject();
     }
 
-    public static final Function<DbCommandSortKey, ExecuteChangeCommand> TO_CHANGE_COMMAND = new Function<DbCommandSortKey, ExecuteChangeCommand>() {
-        @Override
-        public ExecuteChangeCommand valueOf(DbCommandSortKey object) {
-            return object.getChangeCommand();
-        }
-    };
-
     public ExecuteChangeCommand getChangeCommand() {
         return changeCommand;
     }

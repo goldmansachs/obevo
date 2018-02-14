@@ -162,7 +162,7 @@ public class TableChangeParser extends AbstractDbChangeFileParser {
 
                                 String dependenciesStr = section.getAttr(TextMarkupDocumentReader.ATTR_DEPENDENCIES);
                                 if (dependenciesStr != null) {
-                                    change.setCodeDependencies(Sets.immutable.with(dependenciesStr.split(",")).reject(StringPredicates.empty()).collectWith(CodeDependency.CREATE_WITH_TYPE, CodeDependencyType.EXPLICIT));
+                                    change.setCodeDependencies(Sets.immutable.with(dependenciesStr.split(",")).reject(StringPredicates.empty()).collectWith(CodeDependency::new, CodeDependencyType.EXPLICIT));
                                 }
 
                                 String excludeDependenciesStr = section.getAttr(TextMarkupDocumentReader.ATTR_EXCLUDE_DEPENDENCIES);
