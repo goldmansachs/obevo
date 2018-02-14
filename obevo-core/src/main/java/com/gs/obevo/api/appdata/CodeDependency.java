@@ -18,26 +18,11 @@ package com.gs.obevo.api.appdata;
 import java.util.Objects;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.eclipse.collections.api.block.function.Function;
-import org.eclipse.collections.api.block.function.Function2;
 
 /**
  * Indicates a dependency from one object to another object.
  */
 public class CodeDependency {
-    public static final Function<CodeDependency, String> TO_TARGET = new Function<CodeDependency, String>() {
-        @Override
-        public String valueOf(CodeDependency object) {
-            return object.getTarget();
-        }
-    };
-    public static final Function2<String, CodeDependencyType, CodeDependency> CREATE_WITH_TYPE = new Function2<String, CodeDependencyType, CodeDependency>() {
-        @Override
-        public CodeDependency value(String target, CodeDependencyType codeDependencyType) {
-            return new CodeDependency(target, codeDependencyType);
-        }
-    };
-
     private final String target;
     private final CodeDependencyType codeDependencyType;
 

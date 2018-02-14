@@ -53,9 +53,9 @@ public class TextDependencyExtractorImpl implements TextDependencyExtractor {
                 MutableSet<CodeDependency> codeDependencies = calculateDependencies(change.getObjectKey().toString(), change.getContentForDependencyCalculation(), objectNames)
                         .reject(Predicates.equal(convertDbObjectName.valueOf(change.getObjectKey().getObjectName())))
                         .reject(Predicates.in(change.getExcludeDependencies()))
-                        .collectWith(CodeDependency.CREATE_WITH_TYPE, CodeDependencyType.DISCOVERED);
+                        .collectWith(CodeDependency::new, CodeDependencyType.DISCOVERED);
 
-                codeDependencies.withAll(change.getIncludeDependencies().collectWith(CodeDependency.CREATE_WITH_TYPE, CodeDependencyType.EXPLICIT));
+                codeDependencies.withAll(change.getIncludeDependencies().collectWith(CodeDependency::new, CodeDependencyType.EXPLICIT));
 
                 change.setCodeDependencies(codeDependencies.toImmutable());
             }

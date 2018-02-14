@@ -125,7 +125,7 @@ public class ChangeCommandSorterImplTest {
         when(change.getChangeType()).thenReturn(changeType);
         when(change.getObjectName()).thenReturn(objectName);
         when(change.getChangeName()).thenReturn(changeName);
-        when(change.getCodeDependencies()).thenReturn(dependencies.collectWith(CodeDependency.CREATE_WITH_TYPE, CodeDependencyType.EXPLICIT));
+        when(change.getCodeDependencies()).thenReturn(dependencies.collectWith(CodeDependency::new, CodeDependencyType.EXPLICIT));
         change.getContentForDependencyCalculation();
 
         ExecuteChangeCommand command = mock(ExecuteChangeCommand.class);
@@ -142,7 +142,7 @@ public class ChangeCommandSorterImplTest {
         when(change.getChangeType()).thenReturn(changeType);
         when(change.getObjectName()).thenReturn(objectName);
         when(change.getChangeName()).thenReturn(changeName);
-        when(change.getCodeDependencies()).thenReturn(dependencies.collectWith(CodeDependency.CREATE_WITH_TYPE, CodeDependencyType.EXPLICIT));
+        when(change.getCodeDependencies()).thenReturn(dependencies.collectWith(CodeDependency::new, CodeDependencyType.EXPLICIT));
         when(change.getOrderWithinObject()).thenReturn(orderWithinObject);
 
         ExecuteChangeCommand command = mock(ExecuteChangeCommand.class);
