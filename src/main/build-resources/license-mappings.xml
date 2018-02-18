@@ -120,5 +120,9 @@
         <artifactId>redshift-jdbc4-no-awssdk</artifactId>
         <license>amazon - to exclude</license>
     </artifact>
-
+    <artifact>
+        <groupId>com.oracle</groupId>
+        <artifactId>ojdbc7</artifactId>
+        <license>proprietary - to exclude</license>
+    </artifact>
 </license-lookup>

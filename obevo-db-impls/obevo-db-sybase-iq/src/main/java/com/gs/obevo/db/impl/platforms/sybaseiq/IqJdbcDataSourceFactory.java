@@ -49,7 +49,8 @@ public class IqJdbcDataSourceFactory implements DataSourceFactory {
         return new IqDataSource(env, credential, numThreads, subDataSourceFactory);
     }
 
-    private IqDataSourceFactory determineSubDataSourceFactory(DbEnvironment env, Class<? extends Driver> driverClass) {
+    @SuppressWarnings("WeakerAccess")  // needed for overriding by other clients
+    protected IqDataSourceFactory determineSubDataSourceFactory(DbEnvironment env, Class<? extends Driver> driverClass) {
         for (IqDataSourceFactory factory : iqDsFactories) {
             if (factory.isDriverAccepted(driverClass)) {
                 return factory;

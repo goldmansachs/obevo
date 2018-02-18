@@ -23,7 +23,6 @@ import org.eclipse.collections.impl.factory.Lists;
 import schemacrawler.schema.RoutineType;
 import schemacrawler.schemacrawler.DatabaseSpecificOverrideOptionsBuilder;
 import schemacrawler.schemacrawler.SchemaCrawlerOptions;
-import schemacrawler.server.sybaseiq.SybaseIQDatabaseConnector;
 import schemacrawler.server.sybaseiq.SybaseIQOdbcDatabaseConnector;
 
 public class SybaseIqMetadataDialect extends AbstractMetadataDialect {
@@ -42,7 +41,7 @@ public class SybaseIqMetadataDialect extends AbstractMetadataDialect {
         if (odbcDriverUsed) {
             return new SybaseIQOdbcDatabaseConnector().getDatabaseSpecificOverrideOptionsBuilder();
         } else {
-            return new SybaseIQDatabaseConnector().getDatabaseSpecificOverrideOptionsBuilder();
+            return new SybaseIQFixedDatabaseConnector().getDatabaseSpecificOverrideOptionsBuilder();
         }
     }
 
