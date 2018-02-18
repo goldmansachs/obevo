@@ -16,13 +16,12 @@
     under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.goldmansachs.obevo</groupId>
     <artifactId>obevo-parent</artifactId>
-    <version>6.4.1-SNAPSHOT</version>
+    <version>6.5.0</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -74,7 +73,7 @@
         <url>https://github.com/goldmansachs/obevo/</url>
         <connection>scm:git:https://github.com/goldmansachs/obevo.git</connection>
         <developerConnection>scm:git:https://github.com/goldmansachs/obevo.git</developerConnection>
-        <tag>6.0.0</tag>
+        <tag>6.5.0</tag>
     </scm>
 
 
@@ -562,7 +561,7 @@
                             <logViolationsToConsole>true</logViolationsToConsole>
                             <propertyExpansion>import-control.directory=${build-resources.workdir}</propertyExpansion>
                             <failOnViolation>true</failOnViolation>
-                            <excludes></excludes>
+                            <excludes />
                             <excludes>**/sqlparser/**/*,**/HelpMojo*</excludes>
                         </configuration>
                     </execution>
