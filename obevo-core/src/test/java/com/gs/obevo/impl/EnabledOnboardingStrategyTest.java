@@ -60,19 +60,11 @@ public class EnabledOnboardingStrategyTest {
 
     @Test
     public void exceptionShouldMoveFileFromRegularFolderToExceptionFolder() throws Exception {
-        strategy.handleException(newChange("mydir/myfile.sql"), new Exception(), Sets.mutable.<String>of());
+        strategy.handleException(newChange("mydir/myfile.sql"), new Exception());
 
         // Verify that the file has been moved to the correct folder and exception file created
         assertTrue(new File(testDir, "mydir/exceptions/myfile.sql").exists());
         assertTrue(new File(testDir, "mydir/exceptions/myfile.sql.exception").exists());
-    }
-
-    @Test
-    public void exceptionShouldMoveFileFromValidateToExceptionFolder() throws Exception {
-        strategy.handleException(newChange("mydir3/" + OnboardingStrategy.DEPENDENT_EXCEPTION_DIR + "/myfile.sql"), new Exception(), Sets.mutable.<String>of());
-
-        assertTrue(new File(testDir, "mydir3/exceptions/myfile.sql").exists());
-        assertTrue(new File(testDir, "mydir3/exceptions/myfile.sql.exception").exists());
     }
 
     private Change newChange(String fileLocation) throws IOException {

@@ -16,14 +16,18 @@
 package com.gs.obevo.impl.command;
 
 import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeKey;
 import com.gs.obevo.api.appdata.DeployExecution;
 import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.CommandExecutionContext;
 import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.impl.ExecuteChangeCommand;
+import org.apache.commons.lang3.ObjectUtils;
 import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
+import org.eclipse.collections.api.set.ImmutableSet;
+import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.parallel.ParallelIterate;
 
 public class ParallelDeployChangeCommand implements ExecuteChangeCommand {
@@ -31,6 +35,7 @@ public class ParallelDeployChangeCommand implements ExecuteChangeCommand {
     private final int numThreads;
     private final ImmutableCollection<? extends Change> changes;
     private boolean drop = false;
+    private ImmutableSet<ChangeKey> dependencyChangeKeys;
 
     public ParallelDeployChangeCommand(String schema, ImmutableCollection<? extends Change> changes, int numThreads) {
         this.changes = changes;
@@ -80,5 +85,15 @@ public class ParallelDeployChangeCommand implements ExecuteChangeCommand {
     @Override
     public String getCommandDescription() {
         return "Parallel set of changes:\n" + changes.collect(Change.TO_DISPLAY_STRING).makeString("\n");
+    }
+
+    @Override
+    public ImmutableSet<ChangeKey> getDependencyChangeKeys() {
+        return ObjectUtils.firstNonNull(dependencyChangeKeys, Sets.immutable.<ChangeKey>empty());
+    }
+
+    @Override
+    public void setDependencyChangeKeys(ImmutableSet<ChangeKey> dependencyChangeKeys) {
+        this.dependencyChangeKeys = dependencyChangeKeys;
     }
 }

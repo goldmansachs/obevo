@@ -28,7 +28,6 @@ import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
-import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.impl.list.fixed.ArrayAdapter;
 
 /**
@@ -42,7 +41,7 @@ class DisabledOnboardingStrategy implements OnboardingStrategy {
     }
 
     @Override
-    public void handleException(Change change, Exception exc, MutableSet<String> failedDbObjectNames) {
+    public void handleException(Change change, Exception exc) {
         // no need to do anything extra upon actual deployment time
     }
 
@@ -70,7 +69,6 @@ class DisabledOnboardingStrategy implements OnboardingStrategy {
                         @Override
                         public boolean accept(FileSelectInfo fileInfo) {
                             return fileInfo.getFile().getName().getBaseName().equalsIgnoreCase(EXCEPTION_DIR)
-                                    || fileInfo.getFile().getName().getBaseName().equalsIgnoreCase(DEPENDENT_EXCEPTION_DIR)
                                     || fileInfo.getFile().getName().getBaseName().endsWith(DaConstants.ANALYZE_FOLDER_SUFFIX)
                                     ;
                         }

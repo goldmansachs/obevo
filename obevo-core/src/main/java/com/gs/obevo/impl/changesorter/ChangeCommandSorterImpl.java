@@ -18,12 +18,14 @@ package com.gs.obevo.impl.changesorter;
 import java.util.Comparator;
 
 import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeKey;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.Platform;
 import com.gs.obevo.impl.ExecuteChangeCommand;
 import com.gs.obevo.impl.graph.GraphEnricher;
 import com.gs.obevo.impl.graph.GraphEnricherImpl;
 import com.gs.obevo.impl.graph.GraphSorter;
+import com.gs.obevo.impl.graph.GraphUtil;
 import com.gs.obevo.impl.graph.SortableDependencyGroup;
 import com.gs.obevo.impl.text.TextDependencyExtractor;
 import com.gs.obevo.impl.text.TextDependencyExtractorImpl;
@@ -34,6 +36,7 @@ import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.ListIterable;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.partition.PartitionIterable;
+import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.block.factory.Comparators;
 import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.block.factory.Predicates;
@@ -87,6 +90,13 @@ public class ChangeCommandSorterImpl implements ChangeCommandSorter {
 
     private ListIterable<DbCommandSortKey> sortAddCommands(RichIterable<DbCommandSortKey> addCommands, boolean rollback) {
         DirectedGraph<DbCommandSortKey, DefaultEdge> addGraph = enricher.createDependencyGraph(addCommands, rollback);
+
+        // enrich the actual dependency information for usage later in MainDeployer class. TODO clean this up in GITHUB#153
+        for (DbCommandSortKey addCommand : addCommands) {
+            ImmutableSet<DbCommandSortKey> dependencyNodes = GraphUtil.getDependencyNodes(addGraph, addCommand).toSet().toImmutable();
+            ImmutableSet<ChangeKey> changeKeys = dependencyNodes.flatCollect(dep -> dep.getChangeCommand().getChanges()).collect(Change::getChangeKey);
+            addCommand.getChangeCommand().setDependencyChangeKeys(changeKeys.toSet().toImmutable());
+        }
 
         ListIterable<DbCommandSortKey> addChanges = graphSorter.sortChanges(addGraph, SortableDependencyGroup.GRAPH_SORTER_COMPARATOR);
         addChanges.forEachWithIndex(DbCommandSortKey::setOrder);

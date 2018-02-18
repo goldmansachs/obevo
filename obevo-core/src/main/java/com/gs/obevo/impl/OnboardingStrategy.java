@@ -19,7 +19,6 @@ import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.util.vfs.FileObject;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.set.ImmutableSet;
-import org.eclipse.collections.api.set.MutableSet;
 
 /**
  * Strategy class to facilitate onboarding (i.e. moving files for exception conditions) while also being able to
@@ -27,12 +26,11 @@ import org.eclipse.collections.api.set.MutableSet;
  */
 public interface OnboardingStrategy {
     String EXCEPTION_DIR = "exceptions";
-    String DEPENDENT_EXCEPTION_DIR = "dependentOnExceptions";
     String EXCEPTION_EXTENSION = "exception";
 
     void handleSuccess(Change change);
 
-    void handleException(Change change, Exception exc, MutableSet<String> failedDbObjectNames);
+    void handleException(Change change, Exception exc);
 
     void validateSourceDirs(RichIterable<FileObject> sourceDirs, ImmutableSet<String> schemaNames);
 }

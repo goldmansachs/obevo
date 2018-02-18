@@ -26,7 +26,6 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.vfs2.FileSystemException;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.set.ImmutableSet;
-import org.eclipse.collections.api.set.MutableSet;
 
 /**
  * The strategy for when onboarding is enabled. Here, we should look to move failed changes into the exception folder/s
@@ -38,7 +37,7 @@ class EnabledOnboardingStrategy implements OnboardingStrategy {
         if (change.getFileLocation().exists()) {
             final FileObject containingDir = change.getFileLocation().getParent();
 
-            if (containingDir.getName().getBaseName().equals(EXCEPTION_DIR) || containingDir.getName().getBaseName().equals(DEPENDENT_EXCEPTION_DIR)) {
+            if (containingDir.getName().getBaseName().equals(EXCEPTION_DIR)) {
                 change.getFileLocation().moveTo(change.getFileLocation().getParent().getParent().resolveFile(change.getFileLocation().getName().getBaseName()));
                 FileObject exceptionFile = change.getFileLocation().getParent().resolveFile(change.getFileLocation().getName().getBaseName() + ".exception");
                 exceptionFile.delete();
@@ -47,28 +46,15 @@ class EnabledOnboardingStrategy implements OnboardingStrategy {
     }
 
     @Override
-    public void handleException(Change change, Exception exc, MutableSet<String> failedDbObjectNames) {
+    public void handleException(Change change, Exception exc) {
         if (change.getFileLocation().exists()) {
             final FileObject containingDir = change.getFileLocation().getParent();
 
             final FileObject exceptionDir;
             if (containingDir.getName().getBaseName().equals(EXCEPTION_DIR)) {
                 exceptionDir = containingDir;
-            } else if (containingDir.getName().getBaseName().equals(DEPENDENT_EXCEPTION_DIR)) {
-                if (isDependentException(change, failedDbObjectNames)) {
-                    exceptionDir = containingDir;
-                } else {
-                    exceptionDir = containingDir.getParent().resolveFile(EXCEPTION_DIR);
-                    exceptionDir.createFolder();
-
-                    change.getFileLocation().moveTo(exceptionDir.resolveFile(change.getFileLocation().getName().getBaseName()));
-                    final FileObject oldExceptionFile = containingDir.resolveFile(change.getFileLocation().getName().getBaseName() + ".exception");
-                    oldExceptionFile.delete();
-                }
             } else {
-                String exceptionFolderName = isDependentException(change, failedDbObjectNames) ? DEPENDENT_EXCEPTION_DIR : EXCEPTION_DIR;
-
-                exceptionDir = containingDir.resolveFile(exceptionFolderName);
+                exceptionDir = containingDir.resolveFile(EXCEPTION_DIR);
                 exceptionDir.createFolder();
 
                 change.getFileLocation().moveTo(exceptionDir.resolveFile(change.getFileLocation().getName().getBaseName()));
@@ -87,19 +73,6 @@ class EnabledOnboardingStrategy implements OnboardingStrategy {
                 throw new DeployerRuntimeException(e);
             }
         }
-    }
-
-    private boolean isDependentException(Change change, MutableSet<String> failedDbObjectNames) {
-        if (change.getConvertedContent() != null) {
-            for (String failedDbObjectName : failedDbObjectNames) {
-                // need to check for DbType here
-                if (change.getConvertedContent().toUpperCase().contains(failedDbObjectName.toUpperCase())) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     @Override
