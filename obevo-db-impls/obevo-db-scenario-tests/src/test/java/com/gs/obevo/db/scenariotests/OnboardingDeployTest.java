@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class OnboardingDeployTest {
@@ -56,7 +57,9 @@ public class OnboardingDeployTest {
         assertTrue(new File(destDir, "SCHEMA1/table/exceptions/TABLE_C.ddl").exists());
         assertTrue(new File(destDir, "SCHEMA1/table/exceptions/TABLE_WITH_ERROR.ddl").exists());
         assertTrue(new File(destDir, "SCHEMA1/view/exceptions/VIEW_WITH_ERROR.sql").exists());
-        assertTrue(new File(destDir, "SCHEMA1/view/dependentOnExceptions/VIEW_DEPENDING_ON_BAD_VIEW.sql").exists());
+        // Verify that files that depend on files that failed do not execute
+        assertFalse(new File(destDir, "SCHEMA1/view/exceptions/VIEW_DEPENDING_ON_BAD_VIEW.sql").exists());
+        assertFalse(new File(destDir, "SCHEMA1/view/dependentOnExceptions/VIEW_DEPENDING_ON_BAD_VIEW.sql").exists());
 
         LOG.info("Part 2 - rerun the deploy and ensure the data remains as is");
         deployContext = DbEnvironmentFactory.getInstance().readOneFromSourcePath(destDir.getAbsolutePath(), "test")
@@ -75,7 +78,9 @@ public class OnboardingDeployTest {
         assertTrue(new File(destDir, "SCHEMA1/table/exceptions/TABLE_C.ddl").exists());
         assertTrue(new File(destDir, "SCHEMA1/table/exceptions/TABLE_WITH_ERROR.ddl").exists());
         assertTrue(new File(destDir, "SCHEMA1/view/exceptions/VIEW_WITH_ERROR.sql").exists());
-        assertTrue(new File(destDir, "SCHEMA1/view/dependentOnExceptions/VIEW_DEPENDING_ON_BAD_VIEW.sql").exists());
+        // Verify that files that depend on files that failed do not execute
+        assertFalse(new File(destDir, "SCHEMA1/view/exceptions/VIEW_DEPENDING_ON_BAD_VIEW.sql").exists());
+        assertFalse(new File(destDir, "SCHEMA1/view/dependentOnExceptions/VIEW_DEPENDING_ON_BAD_VIEW.sql").exists());
 
         LOG.info("Part 3 - fix the view and verify that it is moved back to the regular folder");
         FileUtils.copyFile(new File(srcDir, "VIEW_WITH_ERROR.corrected.sql"), new File(destDir, "SCHEMA1/view/exceptions/VIEW_WITH_ERROR.sql"));

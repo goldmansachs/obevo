@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeKey;
 import com.gs.obevo.api.appdata.DeployExecution;
 import com.gs.obevo.api.appdata.DeployExecutionImpl;
 import com.gs.obevo.api.appdata.DeployExecutionStatus;
@@ -31,8 +32,9 @@ import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeCommand;
 import com.gs.obevo.api.platform.CommandExecutionContext;
 import com.gs.obevo.api.platform.DeployExecutionDao;
+import com.gs.obevo.api.platform.DeployExecutionException;
 import com.gs.obevo.api.platform.DeployMetrics;
-import com.gs.obevo.api.platform.DeployerRuntimeException;
+import com.gs.obevo.api.platform.FailedChange;
 import com.gs.obevo.api.platform.MainDeployerArgs;
 import com.gs.obevo.api.platform.Platform;
 import com.gs.obevo.impl.text.TextDependencyExtractor;
@@ -49,10 +51,11 @@ import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.MapIterable;
+import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.impl.block.factory.StringFunctions;
 import org.eclipse.collections.impl.factory.Lists;
-import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.eclipse.collections.impl.factory.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -302,51 +305,35 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
         return deployerArgs.isOnboardingMode() ? new EnabledOnboardingStrategy() : new DisabledOnboardingStrategy();
     }
 
-    private static final class FailedChange {
-        private final ExecuteChangeCommand changeCommand;
-        private final Exception exception;
-
-        public static final Function<FailedChange, ExecuteChangeCommand> TO_CHANGE_COMMAND = new Function<FailedChange, ExecuteChangeCommand>() {
-            @Override
-            public ExecuteChangeCommand valueOf(FailedChange object) {
-                return object.getChangeCommand();
-            }
-        };
-
-        FailedChange(ExecuteChangeCommand changeCommand, Exception exception) {
-            this.changeCommand = changeCommand;
-            this.exception = exception;
-        }
-
-        ExecuteChangeCommand getChangeCommand() {
-            return this.changeCommand;
-        }
-
-        Exception getException() {
-            return this.exception;
-        }
-    }
-
     private void doExecute(Changeset artifactsToProcess, DeployStrategy deployStrategy, OnboardingStrategy onboardingStrategy, MapIterable<String, DeployExecution> executionsBySchema, CommandExecutionContext cec) {
         MutableList<FailedChange> failedChanges = Lists.mutable.empty();
-        MutableSet<String> failedDbObjects = UnifiedSet.newSet();
-        MutableSet<String> failedDbObjectNames = UnifiedSet.newSet();  // TODO we should merge the failedDbObjects* variables; depends on fixing the EnabledOnboardingStrategy for detecting prior exceptions
+        MutableSet<String> failedObjectNames = Sets.mutable.empty();  // to handle use case of table failing and prevent subsequent CSV from getting deployed
+        MutableSet<ChangeKey> failedChangeKeys = Sets.mutable.empty();  // to handle all other cases; should move the CSV case into this one
 
         for (AuditChangeCommand auditChangeCommand : artifactsToProcess.getAuditChanges()) {
             auditChangeCommand.markAuditTable(changeTypeBehaviorRegistry, this.artifactDeployerDao, executionsBySchema.get(auditChangeCommand.getSchema()));
         }
 
         for (ExecuteChangeCommand changeCommand : artifactsToProcess.getInserts()) {
-            MutableSet<String> previousFailedObjects = failedDbObjects.intersect(changeCommand.getChanges().toSet()
+            MutableSet<String> previousFailedObjects = failedObjectNames.intersect(changeCommand.getChanges().toSet()
                     .collect(Change.TO_DB_OBJECT_KEY));
             if (previousFailedObjects.notEmpty()) {
                 // We skip subsequent changes in objects that failed as we don't any unexpected activities to happen on
                 // a particular DB object
                 // (e.g. if one change relied on a previous one, and the previous one failed; what if something goes bad
                 // if the first one isn't executed?)
-                LOG.info(String.format(
-                        "Skipping this artifact as a previous change for these DB objects [%s] has failed: %s",
-                        previousFailedObjects.makeString(", "), changeCommand.getCommandDescription()));
+                LOG.info("Skipping artifact [{}] as these objects previously failed deploying: {}",
+                        changeCommand.getCommandDescription(), previousFailedObjects.makeString(", "));
+                continue;
+            }
+            ImmutableSet<ChangeKey> failedCommandKeys = changeCommand.getDependencyChangeKeys().intersect(failedChangeKeys);
+            if (failedCommandKeys.notEmpty()) {
+                // We skip subsequent changes in objects that failed as we don't any unexpected activities to happen on
+                // a particular DB object
+                // (e.g. if one change relied on a previous one, and the previous one failed; what if something goes bad
+                // if the first one isn't executed?)
+                LOG.info("Skipping artifact [{}] as these changes previously failed deploying: {}",
+                        changeCommand.getCommandDescription(), failedCommandKeys.makeString(", "));
                 continue;
             }
 
@@ -372,7 +359,7 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
                 long runtimeSeconds = TimeUnit.MILLISECONDS.toSeconds(changeStopWatch.getTime());
 
                 for (Change change : changeCommand.getChanges()) {
-                    onboardingStrategy.handleException(change, exc, failedDbObjectNames);
+                    onboardingStrategy.handleException(change, exc);
                 }
 
                 LOG.info("Failed to deploy artifact " + changeCommand.getCommandDescription() + ", took "
@@ -382,8 +369,8 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
                         + ExceptionUtils.getStackTrace(exc));
                 failedChanges.add(new FailedChange(changeCommand, exc));
 
-                failedDbObjectNames.withAll(changeCommand.getChanges().collect(Change.objectName()));
-                failedDbObjects.withAll(changeCommand.getChanges().collect(Change.TO_DB_OBJECT_KEY));
+                failedObjectNames.withAll(changeCommand.getChanges().collect(Change::getDbObjectKey));
+                failedChangeKeys.withAll(changeCommand.getChanges().collect(Change::getChangeKey));
             }
         }
 
@@ -407,7 +394,7 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
                 LOG.error("");
                 LOG.error("");
             }
-            throw new DeployerRuntimeException(exceptionMessage);
+            throw new DeployExecutionException(exceptionMessage, failedChanges);
         }
     }
 

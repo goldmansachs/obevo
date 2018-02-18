@@ -8,11 +8,13 @@
 #134: Amazon Redshift Support
 
 ### Bug Fixes
-#122: Re-enabling the DB Merge Tool (was failing due to some exceptions before)
+#81: Fixing performance issue: unnecessary call to get column data types from SchemaCrawler
 
 #115: Reladomo DDL reverse engineering - removing "drop if exists" and splitting indices by leveraging common reverse-engineering utility
 
-#81: Fixing performance issue: unnecessary call to get column data types from SchemaCrawler
+#122: Re-enabling the DB Merge Tool (was failing due to some exceptions before)
+
+#129: Changes whose upstream dependencies failed should not be executed
 
 #145: DB2 Invalid Object detection should always leverage INVALIDOBJECTS and SYSTABLES instead of just one of them.
 

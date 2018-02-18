@@ -19,6 +19,8 @@ import java.sql.Connection;
 
 import javax.sql.DataSource;
 
+import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.platform.DeployExecutionException;
 import com.gs.obevo.db.api.factory.DbEnvironmentFactory;
 import com.gs.obevo.db.api.platform.DbDeployerAppContext;
 import com.gs.obevo.db.impl.core.jdbc.JdbcDataSourceFactory;
@@ -26,29 +28,59 @@ import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
 import com.gs.obevo.db.impl.platforms.h2.H2JdbcDataSourceFactory;
 import com.gs.obevo.util.inputreader.Credential;
 import org.apache.commons.dbutils.DbUtils;
+import org.eclipse.collections.api.list.ImmutableList;
 import org.junit.Test;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
 
 public class MigrationScenarioTest {
     @Test
     public void testMigration() throws Exception {
-        DbEnvironmentFactory.getInstance().readOneFromSourcePath("scenariotests/migration-example/step1")
+        DbEnvironmentFactory.getInstance().readOneFromSourcePath("scenariotests/migration-example/step1", "test")
                 .buildAppContext("sa", "")
                 .setupEnvInfra()
                 .cleanEnvironment()
                 .deploy();
 
-        DbEnvironmentFactory.getInstance().readOneFromSourcePath("scenariotests/migration-example/step2")
+        DbEnvironmentFactory.getInstance().readOneFromSourcePath("scenariotests/migration-example/step2", "test")
                 .buildAppContext("sa", "")
                 .deploy();
 
         // Run it twice to ensure that we don't duplicate data
-        DbDeployerAppContext context = DbEnvironmentFactory.getInstance().readOneFromSourcePath("scenariotests/migration-example/step2")
+        DbDeployerAppContext context = DbEnvironmentFactory.getInstance().readOneFromSourcePath("scenariotests/migration-example/step2", "test")
                 .buildAppContext("sa", "")
                 .deploy();
 
         this.validateInstance("MigrationExample", "SCHEMA1");
+    }
+
+    @Test
+    public void verifyFailedMigrationWontDropSubsequentChanges() throws Exception {
+        try {
+            DbEnvironmentFactory.getInstance().readOneFromSourcePath("scenariotests/migration-example/step1", "testFailure")
+                    .buildAppContext("sa", "")
+                    .setupEnvInfra()
+                    .cleanEnvironment()
+                    .deploy();
+        } catch (DeployExecutionException e) {
+            ImmutableList<Change> changes = e.getFailedChanges().flatCollect(fc -> fc.getChangeCommand().getChanges());
+            assertThat(changes.collect(c -> c.getDbObjectKey() + ":" + c.getChangeName()).castToList(), containsInAnyOrder(
+                    "SCHEMA1:migration_fail_example:migrate"
+            ));
+        }
+
+        DbEnvironmentFactory.getInstance().readOneFromSourcePath("scenariotests/migration-example/step2", "testFailure")
+                .buildAppContext("sa", "")
+                .deploy();
+
+        // Run it twice to ensure that we don't duplicate data
+        DbDeployerAppContext context = DbEnvironmentFactory.getInstance().readOneFromSourcePath("scenariotests/migration-example/step2", "testFailure")
+                .buildAppContext("sa", "")
+                .deploy();
+
+        this.validateInstance("MigrationExampleFailure", "SCHEMA1");
     }
 
     private void validateInstance(String instanceName, String schemaName) throws Exception {

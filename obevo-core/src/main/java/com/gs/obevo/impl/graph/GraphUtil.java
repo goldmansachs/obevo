@@ -44,7 +44,7 @@ import org.jgrapht.traverse.DepthFirstIterator;
 /**
  * Utility class to work w/ graphs in the JGraphT library. There are a couple usages that need syntax sugar...
  */
-final class GraphUtil {
+public final class GraphUtil {
     private GraphUtil() {
     }
 

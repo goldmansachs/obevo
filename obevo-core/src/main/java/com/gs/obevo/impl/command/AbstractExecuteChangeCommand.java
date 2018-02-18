@@ -16,11 +16,16 @@
 package com.gs.obevo.impl.command;
 
 import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeKey;
 import com.gs.obevo.impl.ExecuteChangeCommand;
+import org.apache.commons.lang3.ObjectUtils;
+import org.eclipse.collections.api.set.ImmutableSet;
+import org.eclipse.collections.impl.factory.Sets;
 
 public abstract class AbstractExecuteChangeCommand extends AuditOnlyChangeCommand implements ExecuteChangeCommand {
     private final String deployMessage;
     private boolean drop;
+    private ImmutableSet<ChangeKey> dependencyChangeKeys;
 
     AbstractExecuteChangeCommand(Change artifact) {
         this(artifact, null);
@@ -58,5 +63,15 @@ public abstract class AbstractExecuteChangeCommand extends AuditOnlyChangeComman
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public ImmutableSet<ChangeKey> getDependencyChangeKeys() {
+        return ObjectUtils.firstNonNull(dependencyChangeKeys, Sets.immutable.<ChangeKey>empty());
+    }
+
+    @Override
+    public void setDependencyChangeKeys(ImmutableSet<ChangeKey> dependencyChangeKeys) {
+        this.dependencyChangeKeys = dependencyChangeKeys;
     }
 }
