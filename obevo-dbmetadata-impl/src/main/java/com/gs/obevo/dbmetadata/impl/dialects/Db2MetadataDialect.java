@@ -38,6 +38,7 @@ import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.list.mutable.ListAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import schemacrawler.crawl.MetadataRetrievalStrategy;
 import schemacrawler.schema.RoutineType;
 import schemacrawler.schemacrawler.DatabaseSpecificOverrideOptionsBuilder;
 import schemacrawler.schemacrawler.SchemaCrawlerOptions;
@@ -86,8 +87,14 @@ public class Db2MetadataDialect extends AbstractMetadataDialect {
     }
 
     @Override
-    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema) {
-        DatabaseSpecificOverrideOptionsBuilder dbSpecificOptionsBuilder = super.getDbSpecificOptionsBuilder(conn, physicalSchema);
+    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema, boolean searchAllTables) {
+        DatabaseSpecificOverrideOptionsBuilder dbSpecificOptionsBuilder = super.getDbSpecificOptionsBuilder(conn, physicalSchema, searchAllTables);
+
+        if (!searchAllTables) {
+            // the default schemacrawler logic is optimized to search for all tables in DB2. But it is very slow for single-table lookups
+            // See the original logic in the class DB2DatabaseConnector.
+            dbSpecificOptionsBuilder.withTableColumnRetrievalStrategy(MetadataRetrievalStrategy.metadata);
+        }
 
         // SEQTYPE <> 'I' is for identity columns; we don't want that when pulling user defined sequences
         dbSpecificOptionsBuilder.withInformationSchemaViews().withSequencesSql(

@@ -35,7 +35,7 @@ import schemacrawler.server.hsqldb.HyperSQLDatabaseConnector;
 public class HsqlMetadataDialect extends AbstractMetadataDialect {
 
     @Override
-    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema) {
+    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema, boolean searchAllTables) {
         return new HyperSQLDatabaseConnector().getDatabaseSpecificOverrideOptionsBuilder();
     }
 

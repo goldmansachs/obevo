@@ -121,7 +121,7 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
             // Standard works for our use cases (e.g. columns, indices, pks)
             options.setSchemaInfoLevel(toInfoLevel(schemaInfoLevel));
 
-            DatabaseSpecificOverrideOptionsBuilder dbSpecificOptionsBuilder = dbMetadataDialect.getDbSpecificOptionsBuilder(conn, physicalSchema);
+            DatabaseSpecificOverrideOptionsBuilder dbSpecificOptionsBuilder = dbMetadataDialect.getDbSpecificOptionsBuilder(conn, physicalSchema, searchAllTables);
             DatabaseSpecificOverrideOptions dbSpecificOptions = dbSpecificOptionsBuilder.toOptions();
             this.enrichSchemaCrawlerOptions(conn, options, physicalSchema, tableName, procedureName);
 

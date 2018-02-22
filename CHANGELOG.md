@@ -1,5 +1,11 @@
 # Change Log
 
+## 6.5.1
+
+### Bug Fixes
+#158: Fixing performance issues for DB2 and Oracle on DB metadata access
+
+
 ## 6.5.0
 
 ### Functionality Improvements
