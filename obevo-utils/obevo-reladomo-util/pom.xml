@@ -22,7 +22,7 @@
     <parent>
         <groupId>com.goldmansachs.obevo</groupId>
         <artifactId>obevo-utils</artifactId>
-        <version>6.5.1-SNAPSHOT</version>
+        <version>6.5.1</version>
     </parent>
 
     <artifactId>obevo-reladomo-util</artifactId>
