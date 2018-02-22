@@ -44,7 +44,7 @@ import schemacrawler.tools.databaseconnector.DatabaseConnectorRegistry;
 
 public abstract class AbstractMetadataDialect implements DbMetadataDialect {
     @Override
-    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema) {
+    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema, boolean searchAllTables) {
         try {
             DatabaseConnectorRegistry registry = new DatabaseConnectorRegistry();
             DatabaseConnector databaseConnector = registry.lookupDatabaseConnector(conn);

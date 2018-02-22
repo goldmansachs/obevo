@@ -60,7 +60,7 @@ public abstract class AbstractSqlExecutor implements SqlExecutor {
             conn = ds.getConnection();
             setDataSourceSchema(conn, schema);
             runnable.value(conn);
-        } catch (DeployerRuntimeException e) {
+        } catch (RuntimeException e) {
             throw e;  // rethrowing DeployerRuntimeException to avoid excessive stack trace outputs
         } catch (Exception e) {
             throw new DeployerRuntimeException(e);

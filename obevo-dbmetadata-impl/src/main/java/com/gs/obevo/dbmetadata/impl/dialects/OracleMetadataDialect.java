@@ -31,6 +31,8 @@ import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.impl.list.mutable.ListAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import schemacrawler.crawl.MetadataRetrievalStrategy;
+import schemacrawler.schemacrawler.DatabaseSpecificOverrideOptionsBuilder;
 
 /**
  * Oracle DBMS metadata dialect.
@@ -75,5 +77,19 @@ public class OracleMetadataDialect extends AbstractMetadataDialect {
                 );
             }
         });
+    }
+
+    @Override
+    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema, boolean searchAllTables) {
+        DatabaseSpecificOverrideOptionsBuilder builder = super.getDbSpecificOptionsBuilder(conn, physicalSchema, searchAllTables);
+
+        if (!searchAllTables) {
+            // the default schemacrawler logic is optimized to search for all tables in Oracle. But it is very slow for single-table lookups
+            // See the original logic in the class OracleDatabaseConnector.
+            builder.withTableColumnRetrievalStrategy(MetadataRetrievalStrategy.metadata)
+                    .withForeignKeyRetrievalStrategy(MetadataRetrievalStrategy.metadata)
+                    .withIndexRetrievalStrategy(MetadataRetrievalStrategy.metadata);
+        }
+        return builder;
     }
 }

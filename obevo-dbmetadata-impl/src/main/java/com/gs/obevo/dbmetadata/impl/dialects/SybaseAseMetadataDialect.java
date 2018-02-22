@@ -71,7 +71,7 @@ import schemacrawler.schemacrawler.SchemaCrawlerOptions;
  */
 public class SybaseAseMetadataDialect extends AbstractMetadataDialect {
     @Override
-    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema) {
+    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema, boolean searchAllTables) {
         return new DatabaseSpecificOverrideOptionsBuilder();
     }
 
