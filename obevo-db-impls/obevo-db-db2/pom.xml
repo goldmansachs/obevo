@@ -33,13 +33,6 @@
             <artifactId>obevo-db</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--
-                <dependency>
-                    <groupId>com.ibm.db2.jcc</groupId>
-                    <artifactId>db2jcc</artifactId>
-                    <version>3.4.65</version>
-                </dependency>
-        -->
         <dependency>
             <groupId>com.goldmansachs.obevo</groupId>
             <artifactId>obevo-dbmetadata-impl</artifactId>
@@ -69,4 +62,28 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>amazon-build</id>
+            <properties>
+                <dbCredsFile>local-db2-creds.properties</dbCredsFile>
+            </properties>
+
+            <dependencies>
+                <dependency>
+                    <groupId>com.ibm.db2</groupId>
+                    <artifactId>db2jcc_license_cu</artifactId>
+                    <version>10.5.0.5</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.ibm.db2</groupId>
+                    <artifactId>db2jcc4</artifactId>
+                    <version>10.5.0.5</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>

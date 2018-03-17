@@ -146,7 +146,7 @@ public class MainDeployerArgs {
         return reason;
     }
 
-    private void setReason(String reason) {
+    public void setReason(String reason) {
         this.reason = reason;
     }
 
@@ -159,7 +159,8 @@ public class MainDeployerArgs {
         return deployExecutionAttributes;
     }
 
-    private void setDeployExecutionAttributes(ImmutableSet<? extends DeployExecutionAttribute> deployExecutionAttributes) {
+    @SuppressWarnings("WeakerAccess")
+    public void setDeployExecutionAttributes(ImmutableSet<? extends DeployExecutionAttribute> deployExecutionAttributes) {
         this.deployExecutionAttributes = deployExecutionAttributes != null ? deployExecutionAttributes : Sets.immutable.<DeployExecutionAttribute>empty();
     }
 
@@ -172,7 +173,8 @@ public class MainDeployerArgs {
         return deployRequesterId;
     }
 
-    private void setDeployRequesterId(String deployRequesterId) {
+    @SuppressWarnings("WeakerAccess")
+    public void setDeployRequesterId(String deployRequesterId) {
         this.deployRequesterId = deployRequesterId;
     }
 
@@ -185,7 +187,8 @@ public class MainDeployerArgs {
         return changesetPredicate;
     }
 
-    private void setChangesetPredicate(Predicate<? super ChangeCommand> changesetPredicate) {
+    @SuppressWarnings("WeakerAccess")
+    public void setChangesetPredicate(Predicate<? super ChangeCommand> changesetPredicate) {
         this.changesetPredicate = changesetPredicate;
     }
 

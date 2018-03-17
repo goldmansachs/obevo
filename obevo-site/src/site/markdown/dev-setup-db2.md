@@ -16,31 +16,54 @@
 
 -->
 
-(WORK IN PROGRESS)
+
+# DB2 Developer Setup
+
+To test Obevo against DB2, you can leverage [Docker](https://www.docker.com) to setup a DB2 Express instance on your
+local machine.
 
 
-# DB2
+1) Install [Docker](https://www.docker.com/community-edition)
 
+2) Install the [DB2 Express Docker Image](https://hub.docker.com/r/ibmcom/db2express-c/)
 
-sp_configure 'user connections', 100
+3) Create and start the DB2 Instance by starting the Docker container
 
+```
+# Start the container and store the container ID for reference
+CONTAINER_ID=$(docker run -d -i -t -p 50000:50000 -e DB2INST1_PASSWORD=db2inst1-pwd -e LICENSE=accept ibmcom/db2express-c:latest db2start)
 
+# Create the database (may take a few seconds)
+docker exec -it $CONTAINER_ID bash -c "su - db2inst1 -c 'db2 create db dbdeploy'"
 
-./db2_install
+# Log into the database to subsequently run more actions
+docker exec -it $CONTAINER_ID bash -c "su - db2inst1"
+```
 
+4) Create the schemas from within the DB2 bash shell
 
-sudo su -- root
-mkdir -p /opt/ibmdb2
-mkdir -p /var/ibmdb2
-groupadd ibmdb2
-useradd -g ibmdb2 -d /opt/ibmdb2 ibmdb2
-passwd ibmdb2
+```
+# Log into the database to subsequently run more actions
+db2 connect to dbdeploy
+db2 create schema dbdeploy01
+db2 create schema dbdeploy02
+db2 create schema dbdeploy03
+```
 
-chown ibmdb2:ibmdb2 /opt/ibmdb2
-chown ibmdb2:ibmdb2 /var/ibmdb2
+5) Exit the bash shell, and copy the DB2 drivers jars out from the docker container and install into your Maven repository
 
+```
+DB2_VERSION=10.5.0.5
+DB2_GROUP=com.ibm.db2
+DB2_ARTIFACTS=db2jcc db2jcc4 db2jcc_license_cu
+DB2_JAVA_BINARY_HOME=/home/db2inst1/sqllib/java
 
+for ARTIFACT in $DB2_ARTIFACTS; do
+    echo "Working on artifact $ARTIFACT"
+    docker cp $CONTAINER_ID:$DB2_JAVA_BINARY_HOME/$ARTIFACT.jar $TMPDIR/$ARTIFACT.jar
+    mvn install:install-file -DgroupId=$DB2_GROUP -DartifactId=$ARTIFACT -Dversion=$DB2_VERSION -Dfile=$TMPDIR/$ARTIFACT.jar -Dpackaging=jar -DgeneratePom=true
+    rm -f $TMPDIR/$ARTIFACT.jar
+done
+```
 
-sudo apt-get install libpam0g:i386
-sudo apt-get install libaio1
-sudo apt-get install binutils
+6) In your IDE, enable the "amazon-build" profile so that you can activate integration tests against the DB2 server

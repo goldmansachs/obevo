@@ -53,6 +53,9 @@ restart
 mkdir ~/host
 sudo mount -t vboxsf virtualboxshared ~/host/
 
+#sudo umount ~/host/
+#sudo usermod -a -G vboxsf $USER
+
 
 (instructions use /opt/sybase vs /opt/sap)
 https://www.petersap.nl/SybaseWiki/index.php?title=Installation_guidelines_ASE_15.7

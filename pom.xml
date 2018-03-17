@@ -230,11 +230,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <systemProperties>
-                        <dbCredsFile>${dbCredsFile}</dbCredsFile>
-                    </systemProperties>
-                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
@@ -348,9 +343,10 @@
                                     </dependencies>
                                     <findAllDuplicates>true</findAllDuplicates>
                                 </banDuplicateClasses>
+                                <dependencyConvergence />
                                 <reactorModuleConvergence />
                                 <requireJavaVersion>
-                                    <version>1.6.0</version>
+                                    <version>1.7.0</version>
                                 </requireJavaVersion>
                                 <requireMavenVersion>
                                     <version>3.2.5</version>
@@ -645,6 +641,19 @@
     </reporting>
 
     <profiles>
+        <profile>
+            <id>amazon-build</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <argLine>-DdbCredsFile=${dbCredsFile}</argLine>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>release</id>
             <properties>
