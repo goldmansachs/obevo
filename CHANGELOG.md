@@ -1,5 +1,14 @@
 # Change Log
 
+## 6.5.2
+
+### Bug Fixes
+Assorted fixes on the file reader context in DeployerAppContext
+
+### Technical Improvements
+Added testing instructions for DB2
+
+
 ## 6.5.1
 
 ### Bug Fixes

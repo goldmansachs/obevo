@@ -135,17 +135,21 @@ public abstract class AbstractDeployerAppContext<E extends Environment, Self ext
 
     @Override
     public Self deploy(MainDeployerArgs deployerArgs) {
-        FileSourceParams params = FileSourceParams.newBuilder()
-                .setSchemaNames(env.getSchemaNames())
-                .setFiles(env.getSourceDirs())
-                .setBaseline(deployerArgs.isUseBaseline())
-                .setAcceptedExtensions(env.getAcceptedExtensions())
-                .setChangeTypes(env.getPlatform().getChangeTypes())
-                .setDefaultSourceEncoding(env.getSourceEncoding())
-                .setLegacyDirectoryStructureEnabled(env.isLegacyDirectoryStructureEnabled())
-                .build();
+        FileSourceParams params = getFileSourceParams(deployerArgs.isUseBaseline());
         getDeployer().execute(env, getSourceReaderStrategy(params), deployerArgs);
         return (Self) this;
+    }
+
+    protected FileSourceParams getFileSourceParams(boolean baseline) {
+        return FileSourceParams.newBuilder()
+                    .setSchemaNames(env.getSchemaNames())
+                    .setFiles(env.getSourceDirs())
+                    .setBaseline(baseline)
+                    .setAcceptedExtensions(env.getAcceptedExtensions())
+                    .setChangeTypes(env.getPlatform().getChangeTypes())
+                    .setDefaultSourceEncoding(env.getSourceEncoding())
+                    .setLegacyDirectoryStructureEnabled(env.isLegacyDirectoryStructureEnabled())
+                    .build();
     }
 
     protected FileSourceReaderStrategy getSourceReaderStrategy(FileSourceParams params) {
