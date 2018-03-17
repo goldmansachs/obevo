@@ -125,4 +125,14 @@
         <artifactId>ojdbc7</artifactId>
         <license>proprietary - to exclude</license>
     </artifact>
+    <artifact>
+        <groupId>com.ibm.db2</groupId>
+        <artifactId>db2jcc4</artifactId>
+        <license>proprietary - to exclude</license>
+    </artifact>
+    <artifact>
+        <groupId>com.ibm.db2</groupId>
+        <artifactId>db2jcc_license_cu</artifactId>
+        <license>proprietary - to exclude</license>
+    </artifact>
 </license-lookup>

@@ -66,3 +66,15 @@ You have the choice to configure the behaviors above either at the dbSystemConfi
         <dbEnvironment name="env1" ... />  <!-- inherits the default value from the top level -->
         <dbEnvironment name="env2" autoReorgEnabled="true" ... />  <!-- overrides the default value -->
 ```
+
+
+## "Invalid operation: Lob is closed" Exception
+
+If you receive this exception, you should add the progressiveStreaming=false value to your JDBC url, per below. More details [here](https://pdn.pega.com/support-articles/pega-718-installation-db2-fails-lob-closed-error)
+
+```
+jdbc:db2://localhost:50000/dbdeploy:progressiveStreaming=false;
+```
+
+We have only seen this in the DB2 Express environment so far. If you run into this in your own standard environment,
+please raise an issue on Github.

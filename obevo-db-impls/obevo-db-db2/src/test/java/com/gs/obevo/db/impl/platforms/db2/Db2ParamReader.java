@@ -17,11 +17,17 @@ package com.gs.obevo.db.impl.platforms.db2;
 
 import com.gs.obevo.db.testutil.ParamReader;
 import com.typesafe.config.ConfigFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.collections.impl.factory.Maps;
 
 public class Db2ParamReader {
     public static ParamReader getParamReader() {
-        return new ParamReader(ConfigFactory.parseResources("db2-creds.properties"), "db2", ConfigFactory.parseMap(Maps.mutable.<String, Object>of(
+        String dbCredsFile = System.getProperty("dbCredsFile");
+        if (StringUtils.isEmpty(dbCredsFile)) {
+            dbCredsFile = "db2-creds.properties";
+        }
+
+        return new ParamReader(ConfigFactory.parseResources(dbCredsFile), "db2", ConfigFactory.parseMap(Maps.mutable.<String, Object>of(
                 "sysattrs.type", "DB2",
                 "sysattrs.autoReorgEnabled", "true",
                 "sysattrs.metadataLineReaderVersion", "3",
