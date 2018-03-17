@@ -23,7 +23,6 @@ import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.DeployExecutionDao;
 import com.gs.obevo.api.platform.FileSourceContext;
-import com.gs.obevo.api.platform.FileSourceParams;
 import com.gs.obevo.api.platform.MainDeployerArgs;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.platform.DbChangeType;
@@ -110,6 +109,7 @@ public abstract class DbDeployerAppContextImpl extends AbstractDeployerAppContex
 
         validateChangeTypes(platform().getChangeTypes(), getChangeTypeBehaviorRegistry());
 
+        getChangesetCreator();
         getEnvironmentCleaner();
         getManagedDataSource();
 
@@ -179,7 +179,6 @@ public abstract class DbDeployerAppContextImpl extends AbstractDeployerAppContex
         Validate.notNull(env.getSchemas(), "schemas must be populated");
 
         getInputReader();
-        getChangesetCreator();
 
         return this;
     }
@@ -196,12 +195,12 @@ public abstract class DbDeployerAppContextImpl extends AbstractDeployerAppContex
 
     @Override
     public ImmutableList<Change> readChangesFromSource(boolean useBaseline) {
-        return getInputReader().readInternal(getSourceReaderStrategy(FileSourceParams.newBuilder().build()), new MainDeployerArgs().useBaseline(useBaseline));
+        return getInputReader().readInternal(getSourceReaderStrategy(getFileSourceParams(useBaseline)), new MainDeployerArgs().useBaseline(useBaseline));
     }
 
     @Override
     public void readSource(MainDeployerArgs deployerArgs) {
-        getInputReader().readInternal(getSourceReaderStrategy(FileSourceParams.newBuilder().build()), new MainDeployerArgs().useBaseline(false));
+        getInputReader().readInternal(getSourceReaderStrategy(getFileSourceParams(false)), new MainDeployerArgs().useBaseline(false));
     }
 
     @Override
