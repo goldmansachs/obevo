@@ -15,6 +15,7 @@
  */
 options {
     STATIC=false;
+    UNICODE_INPUT=true;  // this will allow both unicode and non-unicode characters
 }
 
 PARSER_BEGIN(SqlTokenParserImpl)

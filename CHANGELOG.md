@@ -1,5 +1,11 @@
 # Change Log
 
+## 6.5.3
+
+### Bug Fixes
+#165: Supporting Unicode in regular table/db object files and avoiding "TokenMgrError: Lexical error at line ..." issues
+
+
 ## 6.5.2
 
 ### Bug Fixes

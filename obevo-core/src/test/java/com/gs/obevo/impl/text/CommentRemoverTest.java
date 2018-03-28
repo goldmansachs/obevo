@@ -55,6 +55,17 @@ public class CommentRemoverTest {
     }
 
     @Test
+    public void testSpecialCharacters() throws Exception {
+        String stringWithoutComment = CommentRemover.removeComments("text合\n" +
+                "		        // Comment 合\n" +
+                "		        -- Comment 合\n" +
+                "		        /* Comment 合 */\n" +
+                "		        text2 合",  "testlog");
+
+        assertThat(stringWithoutComment, Matchers.equalToIgnoringWhiteSpace("text合 text2 合"));
+    }
+
+    @Test
     public void testReturnGracefullyIfParsingFails() {
         String content = "abc \"def\" un-closed quote \" un-closed /* comment not removed */ quote";
         assertEquals(content, CommentRemover.removeComments(content, "testlog"));
