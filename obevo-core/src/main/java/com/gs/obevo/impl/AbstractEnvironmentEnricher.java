@@ -120,6 +120,8 @@ public abstract class AbstractEnvironmentEnricher<E extends Environment> impleme
         dbEnv.setDefaultUserId(envCfg.getString("[@defaultUserId]"));
         dbEnv.setDefaultPassword(envCfg.getString("[@defaultPassword]"));
 
+        // Note - schemaNameValidation attribute should have been read as [@schemaNameValidation]. But some clients have already
+        // pulled in this feature, so we'll have to leave it in.
         int schemaNameValidationVersion = envCfg.getInt("schemaNameValidation", sysCfg.getInt("schemaNameValidation", dbPlatformConfiguration.getFeatureToggleVersion("schemaNameValidation")));
 
         // TODO add include/exclude schemas functionality

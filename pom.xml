@@ -424,6 +424,7 @@
                         <exclude>**/test/resources/**/expected/**</exclude>
 
                         <!-- Other SP/sql files to exclude that weren't automatically applied by the mycila plugin originally -->
+                        <exclude>**/*.dat</exclude>
                         <exclude>**/*.ddl</exclude>
                         <exclude>**/*.spc</exclude>
                         <exclude>**/*.csv</exclude>
