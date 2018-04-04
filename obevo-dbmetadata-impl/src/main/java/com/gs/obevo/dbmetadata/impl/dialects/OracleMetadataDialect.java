@@ -23,7 +23,6 @@ import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.dbmetadata.api.DaPackage;
 import com.gs.obevo.dbmetadata.api.DaSchema;
 import com.gs.obevo.dbmetadata.impl.DaPackagePojoImpl;
-import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.collection.ImmutableCollection;
@@ -47,8 +46,6 @@ public class OracleMetadataDialect extends AbstractMetadataDialect {
 
     @Override
     public ImmutableCollection<DaPackage> searchPackages(final DaSchema schema, String procedureName, Connection conn) throws SQLException {
-        QueryRunner query = new QueryRunner();  // using queryRunner so that we can reuse the connection
-
         String procedureClause = procedureName == null ? "" : " AND OBJECT_NAME = '" + procedureName + "'";
         final String sql = "SELECT OBJECT_NAME, OBJECT_TYPE FROM ALL_OBJECTS\n" +
                 "WHERE OBJECT_TYPE IN ('PACKAGE')\n" +
@@ -56,7 +53,7 @@ public class OracleMetadataDialect extends AbstractMetadataDialect {
                 procedureClause;
         LOG.debug("Executing package metadata query SQL: {}", sql);
 
-        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(query.query(conn,
+        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(jdbc.query(conn,
                 sql,
                 new MapListHandler()
         )).toImmutable();

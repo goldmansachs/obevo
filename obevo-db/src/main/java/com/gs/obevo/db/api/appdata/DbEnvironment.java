@@ -323,7 +323,7 @@ public class DbEnvironment extends Environment<DbPlatform> {
             }
         });
 
-        permissionGroups.removeIf(Predicates.attributeIn(Group.TO_NAME, this.groups.collect(Group.TO_NAME)));  // ensure that we don't duplicate groups across the permissions and config groups list
+        permissionGroups.removeIf(Predicates.attributeIn(Group::getName, this.groups.collect(Group::getName)));  // ensure that we don't duplicate groups across the permissions and config groups list
 
         return this.groups.newWithAll(permissionGroups);
     }

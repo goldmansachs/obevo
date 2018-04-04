@@ -27,6 +27,7 @@ import com.gs.obevo.dbmetadata.api.DaSchema;
 import com.gs.obevo.dbmetadata.api.DaUserType;
 import com.gs.obevo.dbmetadata.api.RuleBinding;
 import org.eclipse.collections.api.collection.ImmutableCollection;
+import org.eclipse.collections.api.set.ImmutableSet;
 import schemacrawler.schema.Catalog;
 import schemacrawler.schema.Schema;
 import schemacrawler.schemacrawler.DatabaseSpecificOverrideOptionsBuilder;
@@ -80,4 +81,22 @@ public interface DbMetadataDialect {
      * Indicates how we will read the desired catalog name from the SchemaCrawler {@link Schema} object.
      */
     SchemaStrategy getSchemaStrategy();
+
+    /**
+     * Retrieves the groups setup at the database level.
+     * @since 6.6.0
+     */
+    ImmutableSet<String> getGroupNamesOptional(Connection conn, PhysicalSchema physicalSchema) throws SQLException;
+
+    /**
+     * Retrieves the users setup at the database level.
+     * @since 6.6.0
+     */
+    ImmutableSet<String> getUserNamesOptional(Connection conn, PhysicalSchema physicalSchema) throws SQLException;
+
+    /**
+     * Retrieves the directory objects setup at the database level; pertinent for Oracle only.
+     * @since 6.6.0
+     */
+    ImmutableSet<String> getDirectoryNamesOptional(Connection conn) throws SQLException;
 }

@@ -46,7 +46,7 @@ public class RedshiftInstanceUtil {
                 .withDBName("dbdeploy")
                 .withPubliclyAccessible(true)
                 .withAvailabilityZone("us-east-1")
-                //.withClusterType("single node")
+                .withClusterType("single-node")
                 .withMasterUsername("deploybuilddbo")
                 .withMasterUserPassword("Deploybuilddb0");
         Cluster response = client.createCluster(request);

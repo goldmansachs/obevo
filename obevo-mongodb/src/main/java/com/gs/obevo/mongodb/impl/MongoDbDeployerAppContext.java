@@ -110,6 +110,12 @@ public class MongoDbDeployerAppContext extends AbstractDeployerAppContext<MongoD
     }
 
     @Override
+    public MongoDbDeployerAppContext setupEnvInfra(boolean strictSetupEnvInfra, boolean forceEnvCreation) {
+        LOG.info("setupEnvInfra is not implemented; doing nothing");
+        return this;
+    }
+
+    @Override
     public MongoDbDeployerAppContext cleanEnvironment() {
         LOG.info("setupEnvInfra is not implemented; doing nothing");
         return this;

@@ -35,7 +35,6 @@ import com.gs.obevo.dbmetadata.impl.RuleBindingImpl;
 import com.gs.obevo.dbmetadata.impl.SchemaByCatalogStrategy;
 import com.gs.obevo.dbmetadata.impl.SchemaStrategy;
 import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.apache.commons.lang3.ObjectUtils;
 import org.eclipse.collections.api.block.function.Function;
@@ -148,8 +147,7 @@ public class MsSqlMetadataDialect extends AbstractMetadataDialect {
                 " WHERE ROUTINE_CATALOG = '" + schema.getName() + "'" +
                 " AND ROUTINE_SCHEMA = '" + schema.getSubschemaName() + "'" +
                 nameClause;
-        QueryRunner qr = new QueryRunner();  // using queryRunner so that we can reuse the connection
-        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(qr.query(conn, query, new MapListHandler())).toImmutable();
+        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(jdbc.query(conn, query, new MapListHandler())).toImmutable();
 
         return maps.collect(new Function<Map<String, Object>, DaRoutine>() {
             @Override
@@ -168,8 +166,6 @@ public class MsSqlMetadataDialect extends AbstractMetadataDialect {
 
     @Override
     public ImmutableCollection<DaRule> searchRules(final DaSchema schema, Connection conn) throws SQLException {
-        QueryRunner query = new QueryRunner();  // using queryRunner so that we can reuse the connection
-
         // Do not use ANSI JOIN as it does not work in Sybase 11.x - the SQL below works across all versions
         String sql = "SELECT rul.name as RULE_NAME\n" +
                 "FROM " + schema.getName() + "..sysobjects rul\n" +
@@ -181,32 +177,20 @@ public class MsSqlMetadataDialect extends AbstractMetadataDialect {
                 "\tselect 1 from " + schema.getName() + "..sysconstraints c\n" +
                 "\twhere c.constid = rul.id\n" +
                 ")\n";
-        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(query.query(conn, sql, new MapListHandler())).toImmutable();
+        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(jdbc.query(conn, sql, new MapListHandler())).toImmutable();
 
-        return maps.collect(new Function<Map<String, Object>, DaRule>() {
-            @Override
-            public DaRule valueOf(Map<String, Object> map) {
-                return new DaRuleImpl((String) map.get("RULE_NAME"), schema);
-            }
-        });
+        return maps.collect(map -> new DaRuleImpl((String) map.get("RULE_NAME"), schema));
     }
 
     @Override
     public ImmutableCollection<DaUserType> searchUserTypes(final DaSchema schema, Connection conn) throws SQLException {
-        QueryRunner query = new QueryRunner();
-
         String sql = "SELECT DOMAIN_NAME as USER_TYPE_NAME " +
                 "FROM INFORMATION_SCHEMA.DOMAINS " +
                 "WHERE DOMAIN_CATALOG = '" + schema.getName() + "' " +
                 "AND DOMAIN_SCHEMA = '" + schema.getSubschemaName() + "'";
-        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(query.query(conn, sql, new MapListHandler())).toImmutable();
+        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(jdbc.query(conn, sql, new MapListHandler())).toImmutable();
 
-        return maps.collect(new Function<Map<String, Object>, DaUserType>() {
-            @Override
-            public DaUserType valueOf(Map<String, Object> map) {
-                return new DaUserTypeImpl((String) map.get("USER_TYPE_NAME"), schema);
-            }
-        });
+        return maps.collect(map -> new DaUserTypeImpl((String) map.get("USER_TYPE_NAME"), schema));
     }
 
     @Override

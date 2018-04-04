@@ -34,5 +34,5 @@ public interface EnvironmentInfraSetup<E extends Environment> {
     /**
      * Sets up the environment - should be an idempotent call. See {@link EnvironmentInfraSetup} javadoc for details.
      */
-    void setupEnvInfra(boolean failOnSetupException);
+    void setupEnvInfra(boolean failOnSetupException, boolean forceCreation);
 }

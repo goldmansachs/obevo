@@ -75,6 +75,7 @@
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
+            <version>2.3</version>  <!-- rest of obevo can use 1.6, but Amazon APIs need 2.3 -->
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -98,6 +99,13 @@
             <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <executions>
+                    <execution>
+                        <!-- We won't check the dependencies on this utility as it is meant to be stand-alone (joda-time conflict causes issue for now) -->
+                        <id>enforce-non-duplicate-dependencies</id>
+                        <configuration>
+                            <fail>false</fail>
+                        </configuration>
+                    </execution>
                     <execution>
                         <!-- We won't check the dependencies on this utility as it is meant to be stand-alone -->
                         <id>enforce-dependency-convergence</id>

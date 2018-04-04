@@ -57,7 +57,7 @@ public class Db2AppContext extends DbDeployerAppContextImpl {
 
     @Override
     public EnvironmentInfraSetup getEnvironmentInfraSetup() {
-        return new Db2EnvironmentInfraSetup(this.getEnvironment(), this.getManagedDataSource(), this.deployStatsTracker());
+        return new Db2EnvironmentInfraSetup(this.getEnvironment(), this.getManagedDataSource(), this.deployStatsTracker(), this.getDbMetadataManager());
     }
 
     @Override

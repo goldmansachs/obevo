@@ -19,6 +19,7 @@ import javax.sql.DataSource;
 
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import org.eclipse.collections.api.collection.ImmutableCollection;
+import org.eclipse.collections.api.set.ImmutableSet;
 
 /**
  * API for accessing the DB object metadata for a particular schema/catalog in a database server.
@@ -128,4 +129,24 @@ public interface DbMetadataManager {
      * @since 6.4.0
      */
     ImmutableCollection<DaRoutine> getRoutineInfo(PhysicalSchema physicalSchema, String routineName, DaSchemaInfoLevel schemaInfoLevel);
+
+    /**
+     * Retrieves the groups setup at the database or schema level, or null if the dialect doesn't support this operation.
+     * @since 6.6.0
+     * @param physicalSchema
+     */
+    ImmutableSet<String> getGroupNamesOptional(PhysicalSchema physicalSchema);
+
+    /**
+     * Retrieves the users setup at the database or schema level, or null if the dialect doesn't support this operation.
+     * @since 6.6.0
+     * @param physicalSchema
+     */
+    ImmutableSet<String> getUserNamesOptional(PhysicalSchema physicalSchema);
+
+    /**
+     * Retrieves the directory objects setup at the database level; pertinent for Oracle only.
+     * @since 6.6.0
+     */
+    ImmutableSet<String> getDirectoryNamesOptional();
 }

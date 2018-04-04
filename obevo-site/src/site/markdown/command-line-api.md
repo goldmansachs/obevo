@@ -36,7 +36,7 @@ This is the main command for Obevo that will deploy your source changes to your 
 3. calculate the difference
 4. deploy the changes.
 
-Arguments:
+Listing of the commonly-used arguments (for full descriptions, run DEPLOY without any args):
 
 -sourcePath &lt;arg&gt;
 
@@ -65,6 +65,11 @@ Credentials: -deployUserId &lt;arg&gt;, -password &lt;arg&gt;, -useKerberosAuth
 
 * Defines if the deployment will proceed without any user interaction or prompting
 * Optional - defaults to false (i.e. users are prompted by default)
+
+-forceEnvSetup
+
+* Defines whether to create infrastructure objects (e.g. schemas, users) prior to object deployment
+* Optional - the default is based on the platform-chosen. (in-memory testing environments will create the infrastructure by default; others will not)
 
 
 ### PREVIEW

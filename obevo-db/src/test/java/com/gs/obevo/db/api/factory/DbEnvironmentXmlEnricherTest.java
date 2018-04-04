@@ -71,7 +71,7 @@ public class DbEnvironmentXmlEnricherTest {
         expectedExclusions.putAll(ChangeType.SP_STR, Lists.immutable.with("sp1", "sp2", "sp3", "sp4"));
         assertEquals(expectedExclusions, schema1.getObjectExclusionPredicateBuilder().getObjectNamesByType());
 
-        assertEquals(Sets.mutable.with("grp1", "grp2", "DACT_RO", "DACT_RO_BATCH1", "DACT_RO_BATCH2", "DACT_RW", "DACT_RW_BATCH1", "DACT_RW_BATCH2", "detokenizedProcGroup", "${myOtherGroupNoToken}"), env1.getGroups().collect(Group.TO_NAME).toSet());
+        assertEquals(Sets.mutable.with("grp1", "grp2", "DACT_RO", "DACT_RO_BATCH1", "DACT_RO_BATCH2", "DACT_RW", "DACT_RW_BATCH1", "DACT_RW_BATCH2", "detokenizedProcGroup", "${myOtherGroupNoToken}"), env1.getGroups().collect(Group::getName).toSet());
         assertEquals(Sets.mutable.with("usr1", "usr2", "CMDRRODB", "CMDRRWDB"), env1.getUsers().collect(User.TO_NAME).toSet());
         User user1 = env1.getUsers().detect(Predicates.attributeEqual(User.TO_NAME, "usr1"));
         User user2 = env1.getUsers().detect(Predicates.attributeEqual(User.TO_NAME, "usr2"));
@@ -212,7 +212,7 @@ public class DbEnvironmentXmlEnricherTest {
                 FileRetrievalMode.FILE_SYSTEM.resolveSingleFileObject("src/test/resources/DbEnvironmentXmlEnricher")
         ), env1.getSourceDirs());
 
-        assertEquals(Sets.mutable.with("DACT_RO", "DACT_RO_BATCH1", "DACT_RO_BATCH2", "DACT_RW", "DACT_RW_BATCH1", "DACT_RW_BATCH2"), env1.getGroups().collect(Group.TO_NAME).toSet());
+        assertEquals(Sets.mutable.with("DACT_RO", "DACT_RO_BATCH1", "DACT_RO_BATCH2", "DACT_RW", "DACT_RW_BATCH1", "DACT_RW_BATCH2"), env1.getGroups().collect(Group::getName).toSet());
         assertEquals(Sets.mutable.with("CMDRRWDB", "CMDRRODB"), env1.getUsers().collect(User.TO_NAME).toSet());
 
         assertEquals(DbEnvironmentXmlEnricherTest2DbPlatform.class, env1.getPlatform().getClass());

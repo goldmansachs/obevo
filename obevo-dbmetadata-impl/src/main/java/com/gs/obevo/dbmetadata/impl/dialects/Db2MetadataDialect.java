@@ -28,13 +28,16 @@ import com.gs.obevo.dbmetadata.api.DaRoutine;
 import com.gs.obevo.dbmetadata.api.DaRoutineType;
 import com.gs.obevo.dbmetadata.api.DaSchema;
 import com.gs.obevo.dbmetadata.impl.DaRoutinePojoImpl;
-import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.handlers.ColumnListHandler;
 import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
+import org.eclipse.collections.api.set.ImmutableSet;
+import org.eclipse.collections.impl.block.factory.StringFunctions;
 import org.eclipse.collections.impl.factory.Lists;
+import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.list.mutable.ListAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,14 +56,12 @@ public class Db2MetadataDialect extends AbstractMetadataDialect {
 
     @Override
     public ImmutableCollection<DaRoutine> searchExtraRoutines(final DaSchema schema, String procedureName, Connection conn) throws SQLException {
-        QueryRunner query = new QueryRunner();  // using queryRunner so that we can reuse the connection
-
         String procedureClause = procedureName == null ? "" : " AND R.ROUTINENAME = '" + procedureName + "'";
         final String sql = "SELECT ROUTINENAME, SPECIFICNAME, TEXT FROM SYSCAT.ROUTINES R WHERE R.ROUTINETYPE = 'F'\n" +
                 "AND R.ROUTINESCHEMA = '" + schema.getName() + "'\n" + procedureClause;
         LOG.debug("Executing function metadata query SQL: {}", sql);
 
-        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(query.query(conn,
+        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(jdbc.query(conn,
                 sql,
                 new MapListHandler()
         )).toImmutable();
@@ -154,5 +155,13 @@ public class Db2MetadataDialect extends AbstractMetadataDialect {
 
         // DB2 driver doesn't support function lookups; hence, we limit it here to avoid the error message and use the searchExtraRoutines method instead to pull them in.
         options.setRoutineTypes(Lists.immutable.with(RoutineType.procedure).castToList());
+    }
+
+    @Override
+    public ImmutableSet<String> getGroupNamesOptional(Connection conn, PhysicalSchema physicalSchema) throws SQLException {
+        return Sets.immutable
+                .withAll(jdbc.query(conn, "select ROLENAME from sysibm.SYSROLES", new ColumnListHandler<String>()))
+                .newWithAll(jdbc.query(conn, "select GRANTEE from sysibm.SYSDBAUTH", new ColumnListHandler<String>()))
+                .collect(StringFunctions.trim());  // db2 sometimes has whitespace in its return results that needs trimming
     }
 }

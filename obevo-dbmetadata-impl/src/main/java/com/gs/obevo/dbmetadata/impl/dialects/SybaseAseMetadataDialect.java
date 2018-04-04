@@ -37,7 +37,7 @@ import com.gs.obevo.dbmetadata.impl.RuleBindingImpl;
 import com.gs.obevo.dbmetadata.impl.SchemaByCatalogStrategy;
 import com.gs.obevo.dbmetadata.impl.SchemaStrategy;
 import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.handlers.ColumnListHandler;
 import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.apache.commons.lang3.ObjectUtils;
 import org.eclipse.collections.api.RichIterable;
@@ -48,6 +48,7 @@ import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.block.factory.Comparators;
 import org.eclipse.collections.impl.collection.mutable.CollectionAdapter;
 import org.eclipse.collections.impl.factory.Lists;
@@ -68,6 +69,8 @@ import schemacrawler.schemacrawler.SchemaCrawlerOptions;
  * SELECT 10 ord, 'DEFAULT' objtype, s1.name objname, 'DROP DEFAULT ' +  s1.name sqlstatement
  * FROM ${schemaName}..sysobjects s1
  * WHERE s1.type = 'D'
+ *
+ * For information on group/user creation: http://infocenter.sybase.com/help/index.jsp?topic=/com.sybase.infocenter.dc36274.1600/doc/html/san1393052489790.html
  */
 public class SybaseAseMetadataDialect extends AbstractMetadataDialect {
     @Override
@@ -152,11 +155,9 @@ public class SybaseAseMetadataDialect extends AbstractMetadataDialect {
 
     @Override
     public ImmutableCollection<ExtraIndexInfo> searchExtraConstraintIndices(DaSchema schema, String tableName, Connection conn) throws SQLException {
-        QueryRunner query = new QueryRunner();  // using queryRunner so that we can reuse the connection
-
         // Do not use ANSI JOIN as it does not work in Sybase 11.x - the SQL below works across all versions
         String tableClause = tableName == null ? "" : " AND tab.name = '" + tableName + "'";
-        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(query.query(conn,
+        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(jdbc.query(conn,
                 "select tab.name TABLE_NAME, ind.name INDEX_NAME, status2 & 8 IS_CONSTRAINT, status2 & 512 IS_CLUSTERED " +
                         "from " + schema.getName() + "..sysindexes ind" +
                         ", " + schema.getName() + "..sysobjects tab " +
@@ -167,17 +168,12 @@ public class SybaseAseMetadataDialect extends AbstractMetadataDialect {
                 new MapListHandler()
         )).toImmutable();
 
-        return maps.collect(new Function<Map<String, Object>, ExtraIndexInfo>() {
-            @Override
-            public ExtraIndexInfo valueOf(Map<String, Object> map) {
-                return new ExtraIndexInfo(
-                        (String) map.get("TABLE_NAME"),
-                        (String) map.get("INDEX_NAME"),
-                        (Integer) map.get("IS_CONSTRAINT") != 0,
-                        (Integer) map.get("IS_CLUSTERED") != 0
-                );
-            }
-        });
+        return maps.collect(map -> new ExtraIndexInfo(
+                (String) map.get("TABLE_NAME"),
+                (String) map.get("INDEX_NAME"),
+                (Integer) map.get("IS_CONSTRAINT") != 0,
+                (Integer) map.get("IS_CLUSTERED") != 0
+        ));
     }
 
     @Override
@@ -191,22 +187,17 @@ public class SybaseAseMetadataDialect extends AbstractMetadataDialect {
                 "and obj.type in ('V')\n" +
                 "and obj.uid = sch.uid and sch.name = '" + schema.getSubschemaName() + "'\n" +
                 "order by com.id, number, colid2, colid\n", schema.getName());
-        QueryRunner qr = new QueryRunner();  // using queryRunner so that we can reuse the connection
-        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(qr.query(conn, query, new MapListHandler())).toImmutable();
 
-        ImmutableList<ExtraRerunnableInfo> viewInfos = maps.collect(new Function<Map<String, Object>, ExtraRerunnableInfo>() {
-            @Override
-            public ExtraRerunnableInfo valueOf(Map<String, Object> object) {
-                return new ExtraRerunnableInfo(
-                        (String) object.get("name"),
-                        null,
-                        (String) object.get("text"),
-                        null,
-                        ((Integer) object.get("colid2")).intValue(),
-                        ((Integer) object.get("colid")).intValue()
-                );
-            }
-        });
+        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(jdbc.query(conn, query, new MapListHandler())).toImmutable();
+
+        ImmutableList<ExtraRerunnableInfo> viewInfos = maps.collect(object -> new ExtraRerunnableInfo(
+                (String) object.get("name"),
+                null,
+                (String) object.get("text"),
+                null,
+                ((Integer) object.get("colid2")).intValue(),
+                ((Integer) object.get("colid")).intValue()
+        ));
 
         return viewInfos.groupBy(ExtraRerunnableInfo.TO_NAME).multiValuesView().collect(new Function<RichIterable<ExtraRerunnableInfo>, ExtraRerunnableInfo>() {
             @Override
@@ -229,10 +220,8 @@ public class SybaseAseMetadataDialect extends AbstractMetadataDialect {
 
     @Override
     public ImmutableCollection<DaRule> searchRules(final DaSchema schema, Connection conn) throws SQLException {
-        QueryRunner query = new QueryRunner();  // using queryRunner so that we can reuse the connection
-
         // Do not use ANSI JOIN as it does not work in Sybase 11.x - the SQL below works across all versions
-        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(query.query(conn,
+        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(jdbc.query(conn,
                 "SELECT rul.name as RULE_NAME\n" +
                         "FROM " + schema.getName() + "..sysobjects rul\n" +
                         "    , " + schema.getName() + "..sysusers sch\n" +
@@ -256,9 +245,7 @@ public class SybaseAseMetadataDialect extends AbstractMetadataDialect {
 
     @Override
     public ImmutableCollection<DaUserType> searchUserTypes(final DaSchema schema, Connection conn) throws SQLException {
-        QueryRunner query = new QueryRunner();
-
-        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(query.query(conn,
+        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(jdbc.query(conn,
                 "SELECT s1.name as USER_TYPE_NAME\n" +
                         "FROM " + schema.getName() + "..systypes s1\n" +
                         "    , " + schema.getName() + "..sysusers sch\n" +
@@ -289,8 +276,8 @@ public class SybaseAseMetadataDialect extends AbstractMetadataDialect {
                 "and obj.type in ('SF', 'P')\n" +
                 nameClause +
                 "order by com.id, number, colid2, colid\n", schema.getName());
-        QueryRunner qr = new QueryRunner();  // using queryRunner so that we can reuse the connection
-        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(qr.query(conn, query, new MapListHandler())).toImmutable();
+
+        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(jdbc.query(conn, query, new MapListHandler())).toImmutable();
 
         ImmutableList<ExtraRerunnableInfo> routineInfos = maps.collect(new Function<Map<String, Object>, ExtraRerunnableInfo>() {
             @Override
@@ -334,5 +321,15 @@ public class SybaseAseMetadataDialect extends AbstractMetadataDialect {
     public SchemaStrategy getSchemaStrategy() {
         // Sybase stores the "database"/catalog first, then the schema. schema is usually meaningless for ASE, i.e. dbo value
         return SchemaByCatalogStrategy.INSTANCE;
+    }
+
+    @Override
+    public ImmutableSet<String> getGroupNamesOptional(Connection conn, PhysicalSchema physicalSchema) throws SQLException {
+        return ListAdapter.adapt(jdbc.query(conn, physicalSchema.getPhysicalName() + "..sp_helpgroup", new ColumnListHandler<String>("Group_name"))).toSet().toImmutable();
+    }
+
+    @Override
+    public ImmutableSet<String> getUserNamesOptional(Connection conn, PhysicalSchema physicalSchema) throws SQLException {
+        return ListAdapter.adapt(jdbc.query(conn, physicalSchema.getPhysicalName() + "..sp_helpuser", new ColumnListHandler<String>("Users_name"))).toSet().toImmutable();
     }
 }

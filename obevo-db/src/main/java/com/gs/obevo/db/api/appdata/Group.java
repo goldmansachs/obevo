@@ -16,16 +16,9 @@
 package com.gs.obevo.db.api.appdata;
 
 import org.apache.commons.lang3.Validate;
-import org.eclipse.collections.api.block.function.Function;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class Group {
-    public static final Function<Group, String> TO_NAME = new Function<Group, String>() {
-        @Override
-        public String valueOf(Group object) {
-            return object.getName();
-        }
-    };
-
     private final String name;
 
     public Group(String name) {
@@ -34,5 +27,12 @@ public class Group {
 
     public String getName() {
         return this.name;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("name", name)
+                .toString();
     }
 }

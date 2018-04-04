@@ -16,7 +16,6 @@
 package com.gs.obevo.db.impl.platforms.h2;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
@@ -24,49 +23,30 @@ import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.appdata.Group;
 import com.gs.obevo.db.api.appdata.User;
-import com.gs.obevo.db.impl.core.envinfrasetup.EnvironmentInfraSetup;
-import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
-import com.gs.obevo.dbmetadata.api.DaCatalog;
+import com.gs.obevo.db.impl.core.envinfrasetup.AbstractEnvironmentInfraSetup;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
-import org.apache.commons.dbutils.DbUtils;
 
-public class H2EnvironmentSetupInfra implements EnvironmentInfraSetup<DbEnvironment> {
-    private final DbEnvironment env;
-    private final DataSource ds;
+class H2EnvironmentSetupInfra extends AbstractEnvironmentInfraSetup {
     private final DbMetadataManager dbMetadataManager;
 
-    public H2EnvironmentSetupInfra(DbEnvironment env, DataSource ds, DbMetadataManager dbMetadataManager) {
-        this.env = env;
-        this.ds = ds;
+    H2EnvironmentSetupInfra(DbEnvironment env, DataSource ds, DbMetadataManager dbMetadataManager) {
+        super(env, ds, null, dbMetadataManager);
         this.dbMetadataManager = dbMetadataManager;
     }
 
     @Override
-    public void setupEnvInfra(boolean failOnSetupException) {
-        JdbcHelper jdbc = new JdbcHelper();
+    protected void createSchema(Connection conn, PhysicalSchema schema) {
+        jdbc.update(conn, "CREATE SCHEMA " + schema.getPhysicalName());
+    }
 
-        Connection conn = null;
-        try {
-            conn = ds.getConnection();
-            // now setup the base infrastructure (schemas + roles)
-            for (PhysicalSchema schema : env.getPhysicalSchemas()) {
-                DaCatalog schemaInfo = this.dbMetadataManager.getDatabaseOptional(schema.getPhysicalName());
-                if (schemaInfo == null) {
-                    jdbc.update(conn, "CREATE SCHEMA " + schema.getPhysicalName());
-                }
-            }
+    @Override
+    protected void createGroup(Connection conn, Group group, PhysicalSchema physicalSchema) {
+        jdbc.update(conn, "CREATE ROLE IF NOT EXISTS " + group.getName());
+    }
 
-            for (Group group : env.getGroups()) {
-                jdbc.update(conn, "CREATE ROLE IF NOT EXISTS " + group.getName());
-            }
-            for (User user : env.getUsers()) {
-                String password = user.getPassword() != null ? user.getPassword() : "dummypwd";
-                jdbc.update(conn, "CREATE USER IF NOT EXISTS " + user.getName() + " PASSWORD '" + password + "'");
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            DbUtils.closeQuietly(conn);
-        }
+    @Override
+    protected void createUser(Connection conn, User user, PhysicalSchema physicalSchema) {
+        String password = user.getPassword() != null ? user.getPassword() : "dummypwd";
+        jdbc.update(conn, "CREATE USER IF NOT EXISTS " + user.getName() + " PASSWORD '" + password + "'");
     }
 }
