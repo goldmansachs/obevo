@@ -36,11 +36,11 @@ import com.gs.obevo.dbmetadata.api.DaUserType;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
 import com.gs.obevo.dbmetadata.api.RuleBinding;
 import com.gs.obevo.util.VisibleForTesting;
-import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang3.Validate;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.multimap.Multimap;
+import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.factory.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,9 +111,8 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
         thisLogger.setLevel(Level.SEVERE);
 
         Validate.notNull(physicalSchema, "physicalSchema must be specified");
-        Connection conn = null;
-        try {
-            conn = this.ds.getConnection();
+
+        try (Connection conn = this.ds.getConnection()) {
             this.dbMetadataDialect.setSchemaOnConnection(conn, physicalSchema);
 
             SchemaCrawlerOptions options = new SchemaCrawlerOptions();
@@ -196,8 +195,6 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
             return new DaCatalogImpl(database, schemaStrategy, userTypes, rules, ruleBindings, extraRoutines, constraintIndices, extraViewInfo, routineOverrideValue, packages);
         } catch (SQLException e) {
             throw new RuntimeException(e);
-        } finally {
-            DbUtils.closeQuietly(conn);
         }
     }
 
@@ -324,6 +321,33 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
         schemaInfoLevel.setRetrieveRoutines(true);  // Ensure that this one is populated at minimum
         DaCatalog database = this.getDatabase(physicalSchema, schemaInfoLevel, false, false, null, routineName);
         return database.getRoutines();
+    }
+
+    @Override
+    public ImmutableSet<String> getGroupNamesOptional(PhysicalSchema physicalSchema) {
+        try (Connection conn = ds.getConnection()) {
+            return this.dbMetadataDialect.getGroupNamesOptional(conn, physicalSchema);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public ImmutableSet<String> getUserNamesOptional(PhysicalSchema physicalSchema) {
+        try (Connection conn = ds.getConnection()) {
+            return this.dbMetadataDialect.getUserNamesOptional(conn, physicalSchema);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public ImmutableSet<String> getDirectoryNamesOptional() {
+        try (Connection conn = ds.getConnection()) {
+            return this.dbMetadataDialect.getDirectoryNamesOptional(conn);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void enrichSchemaCrawlerOptions(Connection conn, SchemaCrawlerOptions options, PhysicalSchema physicalSchema, String tableName,

@@ -303,6 +303,25 @@
             <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <executions>
+                    <!-- For this plugin, we keep certain rules as separate executions so that certain child modules can override them if needed -->
+                    <execution>
+                        <id>enforce-project-basics</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <reactorModuleConvergence />
+                                <requireJavaVersion>
+                                    <version>1.7.0</version>
+                                </requireJavaVersion>
+                                <requireMavenVersion>
+                                    <version>3.2.5</version>
+                                </requireMavenVersion>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
                     <execution>
                         <id>enforce-non-duplicate-dependencies</id>
                         <goals>
@@ -343,20 +362,11 @@
                                     </dependencies>
                                     <findAllDuplicates>true</findAllDuplicates>
                                 </banDuplicateClasses>
-                                <dependencyConvergence />
-                                <reactorModuleConvergence />
-                                <requireJavaVersion>
-                                    <version>1.7.0</version>
-                                </requireJavaVersion>
-                                <requireMavenVersion>
-                                    <version>3.2.5</version>
-                                </requireMavenVersion>
                             </rules>
                             <fail>true</fail>
                         </configuration>
                     </execution>
                     <execution>
-                        <!-- Keep dependency convergence as a separate execution so that certain child modules can override it if needed (e.g. maven plugin modules) -->
                         <id>enforce-dependency-convergence</id>
                         <goals>
                             <goal>enforce</goal>

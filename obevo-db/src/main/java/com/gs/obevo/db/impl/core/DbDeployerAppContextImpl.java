@@ -401,7 +401,12 @@ public abstract class DbDeployerAppContextImpl extends AbstractDeployerAppContex
 
     @Override
     public DbDeployerAppContext setupEnvInfra(boolean strictSetupEnvInfra) {
-        getEnvironmentInfraSetup().setupEnvInfra(strictSetupEnvInfra);
+        return setupEnvInfra(strictSetupEnvInfra, isForceEnvCreation());
+    }
+
+    @Override
+    public DbDeployerAppContext setupEnvInfra(boolean strictSetupEnvInfra, boolean forceEnvCreation) {
+        getEnvironmentInfraSetup().setupEnvInfra(strictSetupEnvInfra, forceEnvCreation);
         return this;
     }
 
@@ -423,5 +428,13 @@ public abstract class DbDeployerAppContextImpl extends AbstractDeployerAppContex
         setupEnvInfra();
         cleanAndDeploy();
         return this;
+    }
+
+    /**
+     * Whether or not the context will force the environment creation by default. Will be false for most environment types,
+     * but we will enable it for the unit test DBs.
+     */
+    protected boolean isForceEnvCreation() {
+        return false;
     }
 }

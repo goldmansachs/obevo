@@ -40,4 +40,9 @@ public class H2AppContext extends DbDeployerAppContextImpl {
     protected DataSourceFactory getDataSourceFactory() {
         return new H2JdbcDataSourceFactory();
     }
+
+    @Override
+    protected boolean isForceEnvCreation() {
+        return true;
+    }
 }

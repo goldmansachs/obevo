@@ -38,7 +38,11 @@ public class DbDeployerMain extends AbstractMain<Environment> {
         Environment env = ctxt.getEnvironment();
 
         LOG.info("Setting up the the environment infrastructure for {}; will {} on setup exception", env.getName(), args.isStrictSetupEnvInfra() ? "fail" : "warn");
-        ctxt.setupEnvInfra(args.isStrictSetupEnvInfra());
+        if (args.getForceEnvSetup() != null && args.getForceEnvSetup().booleanValue()) {
+            ctxt.setupEnvInfra(args.isStrictSetupEnvInfra(), args.getForceEnvSetup().booleanValue());
+        } else {
+            ctxt.setupEnvInfra(args.isStrictSetupEnvInfra());
+        }
 
         if (args.shouldExecuteClean()) {
             this.checkIfCleanBuildShouldProceed(env, args.isNoPrompt());

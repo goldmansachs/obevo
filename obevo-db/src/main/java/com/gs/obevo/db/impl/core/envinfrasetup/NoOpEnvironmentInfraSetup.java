@@ -27,7 +27,7 @@ public class NoOpEnvironmentInfraSetup implements EnvironmentInfraSetup<Environm
     private static final Logger LOG = LoggerFactory.getLogger(NoOpEnvironmentInfraSetup.class);
 
     @Override
-    public void setupEnvInfra(boolean failOnSetupException) {
+    public void setupEnvInfra(boolean failOnSetupException, boolean forceCreation) {
         LOG.info("This environment is configured not to need any additional setup");
     }
 }

@@ -32,7 +32,9 @@ import com.gs.obevo.dbmetadata.impl.ExtraIndexInfo;
 import com.gs.obevo.dbmetadata.impl.ExtraRerunnableInfo;
 import com.gs.obevo.dbmetadata.impl.SchemaByNameStrategy;
 import com.gs.obevo.dbmetadata.impl.SchemaStrategy;
+import org.apache.commons.dbutils.QueryRunner;
 import org.eclipse.collections.api.collection.ImmutableCollection;
+import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.collection.mutable.CollectionAdapter;
 import org.eclipse.collections.impl.factory.Lists;
 import schemacrawler.schema.Catalog;
@@ -43,6 +45,8 @@ import schemacrawler.tools.databaseconnector.DatabaseConnector;
 import schemacrawler.tools.databaseconnector.DatabaseConnectorRegistry;
 
 public abstract class AbstractMetadataDialect implements DbMetadataDialect {
+    protected final QueryRunner jdbc = new QueryRunner();
+
     @Override
     public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema, boolean searchAllTables) {
         try {
@@ -134,5 +138,20 @@ public abstract class AbstractMetadataDialect implements DbMetadataDialect {
     @Override
     public SchemaStrategy getSchemaStrategy() {
         return SchemaByNameStrategy.INSTANCE;
+    }
+
+    @Override
+    public ImmutableSet<String> getGroupNamesOptional(Connection conn, PhysicalSchema physicalSchema) throws SQLException {
+        return null;  // by default, we will not support these operations
+    }
+
+    @Override
+    public ImmutableSet<String> getUserNamesOptional(Connection conn, PhysicalSchema physicalSchema) throws SQLException {
+        return null;  // by default, we will not support these operations
+    }
+
+    @Override
+    public ImmutableSet<String> getDirectoryNamesOptional(Connection conn) throws SQLException {
+        return null;  // by default, we will not support these operations
     }
 }

@@ -29,7 +29,6 @@ import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 public class DeployerArgs {
     private String[] envNames;
     private String[] actions;
-    private boolean setupEnvInfra = false;
     private boolean setupEnvInfraOnly = false;
     private boolean cleanFirst = false;
     private boolean cleanOnly = false;
@@ -58,6 +57,7 @@ public class DeployerArgs {
     @Deprecated
     private boolean lenientSetupEnvInfra = false;
     private boolean strictSetupEnvInfra = false;
+    private Boolean forceEnvSetup;
 
     @Argument(value = "env", required = false)
     public void setEnvNames(String[] envNames) {
@@ -77,15 +77,6 @@ public class DeployerArgs {
     )
     public void setActions(String[] actions) {
         this.actions = actions;
-    }
-
-    public boolean isSetupEnvInfra() {
-        return this.setupEnvInfra;
-    }
-
-    @Argument(value = "setupEnvInfra", description = "DEPRECATED")
-    public void setSetupEnvInfra(boolean setupEnvInfra) {
-        this.setupEnvInfra = setupEnvInfra;
     }
 
     public boolean isSetupEnvInfraOnly() {
@@ -264,12 +255,6 @@ public class DeployerArgs {
         return this.actions != null && UnifiedSet.newSetWith(this.actions).collect(StringFunctions.toLowerCase()).contains(command);
     }
 
-    public boolean shouldExecuteSetup() {
-        return this.setupEnvInfra
-                || this.setupEnvInfraOnly
-                || isActionContains("setup");
-    }
-
     public boolean shouldExecuteClean() {
         return this.cleanFirst
                 || this.cleanOnly
@@ -291,7 +276,7 @@ public class DeployerArgs {
         if (actions != null) {
             builder.append("actions=").append(Arrays.toString(actions)).append(", ");
         }
-        builder.append("setupEnvInfra=").append(setupEnvInfra).append(", setupEnvInfraOnly=").append(setupEnvInfraOnly)
+        builder.append(", setupEnvInfraOnly=").append(setupEnvInfraOnly)
                 .append(", cleanFirst=").append(cleanFirst).append(", cleanOnly=").append(cleanOnly)
                 .append(", noPrompt=").append(noPrompt).append(", useBaseline=").append(useBaseline)
                 .append(", onboardingMode=").append(onboardingMode)
@@ -388,5 +373,14 @@ public class DeployerArgs {
     @Argument(value = "strictSetupEnvInfra", description = "Include this option to fail in case of missing groups/users; default is to log a warning")
     public void setStrictSetupEnvInfra(boolean strictSetupEnvInfra) {
         this.strictSetupEnvInfra = strictSetupEnvInfra;
+    }
+
+    public Boolean getForceEnvSetup() {
+        return forceEnvSetup;
+    }
+
+    @Argument(value = "forceEnvSetup", description = "Whether to create schema objects prior to object deployment; default is to go w/ the platform-specific behavior")
+    public void setForceEnvSetup(Boolean forceEnvSetup) {
+        this.forceEnvSetup = forceEnvSetup;
     }
 }

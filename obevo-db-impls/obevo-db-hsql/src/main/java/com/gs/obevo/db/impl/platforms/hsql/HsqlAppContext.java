@@ -41,4 +41,9 @@ public class HsqlAppContext extends DbDeployerAppContextImpl {
     protected DataSourceFactory getDataSourceFactory() {
         return new HsqlJdbcDataSourceFactory();
     }
+
+    @Override
+    protected boolean isForceEnvCreation() {
+        return true;
+    }
 }

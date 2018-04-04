@@ -32,10 +32,10 @@ class CreateDbInstance {
     public static void main(String[] args) throws Exception {
         CreateDbInstance instance = new CreateDbInstance();
 //        instance.createOracle(oracleDbInstanceId);
-        instance.createSqlServer(sqlserverDbInstanceId);
+//        instance.createSqlServer(sqlserverDbInstanceId);
 //        instance.createPostgresql(postgresDbInstanceId);
 //        instance.describe(oracleDbInstanceId);
-//        instance.delete(sqlserverDbInstanceId);
+        instance.delete(postgresDbInstanceId);
     }
 
     public void createOracle(String dbInstanceIdentifier) throws Exception {
@@ -51,7 +51,9 @@ class CreateDbInstance {
                 .withDBInstanceIdentifier(dbInstanceIdentifier)
                 .withDBName("DBDEPLOY")
                 .withMasterUsername("deploybuilddbo")
-                .withMasterUserPassword("deploybuilddb0");
+                .withMasterUserPassword("deploybuilddb0")
+                .withVpcSecurityGroupIds("default")
+                ;
         DBInstance response = client.createDBInstance(request);
         System.out.println(response);
 
