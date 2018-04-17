@@ -112,7 +112,7 @@ public class Db2DeployerMainIT {
         }
 
         String schema1 = "DEPLOY_TRACKER";
-        MutableList<DeployExecution> executions = dbDeployerAppContext.getDeployExecutionDao().getDeployExecutions(schema1).toSortedListBy(DeployExecution.TO_ID);
+        MutableList<DeployExecution> executions = dbDeployerAppContext.getDeployExecutionDao().getDeployExecutions(schema1).toSortedListBy(DeployExecution::getId);
         assertThat(executions, hasSize(4));
         DeployExecution execution4 = dbDeployerAppContext.getDeployExecutionDao().getLatestDeployExecution(schema1);
         verifyExecution1(executions.get(0));

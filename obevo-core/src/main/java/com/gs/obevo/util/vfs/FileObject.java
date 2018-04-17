@@ -38,7 +38,6 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.NameScope;
 import org.apache.commons.vfs2.operations.FileOperations;
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.impl.factory.Lists;
 
 /**
@@ -47,33 +46,9 @@ import org.eclipse.collections.impl.factory.Lists;
  * See FileRetrievalModeTest for the tests on this class.
  */
 public class FileObject implements org.apache.commons.vfs2.FileObject {
-    public static final Function<org.apache.commons.vfs2.FileObject, FileObject> TO_DA_FILE_OBJECT = new Function<org.apache.commons.vfs2.FileObject, FileObject>() {
-        @Override
-        public FileObject valueOf(org.apache.commons.vfs2.FileObject fileObject) {
-            return fileObject == null ? null : new FileObject(fileObject);
-        }
-    };
-
-    public static final Function<FileObject, URL> TO_URL_DA = new Function<FileObject, URL>() {
-        @Override
-        public URL valueOf(FileObject object) {
-            return object.getURLDa();
-        }
-    };
-
-    public static final Function<FileObject, String> TO_EXTENSION = new Function<FileObject, String>() {
-        @Override
-        public String valueOf(FileObject object) {
-            return object.getName().getExtension();
-        }
-    };
-
-    public static final Function<FileObject, String> TO_BASE_NAME = new Function<FileObject, String>() {
-        @Override
-        public String valueOf(FileObject object) {
-            return object.getName().getBaseName();
-        }
-    };
+    public static FileObject toDaFileObject(org.apache.commons.vfs2.FileObject fileObject) {
+        return fileObject == null ? null : new FileObject(fileObject);
+    }
 
     private static final int MAX_BOM_LOOKAHEAD = Math.max(Math.max(ByteOrderMark.UTF_8.length(), ByteOrderMark.UTF_16BE.length()), ByteOrderMark.UTF_16LE.length());
 
@@ -168,7 +143,7 @@ public class FileObject implements org.apache.commons.vfs2.FileObject {
     @Override
     public FileObject getParent() {
         try {
-            return FileObject.TO_DA_FILE_OBJECT.valueOf(this.fileObject.getParent());
+            return FileObject.toDaFileObject(this.fileObject.getParent());
         } catch (FileSystemException e) {
             throw new VFSFileSystemException(e);
         }
@@ -182,7 +157,7 @@ public class FileObject implements org.apache.commons.vfs2.FileObject {
     @Override
     public FileObject[] getChildren() {
         try {
-            return Lists.mutable.with(this.fileObject.getChildren()).collect(TO_DA_FILE_OBJECT).toArray(new FileObject[0]);
+            return Lists.mutable.with(this.fileObject.getChildren()).collect(FileObject::toDaFileObject).toArray(new FileObject[0]);
         } catch (FileSystemException e) {
             throw new VFSFileSystemException(e);
         }
@@ -191,7 +166,7 @@ public class FileObject implements org.apache.commons.vfs2.FileObject {
     @Override
     public FileObject getChild(String name) {
         try {
-            return FileObject.TO_DA_FILE_OBJECT.valueOf(this.fileObject.getChild(name));
+            return FileObject.toDaFileObject(this.fileObject.getChild(name));
         } catch (FileSystemException e) {
             throw new VFSFileSystemException(e);
         }
@@ -200,7 +175,7 @@ public class FileObject implements org.apache.commons.vfs2.FileObject {
     @Override
     public FileObject resolveFile(String name, NameScope scope) {
         try {
-            return FileObject.TO_DA_FILE_OBJECT.valueOf(this.fileObject.resolveFile(name, scope));
+            return FileObject.toDaFileObject(this.fileObject.resolveFile(name, scope));
         } catch (FileSystemException e) {
             throw new VFSFileSystemException(e);
         }
@@ -209,7 +184,7 @@ public class FileObject implements org.apache.commons.vfs2.FileObject {
     @Override
     public FileObject resolveFile(String path) {
         try {
-            return FileObject.TO_DA_FILE_OBJECT.valueOf(this.fileObject.resolveFile(path));
+            return FileObject.toDaFileObject(this.fileObject.resolveFile(path));
         } catch (FileSystemException e) {
             throw new VFSFileSystemException(e);
         }
@@ -218,7 +193,7 @@ public class FileObject implements org.apache.commons.vfs2.FileObject {
     @Override
     public FileObject[] findFiles(FileSelector selector) {
         try {
-            return Lists.mutable.with(this.fileObject.findFiles(selector)).collect(TO_DA_FILE_OBJECT)
+            return Lists.mutable.with(this.fileObject.findFiles(selector)).collect(FileObject::toDaFileObject)
                     .toArray(new FileObject[0]);
         } catch (FileSystemException e) {
             throw new VFSFileSystemException(e);

@@ -17,17 +17,11 @@ package com.gs.obevo.impl.graph;
 
 import java.util.Comparator;
 
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.block.factory.Comparators;
 
 public interface SortableDependencyGroup {
-    Comparator<SortableDependencyGroup> GRAPH_SORTER_COMPARATOR = Comparators.byFunction(new Function<SortableDependencyGroup, SortableDependency>() {
-        @Override
-        public SortableDependency valueOf(SortableDependencyGroup sortableDependency) {
-            return sortableDependency.getComponents().min(SortableDependency.GRAPH_SORTER_COMPARATOR);
-        }
-    }, SortableDependency.GRAPH_SORTER_COMPARATOR);
+    Comparator<SortableDependencyGroup> GRAPH_SORTER_COMPARATOR = Comparators.byFunction(sortableDependency -> sortableDependency.getComponents().min(SortableDependency.GRAPH_SORTER_COMPARATOR), SortableDependency.GRAPH_SORTER_COMPARATOR);
 
     ImmutableSet<SortableDependency> getComponents();
 }

@@ -16,28 +16,14 @@
 package com.gs.obevo.db.api.appdata;
 
 import org.apache.commons.lang3.Validate;
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
 
 public class Permission {
-    public static final Function<Permission, String> TO_SCHEME = new Function<Permission, String>() {
-        @Override
-        public String valueOf(Permission permission) {
-            return permission.getScheme();
-        }
-    };
-    public static final Function<Permission, ImmutableList<Grant>> TO_GRANTS = new Function<Permission, ImmutableList<Grant>>() {
-        @Override
-        public ImmutableList<Grant> valueOf(Permission permission) {
-            return permission.getGrants();
-        }
-    };
-
     private final String scheme;
     private final ImmutableList<Grant> grants;
 
     public Permission(String scheme, ImmutableList<Grant> grants) {
-        this.scheme = scheme;
+        this.scheme = Validate.notNull(scheme);
         this.grants = Validate.notNull(grants);
     }
 

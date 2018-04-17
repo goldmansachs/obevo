@@ -20,7 +20,6 @@ import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.impl.ExecuteChangeCommand;
 import com.gs.obevo.impl.graph.SortableDependency;
 import com.gs.obevo.impl.graph.SortableDependencyGroup;
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.set.ImmutableSet;
 
 /**
@@ -34,14 +33,7 @@ class DbCommandSortKey implements SortableDependencyGroup {
     private final int orderWithinObject;
     private int order;
 
-    public static final Function<ExecuteChangeCommand, DbCommandSortKey> CREATE = new Function<ExecuteChangeCommand, DbCommandSortKey>() {
-        @Override
-        public DbCommandSortKey valueOf(ExecuteChangeCommand changeCommand) {
-            return new DbCommandSortKey(changeCommand);
-        }
-    };
-
-    private DbCommandSortKey(ExecuteChangeCommand changeCommand) {
+    DbCommandSortKey(ExecuteChangeCommand changeCommand) {
         this.changeCommand = changeCommand;
         this.drop = changeCommand.isDrop();
         final Change candidateChange = changeCommand.getChanges().getFirst();
@@ -54,49 +46,19 @@ class DbCommandSortKey implements SortableDependencyGroup {
         return changeCommand;
     }
 
-    public static final Function<DbCommandSortKey, Boolean> TO_DROP = new Function<DbCommandSortKey, Boolean>() {
-        @Override
-        public Boolean valueOf(DbCommandSortKey object) {
-            return object.isDrop();
-        }
-    };
-
-    private boolean isDrop() {
+    public boolean isDrop() {
         return this.drop;
     }
 
-    public static final Function<DbCommandSortKey, ChangeType> TO_CHANGE_TYPE = new Function<DbCommandSortKey,
-            ChangeType>() {
-        @Override
-        public ChangeType valueOf(DbCommandSortKey object) {
-            return object.getChangeType();
-        }
-    };
-
-    private ChangeType getChangeType() {
+    public ChangeType getChangeType() {
         return this.changeType;
     }
 
-    public static final Function<DbCommandSortKey, String> TO_OBJECT_NAME = new Function<DbCommandSortKey, String>() {
-        @Override
-        public String valueOf(DbCommandSortKey object) {
-            return object.getObjectName();
-        }
-    };
-
-    private String getObjectName() {
+    public String getObjectName() {
         return this.objectName;
     }
 
-    public static final Function<DbCommandSortKey, Integer> TO_ORDER = new Function<DbCommandSortKey,
-            Integer>() {
-        @Override
-        public Integer valueOf(DbCommandSortKey object) {
-            return object.getOrder();
-        }
-    };
-
-    private int getOrder() {
+    public int getOrder() {
         return this.order;
     }
 

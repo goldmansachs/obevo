@@ -57,11 +57,10 @@ import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.list.MutableList;
-import org.eclipse.collections.api.map.MutableMap;
+import org.eclipse.collections.api.map.MapIterable;
 import org.eclipse.collections.api.multimap.Multimap;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.api.tuple.Pair;
-import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.Lists;
 import org.slf4j.Logger;
@@ -159,7 +158,7 @@ public class TableSyncher {
         }
 
         RichIterable<DaTable> idealTables = this.createIdealTables(syncSides);
-        MutableMap<String, DaTable> idealTablesMap = idealTables.toMap(DaNamedObject.TO_NAME, Functions.<DaTable>getPassThru());
+        MapIterable<String, DaTable> idealTablesMap = idealTables.groupByUniqueKey(DaNamedObject.TO_NAME);
 
         System.out.println("Starting the alters");
         for (TableSyncSide syncSide : syncSides) {

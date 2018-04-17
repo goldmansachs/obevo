@@ -16,9 +16,6 @@
 package com.gs.obevo.api.appdata.doc;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.eclipse.collections.api.block.function.Function;
-import org.eclipse.collections.api.block.predicate.Predicate;
-import org.eclipse.collections.api.block.predicate.Predicate2;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.map.ImmutableMap;
 import org.eclipse.collections.api.set.ImmutableSet;
@@ -27,18 +24,6 @@ import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.factory.Sets;
 
 public class TextMarkupDocumentSection {
-    public static final Function<TextMarkupDocumentSection, String> TO_NAME = new Function<TextMarkupDocumentSection, String>() {
-        @Override
-        public String valueOf(TextMarkupDocumentSection arg0) {
-            return arg0.getName();
-        }
-    };
-    public static final Function<TextMarkupDocumentSection, String> TO_CONTENT = new Function<TextMarkupDocumentSection, String>() {
-        @Override
-        public String valueOf(TextMarkupDocumentSection arg0) {
-            return arg0.getContent();
-        }
-    };
     private String name;
     private String content;
     private ImmutableMap<String, String> attrs;
@@ -110,20 +95,10 @@ public class TextMarkupDocumentSection {
             return;
         }
         this.attrs = this.attrs.toMap()
-                .withAllKeyValues(other.attrs.select(new Predicate2<String, String>() {
-                    @Override
-                    public boolean accept(String key, String value) {
-                        return !TextMarkupDocumentSection.this.attrs.contains(key);
-                    }
-                }).keyValuesView())
+                .withAllKeyValues(other.attrs.select((key, value) -> !TextMarkupDocumentSection.this.attrs.contains(key)).keyValuesView())
                 .toImmutable();
 
-        this.toggles = this.toggles.newWithAll(other.toggles.select(new Predicate<String>() {
-            @Override
-            public boolean accept(String key) {
-                return !TextMarkupDocumentSection.this.toggles.contains(key);
-            }
-        }));
+        this.toggles = this.toggles.newWithAll(other.toggles.select(key -> !TextMarkupDocumentSection.this.toggles.contains(key)));
     }
 
     @Override

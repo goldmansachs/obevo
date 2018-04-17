@@ -19,7 +19,6 @@ import java.io.File;
 
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.DaConstants;
-import org.eclipse.collections.api.block.function.Function;
 
 public class RevEngDestination {
     private final String schema;
@@ -27,34 +26,6 @@ public class RevEngDestination {
     private final String objectName;
     private final boolean duplicate;
     private final boolean baselineEligible;
-
-    public static final Function<RevEngDestination, String> TO_SCHEMA = new Function<RevEngDestination, String>() {
-        @Override
-        public String valueOf(RevEngDestination revEngDestination) {
-            return revEngDestination.getSchema();
-        }
-    };
-
-    public static final Function<RevEngDestination, String> TO_IDENTITY = new Function<RevEngDestination, String>() {
-        @Override
-        public String valueOf(RevEngDestination revEngDestination) {
-            return revEngDestination.getIdentity();
-        }
-    };
-
-    public static final Function<RevEngDestination, String> TO_OBJECT_NAME = new Function<RevEngDestination, String>() {
-        @Override
-        public String valueOf(RevEngDestination revEngDestination) {
-            return revEngDestination.getObjectName();
-        }
-    };
-
-    public static final Function<RevEngDestination, ChangeType> TO_DB_OBJECT_TYPE = new Function<RevEngDestination, ChangeType>() {
-        @Override
-        public ChangeType valueOf(RevEngDestination revEngDestination) {
-            return revEngDestination.getDbObjectType();
-        }
-    };
 
     public RevEngDestination(String schema, ChangeType dbObjectType, String objectName, boolean duplicate) {
         this.schema = schema;
@@ -81,7 +52,7 @@ public class RevEngDestination {
         return new File(root, fileName);
     }
 
-    private String getIdentity() {
+    String getIdentity() {
         return this.schema + ":" + this.dbObjectType + ":" + this.duplicate + ":" + this.objectName;
     }
 
@@ -89,7 +60,7 @@ public class RevEngDestination {
         return this.baselineEligible;
     }
 
-    private ChangeType getDbObjectType() {
+    ChangeType getDbObjectType() {
         return this.dbObjectType;
     }
 

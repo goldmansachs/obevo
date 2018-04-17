@@ -41,8 +41,8 @@ public class MongoDbEnvironmentEnricherTest {
 
         MutableCollection<MongoDbEnvironment> envs = enricher.readSystem(config, input).getEnvironments();
 
-        validateEnv1(envs.detect(attributeEqual(Environment.TO_NAME, "test1")));
-        validateEnv2(envs.detect(attributeEqual(Environment.TO_NAME, "test2")));
+        validateEnv1(envs.detect(attributeEqual(Environment::getName, "test1")));
+        validateEnv2(envs.detect(attributeEqual(Environment::getName, "test2")));
     }
 
     private void validateEnv1(MongoDbEnvironment env1) {

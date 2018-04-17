@@ -17,7 +17,6 @@ package com.gs.obevo.api.platform;
 
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.Environment;
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
 
 /**
@@ -27,24 +26,10 @@ import org.eclipse.collections.api.list.ImmutableList;
  * deploy, an undeploy, an audit-only change, or to emit warnings/exceptions.
  */
 public interface ChangeCommand {
-    Function<ChangeCommand, ImmutableList<Change>> TO_CHANGES = new Function<ChangeCommand, ImmutableList<Change>>() {
-        @Override
-        public ImmutableList<Change> valueOf(ChangeCommand changeCommand) {
-            return changeCommand.getChanges();
-        }
-    };
-
     /**
      * Returns the Changes that are involved in this command.
      */
     ImmutableList<Change> getChanges();
-
-    Function<ChangeCommand, String> TO_COMMAND_DESCRIPTION = new Function<ChangeCommand, String>() {
-        @Override
-        public String valueOf(ChangeCommand changeCommand) {
-            return changeCommand.getCommandDescription();
-        }
-    };
 
     /**
      * Friendly-text of the command to display for end-users.

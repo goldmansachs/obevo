@@ -23,6 +23,7 @@ import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.impl.core.envinfrasetup.AbstractEnvironmentInfraSetup;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
+import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.impl.DeployMetricsCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,8 +38,8 @@ import org.slf4j.LoggerFactory;
 class Db2EnvironmentInfraSetup extends AbstractEnvironmentInfraSetup {
     private static final Logger LOG = LoggerFactory.getLogger(Db2EnvironmentInfraSetup.class);
 
-    Db2EnvironmentInfraSetup(DbEnvironment env, DataSource ds, DeployMetricsCollector deployMetricsCollector, DbMetadataManager dbMetadataManager) {
-        super(env, ds, deployMetricsCollector, dbMetadataManager);
+    Db2EnvironmentInfraSetup(DbEnvironment env, DataSource ds, DeployMetricsCollector deployMetricsCollector, DbMetadataManager dbMetadataManager, ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry) {
+        super(env, ds, deployMetricsCollector, dbMetadataManager, changeTypeBehaviorRegistry);
     }
 
     @Override

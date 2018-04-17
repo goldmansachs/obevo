@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import com.gs.obevo.api.appdata.PhysicalSchema;
+import com.gs.obevo.dbmetadata.api.DaDirectory;
 import com.gs.obevo.dbmetadata.api.DaPackage;
 import com.gs.obevo.dbmetadata.api.DaRoutine;
 import com.gs.obevo.dbmetadata.api.DaRoutineType;
@@ -98,5 +99,5 @@ public interface DbMetadataDialect {
      * Retrieves the directory objects setup at the database level; pertinent for Oracle only.
      * @since 6.6.0
      */
-    ImmutableSet<String> getDirectoryNamesOptional(Connection conn) throws SQLException;
+    ImmutableSet<DaDirectory> getDirectoriesOptional(Connection conn) throws SQLException;
 }

@@ -49,10 +49,10 @@ import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.block.factory.HashingStrategies;
 import org.eclipse.collections.impl.block.factory.Predicates;
+import org.eclipse.collections.impl.factory.HashingStrategyMaps;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.map.mutable.UnifiedMap;
-import org.eclipse.collections.impl.map.strategy.mutable.UnifiedMapWithHashingStrategy;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +66,7 @@ public class IncrementalChangeTypeCommandCalculator implements ChangeTypeCommand
     private final ChangeCommandFactory changeCommandFactory = new ChangeCommandFactory();
     private final int numThreads;
 
-    public IncrementalChangeTypeCommandCalculator(int numThreads) {
+    IncrementalChangeTypeCommandCalculator(int numThreads) {
         this.numThreads = numThreads;
     }
 
@@ -76,7 +76,7 @@ public class IncrementalChangeTypeCommandCalculator implements ChangeTypeCommand
 
         ImmutableSet<ObjectKey> dropObjectKeys = getDroppedTableChangesThatAreAlreadyRemoved(changePairs);
 
-        PartitionIterable<ChangePair> dropObjectPartition = changePairs.partition(Predicates.attributeIn(ChangePair.TO_OBJECT_KEY, dropObjectKeys));
+        PartitionIterable<ChangePair> dropObjectPartition = changePairs.partition(_this -> dropObjectKeys.contains(_this.getObjectKey()));
         for (ChangePair changePair : dropObjectPartition.getSelected()) {
             changeset.add(new AlreadyDroppedTableWarning(changePair.getSourceChange()));
         }
@@ -193,12 +193,12 @@ public class IncrementalChangeTypeCommandCalculator implements ChangeTypeCommand
 
         changeset.withAll(this.handleBaselineChanges(newBaselines, baselinedDrops));
 
-        PartitionMutableList<ChangeIncremental> parallelChangesPartition = deployChanges.partition(Predicates.attributeNotNull(ChangeIncremental.TO_PARALLEL_GROUP));
+        PartitionMutableList<ChangeIncremental> parallelChangesPartition = deployChanges.partition(Predicates.attributeNotNull(ChangeIncremental::getParallelGroup));
         for (ChangeIncremental singleChange : parallelChangesPartition.getRejected()) {
             changeset.add(changeCommandFactory.createDeployCommand(singleChange));
         }
 
-        MutableListMultimap<String, ChangeIncremental> parallelGroupedChanges = parallelChangesPartition.getSelected().groupBy(ChangeIncremental.TO_PARALLEL_GROUP);
+        MutableListMultimap<String, ChangeIncremental> parallelGroupedChanges = parallelChangesPartition.getSelected().groupBy(ChangeIncremental::getParallelGroup);
 
         for (RichIterable<ChangeIncremental> groupedChanges : parallelGroupedChanges.multiValuesView()) {
             if (groupedChanges.size() == 1) {
@@ -218,13 +218,13 @@ public class IncrementalChangeTypeCommandCalculator implements ChangeTypeCommand
     private ImmutableSet<ObjectKey> getDroppedTableChangesThatAreAlreadyRemoved(RichIterable<ChangePair> changePairs) {
         MutableSet<ObjectKey> dropOnlyObjectKeys = Sets.mutable.empty();
 
-        Multimap<ObjectKey, ChangePair> changePairsByObjectName = changePairs.groupBy(ChangePair.TO_OBJECT_KEY);
+        Multimap<ObjectKey, ChangePair> changePairsByObjectName = changePairs.groupBy(ChangePair::getObjectKey);
         for (Pair<ObjectKey, RichIterable<ChangePair>> stringRichIterablePair : changePairsByObjectName.keyMultiValuePairsView()) {
             ObjectKey objectKey = stringRichIterablePair.getOne();
             RichIterable<ChangePair> objectChangePairs = stringRichIterablePair.getTwo();
-            if (objectChangePairs.allSatisfy(Predicates.attributeNotNull(ChangePair.TO_SOURCE_CHANGE).and(Predicates.attributeIsNull(ChangePair.TO_DEPLOYED_CHANGE)))) {
-                RichIterable<Change> sourceChanges = objectChangePairs.collect(ChangePair.TO_SOURCE_CHANGE);
-                Change lastChange = sourceChanges.maxBy(Change.TO_ORDER_WITHIN_OBJECT);
+            if (objectChangePairs.allSatisfy(Predicates.attributeNotNull(ChangePair::getSourceChange).and(Predicates.attributeIsNull(ChangePair::getDeployedChange)))) {
+                RichIterable<Change> sourceChanges = objectChangePairs.collect(ChangePair::getSourceChange);
+                Change lastChange = sourceChanges.maxBy(Change::getOrderWithinObject);
                 if (((ChangeIncremental) lastChange).isDrop() && !((ChangeIncremental) lastChange).isForceDropForEnvCleaning()) {
                     dropOnlyObjectKeys.add(objectKey);
                 }
@@ -235,10 +235,9 @@ public class IncrementalChangeTypeCommandCalculator implements ChangeTypeCommand
     }
 
     private ListIterable<ChangeCommand> handleBaselineChanges(MutableList<ChangeIncremental> newBaselines, MutableList<ChangeIncremental> baselinedDrops) {
-        HashingStrategy<Change> hashStrategyForBaseline = HashingStrategies.fromFunction(Change.TO_OBJECT_KEY);
+        HashingStrategy<Change> hashStrategyForBaseline = HashingStrategies.fromFunction(Change::getObjectKey);
 
-        MutableMap<Change, MutableMap<String, Change>> baselineDeployedMap =
-                UnifiedMapWithHashingStrategy.newMap(hashStrategyForBaseline);
+        MutableMap<Change, MutableMap<String, Change>> baselineDeployedMap = HashingStrategyMaps.mutable.of(hashStrategyForBaseline);
 
         for (Change deployed : baselinedDrops) {
             MutableMap<String, Change> list = baselineDeployedMap.get(deployed);

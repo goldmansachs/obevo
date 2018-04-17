@@ -30,93 +30,14 @@ import com.gs.obevo.util.vfs.FileObject;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.eclipse.collections.api.block.function.Function;
-import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Sets;
-import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 
 public abstract class Change implements Restrictable, SortableDependency, SortableDependencyGroup, TextDependencyExtractable {
     public static final int DEFAULT_CHANGE_ORDER = 500;  // only used to control relative order changes (e.g. within a given class of changes like stored procs)
-
-    public static final Function<Change, String> TO_SCHEMA = new Function<Change, String>() {
-        @Override
-        public String valueOf(Change arg0) {
-            return arg0.getSchema();
-        }
-    };
-
-    public static final Function<Change, String> TO_DB_OBJECT_KEY = new Function<Change, String>() {
-        @Override
-        public String valueOf(Change arg0) {
-            return arg0.getDbObjectKey();
-        }
-    };
-    public static final Function<Change, String> TO_DISPLAY_STRING = new Function<Change, String>() {
-        @Override
-        public String valueOf(Change object) {
-            return object.getDisplayString();
-        }
-    };
-
-    public static final Function<Change, String> TO_CONTENT = new Function<Change, String>() {
-        @Override
-        public String valueOf(Change object) {
-            return object.getContent();
-        }
-    };
-
-    public static final Function<Change, ChangeType> TO_CHANGE_TYPE = new Function<Change, ChangeType>() {
-        @Override
-        public ChangeType valueOf(Change object) {
-            return object.getChangeType();
-        }
-    };
-
-    public static final Function<Change, String> TO_CHANGE_TYPE_NAME = new Function<Change, String>() {
-        @Override
-        public String valueOf(Change arg0) {
-            return arg0.getChangeType().getName();
-        }
-    };
-
-    public static final Function<Change, ObjectKey> TO_OBJECT_KEY = new Function<Change, ObjectKey>() {
-        @Override
-        public ObjectKey valueOf(Change arg0) {
-            return arg0.getObjectKey();
-        }
-    };
-
-    public static final Function<Change, ChangeKey> TO_CHANGE_KEY = new Function<Change, ChangeKey>() {
-        @Override
-        public ChangeKey valueOf(Change object) {
-            return object.getChangeKey();
-        }
-    };
-
-    public static final Function<Change, Timestamp> TO_TIME_INSERTED = new Function<Change, Timestamp>() {
-        @Override
-        public Timestamp valueOf(Change object) {
-            return object.getTimeInserted();
-        }
-    };
-
-    public static final Function<Change, String> TO_CHANGESET = new Function<Change, String>() {
-        @Override
-        public String valueOf(Change arg0) {
-            return arg0.getChangeset();
-        }
-    };
-
-    public static final Predicate<Change> IS_CREATE_OR_REPLACE = new Predicate<Change>() {
-        @Override
-        public boolean accept(Change each) {
-            return each.isCreateOrReplace();
-        }
-    };
 
     private static final Pattern CREATE_OR_REPLACE_PATTERN = Pattern.compile("(?i)create\\s+or\\s+replace");
 
@@ -231,6 +152,10 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
         return this.changeType;
     }
 
+    public String getChangeTypeName() {
+        return this.changeType.getName();
+    }
+
     public void setChangeType(ChangeType changeType) {
         this.changeType = changeType;
     }
@@ -342,67 +267,19 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
                 ;
     }
 
-    public static Function<Change, String> changeName() {
-        return new Function<Change, String>() {
-            @Override
-            public String valueOf(Change arg0) {
-                return arg0.getChangeName();
-            }
-        };
-    }
-
-    public static Function<Change, Boolean> active() {
-        return new Function<Change, Boolean>() {
-            @Override
-            public Boolean valueOf(Change arg0) {
-                return arg0.isActive();
-            }
-        };
-    }
-
-    public static Function<Change, String> objectName() {
-        return new Function<Change, String>() {
-            @Override
-            public String valueOf(Change arg0) {
-                return arg0.getObjectName();
-            }
-        };
-    }
-
-    public static Function<Change, String> contentHash() {
-        return new Function<Change, String>() {
-            @Override
-            public String valueOf(Change arg0) {
-                return arg0.getContentHash();
-            }
-        };
-    }
-
-    public static Function<Change, String> schema() {
-        return new Function<Change, String>() {
-            @Override
-            public String valueOf(Change arg0) {
-                return arg0.getSchema();
-            }
-        };
-    }
-
     public ImmutableSet<String> getAcceptableHashes() {
         /**
          * This is here for backwards-compatibility w/ systems that were doing the hashing prior to making all the
          * hashing agnostic of the white-space (before, we only had the table changes be white-space agnostic).
          * We need the various contentHashStrategies to account for past versions of the algorithm.
          */
-        return this.contentHashStrategies.flatCollect(new Function<DbChangeHashStrategy, Iterable<String>>() {
-            @Override
-            public Iterable<String> valueOf(DbChangeHashStrategy hashStrategy) {
-                MutableSet<String> acceptableHashes = UnifiedSet.newSet();
-                acceptableHashes.add(hashStrategy.hashContent(content));
-                if (convertedContent != null) {
-                    acceptableHashes.add(hashStrategy.hashContent(convertedContent));
-                }
-                return acceptableHashes;
+        return this.contentHashStrategies.flatCollect(hashStrategy -> {
+            MutableSet<String> acceptableHashes = Sets.mutable.empty();
+            acceptableHashes.add(hashStrategy.hashContent(content));
+            if (convertedContent != null) {
+                acceptableHashes.add(hashStrategy.hashContent(convertedContent));
             }
+            return acceptableHashes;
         }).toSet().toImmutable();
     }
 
@@ -528,7 +405,7 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
         this.orderWithinObject = orderWithinObject;
     }
 
-    private Timestamp getTimeInserted() {
+    public Timestamp getTimeInserted() {
         return timeInserted != null ? timeInserted : timeUpdated;
     }
 

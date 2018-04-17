@@ -74,7 +74,7 @@ public class StaticDataChangeTypeBehavior implements ChangeTypeBehavior {
         if (hasInsertIntoPattern && hasCsvPattern) {
             throw new IllegalArgumentException("Within a group of staticData changes, " +
                     "we cannot have a mix of CSV data files and InsertInto data files. Please convert all of them to " +
-                    "the CSV format: " + staticDatas.collect(Change.TO_DISPLAY_STRING).makeString(", "));
+                    "the CSV format: " + staticDatas.collect(Change::getDisplayString).makeString(", "));
         }
 
         if (hasCsvPattern) {

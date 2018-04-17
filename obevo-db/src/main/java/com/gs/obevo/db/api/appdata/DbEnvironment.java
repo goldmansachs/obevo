@@ -17,6 +17,7 @@ package com.gs.obevo.db.api.appdata;
 
 import java.sql.Driver;
 
+import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.platform.Platform;
@@ -25,7 +26,7 @@ import com.gs.obevo.db.api.platform.DbDeployerAppContext;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.db.api.platform.DbTranslationDialect;
 import com.gs.obevo.util.inputreader.Credential;
-import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.map.ImmutableMap;
 import org.eclipse.collections.api.set.MutableSet;
@@ -63,6 +64,7 @@ public class DbEnvironment extends Environment<DbPlatform> {
     private boolean reorgCheckEnabled = true;
     private int csvVersion = DbPlatformConfiguration.getInstance().getFeatureToggleVersion("csvVersion");
     private ImmutableMap<String, String> extraEnvAttrs;
+    private ImmutableList<ServerDirectory> serverDirectories;
 
     public DbEnvironment() {
     }
@@ -118,7 +120,7 @@ public class DbEnvironment extends Environment<DbPlatform> {
         }
 
         return super.getDisplayString() + ": Connecting to [" + connectionInfo + "] against schemas ["
-                + this.getPhysicalSchemas().collect(PhysicalSchema.TO_PHYSICAL_NAME).makeString(",") + "]";
+                + this.getPhysicalSchemas().collect(PhysicalSchema::getPhysicalName).makeString(",") + "]";
     }
 
     public String getDbHost() {
@@ -203,6 +205,14 @@ public class DbEnvironment extends Environment<DbPlatform> {
 
     public ImmutableList<Permission> getPermissions() {
         return this.permissions;
+    }
+
+    public ImmutableList<Permission> getPermissions(Change change) {
+        return getPermissions(change.getPermissionScheme());
+    }
+
+    public ImmutableList<Permission> getPermissions(String permissionScheme) {
+        return getPermissions().select(_this -> _this.getScheme().equalsIgnoreCase(permissionScheme));
     }
 
     public void setPermissions(ImmutableList<Permission> permissions) {
@@ -309,19 +319,9 @@ public class DbEnvironment extends Environment<DbPlatform> {
         // ideally, the groups are defined in the groups field; however, we have not enforced this in the past, and most
         // folks just define the groups via the permission schemes. Hence, we add this extra getter here to allow
         // clients to get the groups they need
-        MutableSet<String> groupNames = permissions.flatCollect(Permission.TO_GRANTS).flatCollect(new Function<Grant, Iterable<String>>() {
-            @Override
-            public Iterable<String> valueOf(Grant grant) {
-                return grant.getGrantTargets().get(GrantTargetType.GROUP);
-            }
-        }).toSet();
+        MutableSet<String> groupNames = permissions.flatCollect(Permission::getGrants).flatCollect(grant -> grant.getGrantTargets().get(GrantTargetType.GROUP)).toSet();
 
-        MutableSet<Group> permissionGroups = groupNames.collect(new Function<String, Group>() {
-            @Override
-            public Group valueOf(String groupName) {
-                return new Group(groupName);
-            }
-        });
+        MutableSet<Group> permissionGroups = groupNames.collect(Group::new);
 
         permissionGroups.removeIf(Predicates.attributeIn(Group::getName, this.groups.collect(Group::getName)));  // ensure that we don't duplicate groups across the permissions and config groups list
 
@@ -334,21 +334,12 @@ public class DbEnvironment extends Environment<DbPlatform> {
 
     public ImmutableList<User> getUsers() {
         // See note in getGroups() on why we get the users from the permissions
-        MutableSet<String> userNames = permissions.flatCollect(Permission.TO_GRANTS).flatCollect(new Function<Grant, Iterable<String>>() {
-            @Override
-            public Iterable<String> valueOf(Grant grant) {
-                return grant.getGrantTargets().get(GrantTargetType.USER);
-            }
-        }).toSet();  // remove duplicates within the permissions list
+        MutableSet<String> userNames = permissions.flatCollect(Permission::getGrants).flatCollect(grant -> grant.getGrantTargets().get(GrantTargetType.USER)).toSet();  // remove duplicates within the permissions list
 
-        MutableSet<User> permissionUsers = userNames.collect(new Function<String, User>() {
-            @Override
-            public User valueOf(String username) {
-                return new User(username, null, false);
-            }
-        });
+        MutableSet<User> permissionUsers = userNames.collect(username -> new User(username, null, false));
 
-        permissionUsers.removeIf(Predicates.attributeIn(User.TO_NAME, this.users.collect(User.TO_NAME)));  // ensure that we don't duplicate users across the permissions and config users list
+        ImmutableList<String> existingUserNames = this.users.collect(User::getName);
+        permissionUsers.removeIf((Predicate<User>) _this -> existingUserNames.contains(_this.getName()));  // ensure that we don't duplicate users across the permissions and config users list
 
         return this.users.newWithAll(permissionUsers);
     }
@@ -420,5 +411,13 @@ public class DbEnvironment extends Environment<DbPlatform> {
 
     public void setExtraEnvAttrs(ImmutableMap<String, String> extraEnvAttrs) {
         this.extraEnvAttrs = extraEnvAttrs;
+    }
+
+    public ImmutableList<ServerDirectory> getServerDirectories() {
+        return serverDirectories == null ? Lists.immutable.empty() : serverDirectories;
+    }
+
+    public void setServerDirectories(ImmutableList<ServerDirectory> serverDirectories) {
+        this.serverDirectories = serverDirectories;
     }
 }

@@ -127,7 +127,7 @@ public abstract class DbDeployerAppContextImpl extends AbstractDeployerAppContex
             throw new IllegalStateException("The following change types were not enriched: " + unenrichedChangeTypes);
         }
 
-        CollectionUtil.verifyNoDuplicates(changeTypes, ChangeType.TO_NAME, "Not expecting multiple ChangeTypes with the same name");
+        CollectionUtil.verifyNoDuplicates(changeTypes, ChangeType::getName, "Not expecting multiple ChangeTypes with the same name");
     }
 
     protected DbPlatform platform() {
@@ -141,14 +141,14 @@ public abstract class DbDeployerAppContextImpl extends AbstractDeployerAppContex
     protected ChangeTypeBehaviorRegistryBuilder getChangeTypeBehaviors() {
         ChangeTypeBehaviorRegistryBuilder builder = ChangeTypeBehaviorRegistry.newBuilder();
 
-        PartitionImmutableList<ChangeType> staticDataPartition = platform().getChangeTypes().partition(Predicates.attributeEqual(ChangeType.TO_NAME, ChangeType.STATICDATA_STR));
+        PartitionImmutableList<ChangeType> staticDataPartition = platform().getChangeTypes().partition(_this -> _this.getName().equals(ChangeType.STATICDATA_STR));
 
         for (ChangeType staticDataType : staticDataPartition.getSelected()) {
             StaticDataChangeTypeBehavior behavior = new StaticDataChangeTypeBehavior(env, getSqlExecutor(), simpleArtifactDeployer(), getCsvStaticDataLoader());
             builder.put(staticDataType.getName(), groupSemantic(), behavior);
         }
 
-        PartitionImmutableList<ChangeType> rerunnablePartition = staticDataPartition.getRejected().partition(ChangeType.IS_RERUNNABLE);
+        PartitionImmutableList<ChangeType> rerunnablePartition = staticDataPartition.getRejected().partition(ChangeType::isRerunnable);
 
         for (ChangeType rerunnableChange : rerunnablePartition.getSelected()) {
             if (!(rerunnableChange instanceof DbChangeType)) {

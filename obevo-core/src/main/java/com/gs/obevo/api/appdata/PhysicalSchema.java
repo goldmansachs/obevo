@@ -17,8 +17,6 @@ package com.gs.obevo.api.appdata;
 
 import java.util.Objects;
 
-import org.eclipse.collections.api.block.function.Function;
-
 /**
  * Creating this marker class to separate the ideal schema (e.g. myappschema) from the actual
  * physical schema we may deploy to in dev/qa/prod (e.g. myappschema_qa1). This will span either the catalog or
@@ -27,13 +25,6 @@ import org.eclipse.collections.api.block.function.Function;
 public class PhysicalSchema {
     private final String physicalName;
     private final String subschema;
-
-    public static final Function<PhysicalSchema, String> TO_PHYSICAL_NAME = new Function<PhysicalSchema, String>() {
-        @Override
-        public String valueOf(PhysicalSchema physicalSchema) {
-            return physicalSchema.getPhysicalName();
-        }
-    };
 
     public PhysicalSchema(String physicalName) {
         this(physicalName, null);

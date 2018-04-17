@@ -16,8 +16,6 @@
 package com.gs.obevo.api.platform;
 
 import com.gs.obevo.impl.text.TextDependencyExtractor;
-import org.eclipse.collections.api.block.function.Function;
-import org.eclipse.collections.api.block.predicate.Predicate;
 
 /**
  * Represents a kind of object to be maintained in a {@link Platform}. This defines the general parameters of how to
@@ -54,6 +52,7 @@ public interface ChangeType {
     String SYNONYM_STR = "SYNONYM";
     String PACKAGE_STR = "PACKAGE";
     String PACKAGE_BODY = "PACKAGE_BODY";
+    String DIRECTORY = "DIRECTORY";
 
     String MIGRATION_STR = "MIGRATION";
     String VIEW_STR = "VIEW";
@@ -69,27 +68,6 @@ public interface ChangeType {
     String RULE_STR = "RULE";
     String USERTYPE_STR = "USERTYPE";
     String AVRO_SCHEMA_STR = "AVRO_SCHEMA";
-
-    Function<ChangeType, Integer> TO_DEPLOY_ORDER_PRIORITY = new Function<ChangeType, Integer>() {
-        @Override
-        public Integer valueOf(ChangeType object) {
-            return object.getDeployOrderPriority();
-        }
-    };
-
-    Predicate<ChangeType> IS_RERUNNABLE = new Predicate<ChangeType>() {
-        @Override
-        public boolean accept(ChangeType object) {
-            return object.isRerunnable();
-        }
-    };
-
-    Function<ChangeType, String> TO_NAME = new Function<ChangeType, String>() {
-        @Override
-        public String valueOf(ChangeType object) {
-            return object.getName();
-        }
-    };
 
     /**
      * The name of the this {@link ChangeType}. This value should be leveraged where possible to interact

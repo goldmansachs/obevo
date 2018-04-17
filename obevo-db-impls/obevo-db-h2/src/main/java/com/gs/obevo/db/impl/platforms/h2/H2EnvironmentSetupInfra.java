@@ -25,12 +25,14 @@ import com.gs.obevo.db.api.appdata.Group;
 import com.gs.obevo.db.api.appdata.User;
 import com.gs.obevo.db.impl.core.envinfrasetup.AbstractEnvironmentInfraSetup;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
+import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
+import com.gs.obevo.impl.DeployMetricsCollector;
 
 class H2EnvironmentSetupInfra extends AbstractEnvironmentInfraSetup {
     private final DbMetadataManager dbMetadataManager;
 
-    H2EnvironmentSetupInfra(DbEnvironment env, DataSource ds, DbMetadataManager dbMetadataManager) {
-        super(env, ds, null, dbMetadataManager);
+    H2EnvironmentSetupInfra(DbEnvironment env, DataSource ds, DeployMetricsCollector deployMetricsCollector, DbMetadataManager dbMetadataManager, ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry) {
+        super(env, ds, deployMetricsCollector, dbMetadataManager, changeTypeBehaviorRegistry);
         this.dbMetadataManager = dbMetadataManager;
     }
 

@@ -16,16 +16,8 @@
 package com.gs.obevo.db.api.appdata;
 
 import org.apache.commons.lang3.Validate;
-import org.eclipse.collections.api.block.function.Function;
 
 public class User {
-    public static final Function<User, String> TO_NAME = new Function<User, String>() {
-        @Override
-        public String valueOf(User object) {
-            return object.getName();
-        }
-    };
-
     private final String name;
     private final String password;
     private final boolean admin;

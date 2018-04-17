@@ -15,8 +15,6 @@
  */
 package com.gs.obevo.db.sqlparser.tokenparser;
 
-import org.eclipse.collections.api.block.function.Function;
-
 public class SqlToken {
     private final SqlTokenType tokenType;
     private final String text;
@@ -26,23 +24,9 @@ public class SqlToken {
         this.text = text;
     }
 
-    public static final Function<SqlToken, SqlTokenType> TO_TOKEN_TYPE = new Function<SqlToken, SqlTokenType>() {
-        @Override
-        public SqlTokenType valueOf(SqlToken object) {
-            return object.getTokenType();
-        }
-    };
-
     public SqlTokenType getTokenType() {
         return this.tokenType;
     }
-
-    public static final Function<SqlToken, String> TO_TEXT = new Function<SqlToken, String>() {
-        @Override
-        public String valueOf(SqlToken object) {
-            return object.getText();
-        }
-    };
 
     public String getText() {
         return this.text;

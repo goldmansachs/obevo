@@ -21,12 +21,12 @@ import com.gs.obevo.db.api.appdata.Grant;
 import com.gs.obevo.db.api.appdata.GrantTargetType;
 import com.gs.obevo.db.api.appdata.Group;
 import com.gs.obevo.db.api.appdata.Permission;
+import com.gs.obevo.db.api.appdata.ServerDirectory;
 import com.gs.obevo.db.api.appdata.User;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.impl.AbstractEnvironmentEnricher;
 import com.gs.obevo.util.Tokenizer;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.multimap.list.MutableListMultimap;
@@ -59,8 +59,9 @@ public class DbEnvironmentXmlEnricher extends AbstractEnvironmentEnricher<DbEnvi
 
         // Allow the groups + users to be tokenized upfront for compatibility w/ the EnvironmentInfraSetup classes
         Tokenizer tokenizer = new Tokenizer(dbEnv.getTokens(), dbEnv.getTokenPrefix(), dbEnv.getTokenSuffix());
-        dbEnv.setGroups(iterConfig(sysCfg, "groups.group").collect(convertCfgToGroup(tokenizer)));
-        dbEnv.setUsers(iterConfig(sysCfg, "users.user").collect(convertCfgToUser(tokenizer)));
+        dbEnv.setGroups(iterConfig(sysCfg, "groups.group").collectWith(DbEnvironmentXmlEnricher::convertCfgToGroup, tokenizer));
+        dbEnv.setUsers(iterConfig(sysCfg, "users.user").collectWith(DbEnvironmentXmlEnricher::convertCfgToUser, tokenizer));
+        dbEnv.setServerDirectories(iterConfig(sysCfg, "serverDirectories.serverDirectory").collectWith(DbEnvironmentXmlEnricher::convertCfgToServerDirectory, tokenizer));
 
         if (envCfg.getString("[@driverClass]") != null) {
             dbEnv.setDriverClassName(envCfg.getString("[@driverClass]"));
@@ -99,9 +100,9 @@ public class DbEnvironmentXmlEnricher extends AbstractEnvironmentEnricher<DbEnvi
         ImmutableList<HierarchicalConfiguration> envPermissions = iterConfig(envCfg, "permissions.permission");
         ImmutableList<HierarchicalConfiguration> sysPermissions = iterConfig(sysCfg, "permissions.permission");
         if (!envPermissions.isEmpty()) {
-            dbEnv.setPermissions(envPermissions.collect(convertCfgToPermission(tokenizer)));
+            dbEnv.setPermissions(envPermissions.collectWith(DbEnvironmentXmlEnricher::convertCfgToPermission, tokenizer));
         } else if (!sysPermissions.isEmpty()) {
-            dbEnv.setPermissions(sysPermissions.collect(convertCfgToPermission(tokenizer)));
+            dbEnv.setPermissions(sysPermissions.collectWith(DbEnvironmentXmlEnricher::convertCfgToPermission, tokenizer));
         }
 
         DbPlatform platform;
@@ -132,48 +133,35 @@ public class DbEnvironmentXmlEnricher extends AbstractEnvironmentEnricher<DbEnvi
         dbEnv.setAuditTableSql(getProperty(sysCfg, envCfg, "auditTableSql"));
     }
 
-    private static Function<HierarchicalConfiguration, Group> convertCfgToGroup(final Tokenizer tokenizer) {
-        return new Function<HierarchicalConfiguration, Group>() {
-            @Override
-            public Group valueOf(HierarchicalConfiguration cfg) {
-                return new Group(tokenizer.tokenizeString(cfg.getString("[@name]")));
-            }
-        };
+    private static Group convertCfgToGroup(HierarchicalConfiguration cfg, Tokenizer tokenizer) {
+        return new Group(tokenizer.tokenizeString(cfg.getString("[@name]")));
     }
 
-    private static Function<HierarchicalConfiguration, User> convertCfgToUser(final Tokenizer tokenizer) {
-        return new Function<HierarchicalConfiguration, User>() {
-            @Override
-            public User valueOf(HierarchicalConfiguration cfg) {
-                return new User(tokenizer.tokenizeString(cfg.getString("[@name]")), cfg.getString("[@password]"),
-                        cfg.getBoolean("[@admin]", false));
-            }
-        };
+    private static User convertCfgToUser(HierarchicalConfiguration cfg, Tokenizer tokenizer) {
+        return new User(tokenizer.tokenizeString(cfg.getString("[@name]")), cfg.getString("[@password]"),
+                cfg.getBoolean("[@admin]", false));
     }
 
-    private static Function<HierarchicalConfiguration, Permission> convertCfgToPermission(final Tokenizer tokenizer) {
-        return new Function<HierarchicalConfiguration, Permission>() {
-            @Override
-            public Permission valueOf(HierarchicalConfiguration cfg) {
-                return new Permission(cfg.getString("[@scheme]"),
-                        iterConfig(cfg, "grant").collect(convertCfgToGrant(tokenizer)));
-            }
-        };
+    private static ServerDirectory convertCfgToServerDirectory(HierarchicalConfiguration cfg, Tokenizer tokenizer) {
+        return new ServerDirectory(
+                tokenizer.tokenizeString(cfg.getString("[@name]")),
+                tokenizer.tokenizeString(cfg.getString("[@directoryPath]"))
+        );
     }
 
-    private static Function<HierarchicalConfiguration, Grant> convertCfgToGrant(final Tokenizer tokenizer) {
-        return new Function<HierarchicalConfiguration, Grant>() {
-            @Override
-            public Grant valueOf(HierarchicalConfiguration cfg) {
-                MutableListMultimap<GrantTargetType, String> grantTargetMap = Multimaps.mutable.list.empty();
-                grantTargetMap.putAll(GrantTargetType.GROUP, iterString(cfg, "[@groups]").collect(tokenizer.tokenizeString()));
-                grantTargetMap.putAll(GrantTargetType.USER, iterString(cfg, "[@users]").collect(tokenizer.tokenizeString()));
-                return new Grant(
-                        iterString(cfg, "[@privileges]").toImmutable(),
-                        grantTargetMap.toImmutable()
-                );
-            }
-        };
+    private static Permission convertCfgToPermission(HierarchicalConfiguration cfg, Tokenizer tokenizer) {
+        return new Permission(cfg.getString("[@scheme]"),
+                iterConfig(cfg, "grant").collect(_this -> convertCfgToGrant(_this, tokenizer)));
+    }
+
+    private static Grant convertCfgToGrant(HierarchicalConfiguration cfg, Tokenizer tokenizer) {
+        MutableListMultimap<GrantTargetType, String> grantTargetMap = Multimaps.mutable.list.empty();
+        grantTargetMap.putAll(GrantTargetType.GROUP, iterString(cfg, "[@groups]").collect(tokenizer::tokenizeString));
+        grantTargetMap.putAll(GrantTargetType.USER, iterString(cfg, "[@users]").collect(tokenizer::tokenizeString));
+        return new Grant(
+                iterString(cfg, "[@privileges]").toImmutable(),
+                grantTargetMap.toImmutable()
+        );
     }
 
     /**

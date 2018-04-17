@@ -17,7 +17,6 @@ package com.gs.obevo.api.appdata;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.eclipse.collections.api.collection.MutableCollection;
-import org.eclipse.collections.impl.block.factory.Predicates;
 
 public class DeploySystem<T extends Environment> {
     private final MutableCollection<T> environments;
@@ -37,6 +36,6 @@ public class DeploySystem<T extends Environment> {
     }
 
     public T getEnvironment(String envName) {
-        return this.environments.detect(Predicates.attributeEqual(Environment.TO_NAME, envName));
+        return this.environments.detect(_this -> _this.getName().equals(envName));
     }
 }

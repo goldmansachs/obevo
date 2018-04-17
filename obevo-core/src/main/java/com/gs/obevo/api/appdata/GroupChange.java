@@ -41,7 +41,7 @@ public class GroupChange extends Change {
         } else {
             return "Group of static data changes (executing the inserts/updates [if any] in order, " +
                     "and deletes [if any] in reverse-order):\n\t\t" +
-                    this.changes.collect(Change.TO_DISPLAY_STRING).makeString("\n\t\t");
+                    this.changes.collect(Change::getDisplayString).makeString("\n\t\t");
         }
     }
 

@@ -48,6 +48,10 @@
         <user name="usr1" />
         <user name="usr2" password="pass" admin="true" />
     </users>
+    <serverDirectories>
+        <serverDirectory name="dir1" directoryPath="path1" />
+        <serverDirectory name="dir2" directoryPath="path2" />
+    </serverDirectories>
     <environments>
         <dbEnvironment name="test1" type="DEV" cleanBuildAllowed="true" dbHost="host" dbPort="123" dbServer="dbServ"
             dbDataSourceName="dbSrc" dbSchemaPrefix="pref" dbSchemaSuffix="suff" defaultUserId="defId"

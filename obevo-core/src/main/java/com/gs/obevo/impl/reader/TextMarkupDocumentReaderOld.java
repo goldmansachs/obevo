@@ -22,7 +22,6 @@ import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.set.MutableSet;
-import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.factory.Sets;
@@ -41,7 +40,7 @@ class TextMarkupDocumentReaderOld {
         ImmutableList<TextMarkupDocumentSection> textMarkupDocumentSections = this.parseString(text, this.firstLevelElements, true, "////");
 
         if (otherSection != null) {
-            TextMarkupDocumentSection thisSection = textMarkupDocumentSections.detect(Predicates.attributeEqual(TextMarkupDocumentSection.TO_NAME, otherSection.getName()));
+            TextMarkupDocumentSection thisSection = textMarkupDocumentSections.detect(_this -> _this.getName().equals(otherSection.getName()));
             if (thisSection != null) {
                 thisSection.mergeAttributes(otherSection);
             } else {

@@ -29,13 +29,11 @@ import com.gs.obevo.db.impl.core.compare.data.DbDataComparisonUtil;
 import com.gs.obevo.reladomo.ReladomoSchemaConverter;
 import com.gs.obevo.reladomo.ReladomoSchemaConverterArgs;
 import com.gs.obevo.util.ArgsParser;
-import com.gs.obevo.util.EnumUtils;
 import com.gs.obevo.util.LogUtil;
 import com.gs.obevo.util.VisibleForTesting;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.time.StopWatch;
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.map.ImmutableMap;
@@ -43,9 +41,9 @@ import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.block.factory.HashingStrategies;
 import org.eclipse.collections.impl.block.factory.StringFunctions;
+import org.eclipse.collections.impl.factory.HashingStrategyMaps;
 import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.list.fixed.ArrayAdapter;
-import org.eclipse.collections.impl.map.strategy.mutable.UnifiedMapWithHashingStrategy;
 import org.eclipse.collections.impl.tuple.Tuples;
 import org.slf4j.Logger;
 
@@ -74,23 +72,13 @@ public class Main {
 
     protected Main() {
         // use the hashing strategy to allow commands of any case to be handled
-        UnifiedMapWithHashingStrategy<String, Procedure<String[]>> commandMap = new UnifiedMapWithHashingStrategy<String, Procedure<String[]>>(HashingStrategies.fromFunction(StringFunctions.toLowerCase()));
+        MutableMap<String, Procedure<String[]>> commandMap = HashingStrategyMaps.mutable.of(HashingStrategies.fromFunction(String::toLowerCase));
         commandMap.putAll(getCommandMap().toMap());
         this.commandMap = commandMap.toImmutable();
     }
 
     protected void execute(String[] args) {
-        execute(args, new Runnable() {
-            @Override
-            public void run() {
-                System.exit(0);
-            }
-        }, new Runnable() {
-            @Override
-            public void run() {
-                System.exit(-1);
-            }
-        });
+        execute(args, () -> System.exit(0), () -> System.exit(-1));
     }
 
     /**
@@ -162,7 +150,7 @@ public class Main {
 
     private static void usage() {
         System.out.println("Usage: java " + Main.class.getName() + " ["
-                + COMMANDS.collect(EnumUtils.<DeployCommand>toName()).collect(StringFunctions.toLowerCase())
+                + COMMANDS.collect(DeployCommand::name).collect(StringFunctions.toLowerCase())
                 .makeString("/") + "] [args]");
         System.out.println("Pick one of the commands when entering.");
         System.out.println("If you just put in the command w/ no args, you will be prompted with further options");
@@ -170,74 +158,36 @@ public class Main {
 
     protected ImmutableMap<String, Procedure<String[]>> getCommandMap() {
         MutableMap<String, Procedure<String[]>> commandMap = Maps.mutable.empty();
-        commandMap.put("deploy", new Procedure<String[]>() {
-            @Override
-            public void value(String[] argSubset) {
-                new DbDeployerMain().start(new ArgsParser().parse(argSubset, new DeployerArgs(), new Function<DeployerArgs, String>() {
-                    @Override
-                    public String valueOf(DeployerArgs object) {
-                        if (object.getSourcePath() == null) {
-                            return "-sourcePath argument must be passed in";
-                        }
-                        return null;
-                    }
-                }));
+        commandMap.put("deploy", argSubset -> new DbDeployerMain().start(new ArgsParser().parse(argSubset, new DeployerArgs(), object -> {
+            if (object.getSourcePath() == null) {
+                return "-sourcePath argument must be passed in";
             }
+            return null;
+        })));
+        commandMap.put("DBREVENG", argSubset -> {
+            AquaRevengArgs argsObj = new ArgsParser().parse(argSubset, new AquaRevengArgs());
+            new AquaRevengMain().execute(argsObj);
         });
-        commandMap.put("DBREVENG", new Procedure<String[]>() {
-            @Override
-            public void value(String[] argSubset) {
-                AquaRevengArgs argsObj = new ArgsParser().parse(argSubset, new AquaRevengArgs());
-                new AquaRevengMain().execute(argsObj);
-            }
+        commandMap.put("NEWREVENG", argSubset -> {
+            AquaRevengArgs newArgsObj = new ArgsParser().parse(argSubset, new AquaRevengArgs());
+            AbstractDdlReveng ddlReveng = newArgsObj.getDbPlatform().getDdlReveng();
+            ddlReveng.reveng(newArgsObj);
         });
-        commandMap.put("NEWREVENG", new Procedure<String[]>() {
-            @Override
-            public void value(String[] argSubset) {
-                AquaRevengArgs newArgsObj = new ArgsParser().parse(argSubset, new AquaRevengArgs());
-                AbstractDdlReveng ddlReveng = newArgsObj.getDbPlatform().getDdlReveng();
-                ddlReveng.reveng(newArgsObj);
-            }
+        commandMap.put("DBREVENGMERGE", argSubset -> {
+            DbFileMergerArgs mergeArgsObj = new ArgsParser().parse(argSubset, new DbFileMergerArgs());
+            new DbFileMerger().execute(mergeArgsObj);
         });
-        commandMap.put("DBREVENGMERGE", new Procedure<String[]>() {
-            @Override
-            public void value(String[] argSubset) {
-                DbFileMergerArgs mergeArgsObj = new ArgsParser().parse(argSubset, new DbFileMergerArgs());
-                new DbFileMerger().execute(mergeArgsObj);
-            }
+        commandMap.put("DBREVENGTABLEMERGE", argSubset -> {
+            DbFileMergerArgs tableMergeArgsObj = new ArgsParser().parse(argSubset, new DbFileMergerArgs());
+            new TableSyncher().execute(tableMergeArgsObj);
         });
-        commandMap.put("DBREVENGTABLEMERGE", new Procedure<String[]>() {
-            @Override
-            public void value(String[] argSubset) {
-                DbFileMergerArgs tableMergeArgsObj = new ArgsParser().parse(argSubset, new DbFileMergerArgs());
-                new TableSyncher().execute(tableMergeArgsObj);
-            }
-        });
-        commandMap.put("INIT", new Procedure<String[]>() {
-            @Override
-            public void value(String[] argSubset) {
-                new DbDeployerMain().start(new ArgsParser().parse((String[]) ArrayUtils.add(argSubset, "-performInitOnly"), new DeployerArgs()));
-            }
-        });
-        commandMap.put("PREVIEW", new Procedure<String[]>() {
-            @Override
-            public void value(String[] argSubset) {
-                new DbDeployerMain().start(new ArgsParser().parse((String[]) ArrayUtils.add(argSubset, "-preview"), new DeployerArgs()));
-            }
-        });
-        commandMap.put("DBDATACOMPARE", new Procedure<String[]>() {
-            @Override
-            public void value(String[] argSubset) {
-                DbDataComparisonUtil.main(argSubset);
-            }
-        });
-        commandMap.put(DeployCommand.RELADOMOREVENG.name(), new Procedure<String[]>() {
-            @Override
-            public void value(String[] argSubset) {
-                ReladomoSchemaConverter schemaConverter = new ReladomoSchemaConverter();
-                ReladomoSchemaConverterArgs reladomoArgs = new ArgsParser().parse(argSubset, new ReladomoSchemaConverterArgs());
-                schemaConverter.convertDdlsToDaFormat(reladomoArgs);
-            }
+        commandMap.put("INIT", argSubset -> new DbDeployerMain().start(new ArgsParser().parse((String[]) ArrayUtils.add(argSubset, "-performInitOnly"), new DeployerArgs())));
+        commandMap.put("PREVIEW", argSubset -> new DbDeployerMain().start(new ArgsParser().parse((String[]) ArrayUtils.add(argSubset, "-preview"), new DeployerArgs())));
+        commandMap.put("DBDATACOMPARE", argSubset -> DbDataComparisonUtil.main(argSubset));
+        commandMap.put(DeployCommand.RELADOMOREVENG.name(), argSubset -> {
+            ReladomoSchemaConverter schemaConverter = new ReladomoSchemaConverter();
+            ReladomoSchemaConverterArgs reladomoArgs = new ArgsParser().parse(argSubset, new ReladomoSchemaConverterArgs());
+            schemaConverter.convertDdlsToDaFormat(reladomoArgs);
         });
 
         return commandMap.toImmutable();

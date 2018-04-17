@@ -17,23 +17,9 @@ package com.gs.obevo.api.appdata;
 
 import java.sql.Timestamp;
 
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.set.ImmutableSet;
 
 public interface DeployExecution {
-    Function<DeployExecution, Long> TO_ID = new Function<DeployExecution, Long>() {
-        @Override
-        public Long valueOf(DeployExecution object) {
-            return object.getId();
-        }
-    };
-    Function<DeployExecution, String> TO_PRODUCT_VERSION = new Function<DeployExecution, String>() {
-        @Override
-        public String valueOf(DeployExecution object) {
-            return object.getProductVersion();
-        }
-    };
-
     long getId();
 
     String getSchema();

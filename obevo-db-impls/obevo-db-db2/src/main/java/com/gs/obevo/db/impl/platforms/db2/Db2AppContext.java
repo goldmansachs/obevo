@@ -26,7 +26,6 @@ import com.gs.obevo.db.impl.platforms.db2.changetypes.Db2RoutineChangeTypeBehavi
 import com.gs.obevo.impl.ChangeTypeBehaviorRegistry.ChangeTypeBehaviorRegistryBuilder;
 import com.gs.obevo.impl.PostDeployAction;
 import org.eclipse.collections.api.block.function.Function0;
-import org.eclipse.collections.impl.block.factory.Predicates;
 
 public class Db2AppContext extends DbDeployerAppContextImpl {
     public SqlExecutor getSqlExecutor() {
@@ -57,7 +56,7 @@ public class Db2AppContext extends DbDeployerAppContextImpl {
 
     @Override
     public EnvironmentInfraSetup getEnvironmentInfraSetup() {
-        return new Db2EnvironmentInfraSetup(this.getEnvironment(), this.getManagedDataSource(), this.deployStatsTracker(), this.getDbMetadataManager());
+        return new Db2EnvironmentInfraSetup(this.getEnvironment(), this.getManagedDataSource(), this.deployStatsTracker(), this.getDbMetadataManager(), this.getChangeTypeBehaviorRegistry());
     }
 
     @Override
@@ -69,7 +68,7 @@ public class Db2AppContext extends DbDeployerAppContextImpl {
     }
 
     private ChangeTypeBehavior updateRoutineType(String routineTypeName) {
-        ChangeType routineChangeType = platform().getChangeTypes().detect(Predicates.attributeEqual(ChangeType.TO_NAME, routineTypeName));
+        ChangeType routineChangeType = platform().getChangeTypes().detect(_this -> _this.getName().equals(routineTypeName));
         Db2RoutineChangeTypeBehavior behavior = new Db2RoutineChangeTypeBehavior(env, (DbChangeType) routineChangeType, getSqlExecutor(), simpleArtifactDeployer(), grantChangeParser(), graphEnricher(), platform(), getDbMetadataManager());
         return behavior;
     }

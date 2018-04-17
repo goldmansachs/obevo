@@ -50,13 +50,11 @@ import org.eclipse.collections.api.multimap.MutableMultimap;
 import org.eclipse.collections.api.partition.PartitionIterable;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.api.tuple.Pair;
-import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.block.factory.HashingStrategies;
-import org.eclipse.collections.impl.block.factory.Predicates;
+import org.eclipse.collections.impl.factory.HashingStrategySets;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.multimap.list.FastListMultimap;
-import org.eclipse.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrategy;
 import org.eclipse.collections.impl.tuple.Tuples;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -205,9 +203,7 @@ public class DbEnvironmentCleaner implements EnvironmentCleaner {
         }
 
         // Get the unique drops based on the key in case the inputs have duplicated the object names (e.g. in case of specific names for functions)
-        MutableSet<DbCleanCommand> drops = UnifiedSetWithHashingStrategy.newSet(HashingStrategies.fromFunction(
-                DbCleanCommand.TO_KEY
-        ));
+        MutableSet<DbCleanCommand> drops = HashingStrategySets.mutable.of(HashingStrategies.fromFunction(DbCleanCommand.TO_KEY));
         drops.addAll(physicalSchemaToSchemaMap.keysView().flatCollect(new Function<PhysicalSchema,
                 RichIterable<DbCleanCommand>>() {
             @Override
@@ -217,7 +213,7 @@ public class DbEnvironmentCleaner implements EnvironmentCleaner {
                 MutableCollection<Schema> schemas = physicalSchemaToSchemaMap.get(physicalSchema);
 
                 for (Schema schema : schemas) {
-                    schemaDrops = schemaDrops.select(schema.getObjectExclusionPredicateBuilder().build(Functions.chain(DbCleanCommand.TO_OBJECT_TYPE, ChangeType.TO_NAME), DbCleanCommand.TO_OBJECT_NAME));
+                    schemaDrops = schemaDrops.select(schema.getObjectExclusionPredicateBuilder().build(_this -> _this.getObjectType().getName(), DbCleanCommand.TO_OBJECT_NAME));
                 }
 
                 return schemaDrops;
@@ -258,7 +254,7 @@ public class DbEnvironmentCleaner implements EnvironmentCleaner {
             }
         });
 
-        PartitionIterable<Change> rerunnableChangesPartition = artifacts.partition(Predicates.attributePredicate(Change.TO_CHANGE_TYPE, ChangeType.IS_RERUNNABLE));
+        PartitionIterable<Change> rerunnableChangesPartition = artifacts.partition(change -> change.getChangeType().isRerunnable());
         Changeset changeset = this.changesetCreator.determineChangeset(
                 rerunnableChangesPartition.getSelected(),
                 rerunnableChangesPartition.getRejected(),

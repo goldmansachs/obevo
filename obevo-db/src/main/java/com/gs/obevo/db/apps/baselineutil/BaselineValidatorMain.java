@@ -27,7 +27,6 @@ import com.gs.obevo.dbmetadata.deepcompare.CompareBreak;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.collection.ImmutableCollection;
-import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.set.ImmutableSet;
@@ -80,16 +79,11 @@ public class BaselineValidatorMain {
         LOG.info("Starting the first run (normal changes, not the baseline mode)");
         appContext.cleanAndDeploy();
 
-        final MutableMap<PhysicalSchema, ImmutableCollection<DaTable>> regularTableMap =
-                physicalSchemas.toMap(
-                        Functions.<PhysicalSchema>getPassThru(), new Function<PhysicalSchema, ImmutableCollection<DaTable>>() {
-                            @Override
-                            public ImmutableCollection<DaTable> valueOf(PhysicalSchema object) {
-                                DaCatalog database = metadataManager.getDatabase(object,
-                                        new DaSchemaInfoLevel().setRetrieveTableAndColumnDetails(), true, false);
-                                return database.getTables().reject(DaTable.IS_VIEW);
-                            }
-                        });
+        final MutableMap<PhysicalSchema, ImmutableCollection<DaTable>> regularTableMap = physicalSchemas.toMap(Functions.getPassThru(), object -> {
+            DaCatalog database = metadataManager.getDatabase(object,
+                    new DaSchemaInfoLevel().setRetrieveTableAndColumnDetails(), true, false);
+            return database.getTables().reject(DaTable.IS_VIEW);
+        });
 
         // run 2
         LOG.info("Starting the second run (in the baseline mode)");
@@ -98,24 +92,16 @@ public class BaselineValidatorMain {
 
         LOG.info("Starting the results comparison (LEFT is the regular tables, RIGHT is the baseline)");
 
-        final MutableMap<PhysicalSchema, ImmutableCollection<DaTable>> baselineTableMap =
-                physicalSchemas.toMap(
-                        Functions.<PhysicalSchema>getPassThru(), new Function<PhysicalSchema, ImmutableCollection<DaTable>>() {
-                            @Override
-                            public ImmutableCollection<DaTable> valueOf(PhysicalSchema object) {
-                                DaCatalog database = metadataManager.getDatabase(object,
-                                        new DaSchemaInfoLevel().setRetrieveTableAndColumnDetails(), true, false);
-                                return database.getTables().reject(DaTable.IS_VIEW);
-                            }
-                        });
+        final MutableMap<PhysicalSchema, ImmutableCollection<DaTable>> baselineTableMap = physicalSchemas.toMap(Functions.getPassThru(), object -> {
+            DaCatalog database = metadataManager.getDatabase(object,
+                    new DaSchemaInfoLevel().setRetrieveTableAndColumnDetails(), true, false);
+            return database.getTables().reject(DaTable.IS_VIEW);
+        });
 
-        return physicalSchemas.flatCollect(new Function<PhysicalSchema, MutableCollection<CompareBreak>>() {
-            @Override
-            public MutableCollection<CompareBreak> valueOf(PhysicalSchema schema) {
-                ImmutableCollection<DaTable> regularTables = regularTableMap.get(schema);
-                ImmutableCollection<DaTable> baselineTables = baselineTableMap.get(schema);
-                return BaselineValidatorMain.this.dbMetadataComparisonUtil.compareTables(regularTables, baselineTables);
-            }
+        return physicalSchemas.flatCollect(schema -> {
+            ImmutableCollection<DaTable> regularTables = regularTableMap.get(schema);
+            ImmutableCollection<DaTable> baselineTables = baselineTableMap.get(schema);
+            return BaselineValidatorMain.this.dbMetadataComparisonUtil.compareTables(regularTables, baselineTables);
         });
     }
 }

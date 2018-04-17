@@ -83,13 +83,13 @@ public class DefaultRollbackDetectorTest {
     public void testGetActiveDeploymentsOnNormalCase() throws Exception {
         assertEquals(Lists.immutable.with(1L), rollbackDetector.getActiveDeployments(Sets.immutable.with(
                 newExecution(1, "a")
-        )).collect(DeployExecution.TO_ID));
+        )).collect(DeployExecution::getId));
 
         assertEquals(Lists.immutable.with(1L, 2L, 3L), rollbackDetector.getActiveDeployments(Sets.immutable.with(
                 newExecution(1, "a")
                 , newExecution(2, "b")
                 , newExecution(3, "c")
-        )).collect(DeployExecution.TO_ID));
+        )).collect(DeployExecution::getId));
     }
 
     @Test
@@ -98,7 +98,7 @@ public class DefaultRollbackDetectorTest {
                 newExecution(1, "a")
                 , newExecution(2, "b")
                 , newExecution(3, "a", true)  // we go back to a; hence, erasing the impact of b
-        )).collect(DeployExecution.TO_ID));
+        )).collect(DeployExecution::getId));
 
         assertEquals(Lists.immutable.with(3L, 4L, 5L), rollbackDetector.getActiveDeployments(Sets.immutable.with(
                 newExecution(1, "a")
@@ -106,7 +106,7 @@ public class DefaultRollbackDetectorTest {
                 , newExecution(3, "a", true)  // we go back to a; hence, erasing the impact of b
                 , newExecution(4, "b")
                 , newExecution(5, "c")
-        )).collect(DeployExecution.TO_ID));
+        )).collect(DeployExecution::getId));
     }
 
     /**
@@ -124,7 +124,7 @@ public class DefaultRollbackDetectorTest {
                 , newExecution(6, null)
                 , newExecution(7, "c", true)
                 , newExecution(8, null)
-        )).collect(DeployExecution.TO_ID));
+        )).collect(DeployExecution::getId));
     }
 
     @Test
@@ -138,7 +138,7 @@ public class DefaultRollbackDetectorTest {
                 , newExecution(6, "e")
                 , newExecution(7, "c", true)
                 , newExecution(8, "e")
-        )).collect(DeployExecution.TO_ID));
+        )).collect(DeployExecution::getId));
     }
 
     @Test(expected = IllegalStateException.class)

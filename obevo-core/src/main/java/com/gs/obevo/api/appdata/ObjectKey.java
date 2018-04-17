@@ -17,33 +17,11 @@ package com.gs.obevo.api.appdata;
 
 import com.gs.obevo.api.platform.ChangeType;
 import org.apache.commons.lang3.Validate;
-import org.eclipse.collections.api.block.function.Function;
 
 /**
  * The fields that consist the identity of objects within a client codebase.
  */
 public final class ObjectKey {
-    public static final Function<ObjectKey, String> TO_SCHEMA = new Function<ObjectKey, String>() {
-        @Override
-        public String valueOf(ObjectKey arg0) {
-            return arg0.getSchema();
-        }
-    };
-
-    public static final Function<ObjectKey, ChangeType> TO_CHANGE_TYPE = new Function<ObjectKey, ChangeType>() {
-        @Override
-        public ChangeType valueOf(ObjectKey arg0) {
-            return arg0.getChangeType();
-        }
-    };
-
-    public static final Function<ObjectKey, String> TO_OBJECT_NAME = new Function<ObjectKey, String>() {
-        @Override
-        public String valueOf(ObjectKey arg0) {
-            return arg0.getObjectName();
-        }
-    };
-
     private final String schema;
     private final ChangeType changeType;
     private final String objectName;

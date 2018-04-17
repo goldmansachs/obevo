@@ -25,7 +25,6 @@ import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.block.factory.Functions;
-import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Sets;
 
@@ -56,12 +55,12 @@ public class MongoDbPlatform implements Platform {
 
     @Override
     public ChangeType getChangeType(String name) {
-        return getChangeTypes().detect(Predicates.attributeEqual(ChangeType.TO_NAME, name));
+        return getChangeTypes().detect(_this -> _this.getName().equals(name));
     }
 
     @Override
     public boolean hasChangeType(String name) {
-        return getChangeTypes().anySatisfy(Predicates.attributeEqual(ChangeType.TO_NAME, name));
+        return getChangeTypes().anySatisfy(_this -> _this.getName().equals(name));
     }
 
     @Override

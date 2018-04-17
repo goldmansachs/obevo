@@ -90,7 +90,7 @@ public class SybaseAseDeployerMainIT {
         DeployExecution execution2 = context2.getDeployExecutionDao().getLatestDeployExecution(schema);
         verifyExecution2(execution2);
 
-        MutableList<DeployExecution> executions = context2.getDeployExecutionDao().getDeployExecutions(schema).toSortedListBy(DeployExecution.TO_ID);
+        MutableList<DeployExecution> executions = context2.getDeployExecutionDao().getDeployExecutions(schema).toSortedListBy(DeployExecution::getId);
         verifyExecution1(executions.get(0));
         verifyExecution2(executions.get(1));
     }

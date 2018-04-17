@@ -25,6 +25,7 @@ import javax.sql.DataSource;
 
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.dbmetadata.api.DaCatalog;
+import com.gs.obevo.dbmetadata.api.DaDirectory;
 import com.gs.obevo.dbmetadata.api.DaPackage;
 import com.gs.obevo.dbmetadata.api.DaRoutine;
 import com.gs.obevo.dbmetadata.api.DaRoutineType;
@@ -342,9 +343,9 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
     }
 
     @Override
-    public ImmutableSet<String> getDirectoryNamesOptional() {
+    public ImmutableSet<DaDirectory> getDirectoriesOptional() {
         try (Connection conn = ds.getConnection()) {
-            return this.dbMetadataDialect.getDirectoryNamesOptional(conn);
+            return this.dbMetadataDialect.getDirectoriesOptional(conn);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

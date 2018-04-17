@@ -18,7 +18,6 @@ package com.gs.obevo.impl.changepredicate;
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.util.VisibleForTesting;
 import com.gs.obevo.util.lookuppredicate.LookupPredicateBuilder;
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
@@ -30,6 +29,7 @@ import org.eclipse.collections.impl.list.fixed.ArrayAdapter;
 import static com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder.PART_SPLITTER;
 import static com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder.PREDICATE_SPLITTER;
 import static com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder.SINGLE_PREDICATE_SPLITTER;
+import static org.eclipse.collections.impl.block.factory.Predicates.attributePredicate;
 
 /**
  * Predicate to allow clients to only select specific Changes based on the identity fields, e.g. schema, change type,
@@ -46,12 +46,7 @@ public class ChangeKeyPredicateBuilder {
 
     public static Predicate<? super Change> parseFullPredicate(String fullPredicateString) {
         ImmutableList<String> fullPredicateParts = ArrayAdapter.adapt(fullPredicateString.split(PREDICATE_SPLITTER)).toImmutable();
-        ImmutableList<Predicate<? super Change>> singlePredicates = fullPredicateParts.collect(new Function<String, Predicate<? super Change>>() {
-            @Override
-            public Predicate<? super Change> valueOf(String singlePredicateString) {
-                return parseSinglePredicate(singlePredicateString);
-            }
-        });
+        ImmutableList<Predicate<? super Change>> singlePredicates = fullPredicateParts.collect(ChangeKeyPredicateBuilder::parseSinglePredicate);
 
         return Predicates.or(singlePredicates);
     }
@@ -126,10 +121,10 @@ public class ChangeKeyPredicateBuilder {
         }
 
         public Predicate<? super Change> build() {
-            return Predicates.attributePredicate(Change.TO_SCHEMA, LookupPredicateBuilder.convert(schemas))
-                    .and(Predicates.attributePredicate(Change.TO_CHANGE_TYPE_NAME, LookupPredicateBuilder.convert(changeTypes)))
-                    .and(Predicates.attributePredicate(Change.objectName(), LookupPredicateBuilder.convert(objectNames)))
-                    .and(Predicates.attributePredicate(Change.TO_CHANGE_NAME, LookupPredicateBuilder.convert(changeNames)));
+            return attributePredicate(Change::getSchema, LookupPredicateBuilder.convert(schemas))
+                    .and(attributePredicate(_this -> _this.getChangeType().getName(), LookupPredicateBuilder.convert(changeTypes)))
+                    .and(attributePredicate(Change::getObjectName, LookupPredicateBuilder.convert(objectNames)))
+                    .and(attributePredicate(Change::getChangeName, LookupPredicateBuilder.convert(changeNames)));
         }
     }
 }

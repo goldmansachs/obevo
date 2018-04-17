@@ -51,7 +51,6 @@ import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.multimap.list.MutableListMultimap;
-import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.block.function.checked.ThrowingFunction;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Multimaps;
@@ -364,15 +363,14 @@ public class SameSchemaChangeAuditDao implements ChangeAuditDao {
             }
         });
 
-        MutableList<Change> incrementalChanges = artfs.reject(Predicates.attributePredicate(Change.TO_CHANGE_TYPE, ChangeType.IS_RERUNNABLE));
-        MutableListMultimap<ObjectKey, Change> incrementalChangeMap = incrementalChanges.groupBy(Change.TO_OBJECT_KEY);
+        MutableList<Change> incrementalChanges = artfs.reject(change -> change.getChangeType().isRerunnable());
+        MutableListMultimap<ObjectKey, Change> incrementalChangeMap = incrementalChanges.groupBy(Change::getObjectKey);
         for (RichIterable<Change> objectChanges : incrementalChangeMap.multiValuesView()) {
-            MutableList<Change> sortedObjectChanges = objectChanges.toSortedListBy(Change.TO_TIME_INSERTED);
+            MutableList<Change> sortedObjectChanges = objectChanges.toSortedListBy(Change::getTimeInserted);
             sortedObjectChanges.forEachWithIndex((each, index) -> each.setOrderWithinObject(5000 + index));
         }
 
-        return artfs.toSet().toList()
-                .select(Predicates.attributeIn(Change.TO_SCHEMA, env.getSchemaNames())).toImmutable();
+        return artfs.toSet().toList().select(_this -> env.getSchemaNames().contains(_this.getSchema())).toImmutable();
     }
 
     private int updateDeployedArtifactVersionInternal(Connection conn, Change artifact, String newHash, DeployExecution deployExecution) {

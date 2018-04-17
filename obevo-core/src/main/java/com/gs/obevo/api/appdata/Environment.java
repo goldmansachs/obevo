@@ -28,7 +28,6 @@ import com.gs.obevo.util.vfs.FileRetrievalMode;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.Validate;
 import org.eclipse.collections.api.RichIterable;
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ListIterable;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.ImmutableMap;
@@ -60,13 +59,6 @@ public class Environment<T extends Platform> {
     private int metadataLineReaderVersion = PlatformConfiguration.getInstance().getFeatureToggleVersion("metadataLineReaderVersion");
     private String sourceEncoding = PlatformConfiguration.getInstance().getSourceEncoding();
     private int legacyDirectoryStructureEnabledVersion = PlatformConfiguration.getInstance().getFeatureToggleVersion("legacyDirectoryStructureEnabled");
-
-    public static final Function<Environment, String> TO_NAME = new Function<Environment, String>() {
-        @Override
-        public String valueOf(Environment env) {
-            return env.getName();
-        }
-    };
 
     public void copyFieldsFrom(Environment<T> env) {
         this.name = env.name;
@@ -170,18 +162,15 @@ public class Environment<T extends Platform> {
                 fileObjects.add(coreSourcePath);
             }
             if (additionalSourceDirs != null) {
-                fileObjects.addAll(additionalSourceDirs.flatCollect(new Function<String, Iterable<FileObject>>() {
-                    @Override
-                    public Iterable<FileObject> valueOf(String path) {
-                        MutableList<FileObject> resolvedFileObjects = Lists.mutable.empty();
-                        for (FileResolverStrategy fileResolverStrategy : fileResolverStrategies) {
-                            resolvedFileObjects.addAllIterable(fileResolverStrategy.resolveFileObjects(path));
-                        }
-                        if (resolvedFileObjects.isEmpty()) {
-                            throw new IllegalArgumentException("Unable to find the given path [" + path + "] via any of the fileResolverStrategies:" + fileResolverStrategies.makeString(", "));
-                        }
-                        return resolvedFileObjects;
+                fileObjects.addAll(additionalSourceDirs.flatCollect(path -> {
+                    MutableList<FileObject> resolvedFileObjects = Lists.mutable.empty();
+                    for (FileResolverStrategy fileResolverStrategy : fileResolverStrategies) {
+                        resolvedFileObjects.addAllIterable(fileResolverStrategy.resolveFileObjects(path));
                     }
+                    if (resolvedFileObjects.isEmpty()) {
+                        throw new IllegalArgumentException("Unable to find the given path [" + path + "] via any of the fileResolverStrategies:" + fileResolverStrategies.makeString(", "));
+                    }
+                    return resolvedFileObjects;
                 }).toList());
             }
             this.sourceDirs = Lists.mutable.withAll(fileObjects);
@@ -237,11 +226,11 @@ public class Environment<T extends Platform> {
     }
 
     public ImmutableSet<String> getSchemaNames() {
-        return this.getSchemas().collect(Schema.TO_NAME);
+        return this.getSchemas().collect(Schema::getName);
     }
 
     public String getPhysicalSchemaPrefixInternal(String schema) {
-        Validate.isTrue(getAllSchemas().collect(Schema.TO_NAME).contains(schema),
+        Validate.isTrue(getAllSchemas().collect(Schema::getName).contains(schema),
                 "Schema does not exist in the environment. Requested schema: " + schema
                         + "; available schemas: " + getSchemaNames().makeString(","));
 
@@ -253,7 +242,7 @@ public class Environment<T extends Platform> {
      * with the rest of the code.
      */
     public ImmutableSet<Schema> getSchemas() {
-        return this.allSchemas.reject(Schema.IS_READ_ONLY);
+        return this.allSchemas.reject(Schema::isReadOnly);
     }
 
     public void setSchemas(ImmutableSet<Schema> schemas) {
@@ -285,27 +274,20 @@ public class Environment<T extends Platform> {
         this.dbSchemaSuffix = (null == dbSchemaSuffix) ? "" : dbSchemaSuffix;
     }
 
-    private final Function<String, PhysicalSchema> convertToPhysicalSchema = new Function<String, PhysicalSchema>() {
-        @Override
-        public PhysicalSchema valueOf(String schema) {
-            // do not append the suffix from the getDeployer metadata if an override is specified
-            String prefix = Environment.this.schemaNameOverrides.containsKey(schema) ? "" : getDbSchemaPrefix();
-            String suffix = Environment.this.schemaNameOverrides.containsKey(schema) ? "" : getDbSchemaSuffix();
-            PhysicalSchema physicalSchemaTemp = PhysicalSchema.parseFromString(getPhysicalSchemaPrefixInternal(schema));
-            return new PhysicalSchema(prefix + physicalSchemaTemp.getPhysicalName() + suffix, physicalSchemaTemp.getSubschema());
-        }
-    };
-
     public PhysicalSchema getPhysicalSchema(String schema) {
-        return this.convertToPhysicalSchema.valueOf(schema);
+        // do not append the suffix from the getDeployer metadata if an override is specified
+        String prefix = Environment.this.schemaNameOverrides.containsKey(schema) ? "" : getDbSchemaPrefix();
+        String suffix = Environment.this.schemaNameOverrides.containsKey(schema) ? "" : getDbSchemaSuffix();
+        PhysicalSchema physicalSchemaTemp = PhysicalSchema.parseFromString(getPhysicalSchemaPrefixInternal(schema));
+        return new PhysicalSchema(prefix + physicalSchemaTemp.getPhysicalName() + suffix, physicalSchemaTemp.getSubschema());
     }
 
     public ImmutableSet<PhysicalSchema> getPhysicalSchemas() {
-        return this.getSchemas().collect(Schema.TO_NAME).collect(this.convertToPhysicalSchema);
+        return this.getSchemas().collect(Schema::getName).collect(this::getPhysicalSchema);
     }
 
     public ImmutableSet<PhysicalSchema> getAllPhysicalSchemas() {
-        return this.getAllSchemas().collect(Schema.TO_NAME).collect(this.convertToPhysicalSchema);
+        return this.getAllSchemas().collect(Schema::getName).collect(this::getPhysicalSchema);
     }
 
     public void setSchemaNameOverrides(ImmutableMap<String, String> schemaNameOverrides) {

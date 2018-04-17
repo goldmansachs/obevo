@@ -23,7 +23,6 @@ import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.tuple.primitive.ObjectBooleanPair;
-import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.tuple.primitive.PrimitiveTuples;
 
@@ -85,7 +84,7 @@ abstract class AbstractDbChangeFileParser implements DbChangeFileParser {
     protected abstract void validateStructureNew(TextMarkupDocument doc);
 
     private void validateAttributes(TextMarkupDocument doc) {
-        ImmutableList<String> disallowedSections = doc.getSections().collect(TextMarkupDocumentSection.TO_NAME).select(Predicates.in(disallowedSectionNames));
+        ImmutableList<String> disallowedSections = doc.getSections().collect(TextMarkupDocumentSection::getName).select(disallowedSectionNames::contains);
 
         if (disallowedSections.notEmpty()) {
             throw new IllegalArgumentException("Found these disallowed sections: " + disallowedSections);

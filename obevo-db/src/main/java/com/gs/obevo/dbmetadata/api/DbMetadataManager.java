@@ -148,5 +148,5 @@ public interface DbMetadataManager {
      * Retrieves the directory objects setup at the database level; pertinent for Oracle only.
      * @since 6.6.0
      */
-    ImmutableSet<String> getDirectoryNamesOptional();
+    ImmutableSet<DaDirectory> getDirectoriesOptional();
 }

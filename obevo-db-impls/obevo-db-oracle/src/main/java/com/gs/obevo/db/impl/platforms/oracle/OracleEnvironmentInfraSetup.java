@@ -21,8 +21,10 @@ import javax.sql.DataSource;
 
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
+import com.gs.obevo.db.api.appdata.ServerDirectory;
 import com.gs.obevo.db.impl.core.envinfrasetup.AbstractEnvironmentInfraSetup;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
+import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.impl.DeployMetricsCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,12 +32,17 @@ import org.slf4j.LoggerFactory;
 class OracleEnvironmentInfraSetup extends AbstractEnvironmentInfraSetup {
     private static final Logger LOG = LoggerFactory.getLogger(OracleEnvironmentInfraSetup.class);
 
-    OracleEnvironmentInfraSetup(DbEnvironment env, DataSource ds, DeployMetricsCollector deployMetricsCollector, DbMetadataManager dbMetadataManager) {
-        super(env, ds, deployMetricsCollector, dbMetadataManager);
+    OracleEnvironmentInfraSetup(DbEnvironment env, DataSource ds, DeployMetricsCollector deployMetricsCollector, DbMetadataManager dbMetadataManager, ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry) {
+        super(env, ds, deployMetricsCollector, dbMetadataManager, changeTypeBehaviorRegistry);
     }
 
     protected void createSchema(Connection conn, PhysicalSchema schema) {
         jdbc.update(conn, "CREATE USER " + schema.getPhysicalName() + " IDENTIFIED BY schemaPassw0rd QUOTA UNLIMITED ON USERS");
         jdbc.update(conn, "ALTER USER " + schema.getPhysicalName() + " QUOTA UNLIMITED ON USERS");
+    }
+
+    @Override
+    protected void createDirectory(Connection conn, ServerDirectory directory, PhysicalSchema physicalSchema) {
+        jdbc.update(conn, "CREATE DIRECTORY " + directory.getName() + " AS '" + directory.getDirectoryPath() + "'");
     }
 }

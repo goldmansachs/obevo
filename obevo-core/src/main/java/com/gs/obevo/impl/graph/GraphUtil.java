@@ -49,30 +49,15 @@ public final class GraphUtil {
     }
 
     public static <T> SetIterable<T> getDependentNodes(final DirectedGraph<T, DefaultEdge> graph, T vertex) {
-        return SetAdapter.adapt(graph.outgoingEdgesOf(vertex)).collect(new Function<DefaultEdge, T>() {
-            @Override
-            public T valueOf(DefaultEdge edge) {
-                return graph.getEdgeTarget(edge);
-            }
-        });
+        return SetAdapter.adapt(graph.outgoingEdgesOf(vertex)).collect(graph::getEdgeTarget);
     }
 
     public static <T> SetIterable<T> getDependencyNodes(final DirectedGraph<T, DefaultEdge> graph, T vertex) {
-        return SetAdapter.adapt(graph.incomingEdgesOf(vertex)).collect(new Function<DefaultEdge, T>() {
-            @Override
-            public T valueOf(DefaultEdge edge) {
-                return graph.getEdgeSource(edge);
-            }
-        });
+        return SetAdapter.adapt(graph.incomingEdgesOf(vertex)).collect(graph::getEdgeSource);
     }
 
     public static <T, E> SetIterable<Pair<T, E>> getDependencyNodesAndEdges(final DirectedGraph<T, E> graph, T vertex) {
-        return SetAdapter.adapt(graph.incomingEdgesOf(vertex)).collect(new Function<E, Pair<T, E>>() {
-            @Override
-            public Pair<T, E> valueOf(E edge) {
-                return Tuples.pair(graph.getEdgeSource(edge), edge);
-            }
-        });
+        return SetAdapter.adapt(graph.incomingEdgesOf(vertex)).collect(edge -> Tuples.pair(graph.getEdgeSource(edge), edge));
     }
 
     public static <T> void validateNoCycles(final DirectedGraph<T, DefaultEdge> graph) {
@@ -84,44 +69,41 @@ public final class GraphUtil {
 
         if (!cycleComponents.isEmpty()) {
             final AtomicInteger cycleCounter = new AtomicInteger(0);
-            ListIterable<String> cycleMessages = cycleComponents.collect(new Function<Set<T>, String>() {
-                @Override
-                public String valueOf(Set<T> cycleComponent) {
-                    final StringBuilder sb = new StringBuilder();
-                    final DirectedSubgraph<T, E> cycleSubgraph = new DirectedSubgraph<T, E>(graph, cycleComponent, null);
-                    DepthFirstIterator<T, E> iterator = new DepthFirstIterator<T, E>(cycleSubgraph) {
-                        boolean started = false;
-                        boolean afterCycle = false;
+            ListIterable<String> cycleMessages = cycleComponents.collect(cycleComponent -> {
+                final StringBuilder sb = new StringBuilder();
+                final DirectedSubgraph<T, E> cycleSubgraph = new DirectedSubgraph<T, E>(graph, cycleComponent, null);
+                DepthFirstIterator<T, E> iterator = new DepthFirstIterator<T, E>(cycleSubgraph) {
+                    boolean started = false;
+                    boolean afterCycle = false;
 
-                        @Override
-                        protected void encounterVertex(T vertex, E edge) {
-                            if (!started) {
-                                sb.append("Cycle #" + cycleCounter.incrementAndGet() + ":");
-                                sb.append("\n    " + vertexToString.valueOf(vertex));
-                                started = true;
-                            } else {
-                                if (afterCycle) {
-                                    afterCycle = false;
-                                    sb.append("\nCycle #" + cycleCounter.incrementAndGet() + ":");
-                                    sb.append("\n    " + vertexToString.valueOf(cycleSubgraph.getEdgeSource(edge)));
-                                }
-                                sb.append("\n    => ").append(vertexToString.valueOf(vertex)).append(" (").append(edge).append(")");
+                    @Override
+                    protected void encounterVertex(T vertex, E edge) {
+                        if (!started) {
+                            sb.append("Cycle #" + cycleCounter.incrementAndGet() + ":");
+                            sb.append("\n    " + vertexToString.valueOf(vertex));
+                            started = true;
+                        } else {
+                            if (afterCycle) {
+                                afterCycle = false;
+                                sb.append("\nCycle #" + cycleCounter.incrementAndGet() + ":");
+                                sb.append("\n    " + vertexToString.valueOf(cycleSubgraph.getEdgeSource(edge)));
                             }
-                            super.encounterVertex(vertex, edge);
+                            sb.append("\n    => ").append(vertexToString.valueOf(vertex)).append(" (").append(edge).append(")");
                         }
+                        super.encounterVertex(vertex, edge);
+                    }
 
-                        @Override
-                        protected void encounterVertexAgain(T vertex, E edge) {
-                            sb.append("\n    => ").append(vertexToString.valueOf(vertex)).append(" (").append(edge).append(") (CYCLE FORMED)");
-                            afterCycle = true;
-                            super.encounterVertexAgain(vertex, edge);
-                        }
-                    };
+                    @Override
+                    protected void encounterVertexAgain(T vertex, E edge) {
+                        sb.append("\n    => ").append(vertexToString.valueOf(vertex)).append(" (").append(edge).append(") (CYCLE FORMED)");
+                        afterCycle = true;
+                        super.encounterVertexAgain(vertex, edge);
+                    }
+                };
 
-                    IteratorUtils.toList(iterator);  // force iteration through the list
+                IteratorUtils.toList(iterator);  // force iteration through the list
 
-                    return sb.toString();
-                }
+                return sb.toString();
             });
 
             throw new GraphCycleException(
