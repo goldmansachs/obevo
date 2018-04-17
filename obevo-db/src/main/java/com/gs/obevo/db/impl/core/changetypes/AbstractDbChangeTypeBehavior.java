@@ -28,12 +28,9 @@ import com.gs.obevo.db.api.platform.SqlExecutor;
 import com.gs.obevo.impl.util.MultiLineStringSplitter;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.collections.api.RichIterable;
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.tuple.Pair;
-import org.eclipse.collections.impl.block.factory.Predicates;
-import org.eclipse.collections.impl.block.factory.StringPredicates;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.tuple.Tuples;
 import org.slf4j.Logger;
@@ -63,29 +60,15 @@ public abstract class AbstractDbChangeTypeBehavior implements DbChangeTypeBehavi
 
     @Override
     public void deploy(final Change change, final CommandExecutionContext cec) {
-        sqlExecutor.executeWithinContext(change.getPhysicalSchema(env), new Procedure<Connection>() {
-            @Override
-            public void value(Connection conn) {
-                baseArtifactDeployer.deployArtifact(conn, change);
-                if (shouldApplyGrants(change)) {
-                    ImmutableList<Permission> permsToApply = env.getPermissions().select(
-                            Predicates.attributePredicate(PERMISSION_TO_SCHEME,
-                                    StringPredicates.equalsIgnoreCase(change.getPermissionScheme())));
-
-                    applyGrants(conn, change.getPhysicalSchema(env), change.getObjectName(), permsToApply, cec);
-                }
+        sqlExecutor.executeWithinContext(change.getPhysicalSchema(env), (Procedure<Connection>) conn -> {
+            baseArtifactDeployer.deployArtifact(conn, change);
+            if (shouldApplyGrants(change)) {
+                applyGrants(conn, change.getPhysicalSchema(env), change.getObjectName(), env.getPermissions(change), cec);
             }
         });
     }
 
     protected abstract boolean shouldApplyGrants(Change artifact);
-
-    private static final Function<Permission, String> PERMISSION_TO_SCHEME = new Function<Permission, String>() {
-        @Override
-        public String valueOf(Permission object) {
-            return object.getScheme();
-        }
-    };
 
     @Override
     public void applyGrants(Connection conn, PhysicalSchema schema, String objectName, RichIterable<Permission> permsToApply) {

@@ -135,9 +135,9 @@ public class DbDirectoryChangesetReaderTest {
                     .build()
             );
             assertEquals(expectedSchema1Changes.with(this.sptestexclude),
-                    changes.select(Predicates.attributeEqual(Change.schema(), "schema1")));
+                    changes.select(Predicates.attributeEqual(Change::getSchema, "schema1")));
             assertEquals(expectedSchema2Changes,
-                    changes.select(Predicates.attributeEqual(Change.schema(), "schema2")));
+                    changes.select(Predicates.attributeEqual(Change::getSchema, "schema2")));
         }
 
         // test 2 - specify the include env; this will allow both artifacts w/ include and exclude in as both conditions
@@ -157,9 +157,9 @@ public class DbDirectoryChangesetReaderTest {
                     .setBaseline(false)
                     .build());
             assertEquals(expectedSchema1Changes.with(this.sptestexclude).with(this.sptestinclude),
-                    changes.select(Predicates.attributeEqual(Change.schema(), "schema1")));
+                    changes.select(Predicates.attributeEqual(Change::getSchema, "schema1")));
             assertEquals(expectedSchema2Changes,
-                    changes.select(Predicates.attributeEqual(Change.schema(), "schema2")));
+                    changes.select(Predicates.attributeEqual(Change::getSchema, "schema2")));
         }
 
         // test 3 - specify the exclude env; neither condition passes in this case
@@ -177,9 +177,9 @@ public class DbDirectoryChangesetReaderTest {
                 .setBaseline(false)
                 .build());
         assertEquals(expectedSchema1Changes,
-                changes.select(Predicates.attributeEqual(Change.schema(), "schema1")));
+                changes.select(Predicates.attributeEqual(Change::getSchema, "schema1")));
         assertEquals(expectedSchema2Changes,
-                changes.select(Predicates.attributeEqual(Change.schema(), "schema2")));
+                changes.select(Predicates.attributeEqual(Change::getSchema, "schema2")));
 
         // assertThat(changes.get("schema1"), hasItems(expectedSchema1Changes));
         // assertThat(changes.get("schema2"), hasItems(expectedSchema2Changes));

@@ -25,7 +25,6 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.eclipse.collections.api.map.ImmutableMap;
 import org.eclipse.collections.api.map.MutableMap;
-import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.block.factory.StringFunctions;
 import org.eclipse.collections.impl.block.factory.StringPredicates;
 import org.eclipse.collections.impl.factory.Maps;
@@ -44,9 +43,9 @@ class PackageMetadataReader {
         TextMarkupDocument textMarkupDocument = textMarkupDocumentReader.parseString(fileContent, null);
         TextMarkupDocumentSection metadataSection = textMarkupDocument.findSectionWithElementName(TextMarkupDocumentReader.TAG_METADATA);
         String packageMetadataContent = textMarkupDocument.getSections()
-                .select(Predicates.attributeIsNull(TextMarkupDocumentSection.TO_NAME))
+                .select(_this -> _this.getName() == null)
                 .toReversed()
-                .collect(TextMarkupDocumentSection.TO_CONTENT)
+                .collect(TextMarkupDocumentSection::getContent)
                 .collect(StringFunctions.trim())
                 .detect(StringPredicates.notEmpty());
 

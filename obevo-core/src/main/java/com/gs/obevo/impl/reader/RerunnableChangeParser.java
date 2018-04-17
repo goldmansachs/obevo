@@ -153,7 +153,7 @@ public class RerunnableChangeParser extends AbstractDbChangeFileParser {
 
     @Override
     protected void validateStructureOld(TextMarkupDocument doc) {
-        final MutableSet<String> foundSections = doc.getSections().collect(TextMarkupDocumentSection.TO_NAME).toSet().reject(Predicates.isNull());
+        final MutableSet<String> foundSections = doc.getSections().collect(TextMarkupDocumentSection::getName).toSet().reject(Predicates.isNull());
         final MutableSet<String> expectedSections = Sets.mutable.with(TextMarkupDocumentReader.TAG_METADATA, TextMarkupDocumentReader.TAG_BODY, TextMarkupDocumentReader.TAG_DROP_COMMAND);
         final MutableSet<String> extraSections = foundSections.difference(expectedSections);
         if (extraSections.notEmpty()) {
@@ -170,12 +170,12 @@ public class RerunnableChangeParser extends AbstractDbChangeFileParser {
             throw new IllegalArgumentException("No content defined");
         }
 
-        ImmutableList<TextMarkupDocumentSection> disallowedSections = docSections.reject(Predicates.attributeIn(TextMarkupDocumentSection.TO_NAME, Sets.immutable.with(null, TextMarkupDocumentReader.TAG_METADATA, TextMarkupDocumentReader.TAG_DROP_COMMAND, TextMarkupDocumentReader.TAG_BODY)));
+        ImmutableList<TextMarkupDocumentSection> disallowedSections = docSections.reject(Predicates.attributeIn(TextMarkupDocumentSection::getName, Sets.immutable.with(null, TextMarkupDocumentReader.TAG_METADATA, TextMarkupDocumentReader.TAG_DROP_COMMAND, TextMarkupDocumentReader.TAG_BODY)));
         if (disallowedSections.notEmpty()) {
             throw new IllegalArgumentException("Only allowed 1 content section and at most 1 of these [" + allowedSectionString + "]; instead, found these disallowed sections: " + disallowedSections);
         }
 
-        ImmutableList<String> sectionNames = docSections.collect(TextMarkupDocumentSection.TO_NAME);
+        ImmutableList<String> sectionNames = docSections.collect(TextMarkupDocumentSection::getName);
         MutableBag<String> duplicateSections = sectionNames.toBag().selectByOccurrences(IntPredicates.greaterThan(1));
         if (duplicateSections.notEmpty()) {
             throw new IllegalArgumentException("Only allowed 1 content section and at most 1 of these [" + allowedSectionString + "]; instead, found these extra sections instances: " + duplicateSections.toSet());

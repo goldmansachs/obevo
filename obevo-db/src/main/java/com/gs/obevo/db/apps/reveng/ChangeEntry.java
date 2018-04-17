@@ -16,7 +16,6 @@
 package com.gs.obevo.db.apps.reveng;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.factory.Lists;
 
@@ -40,34 +39,13 @@ public class ChangeEntry {
         this.order = order;
     }
 
-    public static final Function<ChangeEntry, RevEngDestination> TO_DESTINATION = new Function<ChangeEntry, RevEngDestination>() {
-        @Override
-        public RevEngDestination valueOf(ChangeEntry object) {
-            return object.getDestination();
-        }
-    };
-
     public RevEngDestination getDestination() {
         return this.destination;
     }
 
-    public static final Function<ChangeEntry, String> TO_NAME = new Function<ChangeEntry, String>() {
-        @Override
-        public String valueOf(ChangeEntry object) {
-            return object.getName();
-        }
-    };
-
     public String getName() {
         return this.name;
     }
-
-    public static final Function<ChangeEntry, String> TO_SQL = new Function<ChangeEntry, String>() {
-        @Override
-        public String valueOf(ChangeEntry object) {
-            return object.getSql();
-        }
-    };
 
     public String getSql() {
         return this.sql;
@@ -77,25 +55,11 @@ public class ChangeEntry {
         return this.changeAnnotation;
     }
 
-    public static final Function<ChangeEntry, Integer> TO_ORDER = new Function<ChangeEntry, Integer>() {
-        @Override
-        public Integer valueOf(ChangeEntry object) {
-            return object.getOrder();
-        }
-    };
-
-    private int getOrder() {
+    int getOrder() {
         return this.order;
     }
 
-    public static final Function<ChangeEntry, MutableList<String>> TO_METADATA_ANNOTATIONS = new Function<ChangeEntry, MutableList<String>>() {
-        @Override
-        public MutableList<String> valueOf(ChangeEntry object) {
-            return object.getMetadataAnnotations();
-        }
-    };
-
-    private MutableList<String> getMetadataAnnotations() {
+    MutableList<String> getMetadataAnnotations() {
         return this.metadataAnnotations;
     }
 

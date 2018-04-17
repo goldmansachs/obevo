@@ -30,7 +30,6 @@ import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.map.MapIterable;
 import org.eclipse.collections.api.multimap.Multimap;
-import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.collection.mutable.CollectionAdapter;
 import schemacrawler.schema.Catalog;
 import schemacrawler.schema.Routine;
@@ -58,7 +57,7 @@ public class DaCatalogImpl implements DaCatalog {
         this.ruleBindings = ruleBindings;
         this.extraRoutines = extraRoutines;
         this.extraIndexes = extraIndexes;
-        this.extraViewInfoMap = extraViewInfo.toMap(ExtraRerunnableInfo.TO_NAME, Functions.<ExtraRerunnableInfo>getPassThru());
+        this.extraViewInfoMap = extraViewInfo.groupByUniqueKey(ExtraRerunnableInfo::getName);
         this.routineOverrideValue = routineOverrideValue;
         this.schemaStrategy = schemaStrategy;
         this.packages = packages;

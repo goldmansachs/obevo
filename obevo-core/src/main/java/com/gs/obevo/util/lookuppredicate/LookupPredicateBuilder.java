@@ -46,12 +46,7 @@ public class LookupPredicateBuilder {
         }
         PartitionIterable<String> wildcardPartition = patterns.partition(Predicates.or(StringPredicates.contains("*"), StringPredicates.contains("%")));
         RichIterable<String> wildcardPatterns = wildcardPartition.getSelected();
-        RichIterable<WildcardPatternIndex> wildcardPatternIndexes = wildcardPatterns.collect(new Function<String, WildcardPatternIndex>() {
-            @Override
-            public WildcardPatternIndex valueOf(String pattern) {
-                return new WildcardPatternIndex(pattern);
-            }
-        });
+        RichIterable<WildcardPatternIndex> wildcardPatternIndexes = wildcardPatterns.collect(WildcardPatternIndex::new);
 
         RichIterable<String> lookupPatterns = wildcardPartition.getRejected();
         LookupIndex lookupIndex = lookupPatterns.notEmpty() ? new LookupIndex(lookupPatterns.toSet().toImmutable()) : null;

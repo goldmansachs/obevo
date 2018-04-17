@@ -25,8 +25,8 @@ import com.amazonaws.services.rds.model.DescribeDBInstancesResult;
 
 class CreateDbInstance {
     private static final AmazonRDS client = AmazonRDSClientBuilder.defaultClient();
-    public static final String oracleDbInstanceId = "dbdeploy-oracle-12-1";
-    public static final String postgresDbInstanceId = "dbdeploy-postgres-9-6";
+    private static final String oracleDbInstanceId = "dbdeploy-oracle-12-1";
+    private static final String postgresDbInstanceId = "dbdeploy-postgres-9-6";
     private static final String sqlserverDbInstanceId = "dbdeploy-sqlserver-13-0";
 
     public static void main(String[] args) throws Exception {
@@ -35,7 +35,7 @@ class CreateDbInstance {
 //        instance.createSqlServer(sqlserverDbInstanceId);
 //        instance.createPostgresql(postgresDbInstanceId);
 //        instance.describe(oracleDbInstanceId);
-        instance.delete(postgresDbInstanceId);
+        instance.delete(oracleDbInstanceId);
     }
 
     public void createOracle(String dbInstanceIdentifier) throws Exception {
@@ -52,7 +52,7 @@ class CreateDbInstance {
                 .withDBName("DBDEPLOY")
                 .withMasterUsername("deploybuilddbo")
                 .withMasterUserPassword("deploybuilddb0")
-                .withVpcSecurityGroupIds("default")
+                //.withVpcSecurityGroupIds("default")
                 ;
         DBInstance response = client.createDBInstance(request);
         System.out.println(response);

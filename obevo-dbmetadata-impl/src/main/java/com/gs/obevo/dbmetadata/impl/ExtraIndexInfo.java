@@ -48,7 +48,7 @@ public class ExtraIndexInfo {
         return this.tableName;
     }
 
-    private String getIndexName() {
+    String getIndexName() {
         return this.indexName;
     }
 

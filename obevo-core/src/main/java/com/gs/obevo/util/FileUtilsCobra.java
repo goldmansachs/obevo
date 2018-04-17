@@ -22,7 +22,6 @@ import java.util.Collection;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.lang3.SystemUtils;
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.list.mutable.FastList;
@@ -32,15 +31,6 @@ import org.eclipse.collections.impl.list.mutable.FastList;
  * unchecked
  */
 public class FileUtilsCobra {
-    public static Function<File, String> toFileName() {
-        return new Function<File, String>() {
-            @Override
-            public String valueOf(File object) {
-                return object.getName();
-            }
-        };
-    }
-
     public static File createTempDir(String tmpDirPrefix) {
         File tmpFile;
         try {

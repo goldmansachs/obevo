@@ -15,8 +15,6 @@
  */
 package com.gs.obevo.dbmetadata.impl;
 
-import java.util.Map;
-
 import com.gs.obevo.dbmetadata.api.DaColumn;
 import com.gs.obevo.dbmetadata.api.DaForeignKey;
 import com.gs.obevo.dbmetadata.api.DaIndex;
@@ -31,20 +29,19 @@ import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
+import org.eclipse.collections.api.map.MapIterable;
 import org.eclipse.collections.api.multimap.Multimap;
-import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.collection.mutable.CollectionAdapter;
 import org.eclipse.collections.impl.factory.Multimaps;
 import org.eclipse.collections.impl.list.mutable.ListAdapter;
-import schemacrawler.schema.Column;
 import schemacrawler.schema.ForeignKey;
 import schemacrawler.schema.Index;
 import schemacrawler.schema.Table;
 
 public class DaTableImpl implements DaTable {
     private final Table table;
-    private final Map<String, ExtraIndexInfo> extraIndexInfoMap;
+    private final MapIterable<String, ExtraIndexInfo> extraIndexInfoMap;
     private final SchemaStrategy schemaStrategy;
 
     public DaTableImpl(Table table, SchemaStrategy schemaStrategy) {
@@ -54,8 +51,7 @@ public class DaTableImpl implements DaTable {
     public DaTableImpl(Table table, SchemaStrategy schemaStrategy, Multimap<String, ExtraIndexInfo> extraIndexes) {
         this.table = Validate.notNull(table);
         this.schemaStrategy = schemaStrategy;
-        this.extraIndexInfoMap = extraIndexes.get(table.getName())
-                .toMap(ExtraIndexInfo.TO_INDEX_NAME, Functions.<ExtraIndexInfo>getPassThru());
+        this.extraIndexInfoMap = extraIndexes.get(table.getName()).groupByUniqueKey(ExtraIndexInfo::getIndexName);
     }
 
     @Override
@@ -70,12 +66,7 @@ public class DaTableImpl implements DaTable {
 
     @Override
     public ImmutableList<DaColumn> getColumns() {
-        return ListAdapter.adapt(table.getColumns()).collect(new Function<Column, DaColumn>() {
-            @Override
-            public DaColumn valueOf(Column object) {
-                return new DaColumnImpl(object, schemaStrategy);
-            }
-        }).toImmutable();
+        return ListAdapter.adapt(table.getColumns()).collect(object -> (DaColumn) new DaColumnImpl(object, schemaStrategy)).toImmutable();
     }
 
     @Override

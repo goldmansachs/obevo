@@ -27,9 +27,9 @@ import org.eclipse.collections.api.multimap.MutableMultimap;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.block.factory.HashingStrategies;
+import org.eclipse.collections.impl.factory.HashingStrategyMaps;
+import org.eclipse.collections.impl.factory.HashingStrategySets;
 import org.eclipse.collections.impl.factory.Lists;
-import org.eclipse.collections.impl.map.strategy.mutable.UnifiedMapWithHashingStrategy;
-import org.eclipse.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrategy;
 
 public class DeepCompareUtil {
     private final MutableMultimap<Class, ClassCompareInfo> classCompareInfoMap;
@@ -55,14 +55,14 @@ public class DeepCompareUtil {
         MutableCollection<ClassCompareInfo> classCompareInfos = this.getClassCompareInfos(clazz);
         for (ClassCompareInfo classCompareInfo : classCompareInfos) {
             // UnifiedMapWithHashingStrategy.newMap()
-            MutableSet groupByKeyLefts = UnifiedSetWithHashingStrategy.newSet(
+            MutableSet groupByKeyLefts = HashingStrategySets.mutable.ofAll(
                     HashingStrategies.fromFunction(classCompareInfo.getKeyFunction()), lefts);
-            MutableSet groupByKeyRights = UnifiedSetWithHashingStrategy.newSet(
+            MutableSet groupByKeyRights = HashingStrategySets.mutable.ofAll(
                     HashingStrategies.fromFunction(classCompareInfo.getKeyFunction()), rights);
 
-            MutableMap groupByKeyLeftsMap = UnifiedMapWithHashingStrategy.newMap(HashingStrategies
+            MutableMap groupByKeyLeftsMap = HashingStrategyMaps.mutable.of(HashingStrategies
                     .fromFunction(classCompareInfo.getKeyFunction()));
-            MutableMap groupByKeyRightsMap = UnifiedMapWithHashingStrategy.newMap(HashingStrategies
+            MutableMap groupByKeyRightsMap = HashingStrategyMaps.mutable.of(HashingStrategies
                     .fromFunction(classCompareInfo.getKeyFunction()));
 
             for (Object obj : lefts) {

@@ -16,7 +16,6 @@
 package com.gs.obevo.impl;
 
 import com.gs.obevo.api.platform.ChangeCommand;
-import org.eclipse.collections.api.block.predicate.Predicate;
 
 /**
  * A command that indicates a warning or exception from the given {@link #getChanges()}.
@@ -24,13 +23,6 @@ import org.eclipse.collections.api.block.predicate.Predicate;
  * The {@link #getCommandDescription()} would be used to describe the problem.
  */
 public interface ChangeCommandWarning extends ChangeCommand {
-    Predicate<ChangeCommandWarning> IS_FATAL = new Predicate<ChangeCommandWarning>() {
-        @Override
-        public boolean accept(ChangeCommandWarning each) {
-            return each.isFatal();
-        }
-    };
-
     /**
      * If true, then this warning should prevent the deployment from happening.
      * If false, then it is just something to alert the user about, but deployment can proceed.

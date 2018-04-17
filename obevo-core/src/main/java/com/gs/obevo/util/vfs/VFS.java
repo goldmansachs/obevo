@@ -26,7 +26,7 @@ public class VFS {
 
     public FileObject resolveFile(String path) {
         try {
-            return FileObject.TO_DA_FILE_OBJECT.valueOf(org.apache.commons.vfs2.VFS.getManager().resolveFile(path));
+            return FileObject.toDaFileObject(org.apache.commons.vfs2.VFS.getManager().resolveFile(path));
         } catch (FileSystemException e) {
             throw new VFSFileSystemException("Cannot find file " + path + ", or tried to resolve a classpath folder that had no files in it", e);
         }
@@ -34,8 +34,7 @@ public class VFS {
 
     public FileObject resolveFile(File baseFile, String name) {
         try {
-            return FileObject.TO_DA_FILE_OBJECT.valueOf(org.apache.commons.vfs2.VFS.getManager().resolveFile(baseFile,
-                    name));
+            return FileObject.toDaFileObject(org.apache.commons.vfs2.VFS.getManager().resolveFile(baseFile, name));
         } catch (FileSystemException e) {
             throw new VFSFileSystemException(e);
         }
@@ -43,8 +42,7 @@ public class VFS {
 
     public FileObject resolveFile(FileObject baseFile, String name) {
         try {
-            return FileObject.TO_DA_FILE_OBJECT.valueOf(org.apache.commons.vfs2.VFS.getManager().resolveFile(baseFile,
-                    name));
+            return FileObject.toDaFileObject(org.apache.commons.vfs2.VFS.getManager().resolveFile(baseFile, name));
         } catch (FileSystemException e) {
             throw new VFSFileSystemException(e);
         }

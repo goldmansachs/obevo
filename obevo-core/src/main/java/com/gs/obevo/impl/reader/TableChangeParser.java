@@ -15,6 +15,8 @@
  */
 package com.gs.obevo.impl.reader;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import com.gs.obevo.api.appdata.ArtifactRestrictions;
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.ChangeIncremental;
@@ -32,16 +34,13 @@ import com.gs.obevo.util.vfs.FileObject;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.collections.api.RichIterable;
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.ImmutableMap;
-import org.eclipse.collections.api.map.MapIterable;
 import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.block.factory.Functions;
-import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.block.factory.StringPredicates;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Maps;
@@ -135,52 +134,44 @@ public class TableChangeParser extends AbstractDbChangeFileParser {
         // Handle a potential template object; this will return a dummy params list if this is not a template object
         final ImmutableList<ImmutableMap<String, String>> templateParamsList = convertToParamList(templateParamAttr);
 
-        ImmutableList<Pair<String, ImmutableList<Change>>> fileToChangePairs = templateParamsList.collect(new Function<MapIterable<String, String>, Pair<String, ImmutableList<Change>>>() {
-            @Override
-            public Pair<String, ImmutableList<Change>> valueOf(MapIterable<String, String> templateParams) {
-                Tokenizer tokenizer = new Tokenizer(templateParams, "${", "}");
+        ImmutableList<Pair<String, ImmutableList<Change>>> fileToChangePairs = templateParamsList.collect(templateParams -> {
+            Tokenizer tokenizer = new Tokenizer(templateParams, "${", "}");
 
-                final String objectName = tokenizer.tokenizeString(nonTokenizedObjectName);
-                final TextMarkupDocument doc = templateParams.notEmpty()
-                        ? readDocument(tokenizer.tokenizeString(fileContent), packageMetadata).getOne()
-                        : origDoc;  /// if no template params, then save some effort and don't bother re-reading the doc from the string
+            final String objectName = tokenizer.tokenizeString(nonTokenizedObjectName);
+            final TextMarkupDocument doc = templateParams.notEmpty()
+                    ? readDocument(tokenizer.tokenizeString(fileContent), packageMetadata).getOne()
+                    : origDoc;  /// if no template params, then save some effort and don't bother re-reading the doc from the string
 
-                final ImmutableList<ArtifactRestrictions> fileLevelRestrictions = new DbChangeRestrictionsReader().valueOf(metadata);
-                ImmutableList<Change> changes = doc.getSections()
-                        .select(Predicates.attributeEqual(TextMarkupDocumentSection.TO_NAME, TextMarkupDocumentReader.TAG_CHANGE))
-                        .collect(new Function<TextMarkupDocumentSection, Change>() {
-                            private int i = 0;
+            final ImmutableList<ArtifactRestrictions> fileLevelRestrictions = new DbChangeRestrictionsReader().valueOf(metadata);
+            ImmutableList<Change> changes = doc.getSections()
+                    .select(_this -> TextMarkupDocumentReader.TAG_CHANGE.equals(_this.getName()))
+                    .collectWith((section, i) -> {
+                        ChangeIncremental change = create(tableChangeType, section, schema, objectName, i.getAndIncrement());
+                        ImmutableList<ArtifactRestrictions> changeLevelRestrictions = new DbChangeRestrictionsReader().valueOf(section);
+                        change.setRestrictions(mergeRestrictions(fileLevelRestrictions, changeLevelRestrictions));
+                        change.setPermissionScheme(getPermissionSchemeValue(doc));
+                        change.setFileLocation(file);
+                        change.setMetadataSection(metadata);
 
-                            @Override
-                            public Change valueOf(TextMarkupDocumentSection section) {
-                                ChangeIncremental change = value(tableChangeType, section, schema, objectName, this.i++);
-                                ImmutableList<ArtifactRestrictions> changeLevelRestrictions = new DbChangeRestrictionsReader().valueOf(section);
-                                change.setRestrictions(mergeRestrictions(fileLevelRestrictions, changeLevelRestrictions));
-                                change.setPermissionScheme(getPermissionSchemeValue(doc));
-                                change.setFileLocation(file);
-                                change.setMetadataSection(metadata);
+                        String dependenciesStr = section.getAttr(TextMarkupDocumentReader.ATTR_DEPENDENCIES);
+                        if (dependenciesStr != null) {
+                            change.setCodeDependencies(Sets.immutable.with(dependenciesStr.split(",")).reject(StringPredicates.empty()).collectWith(CodeDependency::new, CodeDependencyType.EXPLICIT));
+                        }
 
-                                String dependenciesStr = section.getAttr(TextMarkupDocumentReader.ATTR_DEPENDENCIES);
-                                if (dependenciesStr != null) {
-                                    change.setCodeDependencies(Sets.immutable.with(dependenciesStr.split(",")).reject(StringPredicates.empty()).collectWith(CodeDependency::new, CodeDependencyType.EXPLICIT));
-                                }
+                        String excludeDependenciesStr = section.getAttr(TextMarkupDocumentReader.ATTR_EXCLUDE_DEPENDENCIES);
+                        if (excludeDependenciesStr != null) {
+                            change.setExcludeDependencies(Sets.immutable.with(excludeDependenciesStr.split(",")).reject(StringPredicates.empty()));
+                        }
 
-                                String excludeDependenciesStr = section.getAttr(TextMarkupDocumentReader.ATTR_EXCLUDE_DEPENDENCIES);
-                                if (excludeDependenciesStr != null) {
-                                    change.setExcludeDependencies(Sets.immutable.with(excludeDependenciesStr.split(",")).reject(StringPredicates.empty()));
-                                }
+                        String includeDependenciesStr = metadata.getAttr(TextMarkupDocumentReader.ATTR_INCLUDE_DEPENDENCIES);
+                        if (includeDependenciesStr != null) {
+                            change.setIncludeDependencies(Sets.immutable.with(includeDependenciesStr.split(",")).reject(StringPredicates.empty()));
+                        }
 
-                                String includeDependenciesStr = metadata.getAttr(TextMarkupDocumentReader.ATTR_INCLUDE_DEPENDENCIES);
-                                if (includeDependenciesStr != null) {
-                                    change.setIncludeDependencies(Sets.immutable.with(includeDependenciesStr.split(",")).reject(StringPredicates.empty()));
-                                }
+                        return change;
+                    }, new AtomicInteger(0));
 
-                                return change;
-                            }
-                        });
-
-                return Tuples.pair(objectName, changes);
-            }
+            return Tuples.pair(objectName, changes);
         });
 
         // Validate that if we had used templates, that it resulted in different file names
@@ -199,18 +190,15 @@ public class TableChangeParser extends AbstractDbChangeFileParser {
         }
 
         ImmutableList<String> paramGroups = ArrayAdapter.adapt(templateParamAttr.split(";")).toImmutable();
-        return paramGroups.collect(new Function<String, ImmutableMap<String, String>>() {
-            @Override
-            public ImmutableMap<String, String> valueOf(String paramGroup) {
-                String[] paramStrs = paramGroup.split(",");
-                MutableMap<String, String> params = Maps.mutable.empty();
-                for (String paramStr : paramStrs) {
-                    String[] paramParts = paramStr.split("=");
-                    params.put(paramParts[0], paramParts[1]);
-                }
-
-                return params.toImmutable();
+        return paramGroups.collect(paramGroup -> {
+            String[] paramStrs = paramGroup.split(",");
+            MutableMap<String, String> params = Maps.mutable.empty();
+            for (String paramStr : paramStrs) {
+                String[] paramParts = paramStr.split("=");
+                params.put(paramParts[0], paramParts[1]);
             }
+
+            return params.toImmutable();
         });
     }
 
@@ -218,7 +206,7 @@ public class TableChangeParser extends AbstractDbChangeFileParser {
     protected void validateStructureNew(TextMarkupDocument doc) {
         ImmutableList<TextMarkupDocumentSection> docSections = doc.getSections();
 
-        if (docSections.isEmpty() || docSections.noneSatisfy(Predicates.attributeEqual(TextMarkupDocumentSection.TO_NAME, TextMarkupDocumentReader.TAG_CHANGE))) {
+        if (docSections.isEmpty() || docSections.noneSatisfy(_this -> TextMarkupDocumentReader.TAG_CHANGE.equals(_this.getName()))) {
             throw new IllegalArgumentException("No //// " + TextMarkupDocumentReader.TAG_CHANGE + " sections found; at least one is required");
         }
 
@@ -232,7 +220,7 @@ public class TableChangeParser extends AbstractDbChangeFileParser {
             docSections = docSections.subList(1, docSections.size());
         }
 
-        ImmutableList<TextMarkupDocumentSection> badSections = docSections.reject(Predicates.attributeEqual(TextMarkupDocumentSection.TO_NAME, TextMarkupDocumentReader.TAG_CHANGE));
+        ImmutableList<TextMarkupDocumentSection> badSections = docSections.reject(_this -> TextMarkupDocumentReader.TAG_CHANGE.equals(_this.getName()));
         if (badSections.notEmpty()) {
             throw new IllegalArgumentException("File structure for incremental file must be optionally a //// " + TextMarkupDocumentReader.TAG_METADATA + " section followed only by //// " + TextMarkupDocumentReader.TAG_CHANGE + " sections. Instead, found this section in between: " + badSections);
         }
@@ -255,16 +243,11 @@ public class TableChangeParser extends AbstractDbChangeFileParser {
                 .withAll(changeLevelRestrictions)
                 .groupBy(Functions.getToClass())
                 .multiValuesView()
-                .collect(new Function<RichIterable<ArtifactRestrictions>, ArtifactRestrictions>() {
-                    @Override
-                    public ArtifactRestrictions valueOf(RichIterable<ArtifactRestrictions> restictions) {
-                        return restictions.getLast();
-                    }
-                })
+                .collect(RichIterable::getLast)
                 .toList().toImmutable();
     }
 
-    private ChangeIncremental value(ChangeType tableChangeType, TextMarkupDocumentSection section, String schema, String objectName,
+    private ChangeIncremental create(ChangeType tableChangeType, TextMarkupDocumentSection section, String schema, String objectName,
             int changeIndex) {
         ChangeType changeType = getChangeType.getChangeType(section, tableChangeType);
         boolean drop = section.isTogglePresent(TOGGLE_DROP_TABLE);
@@ -277,15 +260,14 @@ public class TableChangeParser extends AbstractDbChangeFileParser {
 
         boolean active = !section.isTogglePresent(TOGGLE_INACTIVE);
 
-        TextMarkupDocumentSection rollbackIfAlreadyDeployedSection = section.getSubsections().detect(
-                Predicates.attributeEqual(TextMarkupDocumentSection.TO_NAME,
-                        TextMarkupDocumentReader.TAG_ROLLBACK_IF_ALREADY_DEPLOYED));
+        TextMarkupDocumentSection rollbackIfAlreadyDeployedSection = section.getSubsections()
+                .detect(_this -> _this.getName().equals(TextMarkupDocumentReader.TAG_ROLLBACK_IF_ALREADY_DEPLOYED));
+
         // in case the section exists but no content, mark it as an empty string so that changes can still get dropped from the audit log
         String rollbackIfAlreadyDeployedCommand = rollbackIfAlreadyDeployedSection == null ? null : StringUtils.defaultIfEmpty(rollbackIfAlreadyDeployedSection.getContent(), "");
 
         TextMarkupDocumentSection rollbackSection = section.getSubsections()
-                .detect(Predicates.attributeEqual(TextMarkupDocumentSection.TO_NAME,
-                        TextMarkupDocumentReader.TAG_ROLLBACK));
+                .detect(_this -> _this.getName().equals(TextMarkupDocumentReader.TAG_ROLLBACK));
         String rollbackContent = rollbackSection == null ? null : rollbackSection.getContent();
 
         String content = section.getContent() == null ? "" : section.getContent();

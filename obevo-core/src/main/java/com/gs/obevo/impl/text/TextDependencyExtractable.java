@@ -17,26 +17,13 @@ package com.gs.obevo.impl.text;
 
 import com.gs.obevo.api.appdata.CodeDependency;
 import com.gs.obevo.api.appdata.ObjectKey;
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.set.ImmutableSet;
-import org.eclipse.collections.impl.block.factory.Functions;
 
 /**
  * Apply this interface to objects to make it possible to determine their dependencies from their text code using a
  * {@link TextDependencyExtractor}.
  */
 public interface TextDependencyExtractable {
-    Function<TextDependencyExtractable, ObjectKey> TO_OBJECT_KEY = new Function<TextDependencyExtractable, ObjectKey>() {
-        @Override
-        public ObjectKey valueOf(TextDependencyExtractable arg0) {
-            return arg0.getObjectKey();
-        }
-    };
-
-    Function<TextDependencyExtractable, String> TO_OBJECT_NAME = Functions.chain(TextDependencyExtractable.TO_OBJECT_KEY, ObjectKey.TO_OBJECT_NAME);
-
-    Function<TextDependencyExtractable, String> TO_SCHEMA = Functions.chain(TextDependencyExtractable.TO_OBJECT_KEY, ObjectKey.TO_SCHEMA);
-
     /**
      * The object's identity. The {@link TextDependencyExtractor} would use the names from the identities as the
      * dependencies to try to extract from the text (see {@link #getContentForDependencyCalculation()}.

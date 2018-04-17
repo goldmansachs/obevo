@@ -31,17 +31,13 @@ import com.gs.obevo.impl.text.TextDependencyExtractor;
 import com.gs.obevo.impl.text.TextDependencyExtractorImpl;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.function.Function;
-import org.eclipse.collections.api.block.procedure.primitive.ObjectIntProcedure;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.ListIterable;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.partition.PartitionIterable;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.block.factory.Comparators;
-import org.eclipse.collections.impl.block.factory.Functions;
-import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.Lists;
-import org.eclipse.collections.impl.factory.Sets;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.slf4j.Logger;
@@ -74,12 +70,11 @@ public class ChangeCommandSorterImpl implements ChangeCommandSorter {
 
     @Override
     public ImmutableList<ExecuteChangeCommand> sort(RichIterable<ExecuteChangeCommand> changeCommands, boolean rollback) {
-        final RichIterable<DbCommandSortKey> commandDatas = changeCommands.collect(DbCommandSortKey.CREATE);
+        final RichIterable<DbCommandSortKey> commandDatas = changeCommands.collect(DbCommandSortKey::new);
 
-        PartitionIterable<DbCommandSortKey> dataCommandPartition = commandDatas.partition(
-                Predicates.attributeIn(Functions.chain(DbCommandSortKey.TO_CHANGE_TYPE, ChangeType.TO_NAME), Sets.fixedSize.of(ChangeType.STATICDATA_STR)));
+        PartitionIterable<DbCommandSortKey> dataCommandPartition = commandDatas.partition(sortKey -> sortKey.getChangeType().getName().equals(ChangeType.STATICDATA_STR));
 
-        PartitionIterable<DbCommandSortKey> dropPartition = dataCommandPartition.getRejected().partition(Predicates.attributeEqual(DbCommandSortKey.TO_DROP, true));
+        PartitionIterable<DbCommandSortKey> dropPartition = dataCommandPartition.getRejected().partition(DbCommandSortKey::isDrop);
 
         ListIterable<DbCommandSortKey> orderedAdds = sortAddCommands(dropPartition.getRejected(), rollback);
         ListIterable<DbCommandSortKey> orderedDrops = sortDropCommands(dropPartition.getSelected());
@@ -101,14 +96,14 @@ public class ChangeCommandSorterImpl implements ChangeCommandSorter {
         ListIterable<DbCommandSortKey> addChanges = graphSorter.sortChanges(addGraph, SortableDependencyGroup.GRAPH_SORTER_COMPARATOR);
         addChanges.forEachWithIndex(DbCommandSortKey::setOrder);
 
-        return addCommands.toSortedListBy(DbCommandSortKey.TO_ORDER);
+        return addCommands.toSortedListBy(DbCommandSortKey::getOrder);
     }
 
     private ListIterable<DbCommandSortKey> sortDropCommands(RichIterable<DbCommandSortKey> dropCommands) {
-        final PartitionIterable<DbCommandSortKey> dropByChangeTypePartition = dropCommands.partition(Predicates.attributePredicate(DbCommandSortKey.TO_CHANGE_TYPE, Predicates.not(ChangeType.IS_RERUNNABLE)));
+        final PartitionIterable<DbCommandSortKey> dropByChangeTypePartition = dropCommands.partition(sortKey -> sortKey.getChangeType().isRerunnable());
 
-        final RichIterable<DbCommandSortKey> incrementalDrops = dropByChangeTypePartition.getSelected();
-        final RichIterable<DbCommandSortKey> rerunnableDrops = dropByChangeTypePartition.getRejected();
+        final RichIterable<DbCommandSortKey> incrementalDrops = dropByChangeTypePartition.getRejected();
+        final RichIterable<DbCommandSortKey> rerunnableDrops = dropByChangeTypePartition.getSelected();
 
         if (dialect.isDropOrderRequired()) {
 
@@ -122,42 +117,22 @@ public class ChangeCommandSorterImpl implements ChangeCommandSorter {
             }
 
             TextDependencyExtractor textDependencyExtractor = new TextDependencyExtractorImpl(dialect.convertDbObjectName());
-            textDependencyExtractor.calculateDependencies(rerunnableDrops.collect(new Function<DbCommandSortKey, Change>() {
-                @Override
-                public Change valueOf(DbCommandSortKey object) {
-                    return object.getChangeCommand().getChanges().getFirst();
-                }
-            }));
+            textDependencyExtractor.calculateDependencies(rerunnableDrops.collect(object -> object.getChangeCommand().getChanges().getFirst()));
 
             // enrichment is needed here
             DirectedGraph<DbCommandSortKey, DefaultEdge> dropGraph = enricher.createDependencyGraph(rerunnableDrops, false);
 
             ListIterable<DbCommandSortKey> dropChanges = graphSorter.sortChanges(dropGraph, SortableDependencyGroup.GRAPH_SORTER_COMPARATOR);
-            dropChanges.forEachWithIndex(new ObjectIntProcedure<DbCommandSortKey>() {
-                @Override
-                public void value(DbCommandSortKey droppedObject, int order) {
-                    droppedObject.setOrder(order);
-                }
-            });
+            dropChanges.forEachWithIndex(DbCommandSortKey::setOrder);
         } else {
             // Sort by the object type to facilitate any dependencies that would naturally occur, e.g. for packages vs. package bodies in Oracle
-            Comparator<DbCommandSortKey> dropKeyComparator = Comparators.fromFunctions(Functions.chain(DbCommandSortKey.TO_CHANGE_TYPE, ChangeType.TO_DEPLOY_ORDER_PRIORITY), DbCommandSortKey.TO_OBJECT_NAME);
-            rerunnableDrops.toSortedList(dropKeyComparator).forEachWithIndex(new ObjectIntProcedure<DbCommandSortKey>() {
-                @Override
-                public void value(DbCommandSortKey dbCommandSortKey, int order) {
-                    dbCommandSortKey.setOrder(order);
-                }
-            });
+            Comparator<DbCommandSortKey> dropKeyComparator = Comparators.fromFunctions(_this -> _this.getChangeType().getDeployOrderPriority(), DbCommandSortKey::getObjectName);
+            rerunnableDrops.toSortedList(dropKeyComparator).forEachWithIndex(DbCommandSortKey::setOrder);
         }
 
-        incrementalDrops.toSortedListBy(DbCommandSortKey.TO_OBJECT_NAME).forEachWithIndex(new ObjectIntProcedure<DbCommandSortKey>() {
-            @Override
-            public void value(DbCommandSortKey dbCommandSortKey, int order) {
-                dbCommandSortKey.setOrder(order);
-            }
-        });
+        incrementalDrops.toSortedListBy(DbCommandSortKey::getObjectName).forEachWithIndex(DbCommandSortKey::setOrder);
 
-        return dropCommands.toSortedListBy(DbCommandSortKey.TO_ORDER).reverseThis();
+        return dropCommands.toSortedListBy(DbCommandSortKey::getOrder).reverseThis();
     }
 
     private ListIterable<DbCommandSortKey> sortDataCommands(RichIterable<DbCommandSortKey> dataCommands) {
@@ -169,25 +144,17 @@ public class ChangeCommandSorterImpl implements ChangeCommandSorter {
         // this more-advanced ordering logic and that instead needed the "order" attribute
         // 2) the MetadataGroup use case (see "MetadataGroupTest")
         // Hence, we will still rely on the "changeOrder" attribute here as a fallback for the order
-        MutableList<DbCommandSortKey> sortedDataCommands = dataCommands.toSortedListBy(new Function<DbCommandSortKey, Comparable>() {
-            @Override
-            public Comparable valueOf(DbCommandSortKey dbCommandSortKey) {
-                ListIterable<Change> changes = dbCommandSortKey.getChangeCommand().getChanges();
-                if (changes.isEmpty() || changes.size() > 1) {
-                    return Change.DEFAULT_CHANGE_ORDER;
-                } else {
-                    return changes.getFirst().getOrder();
-                }
+        MutableList<DbCommandSortKey> sortedDataCommands = dataCommands.toSortedListBy(dbCommandSortKey -> {
+            ListIterable<Change> changes = dbCommandSortKey.getChangeCommand().getChanges();
+            if (changes.isEmpty() || changes.size() > 1) {
+                return Change.DEFAULT_CHANGE_ORDER;
+            } else {
+                return changes.getFirst().getOrder();
             }
         });
 
-        sortedDataCommands.forEachWithIndex(new ObjectIntProcedure<DbCommandSortKey>() {
-            @Override
-            public void value(DbCommandSortKey dataCommand, int order) {
-                dataCommand.setOrder(order);
-            }
-        });
+        sortedDataCommands.forEachWithIndex(DbCommandSortKey::setOrder);
 
-        return dataCommands.toSortedListBy(DbCommandSortKey.TO_ORDER);
+        return dataCommands.toSortedListBy(DbCommandSortKey::getOrder);
     }
 }

@@ -25,7 +25,6 @@ import com.gs.obevo.db.api.platform.DbChangeType;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.impl.PrepareDbChange;
 import org.eclipse.collections.api.RichIterable;
-import org.eclipse.collections.api.block.procedure.Procedure2;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.factory.Lists;
@@ -51,12 +50,9 @@ public class GrantChangeParser {
                 grant.validate();
 
                 for (final String objectName : objectNames) {
-                    grant.getGrantTargets().forEachKeyValue(new Procedure2<GrantTargetType, String>() {
-                        @Override
-                        public void value(GrantTargetType grantTargetType, String grantTarget) {
-                            for (String privilege : grant.getPrivileges()) {
-                                changes.add(createGrant(env, privilege, changeType, physicalSchema, objectName, grantTargetType, grantTarget, specific));
-                            }
+                    grant.getGrantTargets().forEachKeyValue((grantTargetType, grantTarget) -> {
+                        for (String privilege : grant.getPrivileges()) {
+                            changes.add(createGrant(env, privilege, changeType, physicalSchema, objectName, grantTargetType, grantTarget, specific));
                         }
                     });
                 }

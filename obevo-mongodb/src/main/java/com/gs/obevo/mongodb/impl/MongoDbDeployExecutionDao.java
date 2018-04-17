@@ -92,14 +92,7 @@ public class MongoDbDeployExecutionDao implements DeployExecutionDao {
         this.attrValueColName = convertDbObjectName.valueOf("ATTRVALUE");
 //        this.allAttrColumns = Lists.immutable.with(deployExecutionIdColName, attrNameColName, attrValueColName);
 
-        this.nextIdBySchema = env.getPhysicalSchemas()
-                .toMap(Functions.<PhysicalSchema>getPassThru(), new Function<PhysicalSchema, MutableInt>() {
-                    @Override
-                    public MutableInt valueOf(PhysicalSchema object) {
-                        return new MutableInt(1);
-                    }
-                })
-                .toImmutable();
+        this.nextIdBySchema = env.getPhysicalSchemas().toMap(Functions.getPassThru(), object -> new MutableInt(1)).toImmutable();
     }
 
     @Override
@@ -214,7 +207,7 @@ public class MongoDbDeployExecutionDao implements DeployExecutionDao {
         if (deployExecutions.isEmpty()) {
             return null;
         }
-        return deployExecutions.maxBy(DeployExecution.TO_ID);
+        return deployExecutions.maxBy(DeployExecution::getId);
     }
 
     @Override

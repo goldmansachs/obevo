@@ -15,8 +15,9 @@
  */
 package com.gs.obevo.api.appdata.doc;
 
+import java.util.Objects;
+
 import org.eclipse.collections.api.list.ImmutableList;
-import org.eclipse.collections.impl.block.factory.Predicates;
 
 public class TextMarkupDocument {
     private final ImmutableList<TextMarkupDocumentSection> sections;
@@ -30,6 +31,6 @@ public class TextMarkupDocument {
     }
 
     public TextMarkupDocumentSection findSectionWithElementName(String elementName) {
-        return this.sections.detect(Predicates.attributeEqual(TextMarkupDocumentSection.TO_NAME, elementName));
+        return this.sections.detect(_this -> Objects.equals(elementName, _this.getName()));
     }
 }

@@ -17,19 +17,27 @@ package com.gs.obevo.db.impl.core.envinfrasetup;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Objects;
 
 import javax.sql.DataSource;
 
 import com.gs.obevo.api.appdata.PhysicalSchema;
+import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.DeployMetrics;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.appdata.Group;
+import com.gs.obevo.db.api.appdata.ServerDirectory;
 import com.gs.obevo.db.api.appdata.User;
+import com.gs.obevo.db.api.platform.DbChangeTypeBehavior;
 import com.gs.obevo.db.impl.core.jdbc.DataAccessException;
 import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
 import com.gs.obevo.dbmetadata.api.DaCatalog;
+import com.gs.obevo.dbmetadata.api.DaDirectory;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
+import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.impl.DeployMetricsCollector;
+import org.eclipse.collections.api.RichIterable;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.slf4j.Logger;
@@ -49,13 +57,15 @@ public class AbstractEnvironmentInfraSetup implements EnvironmentInfraSetup<DbEn
     protected final JdbcHelper jdbc;
     protected final DataSource ds;
     protected final DbMetadataManager dbMetadataManager;
+    private final ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry;
 
-    public AbstractEnvironmentInfraSetup(DbEnvironment env, DataSource ds, DeployMetricsCollector deployMetricsCollector, DbMetadataManager dbMetadataManager) {
-        this.env = env;
+    public AbstractEnvironmentInfraSetup(DbEnvironment env, DataSource ds, DeployMetricsCollector deployMetricsCollector, DbMetadataManager dbMetadataManager, ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry) {
+        this.env = Objects.requireNonNull(env);
         this.jdbc = new JdbcHelper();
-        this.ds = ds;
-        this.deployMetricsCollector = deployMetricsCollector;
-        this.dbMetadataManager = dbMetadataManager;
+        this.ds = Objects.requireNonNull(ds);
+        this.deployMetricsCollector = Objects.requireNonNull(deployMetricsCollector);
+        this.dbMetadataManager = Objects.requireNonNull(dbMetadataManager);
+        this.changeTypeBehaviorRegistry = Objects.requireNonNull(changeTypeBehaviorRegistry);
     }
 
     @Override
@@ -71,8 +81,10 @@ public class AbstractEnvironmentInfraSetup implements EnvironmentInfraSetup<DbEn
                         handleException(failOnSetupException, "Failed to create schema " + schema, "schemaCreationFailed");
                     }
                 }
+            }
 
-                if (env.getPlatform().isSubschemaSupported()) {
+            if (env.getPlatform().isSubschemaSupported()) {
+                for (PhysicalSchema schema : env.getPhysicalSchemas()) {
                     handleGroups(conn, schema, failOnSetupException, forceCreation);
                     handleUsers(conn, schema, failOnSetupException, forceCreation);
                 }
@@ -81,6 +93,8 @@ public class AbstractEnvironmentInfraSetup implements EnvironmentInfraSetup<DbEn
             if (!env.getPlatform().isSubschemaSupported()) {
                 handleGroups(conn, null, failOnSetupException, forceCreation);
                 handleUsers(conn, null, failOnSetupException, forceCreation);
+
+                handleDirectories(conn, failOnSetupException, forceCreation);
             }
         } catch (SQLException e) {
             handleException(failOnSetupException, "Failed to open connection", "openConnectionFailed", e);
@@ -88,73 +102,82 @@ public class AbstractEnvironmentInfraSetup implements EnvironmentInfraSetup<DbEn
     }
 
     private void handleGroups(Connection conn, PhysicalSchema physicalSchema, boolean failOnSetupException, boolean forceCreation) {
-        ImmutableSet<String> existingGroupsRaw;
-        try {
-            existingGroupsRaw = dbMetadataManager.getGroupNamesOptional(physicalSchema);
-            if (existingGroupsRaw == null) {
-                LOG.debug("Group setup is not supported in this implementation; skipping...");
-                return;
-            }
-        } catch (DataAccessException e) {
-            handleException(failOnSetupException, "Group validation query failed", "groupQueryFailed", e);
-            return;
-        }
-
-        ImmutableSet<String> existingGroups = existingGroupsRaw.collect(String::toLowerCase);
-
-        ImmutableList<Group> missingGroups = env.getGroups().reject(group -> existingGroups.contains(group.getName().toLowerCase()));
-
-        LOG.info("Groups from configuration: {}", env.getGroups());
-
-        if (forceCreation) {
-            for (Group missingGroup : missingGroups) {
-                LOG.info("Creating missing group {}", missingGroup.getName());
-                try {
-                    createGroup(conn, missingGroup, physicalSchema);
-                } catch (RuntimeException e) {
-                    handleException(failOnSetupException,
-                            "Failed to create group " + missingGroup,
-                            "groupCreationFailure",
-                            e
-                            );
-                }
-            }
-        } else if (missingGroups.notEmpty()) {
-            handleException(failOnSetupException,
-                    "The following groups were not found in your environment: " + missingGroups,
-                    "groupsInConfigButNotInDb"
-                    );
-        }
+        handleObject(conn, physicalSchema, failOnSetupException, forceCreation,
+                "group", schema -> dbMetadataManager.getGroupNamesOptional(schema),
+                name -> name,
+                DbEnvironment::getGroups, Group::getName,
+                this::createGroup
+        );
     }
 
     private void handleUsers(Connection conn, PhysicalSchema physicalSchema, boolean failOnSetupException, boolean forceCreation) {
-        ImmutableSet<String> existingUsersRaw = dbMetadataManager.getUserNamesOptional(physicalSchema);
-        if (existingUsersRaw == null) {
-            LOG.debug("User setup is not supported in this implementation; skipping...");
+        handleObject(conn, physicalSchema, failOnSetupException, forceCreation,
+                "user", schema -> dbMetadataManager.getUserNamesOptional(schema),
+                name -> name,
+                DbEnvironment::getUsers, User::getName,
+                this::createUser
+        );
+    }
+
+    private void handleDirectories(Connection conn, boolean failOnSetupException, boolean forceCreation) {
+        String changeTypeName = ChangeType.DIRECTORY;
+
+        handleObject(conn, null, failOnSetupException, forceCreation,
+                changeTypeName, schema -> dbMetadataManager.getDirectoriesOptional(),
+                DaDirectory::getName,
+                DbEnvironment::getServerDirectories, ServerDirectory::getName,
+                this::createDirectory
+        );
+
+        DbChangeTypeBehavior tableChangeType = (DbChangeTypeBehavior) changeTypeBehaviorRegistry.getChangeTypeBehavior(changeTypeName);
+
+        for (ServerDirectory serverDirectory : env.getServerDirectories()) {
+            tableChangeType.applyGrants(conn, null, serverDirectory.getName(), env.getPermissions(changeTypeName));
+        }
+    }
+
+    /**
+     * General pattern for creating DB objects during infrastructure setup.
+     */
+    private <SRCOBJ, DBOBJ> void handleObject(Connection conn, PhysicalSchema physicalSchema, boolean failOnSetupException, boolean forceCreation, String objectTypeName, Function<PhysicalSchema, RichIterable<DBOBJ>> getDbObjects, Function<DBOBJ, String> getDbObjectName, Function<DbEnvironment, ImmutableList<SRCOBJ>> getSourceObjects, Function<SRCOBJ, String> getSourceObjectName, CreateObject<SRCOBJ> createObject) {
+        RichIterable<DBOBJ> existingObjects;
+        try {
+            existingObjects = getDbObjects.valueOf(physicalSchema);
+            if (existingObjects == null) {
+                LOG.debug("{} setup is not supported in this implementation; skipping...", objectTypeName);
+                return;
+            }
+        } catch (DataAccessException e) {
+            handleException(failOnSetupException, objectTypeName + " validation query failed", objectTypeName + "QueryFailed", e);
             return;
         }
 
-        ImmutableSet<String> existingUsers = existingUsersRaw.collect(String::toLowerCase);
+        LOG.debug("{} objects existing in DB: {}", objectTypeName, existingObjects);
 
-        ImmutableList<User> missingUsers = env.getUsers().reject(user -> existingUsers.contains(user.getName().toLowerCase()));
+        ImmutableSet<String> existingObjectNames = existingObjects.collect(getDbObjectName).collect(String::toLowerCase).toSet().toImmutable();
+
+        ImmutableList<SRCOBJ> sourceObjects = getSourceObjects.valueOf(env);
+        LOG.debug("{} objects from configuration: {}", objectTypeName, sourceObjects);
+
+        ImmutableList<SRCOBJ> missingObjects = sourceObjects.reject(object -> existingObjectNames.contains(getSourceObjectName.valueOf(object).toLowerCase()));
 
         if (forceCreation) {
-            for (User missingUser : missingUsers) {
-                LOG.info("Creating user {}", missingUser.getName());
+            for (SRCOBJ missingObject : missingObjects) {
+                LOG.info("Creating missing {} {}", objectTypeName, missingObject);
                 try {
-                    createUser(conn, missingUser, physicalSchema);
+                    createObject.create(conn, missingObject, physicalSchema);
                 } catch (RuntimeException e) {
                     handleException(failOnSetupException,
-                            "Failed to create user " + missingUser,
-                            "userCreationFailure",
+                            "Failed to create " + objectTypeName + " " + missingObject,
+                            objectTypeName + "CreationFailure",
                             e
                     );
                 }
             }
-        } else if (missingUsers.notEmpty()) {
+        } else if (missingObjects.notEmpty()) {
             handleException(failOnSetupException,
-                    "The following users were not found in your environment: " + missingUsers,
-                    "usersInConfigButNotInDb"
+                    "The following " + objectTypeName + " objects were not found in your environment: " + missingObjects,
+                    objectTypeName + "InConfigButNotInDb"
             );
         }
     }
@@ -177,11 +200,19 @@ public class AbstractEnvironmentInfraSetup implements EnvironmentInfraSetup<DbEn
         LOG.info("Schema creation is not supported; skipping this step");
     }
 
+    private interface CreateObject<SourceObject> {
+        void create(Connection conn, SourceObject group, PhysicalSchema physicalSchema);
+    }
+
     protected void createGroup(Connection conn, Group group, PhysicalSchema physicalSchema) {
         LOG.info("Group creation is not supported; skipping this step");
     }
 
     protected void createUser(Connection conn, User user, PhysicalSchema physicalSchema) {
         LOG.info("User creation is not supported; skipping this step");
+    }
+
+    protected void createDirectory(Connection conn, ServerDirectory directory, PhysicalSchema physicalSchema) {
+        LOG.info("Directory creation is not supported; skipping this step");
     }
 }

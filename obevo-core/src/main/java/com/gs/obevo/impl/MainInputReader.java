@@ -23,7 +23,6 @@ import com.gs.obevo.api.platform.Platform;
 import com.gs.obevo.util.CollectionUtil;
 import org.eclipse.collections.api.bag.MutableBag;
 import org.eclipse.collections.api.block.predicate.Predicate;
-import org.eclipse.collections.api.block.procedure.Procedure2;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.slf4j.Logger;
@@ -78,13 +77,8 @@ public class MainInputReader<P extends Platform, E extends Environment<P>> {
     }
 
     private void logChangeMetrics(final String changeSide, ImmutableList<Change> changes) {
-        MutableBag<String> changeTypeCounts = changes.collect(Change.TO_CHANGE_TYPE_NAME).toBag();
-        changeTypeCounts.toMapOfItemToCount().forEachKeyValue(new Procedure2<String, Integer>() {
-            @Override
-            public void value(String changeType, Integer count) {
-                deployMetricsCollector.addMetric("changes." + changeSide + "." + changeType, count);
-            }
-        });
+        MutableBag<String> changeTypeCounts = changes.collect(Change::getChangeTypeName).toBag();
+        changeTypeCounts.toMapOfItemToCount().forEachKeyValue((changeType, count) -> deployMetricsCollector.addMetric("changes." + changeSide + "." + changeType, count));
     }
 
     private ImmutableList<Change> readSourceChanges(SourceReaderStrategy dbChangeReader, boolean useBaseline, Predicate<Change> dbChangeFilter) {
@@ -93,7 +87,7 @@ public class MainInputReader<P extends Platform, E extends Environment<P>> {
                 .select(dbChangeFilter)
                 .selectWith(ArtifactRestrictions.apply(), env);
 
-        CollectionUtil.verifyNoDuplicates(sourceChanges, Change.TO_CHANGE_KEY, "Duplicate changes found - please check your input source files (e.g. no //// CHANGE entries with the same name in a file or files w/ same object names within an environment)");
+        CollectionUtil.verifyNoDuplicates(sourceChanges, Change::getChangeKey, "Duplicate changes found - please check your input source files (e.g. no //// CHANGE entries with the same name in a file or files w/ same object names within an environment)");
 
         // We tokenize at this point (prior to the changeset calculation) as we'd want to have both the untokenized
         // and tokenized file contents to be hashed so that the change comparison can consider both. The use case

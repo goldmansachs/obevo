@@ -19,7 +19,6 @@ import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.ChangeIncremental;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.impl.DeployMetricsCollectorImpl;
-import com.gs.obevo.impl.graph.SortableDependency;
 import com.gs.obevo.impl.reader.TableChangeParser.GetChangeType;
 import com.gs.obevo.util.hash.DbChangeHashStrategy;
 import com.gs.obevo.util.vfs.FileObject;
@@ -66,8 +65,8 @@ public class TableChangeParserTest {
 
         ImmutableList<Change> changes = parser.value(tableChangeType, null, fileContent, "MyTemplate${suffix}", "schema", null);
         assertEquals(4, changes.size());
-        assertEquals(2, changes.count(Predicates.attributeEqual(SortableDependency.TO_OBJECT_NAME, "MyTemplate1")));
-        assertEquals(2, changes.count(Predicates.attributeEqual(SortableDependency.TO_OBJECT_NAME, "MyTemplate2")));
+        assertEquals(2, changes.count(Predicates.attributeEqual(_this -> _this.getObjectName(), "MyTemplate1")));
+        assertEquals(2, changes.count(Predicates.attributeEqual(_this -> _this.getObjectName(), "MyTemplate2")));
     }
 
     @Test

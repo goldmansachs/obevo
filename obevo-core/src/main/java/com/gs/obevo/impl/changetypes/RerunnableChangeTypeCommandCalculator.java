@@ -25,16 +25,12 @@ import com.gs.obevo.impl.graph.GraphEnricher;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.eclipse.collections.api.RichIterable;
-import org.eclipse.collections.api.block.function.Function;
-import org.eclipse.collections.api.block.function.Function2;
 import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
-import org.eclipse.collections.api.map.MutableMap;
+import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.set.MutableSet;
-import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.block.factory.HashingStrategies;
-import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.HashingStrategySets;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Sets;
@@ -48,50 +44,45 @@ import org.slf4j.LoggerFactory;
 /**
  * The {@link ChangeTypeCommandCalculator} implementation to use for rerunnable (i.e. rerunnable == true) {@link ChangeType}s.
  */
-public class RerunnableChangeTypeCommandCalculator implements ChangeTypeCommandCalculator {
+class RerunnableChangeTypeCommandCalculator implements ChangeTypeCommandCalculator {
     private static final Logger LOG = LoggerFactory.getLogger(RerunnableChangeTypeCommandCalculator.class);
 
     private final ChangeCommandFactory changeCommandFactory = new ChangeCommandFactory();
     private final GraphEnricher enricher;
 
-    public RerunnableChangeTypeCommandCalculator(GraphEnricher enricher) {
+    RerunnableChangeTypeCommandCalculator(GraphEnricher enricher) {
         this.enricher = enricher;
     }
 
     @Override
     public ImmutableList<ChangeCommand> calculateCommands(ChangeType changeType, RichIterable<ChangePair> changePairs, RichIterable<Change> allSourceChanges, boolean rollback, boolean initAllowedOnHashExceptions) {
-        RerunnableObjectInfo rerunnableObjectInfo = changePairs.injectInto(new RerunnableObjectInfo(),
-                new Function2<RerunnableObjectInfo, ChangePair, RerunnableObjectInfo>() {
-                    @Override
-                    public RerunnableObjectInfo value(RerunnableObjectInfo rerunnableObjectInfo,
-                            ChangePair changePair) {
-                        // TODO make this a bit more OO, e.g. avoid the instanceof all over the place
-                        Change source = changePair.getSourceChange();
-                        Change deployed = changePair.getDeployedChange();
+        RerunnableObjectInfo rerunnableObjectInfo = changePairs.injectInto(new RerunnableObjectInfo(), (rerunnableObjectInfo1, changePair) -> {
+            // TODO make this a bit more OO, e.g. avoid the instanceof all over the place
+            Change source = changePair.getSourceChange();
+            Change deployed = changePair.getDeployedChange();
 
-                        if (source == null && deployed == null) {
-                            // this branch and exception throwing here is to avoid null deference warnings in findbugs for the next else branch
-                            throw new IllegalStateException("This code branch should never happen; either of source or deployed should exist");
-                        }
+            if (source == null && deployed == null) {
+                // this branch and exception throwing here is to avoid null deference warnings in findbugs for the next else branch
+                throw new IllegalStateException("This code branch should never happen; either of source or deployed should exist");
+            }
 
-                        if (source == null && deployed != null) {
-                            // In this case - the change exists in the target DB but was removed from the source
-                            rerunnableObjectInfo.addDroppedObject(deployed);
-                        } else if (source != null && deployed == null) {
-                            rerunnableObjectInfo.addChangedObject(source);
-                        } else if (ObjectUtils.equals(source.getContentHash(), deployed.getContentHash())
-                                || source.getAcceptableHashes().contains(deployed.getContentHash())) {
-                            // In this case - the change exists in both the source and target db.
-                            // We need to check if anything has changed, using the hash
+            if (source == null && deployed != null) {
+                // In this case - the change exists in the target DB but was removed from the source
+                rerunnableObjectInfo1.addDroppedObject(deployed);
+            } else if (source != null && deployed == null) {
+                rerunnableObjectInfo1.addChangedObject(source);
+            } else if (ObjectUtils.equals(source.getContentHash(), deployed.getContentHash())
+                    || source.getAcceptableHashes().contains(deployed.getContentHash())) {
+                // In this case - the change exists in both the source and target db.
+                // We need to check if anything has changed, using the hash
 
-                            LOG.trace("Nothing to do here; source [{}] and target [{}] match in hash", source, deployed);
-                        } else {
-                            rerunnableObjectInfo.addChangedObject(source);
-                        }
+                LOG.trace("Nothing to do here; source [{}] and target [{}] match in hash", source, deployed);
+            } else {
+                rerunnableObjectInfo1.addChangedObject(source);
+            }
 
-                        return rerunnableObjectInfo;
-                    }
-                });
+            return rerunnableObjectInfo1;
+        });
 
         return this.processRerunnableChanges(changeType, rerunnableObjectInfo, allSourceChanges);
     }
@@ -107,28 +98,15 @@ public class RerunnableChangeTypeCommandCalculator implements ChangeTypeCommandC
             RichIterable<Change> fromSourceList) {
         final MutableList<ChangeCommand> commands = Lists.mutable.empty();
 
-        commands.addAll(rerunnableObjectInfo.getDroppedObjects().collect(new Function<Change, ChangeCommand>() {
-            @Override
-            public ChangeCommand valueOf(Change droppedObject) {
-                return changeCommandFactory.createRemove(droppedObject).withDrop(true);
-            }
-        }));
+        commands.addAll(rerunnableObjectInfo.getDroppedObjects().collect(droppedObject -> changeCommandFactory.createRemove(droppedObject).withDrop(true)));
 
         if (changeType.isDependentObjectRecalculationRequired()) {
-            commands.addAll(getObjectChangesRequiringRecompilation(changeType, fromSourceList, rerunnableObjectInfo.getChangedObjects().reject(Change.IS_CREATE_OR_REPLACE)).collect(new Function<Change, ChangeCommand>() {
-                @Override
-                public ChangeCommand valueOf(Change change) {
-                    return changeCommandFactory.createDeployCommand(change, "Re-deploying this object due to change in dependent object [" + change.getObjectName() + "]");
-                }
-            }));
+            commands.addAll(getObjectChangesRequiringRecompilation(changeType, fromSourceList, rerunnableObjectInfo.getChangedObjects()
+                    .reject(Change::isCreateOrReplace))
+                    .collect(change -> changeCommandFactory.createDeployCommand(change, "Re-deploying this object due to change in dependent object [" + change.getObjectName() + "]")));
         }
 
-        commands.addAll(rerunnableObjectInfo.getChangedObjects().collect(new Function<Change, ChangeCommand>() {
-            @Override
-            public ChangeCommand valueOf(Change fullChange) {
-                return changeCommandFactory.createDeployCommand(fullChange);
-            }
-        }));
+        commands.addAll(rerunnableObjectInfo.getChangedObjects().collect(changeCommandFactory::createDeployCommand));
 
         return commands.toImmutable();
     }
@@ -144,24 +122,22 @@ public class RerunnableChangeTypeCommandCalculator implements ChangeTypeCommandC
         }
         // do not log errors as info or above here when creating the graph as we know that we don't have the full graph
         LOG.debug("START BLOCK: Ignore any 'Invalid change found?' errors in this block of code");
-        DirectedGraph<Change, DefaultEdge> graph = enricher.createDependencyGraph(fromSourceList.select(Predicates.attributeEqual(Change.TO_CHANGE_TYPE, changeType)), false);
+        DirectedGraph<Change, DefaultEdge> graph = enricher.createDependencyGraph(fromSourceList.select(_this -> _this.getChangeType().equals(changeType)), false);
         LOG.debug("END BLOCK: Ignore any 'Invalid change found?' errors in this block of code");
 
-        MutableCollection<Change> changesForType = changedObjects.select(
-                Predicates.attributeEqual(Change.TO_CHANGE_TYPE, changeType));
-        MutableMap<String, Change> changesForTypeMap = changesForType.toMap(
-                Change.objectName(), Functions.<Change>getPassThru());
+        MutableCollection<Change> changesForType = changedObjects.select(_this -> _this.getChangeType().equals(changeType));
 
-        MutableSet<Change> newChangesToAdd = HashingStrategySets.mutable.of(HashingStrategies.fromFunction(Change.objectName()));
+        ImmutableSet<Change> changesForTypeSet = HashingStrategySets.immutable.withAll(HashingStrategies.fromFunction(Change::getObjectKey), changesForType);
+
+        MutableSet<Change> newChangesToAdd = HashingStrategySets.mutable.of(HashingStrategies.fromFunction(Change::getObjectKey));
         for (Change change : changesForType) {
             BreadthFirstIterator<Change, DefaultEdge> dependencyIterator = new BreadthFirstIterator<Change, DefaultEdge>(graph, change);
 
-            MutableSet<Change> dependencies = ListAdapter.adapt(
-                    IteratorUtils.toList(dependencyIterator)).toSet();
+            MutableSet<Change> dependencies = ListAdapter.adapt(IteratorUtils.toList(dependencyIterator)).toSet();
             dependencies.remove(change);  // the iterator result includes the self; we can remove this
 
             for (Change changeToAddBack : dependencies) {
-                if (!changesForTypeMap.containsKey(changeToAddBack.getObjectName())) {
+                if (!changesForTypeSet.contains(changeToAddBack)) {
                     newChangesToAdd.add(changeToAddBack);
                 }
             }

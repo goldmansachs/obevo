@@ -18,7 +18,6 @@ package com.gs.obevo.api.appdata;
 import com.gs.obevo.api.platform.ChangeType;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang3.Validate;
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
 
@@ -162,14 +161,7 @@ public class ChangeIncremental extends Change {
         this.manuallyCodedDrop = manuallyCodedDrop;
     }
 
-    public static final Function<ChangeIncremental, String> TO_PARALLEL_GROUP = new Function<ChangeIncremental, String>() {
-        @Override
-        public String valueOf(ChangeIncremental object) {
-            return object.getParallelGroup();
-        }
-    };
-
-    private String getParallelGroup() {
+    public String getParallelGroup() {
         return parallelGroup;
     }
 

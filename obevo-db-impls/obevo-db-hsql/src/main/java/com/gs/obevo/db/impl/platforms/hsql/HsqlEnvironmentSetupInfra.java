@@ -25,14 +25,16 @@ import com.gs.obevo.db.api.appdata.Group;
 import com.gs.obevo.db.api.appdata.User;
 import com.gs.obevo.db.impl.core.envinfrasetup.AbstractEnvironmentInfraSetup;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
+import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
+import com.gs.obevo.impl.DeployMetricsCollector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 class HsqlEnvironmentSetupInfra extends AbstractEnvironmentInfraSetup {
     private static final Logger LOG = LoggerFactory.getLogger(HsqlEnvironmentSetupInfra.class);
 
-    HsqlEnvironmentSetupInfra(DbEnvironment env, DataSource ds, DbMetadataManager dbMetadataManager) {
-        super(env, ds, null, dbMetadataManager);
+    HsqlEnvironmentSetupInfra(DbEnvironment env, DataSource ds, DeployMetricsCollector deployMetricsCollector, DbMetadataManager dbMetadataManager, ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry) {
+        super(env, ds, deployMetricsCollector, dbMetadataManager, changeTypeBehaviorRegistry);
     }
 
     @Override

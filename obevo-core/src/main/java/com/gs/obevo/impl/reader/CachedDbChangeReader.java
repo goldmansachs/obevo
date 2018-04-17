@@ -18,7 +18,6 @@ package com.gs.obevo.impl.reader;
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.platform.FileSourceContext;
 import com.gs.obevo.api.platform.FileSourceParams;
-import org.eclipse.collections.api.block.function.Function0;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.map.ConcurrentMutableMap;
 import org.eclipse.collections.impl.map.mutable.ConcurrentHashMap;
@@ -38,11 +37,6 @@ public class CachedDbChangeReader implements FileSourceContext {
 
     @Override
     public ImmutableList<Change> readChanges(final FileSourceParams fileSourceParams) {
-        return cachedResults.getIfAbsentPut(fileSourceParams, new Function0<ImmutableList<Change>>() {
-            @Override
-            public ImmutableList<Change> value() {
-                return dbChangeReader.readChanges(fileSourceParams);
-            }
-        });
+        return cachedResults.getIfAbsentPut(fileSourceParams, () -> dbChangeReader.readChanges(fileSourceParams));
     }
 }

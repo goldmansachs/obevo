@@ -47,7 +47,7 @@ public class MongoDbDeployerAppContext extends AbstractDeployerAppContext<MongoD
     protected ChangeTypeBehaviorRegistryBuilder getChangeTypeBehaviors() {
         ChangeTypeBehaviorRegistryBuilder builder = ChangeTypeBehaviorRegistry.newBuilder();
 
-        PartitionImmutableList<ChangeType> rerunnablePartition = env.getPlatform().getChangeTypes().partition(ChangeType.IS_RERUNNABLE);
+        PartitionImmutableList<ChangeType> rerunnablePartition = env.getPlatform().getChangeTypes().partition(ChangeType::isRerunnable);
 
         for (ChangeType changeType : rerunnablePartition.getSelected()) {
             builder.put(changeType.getName(), rerunnableSemantic(), deployBehavior());

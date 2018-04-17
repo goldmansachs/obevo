@@ -18,7 +18,6 @@ package com.gs.obevo.api.factory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.List;
 import java.util.Properties;
 
 import com.gs.obevo.api.platform.DeployerRuntimeException;
@@ -27,14 +26,12 @@ import com.gs.obevo.util.vfs.FileRetrievalMode;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.bag.MutableBag;
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.procedure.Procedure2;
 import org.eclipse.collections.api.list.ListIterable;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.multimap.list.MutableListMultimap;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.impl.block.factory.HashingStrategies;
-import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.block.factory.primitive.IntPredicates;
 import org.eclipse.collections.impl.collection.mutable.CollectionAdapter;
 import org.eclipse.collections.impl.factory.HashingStrategySets;
@@ -56,11 +53,11 @@ class PlatformConfigReader {
         validate(prioritizedProperties);
 
         // order properties by priority: higher-numbered files will replace properties of lower-numbered files
-        prioritizedProperties.sortThisBy(PropertyInput.TO_PRIORITY);
+        prioritizedProperties.sortThisBy(PropertyInput::getPriority);
 
         // merge properties
         Properties finalProperties = new Properties();
-        for (Properties properties : prioritizedProperties.collect(PropertyInput.TO_PROPS)) {
+        for (Properties properties : prioritizedProperties.collect(PropertyInput::getProps)) {
             finalProperties.putAll(properties);
         }
 
@@ -71,18 +68,13 @@ class PlatformConfigReader {
     }
 
     private MutableList<PropertyInput> readConfigPackages(RichIterable<String> configPackages) {
-        MutableSet<PropertyInput> prioritizedProperties = HashingStrategySets.mutable.of(HashingStrategies.fromFunction(PropertyInput.TO_PROPERTY_FILE_PATH));
+        MutableSet<PropertyInput> prioritizedProperties = HashingStrategySets.mutable.of(HashingStrategies.fromFunction(PropertyInput::getPropertyFilePath));
 
         for (String configPackage : configPackages) {
             ListIterable<FileObject> fileObjects = FileRetrievalMode.CLASSPATH.resolveFileObjects(configPackage)
-                    .flatCollect(new Function<FileObject, List<FileObject>>() {
-                        @Override
-                        public List<FileObject> valueOf(FileObject object) {
-                            return ArrayAdapter.adapt(object.getChildren());
-                        }
-                    });
+                    .flatCollect(object -> ArrayAdapter.adapt(object.getChildren()));
             ListIterable<FileObject> propertyFiles = fileObjects
-                    .select(Predicates.attributeEqual(FileObject.TO_EXTENSION, "properties"));
+                    .select(_this -> _this.getName().getExtension().equals("properties"));
 
             for (FileObject propertyFile : propertyFiles) {
                 Properties fileProps = loadPropertiesFromUrl(propertyFile);
@@ -105,7 +97,7 @@ class PlatformConfigReader {
             throw new IllegalStateException("Could not find default configuration " + "abc" + " in the classpath");
         }
 
-        MutableListMultimap<String, PropertyInput> propertiesByFileName = prioritizedProperties.groupBy(PropertyInput.TO_FILE_NAME);
+        MutableListMultimap<String, PropertyInput> propertiesByFileName = prioritizedProperties.groupBy(PropertyInput::getFileName);
         final MutableList<String> warnings = Lists.mutable.empty();
         final MutableList<String> errors = Lists.mutable.empty();
 
@@ -113,12 +105,12 @@ class PlatformConfigReader {
             @Override
             public void value(String fileName, Iterable<PropertyInput> propertyInputsIter) {
                 MutableList<PropertyInput> propertyInputs = CollectionAdapter.wrapList(propertyInputsIter);
-                MutableBag<Integer> priorities = propertyInputs.collect(PropertyInput.TO_PRIORITY).toBag();
+                MutableBag<Integer> priorities = propertyInputs.collect(PropertyInput::getPriority).toBag();
                 MutableBag<Integer> duplicatePriorities = priorities.selectByOccurrences(IntPredicates.greaterThan(1));
                 if (duplicatePriorities.notEmpty()) {
-                    errors.add("File name [" + fileName + "] was found with the same priority [" + duplicatePriorities + "] in multiple locations [" + propertyInputs.collect(PropertyInput.TO_PROPERTY_FILE_PATH) + "]. Please ensure that priorities are distinct.");
+                    errors.add("File name [" + fileName + "] was found with the same priority [" + duplicatePriorities + "] in multiple locations [" + propertyInputs.collect(PropertyInput::getPropertyFilePath) + "]. Please ensure that priorities are distinct.");
                 } else if (priorities.size() > 1) {
-                    warnings.add("File name [" + fileName + "] was found in multiple locations [" + propertyInputs.collect(PropertyInput.TO_PROPERTY_FILE_PATH) + "]. Will refer to them in their priority order, but ideally the file name should be different.");
+                    warnings.add("File name [" + fileName + "] was found in multiple locations [" + propertyInputs.collect(PropertyInput::getPropertyFilePath) + "]. Will refer to them in their priority order, but ideally the file name should be different.");
                 }
             }
         });
@@ -151,34 +143,6 @@ class PlatformConfigReader {
         private final URL propertyFilePath;
         private final int priority;
         private final Properties props;
-
-        private static final Function<PropertyInput, String> TO_FILE_NAME = new Function<PropertyInput, String>() {
-            @Override
-            public String valueOf(PropertyInput object) {
-                return object.getFileName();
-            }
-        };
-
-        private static final Function<PropertyInput, URL> TO_PROPERTY_FILE_PATH = new Function<PropertyInput, URL>() {
-            @Override
-            public URL valueOf(PropertyInput object) {
-                return object.getPropertyFilePath();
-            }
-        };
-
-        private static final Function<PropertyInput, Integer> TO_PRIORITY = new Function<PropertyInput, Integer>() {
-            @Override
-            public Integer valueOf(PropertyInput object) {
-                return object.getPriority();
-            }
-        };
-
-        private static final Function<PropertyInput, Properties> TO_PROPS = new Function<PropertyInput, Properties>() {
-            @Override
-            public Properties valueOf(PropertyInput object) {
-                return object.getProps();
-            }
-        };
 
         PropertyInput(String fileName, URL propertyFilePath, int priority, Properties props) {
             this.fileName = fileName;

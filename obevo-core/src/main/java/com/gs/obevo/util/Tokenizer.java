@@ -15,7 +15,6 @@
  */
 package com.gs.obevo.util;
 
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.map.MapIterable;
 import org.eclipse.collections.api.tuple.Pair;
 
@@ -37,14 +36,5 @@ public class Tokenizer {
         }
 
         return output;
-    }
-
-    public Function<String, String> tokenizeString() {
-        return new Function<String, String>() {
-            @Override
-            public String valueOf(String input) {
-                return tokenizeString(input);
-            }
-        };
     }
 }

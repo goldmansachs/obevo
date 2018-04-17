@@ -44,11 +44,11 @@ import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.block.factory.HashingStrategies;
 import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.block.factory.StringFunctions;
+import org.eclipse.collections.impl.factory.HashingStrategyMaps;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.factory.Multimaps;
 import org.eclipse.collections.impl.factory.Sets;
-import org.eclipse.collections.impl.map.strategy.mutable.UnifiedMapWithHashingStrategy;
 
 public class RevengWriter {
     private final Configuration templateConfig;
@@ -116,13 +116,12 @@ public class RevengWriter {
             objectExclusionPredicateBuilder = objectExclusionPredicateBuilder.add(ObjectTypeAndNamePredicateBuilder.parse(excludeObjects, ObjectTypeAndNamePredicateBuilder.FilterType.EXCLUDE));
         }
         Predicates<? super RevEngDestination> objectExclusionPredicate = objectExclusionPredicateBuilder.build(
-                Functions.chain(RevEngDestination.TO_DB_OBJECT_TYPE, ChangeType.TO_NAME),
-                RevEngDestination.TO_OBJECT_NAME
+                dest -> dest.getDbObjectType().getName(),
+                RevEngDestination::getObjectName
         );
 
-        MutableMap<RevEngDestination, MutableList<ChangeEntry>> revEngDestinationMap =
-                UnifiedMapWithHashingStrategy.newMap(HashingStrategies.fromFunction(RevEngDestination.TO_IDENTITY));
-        for (ChangeEntry allRevEngDestination : allRevEngDestinations.select(Predicates.attributePredicate(ChangeEntry.TO_DESTINATION, objectExclusionPredicate))) {
+        MutableMap<RevEngDestination, MutableList<ChangeEntry>> revEngDestinationMap = HashingStrategyMaps.mutable.of(HashingStrategies.fromFunction(RevEngDestination::getIdentity));
+        for (ChangeEntry allRevEngDestination : allRevEngDestinations.select(entry -> objectExclusionPredicate.accept(entry.getDestination()))) {
             MutableList<ChangeEntry> changeEntries = revEngDestinationMap.get(allRevEngDestination.getDestination());
             if (changeEntries == null) {
                 changeEntries = Lists.mutable.empty();
@@ -137,9 +136,9 @@ public class RevengWriter {
             RevEngDestination dest = pair.getOne();
 
             MutableList<ChangeEntry> changes = pair.getTwo()
-                    .toSortedListBy(Functions.firstNotNullValue(ChangeEntry.TO_NAME, Functions.<ChangeEntry, String>getFixedValue("")))
-                    .toSortedListBy(ChangeEntry.TO_ORDER);
-            MutableList<String> metadataAnnotations = changes.flatCollect(ChangeEntry.TO_METADATA_ANNOTATIONS);
+                    .toSortedListBy(Functions.firstNotNullValue(ChangeEntry::getName, Functions.getFixedValue("")))
+                    .toSortedListBy(ChangeEntry::getOrder);
+            MutableList<String> metadataAnnotations = changes.flatCollect(ChangeEntry::getMetadataAnnotations);
             String metadataString;
             if (metadataAnnotations.isEmpty()) {
                 metadataString = "";
@@ -147,7 +146,7 @@ public class RevengWriter {
                 metadataString = "//// METADATA " + metadataAnnotations.makeString(" ");
             }
             String mainSql = (metadataString.isEmpty() ? "" : metadataString + "\n")
-                    + changes.collect(ChangeEntry.TO_SQL).collect(StringFunctions.trim()).makeString("\n");
+                    + changes.collect(ChangeEntry::getSql).collect(String::trim).makeString("\n");
 
             try {
                 File mainDestinationFile = dest.getDestinationFile(outputDir, false);
@@ -188,7 +187,7 @@ public class RevengWriter {
             }
         }
 
-        MutableSet<String> schemas = allRevEngDestinations.collect(Functions.chain(ChangeEntry.TO_DESTINATION, RevEngDestination.TO_SCHEMA), Sets.mutable.<String>empty());
+        MutableSet<String> schemas = allRevEngDestinations.collect(entry -> entry.getDestination().getSchema(), Sets.mutable.empty());
 
         Writer fileWriter = null;
         try {

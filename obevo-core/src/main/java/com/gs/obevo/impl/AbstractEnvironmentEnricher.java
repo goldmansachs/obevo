@@ -30,7 +30,6 @@ import com.gs.obevo.util.VisibleForTesting;
 import com.gs.obevo.util.vfs.FileObject;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.vfs2.FileType;
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.MutableMap;
@@ -38,12 +37,11 @@ import org.eclipse.collections.api.multimap.set.MutableSetMultimap;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.impl.block.factory.HashingStrategies;
-import org.eclipse.collections.impl.block.factory.Predicates;
+import org.eclipse.collections.impl.factory.HashingStrategySets;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.factory.Multimaps;
 import org.eclipse.collections.impl.list.mutable.ListAdapter;
-import org.eclipse.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrategy;
 
 public abstract class AbstractEnvironmentEnricher<E extends Environment> implements EnvironmentEnricher<E> {
     private static final Pattern PATTERN = Pattern.compile("[\\w+]+");
@@ -67,7 +65,7 @@ public abstract class AbstractEnvironmentEnricher<E extends Environment> impleme
             envList.add(dbEnv);
         }
 
-        CollectionUtil.verifyNoDuplicates(envList, Environment.TO_NAME, "Invalid configuration from " + sourcePath + "; not expecting duplicate env names");
+        CollectionUtil.verifyNoDuplicates(envList, Environment::getName, "Invalid configuration from " + sourcePath + "; not expecting duplicate env names");
         return new DeploySystem<E>(envList);
     }
 
@@ -125,8 +123,8 @@ public abstract class AbstractEnvironmentEnricher<E extends Environment> impleme
         int schemaNameValidationVersion = envCfg.getInt("schemaNameValidation", sysCfg.getInt("schemaNameValidation", dbPlatformConfiguration.getFeatureToggleVersion("schemaNameValidation")));
 
         // TODO add include/exclude schemas functionality
-        MutableList<Schema> schemaObjs = Lists.mutable.withAll(iterConfig(sysCfg, "schemas.schema"))
-                .collect(convertCfgToSchema(systemDbPlatform, schemaNameValidationVersion));
+        ImmutableList<Schema> schemaObjs = iterConfig(sysCfg, "schemas.schema")
+                .collect(cfg -> convertCfgToSchema(cfg, systemDbPlatform, schemaNameValidationVersion));
 
         MutableSet<String> schemasToInclude = iterString(envCfg, "includeSchemas").toSet();
         MutableSet<String> schemasToExclude = iterString(envCfg, "excludeSchemas").toSet();
@@ -136,16 +134,16 @@ public abstract class AbstractEnvironmentEnricher<E extends Environment> impleme
                     + schemasToInclude + "] and excludeSchemas [" + schemasToExclude
                     + "] defined; please only specify one of them");
         } else if (!schemasToInclude.isEmpty()) {
-            schemaObjs = schemaObjs.select(Predicates.attributeIn(Schema.TO_NAME, schemasToInclude));
+            schemaObjs = schemaObjs.select(_this -> schemasToInclude.contains(_this.getName()));
         } else if (!schemasToExclude.isEmpty()) {
-            schemaObjs = schemaObjs.reject(Predicates.attributeIn(Schema.TO_NAME, schemasToExclude));
+            schemaObjs = schemaObjs.reject(_this -> schemasToExclude.contains(_this.getName()));
         }
 
         MutableMap<String, String> schemaNameOverrides = Maps.mutable.empty();
-        MutableSet<String> schemaNames = schemaObjs.collect(Schema.TO_NAME).toSet();
+        ImmutableSet<String> schemaNames = schemaObjs.collect(Schema::getName).toSet().toImmutable();
         for (HierarchicalConfiguration schemaOverride : iterConfig(envCfg, "schemaOverrides.schemaOverride")) {
             String schema = schemaOverride.getString("[@schema]");
-            if (schemaObjs.collect(Schema.TO_NAME).contains(schema)) {
+            if (schemaNames.contains(schema)) {
                 schemaNameOverrides.put(schema, schemaOverride.getString("[@overrideValue]"));
             } else {
                 throw new IllegalArgumentException("Schema override definition value "
@@ -155,51 +153,44 @@ public abstract class AbstractEnvironmentEnricher<E extends Environment> impleme
 
         dbEnv.setSchemaNameOverrides(schemaNameOverrides.toImmutable());
         // ensure that we only store the unique schema names here
-        dbEnv.setSchemas(UnifiedSetWithHashingStrategy.newSet(HashingStrategies.fromFunction(Schema.TO_NAME), schemaObjs).toImmutable());
+        dbEnv.setSchemas(HashingStrategySets.mutable.ofAll(HashingStrategies.fromFunction(Schema::getName), schemaObjs).toImmutable());
     }
 
-    private Function<HierarchicalConfiguration, Schema> convertCfgToSchema(final Platform systemDbPlatform, final int schemaNameValidation) {
-        return new Function<HierarchicalConfiguration, Schema>() {
-            private static final long serialVersionUID = 1L;
+    private Schema convertCfgToSchema(HierarchicalConfiguration object, final Platform systemDbPlatform, final int schemaNameValidation) {
+        String schemaName = object.getString("[@name]");
+        if (schemaNameValidation >= 2) {
+            validateSchemaName(schemaName);
+        }
+        boolean readOnly = object.getBoolean("[@readOnly]", false);
 
-            @Override
-            public Schema valueOf(HierarchicalConfiguration object) {
-                String schemaName = object.getString("[@name]");
-                if (schemaNameValidation >= 2) {
-                    validateSchemaName(schemaName);
-                }
-                boolean readOnly = object.getBoolean("[@readOnly]", false);
+        MutableSetMultimap<String, String> excludedNameMap = Multimaps.mutable.set.empty();
 
-                MutableSetMultimap<String, String> excludedNameMap = Multimaps.mutable.set.empty();
-
-                ImmutableList<HierarchicalConfiguration> excludes = iterConfig(object, "excludes");
-                if (!excludes.isEmpty()) {
-                    if (excludes.size() > 1) {
-                        throw new IllegalArgumentException("Only expecting 1 excludes element under <schema>");
-                    }
-                    HierarchicalConfiguration excludesConfig = excludes.get(0);
-                    if (excludesConfig != null) {
-                        for (ChangeType changeType : systemDbPlatform.getChangeTypes()) {
-                            ImmutableList<String> excludedNames = iterString(excludesConfig, changeType.getName().toLowerCase());
-                            if (excludedNames.notEmpty()) {
-                                excludedNameMap.putAll(changeType.getName(), excludedNames);
-                            }
-
-                            ImmutableList<String> excludedPatterns = iterString(excludesConfig, changeType.getName().toLowerCase() + "Pattern");
-                            if (excludedPatterns.notEmpty()) {
-                                throw new IllegalArgumentException("The <objectType>Pattern element is deprecated. Use just the <objectType> element w/ wildcards (% or *)");
-                            }
-                        }
-
-                        if (iterString(excludesConfig, "procedure").notEmpty() || iterString(excludesConfig, "procedurePattern").notEmpty()) {
-                            throw new IllegalArgumentException("The procedure and procedurePattern elements are no longer supported. Use <sp> only, with wildcards (% or *) if  needed");
-                        }
-                    }
-                }
-
-                return new Schema(schemaName, systemDbPlatform.getObjectExclusionPredicateBuilder().add(excludedNameMap.toImmutable()), readOnly);
+        ImmutableList<HierarchicalConfiguration> excludes = iterConfig(object, "excludes");
+        if (!excludes.isEmpty()) {
+            if (excludes.size() > 1) {
+                throw new IllegalArgumentException("Only expecting 1 excludes element under <schema>");
             }
-        };
+            HierarchicalConfiguration excludesConfig = excludes.get(0);
+            if (excludesConfig != null) {
+                for (ChangeType changeType : systemDbPlatform.getChangeTypes()) {
+                    ImmutableList<String> excludedNames = iterString(excludesConfig, changeType.getName().toLowerCase());
+                    if (excludedNames.notEmpty()) {
+                        excludedNameMap.putAll(changeType.getName(), excludedNames);
+                    }
+
+                    ImmutableList<String> excludedPatterns = iterString(excludesConfig, changeType.getName().toLowerCase() + "Pattern");
+                    if (excludedPatterns.notEmpty()) {
+                        throw new IllegalArgumentException("The <objectType>Pattern element is deprecated. Use just the <objectType> element w/ wildcards (% or *)");
+                    }
+                }
+
+                if (iterString(excludesConfig, "procedure").notEmpty() || iterString(excludesConfig, "procedurePattern").notEmpty()) {
+                    throw new IllegalArgumentException("The procedure and procedurePattern elements are no longer supported. Use <sp> only, with wildcards (% or *) if  needed");
+                }
+            }
+        }
+
+        return new Schema(schemaName, systemDbPlatform.getObjectExclusionPredicateBuilder().add(excludedNameMap.toImmutable()), readOnly);
     }
 
     @VisibleForTesting

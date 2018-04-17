@@ -19,11 +19,9 @@ import java.util.regex.Pattern;
 
 import com.gs.obevo.api.appdata.CodeDependency;
 import com.gs.obevo.api.appdata.CodeDependencyType;
-import com.gs.obevo.api.appdata.ObjectKey;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.set.MutableSet;
-import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.Sets;
 
@@ -41,7 +39,7 @@ public class TextDependencyExtractorImpl implements TextDependencyExtractor {
 
     @Override
     public <T extends TextDependencyExtractable> void calculateDependencies(RichIterable<T> changes) {
-        MutableSet<String> objectNames = changes.collect(Functions.chain(TextDependencyExtractable.TO_OBJECT_KEY, ObjectKey.TO_OBJECT_NAME)).collect(convertDbObjectName).toSet();
+        MutableSet<String> objectNames = changes.collect(_this -> _this.getObjectKey().getObjectName()).collect(convertDbObjectName).toSet();
 
         for (T change : changes) {
             // note - only check for nulls here; we may set dependencies to blank explicitly in the overrides

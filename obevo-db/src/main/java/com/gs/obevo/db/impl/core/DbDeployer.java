@@ -21,7 +21,6 @@ import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder;
 import com.gs.obevo.api.appdata.PhysicalSchema;
-import com.gs.obevo.api.appdata.Schema;
 import com.gs.obevo.api.factory.PlatformConfiguration;
 import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeType;
@@ -164,8 +163,8 @@ public class DbDeployer implements DeployerPlugin<DbPlatform, DbEnvironment> {
 
     private ChecksumEntryInclusionPredicate createLookupIndexForObjectType(DbEnvironment env, ImmutableList<Change> sourceChanges, String changeTypeName) {
         LookupIndex objectTypeIndex = new LookupIndex(Sets.immutable.with(changeTypeName));
-        ImmutableList<Change> objectTypeChanges = sourceChanges.select(Predicates.attributeEqual(Change.TO_CHANGE_TYPE_NAME, changeTypeName));
-        MutableSet<String> objectNames = objectTypeChanges.collect(Change.objectName()).collect(env.getPlatform().convertDbObjectName()).toSet();
+        ImmutableList<Change> objectTypeChanges = sourceChanges.select(_this -> _this.getChangeTypeName().equals(changeTypeName));
+        MutableSet<String> objectNames = objectTypeChanges.collect(Change::getObjectName).collect(env.getPlatform().convertDbObjectName()).toSet();
         LookupIndex objectNameIndex = new LookupIndex(objectNames.toImmutable());
         return new ChecksumEntryInclusionPredicate(
                 Lists.immutable.with(objectTypeIndex),
@@ -175,12 +174,7 @@ public class DbDeployer implements DeployerPlugin<DbPlatform, DbEnvironment> {
 
     private Predicate<? super ChecksumEntry> getPlatformInclusionPredicate(DbEnvironment env) {
         // 1) exclude those tables that are excluded by default from source code, e.g. explain tables or others that users configure
-        ImmutableSet<Predicate<? super ChecksumEntry>> schemaObjectNamePredicates = env.getSchemas().collect(new Function<Schema, Predicate<? super ChecksumEntry>>() {
-            @Override
-            public Predicate<? super ChecksumEntry> valueOf(Schema schema) {
-                return schema.getObjectExclusionPredicateBuilder().build(ChecksumEntry.TO_OBJECT_TYPE, ChecksumEntry.TO_NAME1);
-            }
-        });
+        ImmutableSet<Predicate<? super ChecksumEntry>> schemaObjectNamePredicates = env.getSchemas().collect(schema -> schema.getObjectExclusionPredicateBuilder().build(ChecksumEntry.TO_OBJECT_TYPE, ChecksumEntry.TO_NAME1));
 
         // 2) exclude the audit tables
         MutableMultimap<String, String> tablesToExclude = Multimaps.mutable.set.empty();
@@ -194,10 +188,10 @@ public class DbDeployer implements DeployerPlugin<DbPlatform, DbEnvironment> {
         ObjectTypeAndNamePredicateBuilder auditTablePredicateBuilder = new ObjectTypeAndNamePredicateBuilder(tablesToExclude.toImmutable(), ObjectTypeAndNamePredicateBuilder.FilterType.EXCLUDE);
         Predicates<? super ChecksumEntry> auditTablePredicate = auditTablePredicateBuilder.build(ChecksumEntry.TO_OBJECT_TYPE, ChecksumEntry.TO_NAME1);
 
-        return Predicates.and(auditTablePredicate, Predicates.and(schemaObjectNamePredicates));
+        return auditTablePredicate.and(schemaObjectNamePredicates);
     }
 
-    private Predicate<ChecksumEntry> getSourceChangesInclusionPredicate(final DbEnvironment env, final ImmutableList<Change> sourceChanges) {
+    private Predicate<? super ChecksumEntry> getSourceChangesInclusionPredicate(final DbEnvironment env, final ImmutableList<Change> sourceChanges) {
         // 3) only include the predicate types that we care about
         ImmutableSet<String> requiredValidationObjectTypes = env.getPlatform().getRequiredValidationObjectTypes();
         ImmutableSet<ChecksumEntryInclusionPredicate> checksumEntryPredicates = requiredValidationObjectTypes.collect(new Function<String, ChecksumEntryInclusionPredicate>() {

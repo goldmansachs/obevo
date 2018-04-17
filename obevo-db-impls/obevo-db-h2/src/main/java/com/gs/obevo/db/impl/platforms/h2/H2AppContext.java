@@ -33,7 +33,7 @@ public class H2AppContext extends DbDeployerAppContextImpl {
 
     @Override
     public EnvironmentInfraSetup getEnvironmentInfraSetup() {
-        return new H2EnvironmentSetupInfra(this.getEnvironment(), this.getManagedDataSource(), this.getDbMetadataManager());
+        return new H2EnvironmentSetupInfra(this.getEnvironment(), this.getManagedDataSource(), this.deployStatsTracker(), this.getDbMetadataManager(), this.getChangeTypeBehaviorRegistry());
     }
 
     @Override

@@ -96,7 +96,7 @@ class Db2PostDeployAction implements PostDeployAction<DbEnvironment> {
     MutableSet<SchemaObjectRow> getInvalidObjects(Connection conn, RichIterable<PhysicalSchema> physicalSchemas) {
         LOG.info("Checking for invalid objects");
 
-        String schemaInClause = physicalSchemas.collect(PhysicalSchema.TO_PHYSICAL_NAME).makeString("('", "','", "')");
+        String schemaInClause = physicalSchemas.collect(PhysicalSchema::getPhysicalName).makeString("('", "','", "')");
 
         MutableSet<SchemaObjectRow> oldInvalidObjects = queryOldInvalidObjects(conn, schemaInClause);
         try {

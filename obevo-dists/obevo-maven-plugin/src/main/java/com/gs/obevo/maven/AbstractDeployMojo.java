@@ -137,7 +137,7 @@ public abstract class AbstractDeployMojo extends AbstractMojo {
                 new BaselineValidatorMain().validateNoBaselineBreaks(dbDeployerAppContext);
             } else {
                 MutableCollection<DbEnvironment> dbEnvironments = DbEnvironmentFactory.getInstance().readFromSourcePath(getSourcePath(), this.env.split(","));
-                this.getLog().info("Will action these environments: " + dbEnvironments.collect(DbEnvironment.TO_NAME).makeString(","));
+                this.getLog().info("Will action these environments: " + dbEnvironments.collect(DbEnvironment::getName).makeString(","));
                 MainDeployerArgs dbArgs = new MainDeployerArgs()
                         .noPrompt(this.noPrompt != null && this.noPrompt)
                         .performInitOnly(performInitOnly)

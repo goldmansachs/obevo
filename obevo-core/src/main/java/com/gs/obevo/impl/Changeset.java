@@ -48,12 +48,12 @@ public class Changeset {
     }
 
     public void validateForDeployment() {
-        RichIterable<ChangeCommandWarning> fatalWarnings = this.changeWarnings.select(ChangeCommandWarning.IS_FATAL);
+        RichIterable<ChangeCommandWarning> fatalWarnings = this.changeWarnings.select(ChangeCommandWarning::isFatal);
 
         if (!fatalWarnings.isEmpty()) {
             // check for serious exceptions
             throw new IllegalArgumentException("Found exceptions:\n"
-                    + fatalWarnings.collect(ChangeCommandWarning.TO_COMMAND_DESCRIPTION).makeString("\n"));
+                    + fatalWarnings.collect(ChangeCommandWarning::getCommandDescription).makeString("\n"));
         }
     }
 

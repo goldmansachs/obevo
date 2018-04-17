@@ -19,7 +19,6 @@ import com.gs.obevo.api.platform.DeployerRuntimeException;
 import com.gs.obevo.api.platform.Platform;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.map.ImmutableMap;
 import org.eclipse.collections.api.map.MutableMap;
@@ -134,12 +133,7 @@ public class PlatformConfiguration {
             return Maps.immutable.empty();
         }
         final Config attrConfig = this.getConfig().getConfig("featureToggles");
-        return SetAdapter.adapt(attrConfig.root().keySet()).toMap(Functions.<String>getPassThru(), new Function<String, Integer>() {
-            @Override
-            public Integer valueOf(String featureToggleName) {
-                return attrConfig.getConfig(featureToggleName).getInt("defaultVersion");
-            }
-        }).toImmutable();
+        return SetAdapter.adapt(attrConfig.root().keySet()).toMap(Functions.getPassThru(), featureToggleName -> attrConfig.getConfig(featureToggleName).getInt("defaultVersion")).toImmutable();
     }
 
     public String getSourceEncoding() {

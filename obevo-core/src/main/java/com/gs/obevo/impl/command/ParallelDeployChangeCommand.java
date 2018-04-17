@@ -84,7 +84,7 @@ public class ParallelDeployChangeCommand implements ExecuteChangeCommand {
 
     @Override
     public String getCommandDescription() {
-        return "Parallel set of changes:\n" + changes.collect(Change.TO_DISPLAY_STRING).makeString("\n");
+        return "Parallel set of changes:\n" + changes.collect(Change::getDisplayString).makeString("\n");
     }
 
     @Override

@@ -16,29 +16,11 @@
 package com.gs.obevo.api.appdata;
 
 import org.apache.commons.lang3.Validate;
-import org.eclipse.collections.api.block.function.Function;
-import org.eclipse.collections.api.block.predicate.Predicate;
 
 /**
  * Represents a logical schema within your deployment project.
  */
 public class Schema {
-    public static final Function<Schema, String> TO_NAME = new Function<Schema, String>() {
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        public String valueOf(Schema object) {
-            return object.getName();
-        }
-    };
-
-    public static final Predicate<Schema> IS_READ_ONLY = new Predicate<Schema>() {
-        @Override
-        public boolean accept(Schema schema) {
-            return schema.isReadOnly();
-        }
-    };
-
     private final String name;
     private final ObjectTypeAndNamePredicateBuilder objectExclusionPredicateBuilder;
     private final boolean readOnly;

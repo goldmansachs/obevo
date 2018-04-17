@@ -23,17 +23,11 @@ import com.gs.obevo.db.impl.core.envinfrasetup.EnvironmentInfraSetup;
 import com.gs.obevo.db.impl.core.jdbc.DataSourceFactory;
 import com.gs.obevo.impl.ChangeTypeBehaviorRegistry.ChangeTypeBehaviorRegistryBuilder;
 import com.gs.obevo.model.AseUserTypeChangeTypeBehavior;
-import org.eclipse.collections.api.block.function.Function0;
 
 public class SybaseAseAppContext extends DbDeployerAppContextImpl {
 
     public SqlExecutor getSqlExecutor() {
-        return this.singleton("getSqlExecutor", new Function0<SqlExecutor>() {
-            @Override
-            public SqlExecutor value() {
-                return new AseSqlExecutor(getManagedDataSource());
-            }
-        });
+        return this.singleton("getSqlExecutor", () -> new AseSqlExecutor(getManagedDataSource()));
     }
 
     @Override
@@ -43,7 +37,7 @@ public class SybaseAseAppContext extends DbDeployerAppContextImpl {
 
     @Override
     public EnvironmentInfraSetup getEnvironmentInfraSetup() {
-        return new AseEnvironmentInfraSetup(this.getEnvironment(), this.getManagedDataSource(), this.deployStatsTracker(), getDbMetadataManager());
+        return new AseEnvironmentInfraSetup(this.getEnvironment(), this.getManagedDataSource(), this.deployStatsTracker(), getDbMetadataManager(), this.getChangeTypeBehaviorRegistry());
     }
 
     @Override

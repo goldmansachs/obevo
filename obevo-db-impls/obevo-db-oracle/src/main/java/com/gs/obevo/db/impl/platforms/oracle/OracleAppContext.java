@@ -32,6 +32,6 @@ public class OracleAppContext extends DbDeployerAppContextImpl {
 
     @Override
     public EnvironmentInfraSetup getEnvironmentInfraSetup() {
-        return new OracleEnvironmentInfraSetup(this.getEnvironment(), this.getManagedDataSource(), this.deployStatsTracker(), this.getDbMetadataManager());
+        return new OracleEnvironmentInfraSetup(this.getEnvironment(), this.getManagedDataSource(), this.deployStatsTracker(), this.getDbMetadataManager(), this.getChangeTypeBehaviorRegistry());
     }
 }

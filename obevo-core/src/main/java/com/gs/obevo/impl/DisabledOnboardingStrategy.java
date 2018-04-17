@@ -15,8 +15,6 @@
  */
 package com.gs.obevo.impl;
 
-import java.util.List;
-
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.platform.DaConstants;
 import com.gs.obevo.util.vfs.BasicFileSelector;
@@ -24,7 +22,6 @@ import com.gs.obevo.util.vfs.FileObject;
 import org.apache.commons.vfs2.FileFilter;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.eclipse.collections.api.RichIterable;
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
@@ -62,19 +59,12 @@ class DisabledOnboardingStrategy implements OnboardingStrategy {
                 }
             })));
 
-            MutableList<FileObject> onboardFiles = schemaDirs.flatCollect(new Function<FileObject, List<FileObject>>() {
-                @Override
-                public List<FileObject> valueOf(FileObject schemaDir) {
-                    return ArrayAdapter.adapt(schemaDir.findFiles(new BasicFileSelector(new FileFilter() {
-                        @Override
-                        public boolean accept(FileSelectInfo fileInfo) {
-                            return fileInfo.getFile().getName().getBaseName().equalsIgnoreCase(EXCEPTION_DIR)
-                                    || fileInfo.getFile().getName().getBaseName().endsWith(DaConstants.ANALYZE_FOLDER_SUFFIX)
-                                    ;
-                        }
-                    }, true)));
-                }
-            });
+            MutableList<FileObject> onboardFiles = schemaDirs.flatCollect(schemaDir ->
+                    ArrayAdapter.adapt(schemaDir.findFiles(new BasicFileSelector(fileInfo ->
+                            fileInfo.getFile().getName().getBaseName().equalsIgnoreCase(EXCEPTION_DIR)
+                                    || fileInfo.getFile().getName().getBaseName().endsWith(DaConstants.ANALYZE_FOLDER_SUFFIX), true
+                            )
+                    )));
 
             if (onboardFiles.notEmpty()) {
                 throw new IllegalArgumentException("Directory " + sourceDir + " has the exception folders in it that need to get removed before doing regular deployments: " + onboardFiles);

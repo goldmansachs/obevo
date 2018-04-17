@@ -34,7 +34,7 @@ public class HsqlAppContext extends DbDeployerAppContextImpl {
 
     @Override
     public EnvironmentInfraSetup getEnvironmentInfraSetup() {
-        return new HsqlEnvironmentSetupInfra(this.getEnvironment(), this.getManagedDataSource(), this.getDbMetadataManager());
+        return new HsqlEnvironmentSetupInfra(this.getEnvironment(), this.getManagedDataSource(), this.deployStatsTracker(), this.getDbMetadataManager(), this.getChangeTypeBehaviorRegistry());
     }
 
     @Override

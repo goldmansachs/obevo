@@ -20,13 +20,14 @@ import java.sql.SQLException;
 import java.util.Map;
 
 import com.gs.obevo.api.appdata.PhysicalSchema;
+import com.gs.obevo.dbmetadata.api.DaDirectory;
 import com.gs.obevo.dbmetadata.api.DaPackage;
 import com.gs.obevo.dbmetadata.api.DaSchema;
 import com.gs.obevo.dbmetadata.impl.DaPackagePojoImpl;
 import org.apache.commons.dbutils.handlers.MapListHandler;
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
+import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.list.mutable.ListAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,15 +66,12 @@ public class OracleMetadataDialect extends AbstractMetadataDialect {
             }
         }
 
-        return maps.collect(new Function<Map<String, Object>, DaPackage>() {
-            @Override
-            public DaPackage valueOf(Map<String, Object> map) {
-                return new DaPackagePojoImpl(
-                        (String) map.get("OBJECT_NAME"),
-                        schema
-                );
-            }
-        });
+        return maps.collect(map -> new DaPackagePojoImpl((String) map.get("OBJECT_NAME"), schema));
+    }
+
+    @Override
+    public ImmutableSet<DaDirectory> getDirectoriesOptional(Connection conn) throws SQLException {
+        return super.getDirectoriesOptional(conn);
     }
 
     @Override

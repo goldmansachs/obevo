@@ -25,6 +25,7 @@ import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.appdata.GrantTargetType;
 import com.gs.obevo.db.api.appdata.Group;
 import com.gs.obevo.db.api.appdata.Permission;
+import com.gs.obevo.db.api.appdata.ServerDirectory;
 import com.gs.obevo.db.api.appdata.User;
 import com.gs.obevo.util.vfs.FileObject;
 import com.gs.obevo.util.vfs.FileRetrievalMode;
@@ -39,10 +40,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.emptyIterable;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class DbEnvironmentXmlEnricherTest {
@@ -54,16 +58,15 @@ public class DbEnvironmentXmlEnricherTest {
     @Test
     public void test1() {
         // ensure that we can read the default system-config.xml from the folder
-        DeploySystem system = getDeploySystem("./src/test/resources/DbEnvironmentXmlEnricher");
+        DeploySystem<DbEnvironment> system = getDeploySystem("./src/test/resources/DbEnvironmentXmlEnricher");
 
-        MutableList<DbEnvironment> envs = system.getEnvironments().toList().sortThisBy(Environment.TO_NAME);
-        DbEnvironment env1 = envs.detect(Predicates.attributeEqual(Environment.TO_NAME, "test1"));
-        DbEnvironment env2 = envs.detect(Predicates.attributeEqual(Environment.TO_NAME, "test2"));
-        DbEnvironment env3 = envs.detect(Predicates.attributeEqual(Environment.TO_NAME, "test3"));
-        DbEnvironment env4 = envs.detect(Predicates.attributeEqual(Environment.TO_NAME, "test4"));
+        MutableList<DbEnvironment> envs = system.getEnvironments().toList().sortThisBy(Environment::getName);
+        DbEnvironment env1 = envs.detect(Predicates.attributeEqual(Environment::getName, "test1"));
+        DbEnvironment env2 = envs.detect(Predicates.attributeEqual(Environment::getName, "test2"));
+        DbEnvironment env3 = envs.detect(Predicates.attributeEqual(Environment::getName, "test3"));
+        DbEnvironment env4 = envs.detect(Predicates.attributeEqual(Environment::getName, "test4"));
 
-        Schema schema1 = env1.getSchemas().detect(Predicates.attributeEqual(
-                Schema.TO_NAME, "SCHEMA1"));
+        Schema schema1 = env1.getSchemas().detect(_this -> _this.getName().equals("SCHEMA1"));
 
         MutableSetMultimap<String, String> expectedExclusions = Multimaps.mutable.set.empty();
         expectedExclusions.putAll(ChangeType.TABLE_STR, Lists.immutable.with("tab1", "tab2"));
@@ -72,9 +75,9 @@ public class DbEnvironmentXmlEnricherTest {
         assertEquals(expectedExclusions, schema1.getObjectExclusionPredicateBuilder().getObjectNamesByType());
 
         assertEquals(Sets.mutable.with("grp1", "grp2", "DACT_RO", "DACT_RO_BATCH1", "DACT_RO_BATCH2", "DACT_RW", "DACT_RW_BATCH1", "DACT_RW_BATCH2", "detokenizedProcGroup", "${myOtherGroupNoToken}"), env1.getGroups().collect(Group::getName).toSet());
-        assertEquals(Sets.mutable.with("usr1", "usr2", "CMDRRODB", "CMDRRWDB"), env1.getUsers().collect(User.TO_NAME).toSet());
-        User user1 = env1.getUsers().detect(Predicates.attributeEqual(User.TO_NAME, "usr1"));
-        User user2 = env1.getUsers().detect(Predicates.attributeEqual(User.TO_NAME, "usr2"));
+        assertEquals(Sets.mutable.with("usr1", "usr2", "CMDRRODB", "CMDRRWDB"), env1.getUsers().collect(User::getName).toSet());
+        User user1 = env1.getUsers().detect(_this -> _this.getName().equals("usr1"));
+        User user2 = env1.getUsers().detect(_this -> _this.getName().equals("usr2"));
         assertEquals("usr1", user1.getName());
         assertNull(user1.getPassword());
         assertFalse(user1.isAdmin());
@@ -82,13 +85,22 @@ public class DbEnvironmentXmlEnricherTest {
         assertEquals("pass", user2.getPassword());
         assertTrue(user2.isAdmin());
 
+        assertThat(env1.getServerDirectories(), containsInAnyOrder(
+                new ServerDirectory("dir1", "path1"),
+                new ServerDirectory("dir2", "path2")
+        ));
+        // serverDirectories is defined as a parent attribute, so this should match across all envs
+        assertEquals(env1.getServerDirectories(), env2.getServerDirectories());
+        assertEquals(env1.getServerDirectories(), env3.getServerDirectories());
+        assertEquals(env1.getServerDirectories(), env4.getServerDirectories());
+
         assertEquals(DbEnvironmentXmlEnricherTest1DbPlatform.class, env1.getPlatform().getClass());
         assertFalse(env1.isAutoReorgEnabled());
         assertEquals('!', env1.getDataDelimiter());
         assertEquals("nulTok", env1.getNullToken());
 
         assertEquals(3, env1.getPermissions().size());
-        Permission tablePerm = env1.getPermissions().detect(Predicates.attributeEqual(Permission.TO_SCHEME, "TABLE"));
+        Permission tablePerm = env1.getPermissions().detect(_this -> _this.getScheme().equals("TABLE"));
         assertEquals(2, tablePerm.getGrants().size());
 
         assertEquals(Sets.immutable.with("DACT_RO_BATCH1", "DACT_RO_BATCH2", "DACT_RO"),
@@ -108,16 +120,16 @@ public class DbEnvironmentXmlEnricherTest {
         assertEquals(1, env2.getPermissions().size());
 
         assertEquals(Sets.mutable.with("SCHEMA1", "SCHEMA2"), env1.getSchemaNames().toSet());
-        assertEquals(Sets.mutable.with("SCHEMA1", "SCHEMA2"), env1.getAllSchemas().collect(Schema.TO_NAME).toSet());
+        assertEquals(Sets.mutable.with("SCHEMA1", "SCHEMA2"), env1.getAllSchemas().collect(Schema::getName).toSet());
         assertEquals(Sets.mutable.with("SCHEMA3"), env2.getSchemaNames().toSet());
-        assertEquals(Sets.mutable.with("SCHEMA3", "SCHEMA4_RO"), env2.getAllSchemas().collect(Schema.TO_NAME).toSet());
+        assertEquals(Sets.mutable.with("SCHEMA3", "SCHEMA4_RO"), env2.getAllSchemas().collect(Schema::getName).toSet());
         assertEquals(Sets.mutable.with("SCHEMA1", "SCHEMA2", "SCHEMA3"), env3.getSchemaNames().toSet());
-        assertEquals(Sets.mutable.with("SCHEMA1", "SCHEMA2", "SCHEMA3", "SCHEMA4_RO"), env3.getAllSchemas().collect(Schema.TO_NAME).toSet());
+        assertEquals(Sets.mutable.with("SCHEMA1", "SCHEMA2", "SCHEMA3", "SCHEMA4_RO"), env3.getAllSchemas().collect(Schema::getName).toSet());
 
-        assertTrue(env2.getAllSchemas().detect(Predicates.attributeEqual(Schema.TO_NAME, "SCHEMA4_RO")).isReadOnly());
-        assertFalse(env2.getAllSchemas().detect(Predicates.attributeEqual(Schema.TO_NAME, "SCHEMA3")).isReadOnly());
-        assertTrue(env3.getAllSchemas().detect(Predicates.attributeEqual(Schema.TO_NAME, "SCHEMA4_RO")).isReadOnly());
-        assertFalse(env3.getAllSchemas().detect(Predicates.attributeEqual(Schema.TO_NAME, "SCHEMA3")).isReadOnly());
+        assertTrue(env2.getAllSchemas().detect(_this -> _this.getName().equals( "SCHEMA4_RO")).isReadOnly());
+        assertFalse(env2.getAllSchemas().detect(_this -> _this.getName().equals( "SCHEMA3")).isReadOnly());
+        assertTrue(env3.getAllSchemas().detect(_this -> _this.getName().equals( "SCHEMA4_RO")).isReadOnly());
+        assertFalse(env3.getAllSchemas().detect(_this -> _this.getName().equals( "SCHEMA3")).isReadOnly());
 
         assertEquals("overriden_SCHEMA1", env1.getPhysicalSchema("SCHEMA1").getPhysicalName());
         assertEquals("SCHEMA4_RO", env2.getPhysicalSchema("SCHEMA4_RO").getPhysicalName());
@@ -126,14 +138,14 @@ public class DbEnvironmentXmlEnricherTest {
         assertEquals("MYPREFIX_SCHEMA1", env4.getPhysicalSchema("SCHEMA1").getPhysicalName());
         assertEquals("MYPREFIX_SCHEMA4_RO", env4.getPhysicalSchema("SCHEMA4_RO").getPhysicalName());
 
-        assertEquals(Sets.mutable.with("overriden_SCHEMA1", "prefSCHEMA2suff"), env1.getPhysicalSchemas().collect(PhysicalSchema.TO_PHYSICAL_NAME));
-        assertEquals(Sets.mutable.with("overriden_SCHEMA1"), env2.getPhysicalSchemas().collect(PhysicalSchema.TO_PHYSICAL_NAME));
-        assertEquals(Sets.mutable.with("SCHEMA1_MYSUFFIX", "SCHEMA2_MYSUFFIX", "SCHEMA3_MYSUFFIX"), env3.getPhysicalSchemas().collect(PhysicalSchema.TO_PHYSICAL_NAME));
-        assertEquals(Sets.mutable.with("MYPREFIX_SCHEMA1", "MYPREFIX_SCHEMA2", "MYPREFIX_SCHEMA3"), env4.getPhysicalSchemas().collect(PhysicalSchema.TO_PHYSICAL_NAME));
-        assertEquals(Sets.mutable.with("overriden_SCHEMA1", "prefSCHEMA2suff"), env1.getAllPhysicalSchemas().collect(PhysicalSchema.TO_PHYSICAL_NAME));
-        assertEquals(Sets.mutable.with("overriden_SCHEMA1", "SCHEMA4_RO"), env2.getAllPhysicalSchemas().collect(PhysicalSchema.TO_PHYSICAL_NAME));
-        assertEquals(Sets.mutable.with("SCHEMA1_MYSUFFIX", "SCHEMA2_MYSUFFIX", "SCHEMA3_MYSUFFIX", "overriden_SCHEMA4_RO"), env3.getAllPhysicalSchemas().collect(PhysicalSchema.TO_PHYSICAL_NAME));
-        assertEquals(Sets.mutable.with("MYPREFIX_SCHEMA1", "MYPREFIX_SCHEMA2", "MYPREFIX_SCHEMA3", "MYPREFIX_SCHEMA4_RO"), env4.getAllPhysicalSchemas().collect(PhysicalSchema.TO_PHYSICAL_NAME));
+        assertEquals(Sets.mutable.with("overriden_SCHEMA1", "prefSCHEMA2suff"), env1.getPhysicalSchemas().collect(PhysicalSchema::getPhysicalName));
+        assertEquals(Sets.mutable.with("overriden_SCHEMA1"), env2.getPhysicalSchemas().collect(PhysicalSchema::getPhysicalName));
+        assertEquals(Sets.mutable.with("SCHEMA1_MYSUFFIX", "SCHEMA2_MYSUFFIX", "SCHEMA3_MYSUFFIX"), env3.getPhysicalSchemas().collect(PhysicalSchema::getPhysicalName));
+        assertEquals(Sets.mutable.with("MYPREFIX_SCHEMA1", "MYPREFIX_SCHEMA2", "MYPREFIX_SCHEMA3"), env4.getPhysicalSchemas().collect(PhysicalSchema::getPhysicalName));
+        assertEquals(Sets.mutable.with("overriden_SCHEMA1", "prefSCHEMA2suff"), env1.getAllPhysicalSchemas().collect(PhysicalSchema::getPhysicalName));
+        assertEquals(Sets.mutable.with("overriden_SCHEMA1", "SCHEMA4_RO"), env2.getAllPhysicalSchemas().collect(PhysicalSchema::getPhysicalName));
+        assertEquals(Sets.mutable.with("SCHEMA1_MYSUFFIX", "SCHEMA2_MYSUFFIX", "SCHEMA3_MYSUFFIX", "overriden_SCHEMA4_RO"), env3.getAllPhysicalSchemas().collect(PhysicalSchema::getPhysicalName));
+        assertEquals(Sets.mutable.with("MYPREFIX_SCHEMA1", "MYPREFIX_SCHEMA2", "MYPREFIX_SCHEMA3", "MYPREFIX_SCHEMA4_RO"), env4.getAllPhysicalSchemas().collect(PhysicalSchema::getPhysicalName));
 
         assertEquals(Lists.mutable.of(
                 FileRetrievalMode.FILE_SYSTEM.resolveSingleFileObject("src/test/resources/DbEnvironmentXmlEnricher")
@@ -198,13 +210,12 @@ public class DbEnvironmentXmlEnricherTest {
      */
     @Test
     public void test2() {
-        DeploySystem system = getDeploySystem("./src/test/resources/DbEnvironmentXmlEnricher/system-config-test2.xml");
+        DeploySystem<DbEnvironment> system = getDeploySystem("./src/test/resources/DbEnvironmentXmlEnricher/system-config-test2.xml");
 
-        MutableList<DbEnvironment> envs = system.getEnvironments().toList().sortThisBy(Environment.TO_NAME);
-        DbEnvironment env1 = envs.detect(Predicates.attributeEqual(Environment.TO_NAME, "test1"));
+        MutableList<DbEnvironment> envs = system.getEnvironments().toList().sortThisBy(Environment::getName);
+        DbEnvironment env1 = envs.detect(Predicates.attributeEqual(Environment::getName, "test1"));
 
-        Schema schema = env1.getSchemas().detect(Predicates.attributeEqual(
-                Schema.TO_NAME, "DEPLOY_TRACKER"));
+        Schema schema = env1.getSchemas().detect(_this -> _this.getName().equals("DEPLOY_TRACKER"));
         assertTrue(schema.getObjectExclusionPredicateBuilder().getObjectNamesByType().isEmpty());
         assertEquals("DEPLOY_TRACKER", env1.getPhysicalSchema("DEPLOY_TRACKER").getPhysicalName());
 
@@ -213,7 +224,7 @@ public class DbEnvironmentXmlEnricherTest {
         ), env1.getSourceDirs());
 
         assertEquals(Sets.mutable.with("DACT_RO", "DACT_RO_BATCH1", "DACT_RO_BATCH2", "DACT_RW", "DACT_RW_BATCH1", "DACT_RW_BATCH2"), env1.getGroups().collect(Group::getName).toSet());
-        assertEquals(Sets.mutable.with("CMDRRWDB", "CMDRRODB"), env1.getUsers().collect(User.TO_NAME).toSet());
+        assertEquals(Sets.mutable.with("CMDRRWDB", "CMDRRODB"), env1.getUsers().collect(User::getName).toSet());
 
         assertEquals(DbEnvironmentXmlEnricherTest2DbPlatform.class, env1.getPlatform().getClass());
         assertTrue(env1.isAutoReorgEnabled());
@@ -240,7 +251,7 @@ public class DbEnvironmentXmlEnricherTest {
         getDeploySystem("./src/test/resources/DbEnvironmentXmlEnricher/system-config-bad-deprecatedExclusionTypes.xml");
     }
 
-    private DeploySystem getDeploySystem(String pathStr) {
+    private DeploySystem<DbEnvironment> getDeploySystem(String pathStr) {
         FileObject sourcePath = FileRetrievalMode.FILE_SYSTEM.resolveSingleFileObject(pathStr);
         HierarchicalConfiguration config = new XmlFileConfigReader().getConfig(sourcePath);
         return enricher.readSystem(config, sourcePath);

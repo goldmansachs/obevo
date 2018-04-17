@@ -20,7 +20,6 @@ import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.api.tuple.Pair;
-import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.factory.Lists;
 
 public class DbDataComparisonConfig {
@@ -64,8 +63,7 @@ public class DbDataComparisonConfig {
 
     public void init() {
         this.comparisonCommands = Lists.mutable.empty();
-        MutableMap<String, DbDataSource> sourceMap = this.dbDataSources.toMap(DbDataSource.TO_NAME,
-                Functions.<DbDataSource>getPassThru());
+        MutableMap<String, DbDataSource> sourceMap = this.dbDataSources.groupByUniqueKey(DbDataSource::getName);
         for (Pair<String, String> comparisonCommandNamePair : this.comparisonCommandNamePairs) {
             this.comparisonCommands.add(new ComparisonCommand(
                     sourceMap.get(comparisonCommandNamePair.getOne())
