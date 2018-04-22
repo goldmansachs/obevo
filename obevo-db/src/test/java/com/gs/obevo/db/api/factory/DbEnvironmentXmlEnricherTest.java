@@ -15,7 +15,11 @@
  */
 package com.gs.obevo.db.api.factory;
 
-import com.gs.obevo.api.appdata.DeploySystem;
+import java.io.File;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.appdata.Schema;
@@ -29,20 +33,33 @@ import com.gs.obevo.db.api.appdata.ServerDirectory;
 import com.gs.obevo.db.api.appdata.User;
 import com.gs.obevo.util.vfs.FileObject;
 import com.gs.obevo.util.vfs.FileRetrievalMode;
-import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration2.FixedYAMLConfiguration;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.ImmutableHierarchicalConfiguration;
+import org.apache.commons.configuration2.XMLConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.Parameters;
+import org.apache.commons.configuration2.tree.ImmutableNode;
+import org.eclipse.collections.api.collection.ImmutableCollection;
+import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.api.multimap.list.MutableListMultimap;
 import org.eclipse.collections.api.multimap.set.MutableSetMultimap;
 import org.eclipse.collections.impl.block.factory.Predicates;
+import org.eclipse.collections.impl.collection.mutable.CollectionAdapter;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Multimaps;
 import org.eclipse.collections.impl.factory.Sets;
+import org.eclipse.collections.impl.list.mutable.ListAdapter;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.DumperOptions.FlowStyle;
+import org.yaml.snakeyaml.Yaml;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.emptyIterable;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -56,11 +73,18 @@ public class DbEnvironmentXmlEnricherTest {
     public ExpectedException thrown = ExpectedException.none();
 
     @Test
-    public void test1() {
-        // ensure that we can read the default system-config.xml from the folder
-        DeploySystem<DbEnvironment> system = getDeploySystem("./src/test/resources/DbEnvironmentXmlEnricher");
+    public void test1Xml() {
+        test1("./src/test/resources/DbEnvironmentXmlEnricher");
+    }
 
-        MutableList<DbEnvironment> envs = system.getEnvironments().toList().sortThisBy(Environment::getName);
+    @Test
+    public void test1Yaml() {
+        test1("./src/test/resources/DbEnvironmentXmlEnricher/system-config.yaml");
+    }
+
+    private void test1(String filePath) {
+        // ensure that we can read the default system-config.xml from the folder
+        ImmutableCollection<DbEnvironment> envs = getDeploySystem(filePath);
         DbEnvironment env1 = envs.detect(Predicates.attributeEqual(Environment::getName, "test1"));
         DbEnvironment env2 = envs.detect(Predicates.attributeEqual(Environment::getName, "test2"));
         DbEnvironment env3 = envs.detect(Predicates.attributeEqual(Environment::getName, "test3"));
@@ -74,7 +98,9 @@ public class DbEnvironmentXmlEnricherTest {
         expectedExclusions.putAll(ChangeType.SP_STR, Lists.immutable.with("sp1", "sp2", "sp3", "sp4"));
         assertEquals(expectedExclusions, schema1.getObjectExclusionPredicateBuilder().getObjectNamesByType());
 
-        assertEquals(Sets.mutable.with("grp1", "grp2", "DACT_RO", "DACT_RO_BATCH1", "DACT_RO_BATCH2", "DACT_RW", "DACT_RW_BATCH1", "DACT_RW_BATCH2", "detokenizedProcGroup", "${myOtherGroupNoToken}"), env1.getGroups().collect(Group::getName).toSet());
+        assertThat(env1.getGroups().collect(Group::getName).toSet(),
+                containsInAnyOrder("grp1", "grp2", "DACT_RO", "DACT_RO_BATCH1", "DACT_RO_BATCH2", "DACT_RW", "DACT_RW_BATCH1", "DACT_RW_BATCH2", "detokenizedProcGroup", "${myOtherGroupNoToken}"));
+
         assertEquals(Sets.mutable.with("usr1", "usr2", "CMDRRODB", "CMDRRWDB"), env1.getUsers().collect(User::getName).toSet());
         User user1 = env1.getUsers().detect(_this -> _this.getName().equals("usr1"));
         User user2 = env1.getUsers().detect(_this -> _this.getName().equals("usr2"));
@@ -210,9 +236,8 @@ public class DbEnvironmentXmlEnricherTest {
      */
     @Test
     public void test2() {
-        DeploySystem<DbEnvironment> system = getDeploySystem("./src/test/resources/DbEnvironmentXmlEnricher/system-config-test2.xml");
+        ImmutableCollection<DbEnvironment> envs = getDeploySystem("./src/test/resources/DbEnvironmentXmlEnricher/system-config-test2.xml");
 
-        MutableList<DbEnvironment> envs = system.getEnvironments().toList().sortThisBy(Environment::getName);
         DbEnvironment env1 = envs.detect(Predicates.attributeEqual(Environment::getName, "test1"));
 
         Schema schema = env1.getSchemas().detect(_this -> _this.getName().equals("DEPLOY_TRACKER"));
@@ -251,9 +276,72 @@ public class DbEnvironmentXmlEnricherTest {
         getDeploySystem("./src/test/resources/DbEnvironmentXmlEnricher/system-config-bad-deprecatedExclusionTypes.xml");
     }
 
-    private DeploySystem<DbEnvironment> getDeploySystem(String pathStr) {
+    @Test
+    public void yamlTest() throws Exception {
+        ImmutableHierarchicalConfiguration configuration = new FileBasedConfigurationBuilder<>(FixedYAMLConfiguration.class)
+                .configure(new Parameters().hierarchical()
+                        .setFile(new File("./src/test/resources/DbEnvironmentXmlEnricher/system-config.yaml"))
+//                        .setFile(new File("./src/test/resources/DbEnvironmentXmlEnricher/system-config.xml"))
+                ).getConfiguration();
+        System.out.println(configuration);
+    }
+
+    @Test
+    public void convert() throws Exception {
+        XMLConfiguration configuration = new FileBasedConfigurationBuilder<>(XMLConfiguration.class)
+                .configure(new Parameters().hierarchical()
+                        .setFile(new File("./src/test/resources/DbEnvironmentXmlEnricher/system-config.xml"))
+                ).getConfiguration();
+
+        Map<String, Object> myMap = constructMap(configuration.getNodeModel().getNodeHandler().getRootNode());
+
+        FixedYAMLConfiguration yamlConfiguration = new FixedYAMLConfiguration(configuration);
+        StringWriter sw = new StringWriter();
+//        yamlConfiguration.write();
+        DumperOptions dumperOptions = new DumperOptions();
+//        dumperOptions.setPrettyFlow(true);
+        dumperOptions.setDefaultFlowStyle(FlowStyle.BLOCK);
+        Yaml yaml = new Yaml(dumperOptions);
+        yaml.dump(myMap, sw);
+
+//        yamlConfiguration.dump(sw, new DumperOptions());
+        System.out.println(sw.toString());
+    }
+
+    private Map<String, Object> constructMap(ImmutableNode node) {
+        Map<String, Object> map =
+                new HashMap<>(node.getChildren().size());
+        map.putAll(node.getAttributes());
+
+        MutableListMultimap<String, ImmutableNode> nodesByName = ListAdapter.adapt(node.getChildren()).groupBy(ImmutableNode::getNodeName);
+        nodesByName.forEachKeyMultiValues((nodeName, nodeIterable) -> {
+//            System.out.println("At node " + cNode.getNodeName() + " and attrs " + cNode.getAttributes() + " and value " + cNode.getValue() + " and children " + cNode.getChildren());
+            MutableList<ImmutableNode> nodes = CollectionAdapter.wrapList(nodeIterable);
+            if (nodes.size() > 1) {
+                map.put(nodeName, nodes.collect(this::getNodeValue));
+            } else {
+                map.put(nodeName, getNodeValue(nodes.getFirst()));
+            }
+
+        });
+        return map;
+    }
+
+    private Object getNodeValue(ImmutableNode node) {
+        if (node.getChildren().isEmpty()) {
+            if (node.getAttributes() != null && !node.getAttributes().isEmpty()) {
+                return constructMap(node);
+            } else {
+                return node.getValue();
+            }
+        } else {
+            return constructMap(node);
+        }
+    }
+
+    private ImmutableList<DbEnvironment> getDeploySystem(String pathStr) {
         FileObject sourcePath = FileRetrievalMode.FILE_SYSTEM.resolveSingleFileObject(pathStr);
         HierarchicalConfiguration config = new XmlFileConfigReader().getConfig(sourcePath);
-        return enricher.readSystem(config, sourcePath);
+        return enricher.readSystem(config, sourcePath).toSortedListBy(Environment::getName).toImmutable();
     }
 }

@@ -62,12 +62,6 @@ public interface DbDeployerAppContext extends DeployerAppContext<DbEnvironment, 
      */
     DataSource getDataSource();
 
-    DbDeployerAppContext setupEnvInfra();
-
-    DbDeployerAppContext setupEnvInfra(boolean strictSetupEnvInfra);
-
-    DbDeployerAppContext cleanEnvironment();
-
     DbDeployerAppContext cleanAndDeploy();
 
     DbDeployerAppContext setupAndCleanAndDeploy();

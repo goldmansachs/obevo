@@ -16,17 +16,9 @@
 package com.gs.obevo.db.impl.platforms.hsql;
 
 import com.gs.obevo.db.testutil.ParamReader;
-import com.typesafe.config.ConfigFactory;
-import org.eclipse.collections.impl.factory.Maps;
 
 class HsqlParamReader {
     public static ParamReader getParamReader() {
-        return new ParamReader(ConfigFactory.parseResources("hsql-creds.properties"),
-                "hsql", ConfigFactory.parseMap(Maps.mutable.<String, Object>of(
-                "sysattrs.type", "HSQL",
-                "logicalSchemas.schema1", "SCHEMA1",
-                "logicalSchemas.schema2", "SCHEMA2"
-        ))
-        );
+        return ParamReader.fromPath("hsql-creds.yaml");
     }
 }

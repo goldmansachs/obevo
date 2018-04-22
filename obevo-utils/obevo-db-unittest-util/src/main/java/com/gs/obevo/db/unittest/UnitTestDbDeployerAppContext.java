@@ -211,7 +211,7 @@ class UnitTestDbDeployerAppContext implements DbDeployerAppContext {
     }
 
     @Override
-    public DbDeployerAppContext setupEnvInfra(boolean strictSetupEnvInfra, boolean forceEnvCreation) {
+    public DbDeployerAppContext setupEnvInfra(boolean strictSetupEnvInfra, Boolean forceEnvCreation) {
         return delegate.setupEnvInfra(strictSetupEnvInfra, forceEnvCreation);
     }
 

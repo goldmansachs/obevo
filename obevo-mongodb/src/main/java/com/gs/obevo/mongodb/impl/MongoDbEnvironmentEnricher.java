@@ -18,7 +18,7 @@ package com.gs.obevo.mongodb.impl;
 import com.gs.obevo.api.platform.Platform;
 import com.gs.obevo.impl.AbstractEnvironmentEnricher;
 import com.gs.obevo.mongodb.api.appdata.MongoDbEnvironment;
-import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration2.ImmutableHierarchicalConfiguration;
 
 public class MongoDbEnvironmentEnricher extends AbstractEnvironmentEnricher<MongoDbEnvironment> {
     @Override
@@ -27,8 +27,8 @@ public class MongoDbEnvironmentEnricher extends AbstractEnvironmentEnricher<Mong
     }
 
     @Override
-    protected void createEnv(MongoDbEnvironment env, HierarchicalConfiguration sysCfg, HierarchicalConfiguration envCfg, Platform systemDbPlatform) {
+    protected void createEnv(MongoDbEnvironment env, ImmutableHierarchicalConfiguration envCfg, Platform systemDbPlatform) {
         env.setPlatform((MongoDbPlatform) systemDbPlatform);
-        env.setConnectionURI(envCfg.getString("[@connectionURI]"));
+        env.setConnectionURI(envCfg.getString("connectionURI"));
     }
 }

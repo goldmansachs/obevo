@@ -17,12 +17,10 @@ package com.gs.obevo.api.factory;
 
 import java.util.regex.Pattern;
 
-import com.gs.obevo.api.appdata.DeploySystem;
 import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.util.CollectionUtil;
 import com.gs.obevo.util.RegexUtil;
 import org.eclipse.collections.api.collection.ImmutableCollection;
-import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.factory.Lists;
 import org.slf4j.Logger;
@@ -46,8 +44,7 @@ final class EnvironmentFactory {
 
     public <E extends Environment> ImmutableCollection<E> readFromSourcePath(String sourcePath, String... envNames) {
         EnvironmentLocator dbEnvironmentLocator = new EnvironmentLocator();
-        DeploySystem<E> environmentDeploySystem = dbEnvironmentLocator.readSystem(sourcePath);
-        MutableCollection<E> environments = environmentDeploySystem.getEnvironments();
+        ImmutableCollection<E> environments = dbEnvironmentLocator.readSystem(sourcePath);
 
         MutableList<E> requestedEnvs = Lists.mutable.empty();
 

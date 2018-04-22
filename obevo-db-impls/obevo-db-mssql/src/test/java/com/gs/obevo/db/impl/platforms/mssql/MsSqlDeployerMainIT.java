@@ -16,7 +16,6 @@
 package com.gs.obevo.db.impl.platforms.mssql;
 
 import java.sql.Connection;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +34,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(Parameterized.class)
 public class MsSqlDeployerMainIT {
     @Parameterized.Parameters
-    public static Collection<Object[]> params() {
+    public static Iterable<Object[]> params() {
         return MsSqlParamReader.getParamReader().getAppContextAndJdbcDsParams();
     }
 

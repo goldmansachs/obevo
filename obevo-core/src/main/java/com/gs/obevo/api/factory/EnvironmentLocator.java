@@ -15,14 +15,14 @@
  */
 package com.gs.obevo.api.factory;
 
-import com.gs.obevo.api.appdata.DeploySystem;
 import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.api.platform.Platform;
 import com.gs.obevo.util.vfs.FileObject;
 import com.gs.obevo.util.vfs.FileRetrievalMode;
 import com.gs.obevo.util.vfs.VFSFileSystemException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.eclipse.collections.api.RichIterable;
+import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.impl.factory.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +34,7 @@ class EnvironmentLocator {
     private final PlatformConfiguration platformConfiguration;
 
     EnvironmentLocator() {
-        this(Lists.immutable.<FileConfigReader>of(new XmlFileConfigReader()));
+        this(Lists.immutable.of(new XmlFileConfigReader()));
     }
 
     private EnvironmentLocator(RichIterable<FileConfigReader> configReaders) {
@@ -42,8 +42,8 @@ class EnvironmentLocator {
         this.platformConfiguration = PlatformConfiguration.getInstance();
     }
 
-    public <T extends Environment> DeploySystem<T> readSystem(String sourcePathStr) {
-        DeploySystem<T> deploySystem = readSystemOptional(sourcePathStr);
+    public <T extends Environment> ImmutableCollection<T> readSystem(String sourcePathStr) {
+        ImmutableCollection<T> deploySystem = readSystemOptional(sourcePathStr);
         if (deploySystem != null) {
             return deploySystem;
         } else {
@@ -51,7 +51,7 @@ class EnvironmentLocator {
         }
     }
 
-    private <T extends Environment> DeploySystem<T> readSystemOptional(String sourcePathStr) {
+    private <T extends Environment> ImmutableCollection<T> readSystemOptional(String sourcePathStr) {
         for (FileRetrievalMode fileRetrievalMode : FileRetrievalMode.values()) {
             FileObject sourcePath;
             try {
@@ -73,7 +73,7 @@ class EnvironmentLocator {
                             + configReader.getClass().getSimpleName() + " here");
                     HierarchicalConfiguration config = configReader.getConfig(sourcePath);
                     Platform platform = platformConfiguration.valueOf(config.getString("[@type]"));
-                    DeploySystem<T> sys = platform.getEnvironmentEnricher().readSystem(config, sourcePath);
+                    ImmutableCollection<T> sys = platform.getEnvironmentEnricher().readSystem(config, sourcePath);
 
                     if (sys != null) {
                         return sys;

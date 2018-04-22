@@ -21,7 +21,37 @@
     nullToken="nulTok"
     sourceDirs="DbEnvironmentXmlEnricher/extradir1,./src/test/resources/DbEnvironmentXmlEnricher/extradir2"
     acceptedExtensions="overridenExt1,overridenExt2,overridenExt3"
+    cleanBuildAllowed="toBeIgnored"
+    name="toBeIgnored"
+    defaultUserId="toBeIgnored"
+    defaultPassword="toBeIgnored"
+    dbHost="toBeIgnored"
+    dbPort="toBeIgnored"
+    dbServer="toBeIgnored"
+    dbSchemaPrefix="toBeIgnored"
+    dbSchemaSuffix="toBeIgnored"
+    dbDataSourceName="toBeIgnored"
+    jdbcUrl="toBeIgnored"
+    driverClass="toBeIgnored"
+    defaultTablespace="toBeIgnored"
+    persistToFile="toBeIgnored"
+    disableAuditTracking="toBeIgnored"
+    inMemoryDbType="toBeIgnored"
 >
+    <!-- Properties marked as "toBeIgnored" should not be read in during the DbEnvironmentXmlEnricherTest.
+    These properties will not yet be allowed to be included in the merge between sys and env properties until
+    we validate that all existing clients have been moved off these properties so that they don't pull it in
+    by accident.
+    -->
+
+    <includeSchemas>toBeIgnored</includeSchemas>
+    <excludeSchemas>toBeIgnored</excludeSchemas>
+    <schemaOverrides>
+        <schemaOverride>toBeIgnored</schemaOverride>
+    </schemaOverrides>
+    <tokens>
+        <token>toBeIgnored</token>
+    </tokens>
     <schemas>
         <schema name="SCHEMA1">
             <excludes>
@@ -56,7 +86,15 @@
         <dbEnvironment name="test1" type="DEV" cleanBuildAllowed="true" dbHost="host" dbPort="123" dbServer="dbServ"
             dbDataSourceName="dbSrc" dbSchemaPrefix="pref" dbSchemaSuffix="suff" defaultUserId="defId"
             defaultPassword="defPass" persistToFile="true" disableAuditTracking="true" jdbcUrl="url"
-            defaultTablespace="defTab" checksumDetectionEnabled="true">
+            defaultTablespace="defTab" checksumDetectionEnabled="true"
+            sourceDirs="toBeIgnored" acceptedExtensions="toBeIgnored" dataDelimiter="toBeIgnored" nullToken="toBeIgnored"
+        >
+            <groups>
+                <group name="toBeIgnored" />
+            </groups>
+            <users>
+                <user name="toBeIgnored" />
+            </users>
             <includeSchemas>SCHEMA1,SCHEMA2</includeSchemas>
             <schemaOverrides>
                 <schemaOverride schema="SCHEMA1" overrideValue="overriden_SCHEMA1" />

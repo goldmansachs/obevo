@@ -14,6 +14,8 @@
 # under the License.
 #
 # diff priority from the other file
-obevo.configPriority=123
-prop2=val2diff
-key3.prop3=val3diff
+obevo:
+  configPriority: 123
+prop2: val2diff
+key3:
+  prop3: val3diff

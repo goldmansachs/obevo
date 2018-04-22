@@ -18,7 +18,7 @@ package com.gs.obevo.util.inputreader;
 import java.io.Console;
 import java.util.Scanner;
 
-import org.apache.commons.lang.SystemUtils;
+import org.apache.commons.lang3.SystemUtils;
 
 /**
  * Ideally, we can just use java.io.Console. However, this does not work from Eclipse

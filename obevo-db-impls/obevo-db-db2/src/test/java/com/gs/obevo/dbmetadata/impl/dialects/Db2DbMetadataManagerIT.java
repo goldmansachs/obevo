@@ -15,8 +15,6 @@
  */
 package com.gs.obevo.dbmetadata.impl.dialects;
 
-import java.util.Collection;
-
 import javax.sql.DataSource;
 
 import com.gs.obevo.api.appdata.PhysicalSchema;
@@ -35,7 +33,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(Parameterized.class)
 public class Db2DbMetadataManagerIT extends AbstractDbMetadataManagerIT {
     @Parameterized.Parameters
-    public static Collection<Object[]> params() {
+    public static Iterable<Object[]> params() {
         return Db2ParamReader.getParamReader().getJdbcDsAndSchemaParams();
     }
 

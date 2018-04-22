@@ -19,19 +19,14 @@ import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.api.platform.DbChangeType;
 import com.gs.obevo.db.api.platform.SqlExecutor;
 import com.gs.obevo.db.impl.core.DbDeployerAppContextImpl;
+import com.gs.obevo.db.impl.core.envinfrasetup.EnvironmentInfraSetup;
 import com.gs.obevo.db.impl.core.jdbc.DataSourceFactory;
 import com.gs.obevo.impl.ChangeTypeBehaviorRegistry.ChangeTypeBehaviorRegistryBuilder;
-import org.eclipse.collections.api.block.function.Function0;
 
 public class MsSqlAppContext extends DbDeployerAppContextImpl {
 
     public SqlExecutor getSqlExecutor() {
-        return this.singleton("getSqlExecutor", new Function0<SqlExecutor>() {
-            @Override
-            public SqlExecutor value() {
-                return new MsSqlSqlExecutor(getManagedDataSource());
-            }
-        });
+        return this.singleton("getSqlExecutor", () -> new MsSqlSqlExecutor(getManagedDataSource()));
     }
 
     @Override
@@ -44,5 +39,10 @@ public class MsSqlAppContext extends DbDeployerAppContextImpl {
         DbChangeType usertypeChangeType = (DbChangeType) platform().getChangeType(ChangeType.USERTYPE_STR);
         return super.getChangeTypeBehaviors()
                 .putBehavior(ChangeType.USERTYPE_STR, new MsSqlUserTypeChangeTypeBehavior(env, usertypeChangeType, getSqlExecutor(), simpleArtifactDeployer(), grantChangeParser(), graphEnricher(), platform(), getDbMetadataManager()));
+    }
+
+    @Override
+    public EnvironmentInfraSetup getEnvironmentInfraSetup() {
+        return new MsSqlEnvironmentInfraSetup(this.getEnvironment(), this.getManagedDataSource(), this.deployStatsTracker(), getDbMetadataManager(), this.getChangeTypeBehaviorRegistry());
     }
 }

@@ -16,12 +16,12 @@
 package com.gs.obevo.db.apps.reveng;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
 
-import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration2.Configuration;
 import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.api.set.MutableSet;
+import org.eclipse.collections.impl.collection.mutable.CollectionAdapter;
 import org.eclipse.collections.impl.factory.Lists;
 
 class DbMergeInfo {
@@ -39,7 +39,7 @@ class DbMergeInfo {
     }
 
     public static MutableCollection<DbMergeInfo> parseFromProperties(Configuration config) {
-        Set<String> dbs = new HashSet<String>(config.getList("instances"));
+        MutableSet<String> dbs = CollectionAdapter.wrapSet(config.getList(String.class, "instances", Lists.mutable.empty()));
 
         MutableList<DbMergeInfo> dbMergeInfos = Lists.mutable.empty();
         for (String db : dbs) {

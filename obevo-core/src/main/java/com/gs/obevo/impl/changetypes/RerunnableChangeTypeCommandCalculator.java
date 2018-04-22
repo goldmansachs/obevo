@@ -22,7 +22,7 @@ import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.ChangeTypeCommandCalculator;
 import com.gs.obevo.impl.changecalc.ChangeCommandFactory;
 import com.gs.obevo.impl.graph.GraphEnricher;
-import org.apache.commons.collections.IteratorUtils;
+import com.gs.obevo.util.CollectionUtil;
 import org.apache.commons.lang3.ObjectUtils;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.collection.MutableCollection;
@@ -34,7 +34,6 @@ import org.eclipse.collections.impl.block.factory.HashingStrategies;
 import org.eclipse.collections.impl.factory.HashingStrategySets;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Sets;
-import org.eclipse.collections.impl.list.mutable.ListAdapter;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.traverse.BreadthFirstIterator;
@@ -133,7 +132,7 @@ class RerunnableChangeTypeCommandCalculator implements ChangeTypeCommandCalculat
         for (Change change : changesForType) {
             BreadthFirstIterator<Change, DefaultEdge> dependencyIterator = new BreadthFirstIterator<Change, DefaultEdge>(graph, change);
 
-            MutableSet<Change> dependencies = ListAdapter.adapt(IteratorUtils.toList(dependencyIterator)).toSet();
+            MutableSet<Change> dependencies = CollectionUtil.iteratorToList(dependencyIterator).toSet();
             dependencies.remove(change);  // the iterator result includes the self; we can remove this
 
             for (Change changeToAddBack : dependencies) {

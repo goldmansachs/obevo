@@ -15,8 +15,6 @@
  */
 package com.gs.obevo.db.impl.platforms.sybaseiq;
 
-import java.util.Collection;
-
 import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.db.api.platform.DbDeployerAppContext;
 import com.gs.obevo.db.impl.core.changeauditdao.SameSchemaChangeAuditDaoTest;
@@ -30,7 +28,7 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class SybaseIqSameSchemaChangeAuditDaoIT extends SameSchemaChangeAuditDaoTest {
     @Parameterized.Parameters
-    public static Collection<Object[]> params() {
+    public static Iterable<Object[]> params() {
         return SybaseIqParamReader.getParamReader().getAppContextParams();
     }
 

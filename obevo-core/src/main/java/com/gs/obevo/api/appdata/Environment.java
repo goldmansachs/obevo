@@ -59,6 +59,7 @@ public class Environment<T extends Platform> {
     private int metadataLineReaderVersion = PlatformConfiguration.getInstance().getFeatureToggleVersion("metadataLineReaderVersion");
     private String sourceEncoding = PlatformConfiguration.getInstance().getSourceEncoding();
     private int legacyDirectoryStructureEnabledVersion = PlatformConfiguration.getInstance().getFeatureToggleVersion("legacyDirectoryStructureEnabled");
+    private Boolean forceEnvInfraSetup;
 
     public void copyFieldsFrom(Environment<T> env) {
         this.name = env.name;
@@ -79,6 +80,7 @@ public class Environment<T extends Platform> {
         this.sourceEncoding = env.sourceEncoding;
         this.legacyDirectoryStructureEnabledVersion = env.legacyDirectoryStructureEnabledVersion;
         this.metadataLineReaderVersion = env.metadataLineReaderVersion;
+        this.forceEnvInfraSetup = env.forceEnvInfraSetup;
     }
 
     public String getName() {
@@ -345,5 +347,13 @@ public class Environment<T extends Platform> {
 
     public void setMetadataLineReaderVersion(int metadataLineReaderVersion) {
         this.metadataLineReaderVersion = metadataLineReaderVersion;
+    }
+
+    public Boolean getForceEnvInfraSetup() {
+        return forceEnvInfraSetup;
+    }
+
+    public void setForceEnvInfraSetup(Boolean forceEnvInfraSetup) {
+        this.forceEnvInfraSetup = forceEnvInfraSetup;
     }
 }

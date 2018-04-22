@@ -18,7 +18,6 @@ package com.gs.obevo.impl.graph;
 import com.gs.obevo.api.appdata.CodeDependency;
 import com.gs.obevo.api.appdata.CodeDependencyType;
 import com.gs.obevo.api.platform.ChangeType;
-import org.apache.commons.collections.map.MultiKeyMap;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.MutableList;
@@ -27,7 +26,9 @@ import org.eclipse.collections.api.multimap.Multimap;
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.factory.Lists;
+import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.map.mutable.UnifiedMap;
+import org.eclipse.collections.impl.tuple.Tuples;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
@@ -148,7 +149,7 @@ public class GraphEnricherImpl implements GraphEnricher {
      * Looks for the given dependency/object
      */
     private class ObjectIndex<T extends SortableDependencyGroup> implements ChangeIndex<T> {
-        private final MultiKeyMap schemaToObjectMap = new MultiKeyMap();
+        private final MutableMap<Pair<String, String>, T> schemaToObjectMap = Maps.mutable.empty();
 
         @Override
         public void add(T changeGroup) {
@@ -157,14 +158,14 @@ public class GraphEnricherImpl implements GraphEnricher {
                 // TODO getFirst is not ideal here
                 if (existingChange == null || existingChange.getComponents().getFirst().getOrderWithinObject() < change.getOrderWithinObject()) {
                     // only keep the latest (why latest vs earliest?)
-                    schemaToObjectMap.put(change.getObjectKey().getSchema(), convertDbObjectName.valueOf(change.getObjectKey().getObjectName()), changeGroup);
+                    schemaToObjectMap.put(Tuples.pair(change.getObjectKey().getSchema(), convertDbObjectName.valueOf(change.getObjectKey().getObjectName())), changeGroup);
                 }
             }
         }
 
         @Override
         public T retrieve(String schema, String dependency) {
-            return (T) schemaToObjectMap.get(schema, convertDbObjectName.valueOf(dependency));
+            return (T) schemaToObjectMap.get(Tuples.pair(schema, convertDbObjectName.valueOf(dependency)));
         }
     }
 
@@ -190,18 +191,18 @@ public class GraphEnricherImpl implements GraphEnricher {
     }
 
     private class ObjectChangeIndex<T extends SortableDependencyGroup> implements ChangeIndex<T> {
-        private final MultiKeyMap schemaToObjectMap = new MultiKeyMap();
+        private final MutableMap<Pair<String, String>, T> schemaToObjectMap = Maps.mutable.empty();
 
         @Override
         public void add(T changeGroup) {
             for (SortableDependency change : changeGroup.getComponents()) {
-                schemaToObjectMap.put(change.getObjectKey().getSchema(), convertDbObjectName.valueOf(change.getObjectKey().getObjectName() + "." + change.getChangeName()), changeGroup);
+                schemaToObjectMap.put(Tuples.pair(change.getObjectKey().getSchema(), convertDbObjectName.valueOf(change.getObjectKey().getObjectName() + "." + change.getChangeName())), changeGroup);
             }
         }
 
         @Override
         public T retrieve(String schema, String dependency) {
-            return (T) schemaToObjectMap.get(schema, convertDbObjectName.valueOf(dependency));
+            return (T) schemaToObjectMap.get(Tuples.pair(schema, convertDbObjectName.valueOf(dependency)));
         }
     }
 

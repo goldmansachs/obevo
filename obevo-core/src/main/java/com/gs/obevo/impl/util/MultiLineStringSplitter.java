@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 import com.gs.obevo.db.sqlparser.tokenparser.SqlToken;
 import com.gs.obevo.db.sqlparser.tokenparser.SqlTokenParser;
 import com.gs.obevo.db.sqlparser.tokenparser.SqlTokenType;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.factory.Lists;

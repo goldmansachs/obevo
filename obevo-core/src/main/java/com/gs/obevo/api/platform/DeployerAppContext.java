@@ -55,7 +55,7 @@ public interface DeployerAppContext<E extends Environment, Self extends Deployer
 
     Self setupEnvInfra(boolean strictSetupEnvInfra);
 
-    Self setupEnvInfra(boolean strictSetupEnvInfra, boolean forceEnvCreation);
+    Self setupEnvInfra(boolean strictSetupEnvInfra, Boolean forceEnvCreation);
 
     Self cleanEnvironment();
 }

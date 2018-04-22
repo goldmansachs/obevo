@@ -32,14 +32,6 @@
         <license>EPL 1.0</license>
     </artifact>
 
-    <!-- Overriding display name (config is rather unclear on its own in the NOTICE.txt file) -->
-    <artifact>
-        <groupId>com.typesafe</groupId>
-        <artifactId>config</artifactId>
-        <version type="regex">.*</version>
-        <name>Typesafe Config</name>
-    </artifact>
-
     <!-- Picking a specific license for a multi-licensed product -->
     <artifact>
         <groupId>org.eclipse.collections</groupId>

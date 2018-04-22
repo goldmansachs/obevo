@@ -16,6 +16,7 @@
 package com.gs.obevo.api.appdata;
 
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * Represents a logical schema within your deployment project.
@@ -55,5 +56,14 @@ public class Schema {
      */
     public boolean isReadOnly() {
         return readOnly;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("name", name)
+                .append("objectExclusionPredicateBuilder", objectExclusionPredicateBuilder)
+                .append("readOnly", readOnly)
+                .toString();
     }
 }

@@ -1,0 +1,151 @@
+#
+# Copyright 2017 Goldman Sachs.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+nullToken: nulTok
+acceptedExtensions: overridenExt1,overridenExt2,overridenExt3
+groups:
+  group:
+  - name: grp1
+  - name: grp2
+dataDelimiter: '!'
+type: com.gs.obevo.db.api.factory.DbEnvironmentXmlEnricherTest1DbPlatform
+users:
+  user:
+  - name: usr1
+  - name: usr2
+    admin: 'true'
+    password: pass
+autoReorgEnabled: 'false'
+auditTableSql: |-
+  global
+  sql
+permissions:
+  permission:
+  - scheme: TABLE
+    grant:
+    - privileges: SELECT
+      groups: DACT_RO_BATCH1, DACT_RO_BATCH2, DACT_RO
+      users: CMDRRODB
+    - privileges: SELECT, INSERT, UPDATE, DELETE, INDEX, REFERENCES
+      groups: DACT_RW_BATCH1, DACT_RW_BATCH2, DACT_RW
+      users: CMDRRWDB
+  - scheme: VIEW
+    grant:
+      privileges: SELECT, INSERT, UPDATE, DELETE
+      groups: DACT_RW_BATCH1, DACT_RW_BATCH2, DACT_RW
+      users: CMDRRWDB
+  - scheme: PROCEDURE
+    grant:
+      privileges: EXECUTE
+      groups: DACT_RW_BATCH1, DACT_RW_BATCH2, ${myProcGroupToken}, ${myOtherGroupNoToken}
+schemas:
+  schema:
+    - name: SCHEMA1
+      duplicateIndexNames: 'true'
+      excludes:
+        view:
+        - view1Pat
+        - view2%Pat
+        sp:
+        - sp1
+        - sp2
+        - sp3
+        - sp4
+        table:
+        - tab1
+        - tab2
+    - name: SCHEMA2
+    - name: SCHEMA3
+    - name: SCHEMA4_RO
+      readOnly: 'true'
+sourceDirs: DbEnvironmentXmlEnricher/extradir1,./src/test/resources/DbEnvironmentXmlEnricher/extradir2
+serverDirectories:
+  serverDirectory:
+  - directoryPath: path1
+    name: dir1
+  - directoryPath: path2
+    name: dir2
+environments:
+  dbEnvironment:
+  - disableAuditTracking: 'true'
+    defaultUserId: defId
+    dbHost: host
+    type: DEV
+    cleanBuildAllowed: 'true'
+    dbDataSourceName: dbSrc
+    dbPort: '123'
+    dbSchemaPrefix: pref
+    auditTableSql: |-
+      env specific
+
+                      sql
+    persistToFile: 'true'
+    defaultTablespace: defTab
+    jdbcUrl: url
+    name: test1
+    includeSchemas: SCHEMA1,SCHEMA2
+    dbSchemaSuffix: suff
+    tokens:
+      token:
+      - value: val
+        key: key
+      - value: val2
+        key: key2
+      - value: detokenizedProcGroup
+        key: myProcGroupToken
+    checksumDetectionEnabled: 'true'
+    dbServer: dbServ
+    defaultPassword: defPass
+    schemaOverrides:
+      schemaOverride:
+      - schema: SCHEMA1
+        overrideValue: overriden_SCHEMA1
+  - invalidObjectCheckEnabled: 'false'
+    excludeSchemas: SCHEMA1,SCHEMA2
+    permissions:
+      permission:
+        scheme: VIEW
+        grant:
+          privileges: SELECT, INSERT, UPDATE, DELETE
+          groups: DACT_RW_BATCH1, DACT_RW_BATCH2, DACT_RW
+          users: CMDRRWDB
+    reorgCheckEnabled: 'false'
+    name: test2
+    type: UAT
+    cleanBuildAllowed: 'false'
+    schemaOverrides:
+    - schemaOverride:
+        schema: SCHEMA3
+        overrideValue: overriden_SCHEMA1
+  - autoReorgEnabled: 'true'
+    dbPort: '1234'
+    name: test3
+    dbHost: myhost1.me.com
+    dbSchemaSuffix: _MYSUFFIX
+    type: DEV
+    cleanBuildAllowed: 'true'
+    dbServer: MYSERVER1
+    schemaOverrides:
+    - schemaOverride:
+        schema: SCHEMA4_RO
+        overrideValue: overriden_SCHEMA4_RO
+  - autoReorgEnabled: 'true'
+    dbPort: '1234'
+    dbSchemaPrefix: MYPREFIX_
+    name: test4
+    dbHost: myhost1.me.com
+    type: DEV
+    cleanBuildAllowed: 'true'
+    dbServer: MYSERVER1

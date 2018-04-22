@@ -16,7 +16,7 @@
 package com.gs.obevo.api.factory;
 
 import com.gs.obevo.util.vfs.FileObject;
-import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
 
 interface FileConfigReader {
     HierarchicalConfiguration getConfig(FileObject checkoutFolder);

@@ -18,7 +18,7 @@ package com.gs.obevo.util;
 import java.util.List;
 
 import com.sampullara.cli.Args;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.impl.block.factory.Functions;

@@ -10,15 +10,14 @@ The Apache Software Foundation (http://www.apache.org/).
 Each module in this project has a NOTICE.txt file denoting the module's own dependencies.
 
 This product depends on (links to) the following software:
+  Apache Commons BeanUtils under Apache License, Version 2.0
   Apache Commons Codec under Apache License, Version 2.0
+  Apache Commons Configuration under Apache License, Version 2.0
   Apache Commons CSV under Apache License, Version 2.0
   Apache Commons DbUtils under The Apache Software License, Version 2.0
   Command Line Interface Parser for Java under The Apache Software License, Version 2.0
-  Commons BeanUtils under The Apache Software License, Version 2.0
   Commons Collections under The Apache Software License, Version 2.0
-  Commons Configuration under The Apache Software License, Version 2.0
   Commons DBCP under The Apache Software License, Version 2.0
-  Commons Digester under The Apache Software License, Version 2.0
   Commons IO under The Apache Software License, Version 2.0
   Commons Lang under The Apache Software License, Version 2.0
   Commons Pool under The Apache Software License, Version 2.0
@@ -35,5 +34,5 @@ This product depends on (links to) the following software:
   obevo-internal-comparer under The Apache License, Version 2.0
   opencsv under Apache 2
   SLF4J API Module under MIT License
-  Typesafe Config under Apache License, Version 2.0
+  SnakeYAML under Apache License, Version 2.0
 

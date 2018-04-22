@@ -19,7 +19,7 @@ import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.dbmetadata.api.DaCatalog;
 import com.gs.obevo.dbmetadata.api.DaSchemaInfoLevel;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.list.MutableList;

@@ -67,7 +67,7 @@
         <profile>
             <id>amazon-build</id>
             <properties>
-                <dbCredsFile>local-db2-creds.properties</dbCredsFile>
+                <dbCredsFile>local-db2-creds.yaml</dbCredsFile>
             </properties>
 
             <dependencies>

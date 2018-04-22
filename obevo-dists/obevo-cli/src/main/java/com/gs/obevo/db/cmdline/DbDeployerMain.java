@@ -25,7 +25,7 @@ import com.gs.obevo.cmdline.DeployerArgs;
 import com.gs.obevo.impl.changepredicate.ChangeKeyPredicateBuilder;
 import com.gs.obevo.util.inputreader.ConsoleInputReader;
 import com.gs.obevo.util.inputreader.UserInputReader;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.eclipse.collections.impl.list.fixed.ArrayAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

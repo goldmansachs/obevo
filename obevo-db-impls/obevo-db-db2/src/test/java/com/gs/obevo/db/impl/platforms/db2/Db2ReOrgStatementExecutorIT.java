@@ -16,7 +16,6 @@
 package com.gs.obevo.db.impl.platforms.db2;
 
 import java.sql.Connection;
-import java.util.Collection;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -47,7 +46,7 @@ import static org.junit.Assert.fail;
 @RunWith(Parameterized.class)
 public class Db2ReOrgStatementExecutorIT {
     @Parameterized.Parameters
-    public static Collection<Object[]> params() {
+    public static Iterable<Object[]> params() {
         return Db2ParamReader.getParamReader().getJdbcDsAndSchemaParams(2);
     }
 

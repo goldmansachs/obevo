@@ -15,8 +15,6 @@
  */
 package com.gs.obevo.db.impl.platforms.h2;
 
-import java.util.Collection;
-
 import com.gs.obevo.db.api.platform.DbDeployerAppContext;
 import com.gs.obevo.db.impl.core.changeauditdao.SameSchemaChangeAuditDaoTest;
 import org.eclipse.collections.api.block.function.primitive.IntToObjectFunction;
@@ -26,7 +24,7 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class H2SameSchemaChangeAuditDaoTest extends SameSchemaChangeAuditDaoTest {
     @Parameterized.Parameters
-    public static Collection<Object[]> params() {
+    public static Iterable<Object[]> params() {
         return H2ParamReader.getParamReader().getAppContextParams();
     }
 

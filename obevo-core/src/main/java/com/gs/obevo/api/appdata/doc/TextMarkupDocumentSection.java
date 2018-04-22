@@ -15,7 +15,7 @@
  */
 package com.gs.obevo.api.appdata.doc;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.map.ImmutableMap;
 import org.eclipse.collections.api.set.ImmutableSet;

@@ -72,7 +72,7 @@
         <profile>
             <id>amazon-build</id>
             <properties>
-                <dbCredsFile>amazon-postgresql-creds.properties</dbCredsFile>
+                <dbCredsFile>amazon-postgresql-creds.yaml</dbCredsFile>
             </properties>
         </profile>
     </profiles>

@@ -15,32 +15,29 @@
  */
 package com.gs.obevo.db.testutil;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.sql.Driver;
 import java.util.Collection;
+import java.util.Objects;
 
 import javax.sql.DataSource;
 
 import com.gs.obevo.api.appdata.PhysicalSchema;
+import com.gs.obevo.api.factory.XmlFileConfigReader;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
-import com.gs.obevo.db.api.factory.DbEnvironmentFactory;
+import com.gs.obevo.db.api.factory.DbEnvironmentXmlEnricher;
 import com.gs.obevo.db.api.platform.DbDeployerAppContext;
 import com.gs.obevo.db.impl.core.jdbc.JdbcDataSourceFactory;
 import com.gs.obevo.util.inputreader.Credential;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigValueFactory;
-import org.apache.commons.lang3.SystemUtils;
-import org.eclipse.collections.api.block.function.Function;
+import com.gs.obevo.util.vfs.FileObject;
+import com.gs.obevo.util.vfs.FileRetrievalMode;
+import org.apache.commons.configuration2.BaseHierarchicalConfiguration;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.ImmutableHierarchicalConfiguration;
+import org.apache.commons.configuration2.tree.ImmutableNode;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.collections.api.block.function.primitive.IntToObjectFunction;
-import org.eclipse.collections.api.list.ListIterable;
 import org.eclipse.collections.api.list.MutableList;
-import org.eclipse.collections.api.map.MutableMap;
-import org.eclipse.collections.impl.factory.Lists;
-import org.eclipse.collections.impl.factory.Maps;
-import org.eclipse.collections.impl.list.fixed.ArrayAdapter;
-import org.eclipse.collections.impl.set.mutable.SetAdapter;
+import org.eclipse.collections.impl.list.mutable.ListAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,45 +47,36 @@ import org.slf4j.LoggerFactory;
 public class ParamReader {
     private static final Logger LOG = LoggerFactory.getLogger(ParamReader.class);
 
-    private final Config rootConfig;
-    private final String dbType;
-    private final Config defaultConfig;
+    private final HierarchicalConfiguration<ImmutableNode> rootConfig;
 
-    public ParamReader(Config rootConfig, String dbType, Config defaultConfig) {
-        this.rootConfig = rootConfig;
-        this.dbType = dbType;
-        this.defaultConfig = defaultConfig;
+    public static ParamReader fromPath(String configPath) {
+        return fromPath(configPath, null);
     }
 
-    private MutableList<Config> getSysConfigs() {
-        if (rootConfig.isEmpty()) {
-            return Lists.mutable.empty();
+    public static ParamReader fromPath(String configPath, String defaultPath) {
+        return new ParamReader(!StringUtils.isBlank(configPath) ? configPath : defaultPath);
+    }
+
+    private ParamReader(String configPath) {
+        FileObject configFile = FileRetrievalMode.CLASSPATH.resolveSingleFileObject(configPath);
+        if (configFile != null && configFile.exists()) {
+            this.rootConfig = new XmlFileConfigReader().getConfig(configFile);
+        } else {
+            LOG.info("Test parameter file {} not found; will not run tests", configPath);
+            this.rootConfig = new BaseHierarchicalConfiguration();
         }
-        final Config instanceConfig = rootConfig.getConfig(dbType);
-        return SetAdapter.adapt(instanceConfig.root().keySet()).collect(new Function<String, Config>() {
-            @Override
-            public Config valueOf(String envName) {
-                return instanceConfig.getConfig(envName)
-                        .withFallback(defaultConfig)
-                        .withValue("envName", ConfigValueFactory.fromAnyRef(envName))
-                        .resolve();
-            }
-        }).toList();
+    }
+
+    private ParamReader(HierarchicalConfiguration rootConfig) {
+        this.rootConfig = Objects.requireNonNull(rootConfig);
+    }
+
+    private MutableList<ImmutableHierarchicalConfiguration> getSysConfigs() {
+        return ListAdapter.adapt(rootConfig.immutableConfigurationsAt("environments.environment"));
     }
 
     public Collection<Object[]> getAppContextParams() {
-        return getSysConfigs().flatCollect(new Function<Config, ListIterable<Object[]>>() {
-            @Override
-            public ListIterable<Object[]> valueOf(final Config config) {
-                ListIterable<IntToObjectFunction<DbDeployerAppContext>> appContexts = getAppContext(config);
-                return appContexts.collect(new Function<IntToObjectFunction<DbDeployerAppContext>, Object[]>() {
-                    @Override
-                    public Object[] valueOf(IntToObjectFunction<DbDeployerAppContext> appContext) {
-                        return new Object[] { appContext };
-                    }
-                });
-            }
-        });
+        return getSysConfigs().collect(config -> new Object[] { getAppContext(config) });
     }
 
     public Collection<Object[]> getAppContextAndJdbcDsParams() {
@@ -96,20 +84,9 @@ public class ParamReader {
     }
 
     private Collection<Object[]> getAppContextAndJdbcDsParams(final int numConnections) {
-        return getSysConfigs().flatCollect(new Function<Config, ListIterable<Object[]>>() {
-            @Override
-            public ListIterable<Object[]> valueOf(final Config config) {
-                ListIterable<IntToObjectFunction<DbDeployerAppContext>> appContexts = getAppContext(config);
-                return appContexts.collect(new Function<IntToObjectFunction<DbDeployerAppContext>, Object[]>() {
-                    @Override
-                    public Object[] valueOf(IntToObjectFunction<DbDeployerAppContext> appContext) {
-                        return new Object[] {
-                                appContext,
-                                getJdbcDs(config, numConnections)
-                        };
-                    }
-                });
-            }
+        return getSysConfigs().collect(config -> new Object[] {
+                getAppContext(config),
+                getJdbcDs(config, numConnections)
         });
     }
 
@@ -118,48 +95,22 @@ public class ParamReader {
     }
 
     public Collection<Object[]> getJdbcDsAndSchemaParams(final int numConnections) {
-        return getSysConfigs().collect(new Function<Config, Object[]>() {
-            @Override
-            public Object[] valueOf(Config config) {
-                final PhysicalSchema schema = PhysicalSchema.parseFromString(config.getString("schema"));
+        return getSysConfigs().collect(config -> {
+            final PhysicalSchema schema = PhysicalSchema.parseFromString(config.getString("metaschema"));
 
-                return new Object[] { getJdbcDs(config, numConnections), schema };
-            }
+            return new Object[] { getJdbcDs(config, numConnections), schema };
         });
     }
 
-    private static ListIterable<IntToObjectFunction<DbDeployerAppContext>> getAppContext(final Config config) {
-        final String sourcePath = config.getString("sourcePath");
-        String env = getStringOptional(config, "env");
-
-        final String[] envArgs = env != null ? env.split(",") : new String[] { null };
-        final String username = getStringOptional(config, "username");
-        final String password = getStringOptional(config, "password");
-        return ArrayAdapter.adapt(envArgs).collect(new Function<String, IntToObjectFunction<DbDeployerAppContext>>() {
-            @Override
-            public IntToObjectFunction<DbDeployerAppContext> valueOf(final String envArg) {
-                return new IntToObjectFunction<DbDeployerAppContext>() {
-                    @Override
-                    public DbDeployerAppContext valueOf(int stepNumber) {
-                        String stepSourcePath = replaceStepNumber(sourcePath, stepNumber, config);
-
-                        DbEnvironment dbEnvironment = DbEnvironmentFactory.getInstance().readOneFromSourcePath(stepSourcePath, envArg != null ? new String[] { envArg } : new String[0]);
-                        if (username != null && password != null) {
-                            return dbEnvironment.buildAppContext(username, password);
-                        } else {
-                            return dbEnvironment.buildAppContext();
-                        }
-                    }
-                };
-            }
-        });
+    private static IntToObjectFunction<DbDeployerAppContext> getAppContext(ImmutableHierarchicalConfiguration config) {
+        return stepNumber -> replaceStepNumber(config.getString("sourcePath"), stepNumber, config).buildAppContext();
     }
 
-    private static DataSource getJdbcDs(final Config config, final int numConnections) {
+    private static DataSource getJdbcDs(final ImmutableHierarchicalConfiguration config, final int numConnections) {
         String jdbcUrl = config.getString("jdbcUrl");
-        final String username = config.getString("username");
-        final String password = config.getString("password");
-        final String driver = config.getString("driver");
+        final String username = config.getString("defaultUserId");
+        final String password = config.getString("defaultPassword");
+        final String driver = config.getString("driverClass");
         try {
             return JdbcDataSourceFactory.createFromJdbcUrl(
                     (Class<? extends Driver>) Class.forName(driver),
@@ -171,65 +122,11 @@ public class ParamReader {
         }
     }
 
-    private static String getStringOptional(Config config, String prop) {
-        return config.hasPath(prop) ? config.getString(prop) : null;
-    }
-
-    private static String replaceStepNumber(String input, int stepNumber, Config config) {
+    private static DbEnvironment replaceStepNumber(String input, int stepNumber, ImmutableHierarchicalConfiguration config) {
         String stepPath = input.replace("${stepNumber}", String.valueOf(stepNumber));
+        FileObject sourcePath = FileRetrievalMode.CLASSPATH.resolveSingleFileObject(stepPath);
 
-        String templatePath = "deploytest/system-config.xml.ftl";
-        URL templateUrl = ParamReader.class.getClassLoader().getResource(templatePath);
-        if (templateUrl != null) {
-            try {
-                File obevoTempDir = new File(SystemUtils.JAVA_IO_TMPDIR, "obevo");
-                obevoTempDir.mkdirs();
-                File outputTemplate = File.createTempFile("obevo-system-config", ".xml", obevoTempDir);
-                MutableMap<String, Object> params = Maps.mutable.empty();
-                params.put("sourceDir", stepPath);
-                params.put("envName", config.getString("envName"));
-                if (config.hasPath("jdbcUrl")) {
-                    params.put("jdbcUrl", config.getString("jdbcUrl"));
-                }
-                if (config.hasPath("envschema1")) {
-                    params.put("schema1", config.getString("envschema1"));
-                }
-                if (config.hasPath("envschema2")) {
-                    params.put("schema2", config.getString("envschema2"));
-                }
-                if (config.hasPath("dbDataSourceName")) {
-                    params.put("dbDataSourceName", config.getString("dbDataSourceName"));
-                }
-                if (config.hasPath("dbServer")) {
-                    params.put("dbServer", config.getString("dbServer"));
-                }
-                if (config.hasPath("driver")) {
-                    params.put("driver", config.getString("driver"));
-                }
-                populateConfig(config, params, "envattrs");
-                populateConfig(config, params, "sysattrs");
-                populateConfig(config, params, "schemas");
-                populateConfig(config, params, "logicalSchemas");
-
-                TestTemplateUtil.getInstance().writeTemplate(templatePath, params, outputTemplate);
-                LOG.info("System Config was written to {}", outputTemplate);
-                return outputTemplate.getAbsolutePath();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        return stepPath;
-    }
-
-    private static void populateConfig(Config config, MutableMap<String, Object> params, String attr) {
-        if (config.hasPath(attr)) {
-            Config attrs = config.getConfig(attr);
-            MutableMap<String, String> attrsMap = Maps.mutable.empty();
-            for (String key : attrs.root().keySet()) {
-                attrsMap.put(key, config.getString(attr + "." + key));
-            }
-            params.put(attr, attrsMap);
-        }
+        DbEnvironmentXmlEnricher enricher = new DbEnvironmentXmlEnricher();
+        return enricher.readEnvironment(config, sourcePath);
     }
 }

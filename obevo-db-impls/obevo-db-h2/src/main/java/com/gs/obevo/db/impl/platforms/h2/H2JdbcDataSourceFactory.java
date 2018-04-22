@@ -19,8 +19,8 @@ import java.io.File;
 
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.impl.core.jdbc.JdbcDataSourceFactory;
-import org.apache.commons.lang.SystemUtils;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.lang3.Validate;
 import org.eclipse.collections.api.block.function.Function0;
 import org.eclipse.collections.api.map.ConcurrentMutableMap;
 import org.eclipse.collections.impl.map.mutable.ConcurrentHashMap;

@@ -18,7 +18,6 @@ package com.gs.obevo.db.impl.platforms.sybaseiq.iqload;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.Timestamp;
-import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
@@ -44,7 +43,7 @@ import static org.junit.Assert.assertEquals;
 public class IqLoadFileCreatorTest {
 
     @Parameterized.Parameters
-    public static Collection<Object[]> params() {
+    public static Iterable<Object[]> params() {
         return SybaseIqParamReader.getParamReader().getJdbcDsAndSchemaParams();
     }
 

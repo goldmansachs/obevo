@@ -32,7 +32,7 @@ import com.gs.obevo.util.ArgsParser;
 import com.gs.obevo.util.LogUtil;
 import com.gs.obevo.util.VisibleForTesting;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.list.ImmutableList;

@@ -17,7 +17,6 @@ package com.gs.obevo.db.impl.platforms.postgresql;
 
 import java.sql.Connection;
 import java.sql.Timestamp;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +35,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(Parameterized.class)
 public class PostgreSqlDeployerIT {
     @Parameterized.Parameters
-    public static Collection<Object[]> params() {
+    public static Iterable<Object[]> params() {
         return PostgreSqlParamReader.getParamReader().getAppContextAndJdbcDsParams();
     }
 

@@ -15,15 +15,20 @@
  */
 package com.gs.obevo.api.factory;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
-import java.util.Properties;
 
 import com.gs.obevo.api.platform.DeployerRuntimeException;
 import com.gs.obevo.util.vfs.FileObject;
 import com.gs.obevo.util.vfs.FileRetrievalMode;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.configuration2.CombinedConfiguration;
+import org.apache.commons.configuration2.FixedYAMLConfiguration;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.ImmutableHierarchicalConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.Parameters;
+import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.commons.configuration2.tree.ImmutableNode;
+import org.apache.commons.configuration2.tree.OverrideCombiner;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.bag.MutableBag;
 import org.eclipse.collections.api.block.procedure.Procedure2;
@@ -47,24 +52,24 @@ class PlatformConfigReader {
     private static final Logger LOG = LoggerFactory.getLogger(PlatformConfigReader.class);
     private static final String PROP_CONFIG_PRIORITY = "obevo.configPriority";
 
-    public Properties readPlatformProperties(RichIterable<String> configPackages) {
+    public ImmutableHierarchicalConfiguration readPlatformProperties(RichIterable<String> configPackages) {
         MutableList<PropertyInput> prioritizedProperties = readConfigPackages(configPackages);
 
         validate(prioritizedProperties);
 
         // order properties by priority: higher-numbered files will replace properties of lower-numbered files
-        prioritizedProperties.sortThisBy(PropertyInput::getPriority);
+        prioritizedProperties.sortThisBy(PropertyInput::getPriority).reverseThis();  // needs to be reversed as CombinedConfiguration takes the higher-priority files first
 
         // merge properties
-        Properties finalProperties = new Properties();
-        for (Properties properties : prioritizedProperties.collect(PropertyInput::getProps)) {
-            finalProperties.putAll(properties);
+        CombinedConfiguration combinedConfiguration = new CombinedConfiguration(new OverrideCombiner());
+        for (HierarchicalConfiguration<ImmutableNode> properties : prioritizedProperties.collect(PropertyInput::getProps)) {
+            combinedConfiguration.addConfiguration(properties);
         }
 
         // remove the configPriority property
-        finalProperties.remove(PROP_CONFIG_PRIORITY);
+        combinedConfiguration.clearTree(PROP_CONFIG_PRIORITY);
 
-        return finalProperties;
+        return combinedConfiguration;
     }
 
     private MutableList<PropertyInput> readConfigPackages(RichIterable<String> configPackages) {
@@ -74,12 +79,12 @@ class PlatformConfigReader {
             ListIterable<FileObject> fileObjects = FileRetrievalMode.CLASSPATH.resolveFileObjects(configPackage)
                     .flatCollect(object -> ArrayAdapter.adapt(object.getChildren()));
             ListIterable<FileObject> propertyFiles = fileObjects
-                    .select(_this -> _this.getName().getExtension().equals("properties"));
+                    .select(_this -> _this.getName().getExtension().equals("yaml"));
 
             for (FileObject propertyFile : propertyFiles) {
-                Properties fileProps = loadPropertiesFromUrl(propertyFile);
+                HierarchicalConfiguration<ImmutableNode> fileProps = loadPropertiesFromUrl(propertyFile);
 
-                String configPriorityProp = fileProps.getProperty(PROP_CONFIG_PRIORITY);
+                String configPriorityProp = fileProps.getString(PROP_CONFIG_PRIORITY);
                 if (configPriorityProp != null) {
                     int priority = Integer.parseInt(configPriorityProp);
                     prioritizedProperties.add(new PropertyInput(propertyFile.getName().getBaseName(), propertyFile.getURLDa(), priority, fileProps));
@@ -124,17 +129,13 @@ class PlatformConfigReader {
         }
     }
 
-    private Properties loadPropertiesFromUrl(FileObject file) {
-        Properties props = new Properties();
-        InputStream defaultStream = null;
+    private HierarchicalConfiguration<ImmutableNode> loadPropertiesFromUrl(FileObject file) {
         try {
-            defaultStream = file.getURLDa().openStream();
-            props.load(defaultStream);
-            return props;
-        } catch (IOException e) {
+            return new FileBasedConfigurationBuilder<>(FixedYAMLConfiguration.class)
+                    .configure(new Parameters().hierarchical().setURL(file.getURLDa()))
+                    .getConfiguration();
+        } catch (ConfigurationException e) {
             throw new DeployerRuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(defaultStream);
         }
     }
 
@@ -142,9 +143,9 @@ class PlatformConfigReader {
         private final String fileName;
         private final URL propertyFilePath;
         private final int priority;
-        private final Properties props;
+        private final HierarchicalConfiguration<ImmutableNode> props;
 
-        PropertyInput(String fileName, URL propertyFilePath, int priority, Properties props) {
+        PropertyInput(String fileName, URL propertyFilePath, int priority, HierarchicalConfiguration<ImmutableNode> props) {
             this.fileName = fileName;
             this.propertyFilePath = propertyFilePath;
             this.priority = priority;
@@ -163,7 +164,7 @@ class PlatformConfigReader {
             return priority;
         }
 
-        Properties getProps() {
+        HierarchicalConfiguration<ImmutableNode> getProps() {
             return props;
         }
     }

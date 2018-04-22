@@ -21,6 +21,7 @@ import java.util.Map;
 
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.dbmetadata.api.DaDirectory;
+import com.gs.obevo.dbmetadata.api.DaDirectoryImpl;
 import com.gs.obevo.dbmetadata.api.DaPackage;
 import com.gs.obevo.dbmetadata.api.DaSchema;
 import com.gs.obevo.dbmetadata.impl.DaPackagePojoImpl;
@@ -71,7 +72,19 @@ public class OracleMetadataDialect extends AbstractMetadataDialect {
 
     @Override
     public ImmutableSet<DaDirectory> getDirectoriesOptional(Connection conn) throws SQLException {
-        return super.getDirectoriesOptional(conn);
+        final String sql = "SELECT DIRECTORY_NAME, DIRECTORY_PATH FROM DBA_DIRECTORIES";
+        LOG.debug("Executing directory metadata query SQL: {}", sql);
+
+        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(jdbc.query(conn, sql, new MapListHandler())).toImmutable();
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Results:");
+            for (Map<String, Object> map : maps) {
+                LOG.debug("ROW: {}", map.toString());
+            }
+        }
+
+        return maps.collect(map -> (DaDirectory) new DaDirectoryImpl((String) map.get("DIRECTORY_NAME"), (String) map.get("DIRECTORY_PATH"))).toSet().toImmutable();
     }
 
     @Override

@@ -26,7 +26,7 @@ import com.gs.obevo.db.api.appdata.User;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.impl.AbstractEnvironmentEnricher;
 import com.gs.obevo.util.Tokenizer;
-import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration2.ImmutableHierarchicalConfiguration;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.multimap.list.MutableListMultimap;
@@ -46,68 +46,56 @@ public class DbEnvironmentXmlEnricher extends AbstractEnvironmentEnricher<DbEnvi
     }
 
     @Override
-    protected void createEnv(DbEnvironment dbEnv, HierarchicalConfiguration sysCfg, HierarchicalConfiguration envCfg, Platform systemDbPlatformOrig) {
+    protected void createEnv(DbEnvironment dbEnv, ImmutableHierarchicalConfiguration envCfg, Platform systemDbPlatformOrig) {
         DbPlatform systemDbPlatform = (DbPlatform) systemDbPlatformOrig;
 
-        dbEnv.setDbHost(envCfg.getString("[@dbHost]"));
-        dbEnv.setDbPort(envCfg.getInt("[@dbPort]", 0));
-        dbEnv.setDbServer(envCfg.getString("[@dbServer]"));
-        dbEnv.setDbSchemaPrefix(envCfg.getString("[@dbSchemaPrefix]"));
-        dbEnv.setDbSchemaSuffix(envCfg.getString("[@dbSchemaSuffix]"));
-        dbEnv.setDbDataSourceName(envCfg.getString("[@dbDataSourceName]"));
-        dbEnv.setJdbcUrl(envCfg.getString("[@jdbcUrl]"));
+        dbEnv.setDbHost(envCfg.getString("dbHost"));
+        dbEnv.setDbPort(envCfg.getInt("dbPort", 0));
+        dbEnv.setDbServer(envCfg.getString("dbServer"));
+        dbEnv.setDbSchemaPrefix(envCfg.getString("dbSchemaPrefix"));
+        dbEnv.setDbSchemaSuffix(envCfg.getString("dbSchemaSuffix"));
+        dbEnv.setDbDataSourceName(envCfg.getString("dbDataSourceName"));
+        dbEnv.setJdbcUrl(envCfg.getString("jdbcUrl"));
 
         // Allow the groups + users to be tokenized upfront for compatibility w/ the EnvironmentInfraSetup classes
         Tokenizer tokenizer = new Tokenizer(dbEnv.getTokens(), dbEnv.getTokenPrefix(), dbEnv.getTokenSuffix());
-        dbEnv.setGroups(iterConfig(sysCfg, "groups.group").collectWith(DbEnvironmentXmlEnricher::convertCfgToGroup, tokenizer));
-        dbEnv.setUsers(iterConfig(sysCfg, "users.user").collectWith(DbEnvironmentXmlEnricher::convertCfgToUser, tokenizer));
-        dbEnv.setServerDirectories(iterConfig(sysCfg, "serverDirectories.serverDirectory").collectWith(DbEnvironmentXmlEnricher::convertCfgToServerDirectory, tokenizer));
+        dbEnv.setGroups(iterConfig(envCfg, "groups.group").collectWith(DbEnvironmentXmlEnricher::convertCfgToGroup, tokenizer));
+        dbEnv.setUsers(iterConfig(envCfg, "users.user").collectWith(DbEnvironmentXmlEnricher::convertCfgToUser, tokenizer));
+        dbEnv.setServerDirectories(iterConfig(envCfg, "serverDirectories.serverDirectory").collectWith(DbEnvironmentXmlEnricher::convertCfgToServerDirectory, tokenizer));
 
-        if (envCfg.getString("[@driverClass]") != null) {
-            dbEnv.setDriverClassName(envCfg.getString("[@driverClass]"));
+        if (envCfg.getString("driverClass") != null) {
+            dbEnv.setDriverClassName(envCfg.getString("driverClass"));
         }
 
-        dbEnv.setDefaultTablespace(envCfg.getString("[@defaultTablespace]"));
+        dbEnv.setDefaultTablespace(envCfg.getString("defaultTablespace"));
 
-        dbEnv.setPersistToFile(envCfg.getBoolean("[@persistToFile]", false));
-        dbEnv.setDisableAuditTracking(envCfg.getBoolean("[@disableAuditTracking]", false));
+        dbEnv.setPersistToFile(envCfg.getBoolean("persistToFile", false));
+        dbEnv.setDisableAuditTracking(envCfg.getBoolean("disableAuditTracking", false));
 
-        dbEnv.setAutoReorgEnabled(
-                envCfg.getBoolean("[@autoReorgEnabled]", sysCfg.getBoolean("[@autoReorgEnabled]", true))
-        );
-        dbEnv.setInvalidObjectCheckEnabled(
-                envCfg.getBoolean("[@invalidObjectCheckEnabled]", sysCfg.getBoolean("[@invalidObjectCheckEnabled]", true))
-        );
-        dbEnv.setReorgCheckEnabled(
-                envCfg.getBoolean("[@reorgCheckEnabled]", sysCfg.getBoolean("[@reorgCheckEnabled]", true))
-        );
-        dbEnv.setChecksumDetectionEnabled(
-                envCfg.getBoolean("[@checksumDetectionEnabled]", sysCfg.getBoolean("[@checksumDetectionEnabled]", false))
-        );
-        Integer csvVersion = envCfg.getInteger("[@csvVersion]", sysCfg.getInteger("[@csvVersion]", null));
+        dbEnv.setAutoReorgEnabled(envCfg.getBoolean("autoReorgEnabled", true));
+        dbEnv.setInvalidObjectCheckEnabled(envCfg.getBoolean("invalidObjectCheckEnabled", true));
+        dbEnv.setReorgCheckEnabled(envCfg.getBoolean("reorgCheckEnabled", true));
+        dbEnv.setChecksumDetectionEnabled(envCfg.getBoolean("checksumDetectionEnabled", false));
+        Integer csvVersion = envCfg.getInteger("csvVersion", null);
         if (csvVersion != null) {
             dbEnv.setCsvVersion(csvVersion);
         }
 
         MutableMap<String, String> extraEnvAttrs = Maps.mutable.empty();
         for (String extraEnvAttr : dbPlatformConfiguration.getExtraEnvAttrs()) {
-            String attrStr = "[@" + extraEnvAttr + "]";
-            extraEnvAttrs.put(extraEnvAttr, envCfg.getString(attrStr, sysCfg.getString(attrStr)));
+            extraEnvAttrs.put(extraEnvAttr, envCfg.getString(extraEnvAttr));
         }
 
         dbEnv.setExtraEnvAttrs(extraEnvAttrs.toImmutable());
 
-        ImmutableList<HierarchicalConfiguration> envPermissions = iterConfig(envCfg, "permissions.permission");
-        ImmutableList<HierarchicalConfiguration> sysPermissions = iterConfig(sysCfg, "permissions.permission");
+        ImmutableList<ImmutableHierarchicalConfiguration> envPermissions = iterConfig(envCfg, "permissions.permission");
         if (!envPermissions.isEmpty()) {
             dbEnv.setPermissions(envPermissions.collectWith(DbEnvironmentXmlEnricher::convertCfgToPermission, tokenizer));
-        } else if (!sysPermissions.isEmpty()) {
-            dbEnv.setPermissions(sysPermissions.collectWith(DbEnvironmentXmlEnricher::convertCfgToPermission, tokenizer));
         }
 
         DbPlatform platform;
-        if (envCfg.getString("[@inMemoryDbType]") != null) {
-            platform = dbPlatformConfiguration.valueOf(envCfg.getString("[@inMemoryDbType]"));
+        if (envCfg.getString("inMemoryDbType") != null) {
+            platform = dbPlatformConfiguration.valueOf(envCfg.getString("inMemoryDbType"));
         } else {
             platform = systemDbPlatform;
         }
@@ -115,7 +103,7 @@ public class DbEnvironmentXmlEnricher extends AbstractEnvironmentEnricher<DbEnvi
         dbEnv.setSystemDbPlatform(systemDbPlatform);
         dbEnv.setPlatform(platform);
 
-        String delim = sysCfg.getString("[@dataDelimiter]");
+        String delim = envCfg.getString("dataDelimiter");
         if (delim != null) {
             if (delim.length() == 1) {
                 dbEnv.setDataDelimiter(delim.charAt(0));
@@ -125,60 +113,42 @@ public class DbEnvironmentXmlEnricher extends AbstractEnvironmentEnricher<DbEnvi
             }
         }
 
-        String nullToken = sysCfg.getString("[@nullToken]");
+        String nullToken = envCfg.getString("nullToken");
         if (nullToken != null) {
             dbEnv.setNullToken(nullToken);
         }
 
-        dbEnv.setAuditTableSql(getProperty(sysCfg, envCfg, "auditTableSql"));
+        dbEnv.setAuditTableSql(envCfg.getString("auditTableSql"));
     }
 
-    private static Group convertCfgToGroup(HierarchicalConfiguration cfg, Tokenizer tokenizer) {
-        return new Group(tokenizer.tokenizeString(cfg.getString("[@name]")));
+    private static Group convertCfgToGroup(ImmutableHierarchicalConfiguration cfg, Tokenizer tokenizer) {
+        return new Group(tokenizer.tokenizeString(cfg.getString("name")));
     }
 
-    private static User convertCfgToUser(HierarchicalConfiguration cfg, Tokenizer tokenizer) {
-        return new User(tokenizer.tokenizeString(cfg.getString("[@name]")), cfg.getString("[@password]"),
-                cfg.getBoolean("[@admin]", false));
+    private static User convertCfgToUser(ImmutableHierarchicalConfiguration cfg, Tokenizer tokenizer) {
+        return new User(tokenizer.tokenizeString(cfg.getString("name")), cfg.getString("password"),
+                cfg.getBoolean("admin", false));
     }
 
-    private static ServerDirectory convertCfgToServerDirectory(HierarchicalConfiguration cfg, Tokenizer tokenizer) {
+    private static ServerDirectory convertCfgToServerDirectory(ImmutableHierarchicalConfiguration cfg, Tokenizer tokenizer) {
         return new ServerDirectory(
-                tokenizer.tokenizeString(cfg.getString("[@name]")),
-                tokenizer.tokenizeString(cfg.getString("[@directoryPath]"))
+                tokenizer.tokenizeString(cfg.getString("name")),
+                tokenizer.tokenizeString(cfg.getString("directoryPath"))
         );
     }
 
-    private static Permission convertCfgToPermission(HierarchicalConfiguration cfg, Tokenizer tokenizer) {
-        return new Permission(cfg.getString("[@scheme]"),
+    private static Permission convertCfgToPermission(ImmutableHierarchicalConfiguration cfg, Tokenizer tokenizer) {
+        return new Permission(cfg.getString("scheme"),
                 iterConfig(cfg, "grant").collect(_this -> convertCfgToGrant(_this, tokenizer)));
     }
 
-    private static Grant convertCfgToGrant(HierarchicalConfiguration cfg, Tokenizer tokenizer) {
+    private static Grant convertCfgToGrant(ImmutableHierarchicalConfiguration cfg, Tokenizer tokenizer) {
         MutableListMultimap<GrantTargetType, String> grantTargetMap = Multimaps.mutable.list.empty();
-        grantTargetMap.putAll(GrantTargetType.GROUP, iterString(cfg, "[@groups]").collect(tokenizer::tokenizeString));
-        grantTargetMap.putAll(GrantTargetType.USER, iterString(cfg, "[@users]").collect(tokenizer::tokenizeString));
+        grantTargetMap.putAll(GrantTargetType.GROUP, iterString(cfg, "groups").collect(tokenizer::tokenizeString));
+        grantTargetMap.putAll(GrantTargetType.USER, iterString(cfg, "users").collect(tokenizer::tokenizeString));
         return new Grant(
-                iterString(cfg, "[@privileges]").toImmutable(),
+                iterString(cfg, "privileges").toImmutable(),
                 grantTargetMap.toImmutable()
         );
-    }
-
-    /**
-     * Returns the desired property from the config, giving preference to the environment but defaulting to the system if it exists.
-     * The calls above should look to adopt this method.
-     */
-    private String getProperty(HierarchicalConfiguration sysCfg, HierarchicalConfiguration envCfg, String property) {
-        String envVal = envCfg.getString(property);
-        if (envVal != null) {
-            return envVal;
-        }
-
-        String sysVal = sysCfg.getString(property);
-        if (sysVal != null) {
-            return sysVal;
-        }
-
-        return null;
     }
 }

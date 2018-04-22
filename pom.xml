@@ -569,7 +569,7 @@
                             <propertyExpansion>import-control.directory=${build-resources.workdir}</propertyExpansion>
                             <failOnViolation>true</failOnViolation>
                             <excludes />
-                            <excludes>**/sqlparser/**/*,**/HelpMojo*</excludes>
+                            <excludes>**/sqlparser/**/*,**/HelpMojo*,**/org/apache/commons/configuration2/**</excludes>
                         </configuration>
                     </execution>
                 </executions>
