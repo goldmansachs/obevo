@@ -28,8 +28,11 @@ import com.gs.obevo.util.FileUtilsCobra;
 import com.gs.obevo.util.vfs.FileObject;
 import com.gs.obevo.util.vfs.FileRetrievalMode;
 import org.apache.commons.collections.map.MultiKeyMap;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.Parameters;
+import org.apache.commons.configuration2.convert.LegacyListDelimiterHandler;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.vfs2.FileType;
 import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.list.MutableList;
@@ -147,7 +150,12 @@ public class DbFileMerger {
 
     public void execute(DbFileMergerArgs args) {
         try {
-            PropertiesConfiguration config = new PropertiesConfiguration(args.getDbMergeConfigFile());
+            PropertiesConfiguration config = new FileBasedConfigurationBuilder<>(PropertiesConfiguration.class)
+                    .configure(new Parameters().properties()
+                            .setFile(args.getDbMergeConfigFile())
+                            .setListDelimiterHandler(new LegacyListDelimiterHandler(','))
+                    )
+                    .getConfiguration();
             DbPlatform dialect = DbPlatformConfiguration.getInstance().valueOf(config.getString("dbType"));
             this.generateDiffs(dialect, DbMergeInfo.parseFromProperties(config), args.getOutputDir());
         } catch (ConfigurationException e) {

@@ -17,15 +17,15 @@ package com.gs.obevo.api.factory;
 
 import com.gs.obevo.api.platform.DeployerRuntimeException;
 import com.gs.obevo.api.platform.Platform;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
+import org.apache.commons.configuration2.ImmutableHierarchicalConfiguration;
 import org.eclipse.collections.api.list.ImmutableList;
+import org.eclipse.collections.api.list.ListIterable;
+import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.ImmutableMap;
 import org.eclipse.collections.api.map.MutableMap;
-import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Maps;
-import org.eclipse.collections.impl.set.mutable.SetAdapter;
+import org.eclipse.collections.impl.list.mutable.ListAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,39 +36,37 @@ public class PlatformConfiguration {
     private static final Logger LOG = LoggerFactory.getLogger(PlatformConfiguration.class);
     private static final PlatformConfiguration INSTANCE = new PlatformConfiguration();
 
-    private final Config config;
+    private final ImmutableHierarchicalConfiguration config;
     private final String toolVersion;
     private final ImmutableMap<String, Integer> featureToggleVersions;
     private final String sourceEncoding;
-    private final Config platformConfigs;
-    private final ImmutableMap<String, String> dbPlatformMap;
+    private final ImmutableMap<String, ImmutableHierarchicalConfiguration> platformConfigs;
 
     public static PlatformConfiguration getInstance() {
         return INSTANCE;
     }
 
     protected PlatformConfiguration() {
-        this.config = ConfigFactory.parseProperties(new PlatformConfigReader().readPlatformProperties(getConfigPackages()));
+        this.config = new PlatformConfigReader().readPlatformProperties(getConfigPackages());
         this.toolVersion = config.getString("tool.version");
         this.featureToggleVersions = createFeatureToggleVersions();
-        this.sourceEncoding = this.getConfig().getString("sourceEncoding");
-        this.platformConfigs = getPlatformConfigs();
-        this.dbPlatformMap = getDbPlatformMap();
-    }
-
-    private Config getPlatformConfigs() {
-        if (this.getConfig().hasPath("db")) {
-            return this.getConfig().getConfig("db").getConfig("platforms");
-        }
-        return ConfigFactory.empty();
+        this.sourceEncoding = config.getString("sourceEncoding");
+        this.platformConfigs = getDbPlatformMap();
     }
 
     public Platform valueOf(String dbPlatformStr) {
         try {
-            String resolvedDbPlatformClass = dbPlatformMap.get(dbPlatformStr);
+            ImmutableHierarchicalConfiguration platformConfig = platformConfigs.get(dbPlatformStr);
+
+            String resolvedDbPlatformClass = null;
+            if (platformConfig != null) {
+                resolvedDbPlatformClass = platformConfig.getString("class");
+            }
+
             if (resolvedDbPlatformClass == null) {
                 resolvedDbPlatformClass = dbPlatformStr;
             }
+
             return (Platform) Class.forName(resolvedDbPlatformClass).newInstance();
         } catch (InstantiationException e) {
             throw new DeployerRuntimeException(e);
@@ -83,20 +81,29 @@ public class PlatformConfiguration {
      * Returns the default name-to-platform mappings. We put this in a separate protected method to allow external
      * distributions to override these values as needed.
      */
-    private ImmutableMap<String, String> getDbPlatformMap() {
-        MutableMap<String, String> platformByName = Maps.mutable.empty();
+    private ImmutableMap<String, ImmutableHierarchicalConfiguration> getDbPlatformMap() {
+        final String platformKey = "db.platforms";
 
-        for (String platformName : platformConfigs.root().keySet()) {
-            String platformClass = getPlatformConfig(platformName).getString("class");
-            platformByName.put(platformName, platformClass);
-            LOG.debug("Registering platform {} at class {}", platformName, platformClass);
+        ListIterable<ImmutableHierarchicalConfiguration> platformConfigs = ListAdapter.adapt(config.immutableChildConfigurationsAt("db.platforms"));
+
+        MutableMap<String, ImmutableHierarchicalConfiguration> platformByName = Maps.mutable.empty();
+
+        for (ImmutableHierarchicalConfiguration platformConfig : platformConfigs) {
+            String platformName = platformConfig.getRootElementName();
+            String platformClass = platformConfig.getString("class");
+            if (platformClass == null) {
+                LOG.warn("Improper platform config under {} for platform {}: missing class property. Will skip", platformKey, platformName);
+            } else {
+                platformByName.put(platformName, platformConfig);
+                LOG.debug("Registering platform {} at class {}", platformName, platformClass);
+            }
         }
 
         return platformByName.toImmutable();
     }
 
-    public Config getPlatformConfig(String platformName) {
-        return platformConfigs.getConfig(platformName);
+    public ImmutableHierarchicalConfiguration getPlatformConfig(String platformName) {
+        return platformConfigs.get(platformName);
     }
 
     /**
@@ -106,7 +113,7 @@ public class PlatformConfiguration {
         return Lists.immutable.of("com/gs/obevo/config", "com/gs/obevo/db/config");
     }
 
-    protected Config getConfig() {
+    protected ImmutableHierarchicalConfiguration getConfig() {
         return config;
     }
 
@@ -129,11 +136,9 @@ public class PlatformConfiguration {
     }
 
     private ImmutableMap<String, Integer> createFeatureToggleVersions() {
-        if (!this.getConfig().hasPath("featureToggles")) {
-            return Maps.immutable.empty();
-        }
-        final Config attrConfig = this.getConfig().getConfig("featureToggles");
-        return SetAdapter.adapt(attrConfig.root().keySet()).toMap(Functions.getPassThru(), featureToggleName -> attrConfig.getConfig(featureToggleName).getInt("defaultVersion")).toImmutable();
+        MutableList<ImmutableHierarchicalConfiguration> featureToggles = ListAdapter.adapt(config.immutableChildConfigurationsAt("featureToggles"));
+
+        return featureToggles.toMap(ImmutableHierarchicalConfiguration::getRootElementName, config -> config.getInt("defaultVersion")).toImmutable();
     }
 
     public String getSourceEncoding() {

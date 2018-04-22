@@ -263,7 +263,7 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
     public DaCatalog getDatabaseOptional(PhysicalSchema physicalSchema) {
         try {
             return this.getDatabase(physicalSchema, new DaSchemaInfoLevel(), false, false, null, null);
-        } catch (IllegalArgumentException exc) {
+        } catch (RuntimeException exc) {
             return null;
         }
     }

@@ -16,7 +16,6 @@
 package com.gs.obevo.db.impl.platforms.sybasease;
 
 import java.sql.Connection;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +41,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(Parameterized.class)
 public class SybaseAseDeployerMainIT {
     @Parameterized.Parameters
-    public static Collection<Object[]> params() {
+    public static Iterable<Object[]> params() {
         return AseParamReader.getParamReader().getAppContextAndJdbcDsParams();
     }
 

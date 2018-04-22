@@ -42,6 +42,5 @@ class AseEnvironmentInfraSetup extends AbstractEnvironmentInfraSetup {
     @Override
     protected void createGroup(Connection conn, Group group, PhysicalSchema physicalSchema) {
         jdbc.update(conn, physicalSchema.getPhysicalName() + "..sp_addgroup " + group.getName());
-        super.createGroup(conn, group, physicalSchema);
     }
 }

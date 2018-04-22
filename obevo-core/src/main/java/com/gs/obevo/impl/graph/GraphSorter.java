@@ -19,7 +19,7 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-import org.apache.commons.collections.IteratorUtils;
+import com.gs.obevo.util.CollectionUtil;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.impl.factory.Lists;
@@ -98,7 +98,7 @@ public class GraphSorter {
 
         TopologicalOrderIterator<T, DefaultEdge> iterator = getTopologicalOrderIterator(graph, comparator);
 
-        return Lists.immutable.withAll(IteratorUtils.toList(iterator));
+        return CollectionUtil.iteratorToList(iterator);
     }
 
     private <T> TopologicalOrderIterator<T, DefaultEdge> getTopologicalOrderIterator(DirectedGraph<T, DefaultEdge> graph, Comparator<? super T> comparator) {

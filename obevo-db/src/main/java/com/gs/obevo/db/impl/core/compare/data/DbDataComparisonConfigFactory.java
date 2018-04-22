@@ -20,10 +20,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationConverter;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.ConfigurationConverter;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.Parameters;
+import org.apache.commons.configuration2.convert.LegacyListDelimiterHandler;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.set.MutableSet;
@@ -43,7 +46,10 @@ public class DbDataComparisonConfigFactory {
                 throw new IllegalArgumentException("Could not find resource or file at path: " + path);
             }
 
-            return createFromProperties(new PropertiesConfiguration(url));
+            return createFromProperties(new FileBasedConfigurationBuilder<>(PropertiesConfiguration.class).configure(new Parameters().properties()
+                    .setURL(url)
+                    .setListDelimiterHandler(new LegacyListDelimiterHandler(','))
+            ).getConfiguration());
         } catch (ConfigurationException e) {
             throw new RuntimeException(e);
         } catch (MalformedURLException e) {

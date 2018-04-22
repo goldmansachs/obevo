@@ -71,7 +71,7 @@
         <profile>
             <id>amazon-build</id>
             <properties>
-                <dbCredsFile>amazon-mssql-creds.properties</dbCredsFile>
+                <dbCredsFile>amazon-mssql-creds.yaml</dbCredsFile>
             </properties>
         </profile>
     </profiles>

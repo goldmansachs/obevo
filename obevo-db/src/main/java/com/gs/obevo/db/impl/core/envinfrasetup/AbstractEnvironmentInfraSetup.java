@@ -75,7 +75,7 @@ public class AbstractEnvironmentInfraSetup implements EnvironmentInfraSetup<DbEn
                 DaCatalog schemaValue = dbMetadataManager.getDatabaseOptional(schema);
                 if (schemaValue == null) {
                     if (forceCreation) {
-                        LOG.info("Creating schema {}", schema.getPhysicalName());
+                        LOG.info("Creating schema/database {}", schema.getPhysicalName());
                         createSchema(conn, schema);
                     } else if (failOnSetupException) {
                         handleException(failOnSetupException, "Failed to create schema " + schema, "schemaCreationFailed");
@@ -190,7 +190,7 @@ public class AbstractEnvironmentInfraSetup implements EnvironmentInfraSetup<DbEn
         if (failOnSetupException) {
             throw new IllegalArgumentException(errorMessage, e);
         } else {
-            LOG.warn(errorMessage);
+            LOG.warn(errorMessage + ": {}", e.getMessage());
             LOG.warn("Will proceed with deployment as you have configured this to just be a warning");
             deployMetricsCollector.addMetric(DeployMetrics.WARNINGS_PREFIX + ".envSetup." + metricsMessage, errorMessage);
         }

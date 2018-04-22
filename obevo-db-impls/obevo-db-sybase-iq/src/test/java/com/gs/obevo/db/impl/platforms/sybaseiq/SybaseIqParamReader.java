@@ -16,16 +16,9 @@
 package com.gs.obevo.db.impl.platforms.sybaseiq;
 
 import com.gs.obevo.db.testutil.ParamReader;
-import com.typesafe.config.ConfigFactory;
-import org.eclipse.collections.impl.factory.Maps;
 
 public class SybaseIqParamReader {
     public static ParamReader getParamReader() {
-        return new ParamReader(ConfigFactory.parseResources("sybaseiq-creds.properties"),
-                "sybaseiq", ConfigFactory.parseMap(Maps.mutable.<String, Object>of(
-                "sysattrs.type", "SYBASE_IQ",
-                "logicalSchemas.schema1", "deploytest01"
-        ))
-        );
+        return ParamReader.fromPath(System.getProperty("dbCredsFile"), "sybaseiq-creds.yaml");
     }
 }

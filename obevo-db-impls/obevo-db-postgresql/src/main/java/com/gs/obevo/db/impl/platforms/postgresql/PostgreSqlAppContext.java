@@ -19,6 +19,7 @@ import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.api.platform.DbChangeType;
 import com.gs.obevo.db.api.platform.SqlExecutor;
 import com.gs.obevo.db.impl.core.DbDeployerAppContextImpl;
+import com.gs.obevo.db.impl.core.envinfrasetup.EnvironmentInfraSetup;
 import com.gs.obevo.db.impl.core.jdbc.DataSourceFactory;
 import com.gs.obevo.db.impl.platforms.postgresql.changetypes.PostgreSqlFunctionChangeTypeBehavior;
 import com.gs.obevo.impl.ChangeTypeBehaviorRegistry.ChangeTypeBehaviorRegistryBuilder;
@@ -38,6 +39,11 @@ public class PostgreSqlAppContext extends DbDeployerAppContextImpl {
     @Override
     protected DataSourceFactory getDataSourceFactory() {
         return new PostgreSqlJdbcDataSourceFactory();
+    }
+
+    @Override
+    public EnvironmentInfraSetup getEnvironmentInfraSetup() {
+        return new PostgreSqlEnvironmentInfraSetup(this.getEnvironment(), this.getManagedDataSource(), this.deployStatsTracker(), getDbMetadataManager(), this.getChangeTypeBehaviorRegistry());
     }
 
     @Override

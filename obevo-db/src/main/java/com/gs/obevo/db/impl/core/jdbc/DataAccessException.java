@@ -17,7 +17,7 @@ package com.gs.obevo.db.impl.core.jdbc;
 
 import java.sql.SQLException;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 public class DataAccessException extends RuntimeException {
     /**
@@ -66,10 +66,10 @@ public class DataAccessException extends RuntimeException {
                 : this.getRootCause();
 
         if (rootException == null) {
-            return ExceptionUtils.getFullStackTrace(this.getCause());
+            return ExceptionUtils.getStackTrace(this.getCause());
         } else {
-            return ExceptionUtils.getFullStackTrace(this.getCause())
-                    + "\nWith Root Cause: " + ExceptionUtils.getFullStackTrace(rootException);
+            return ExceptionUtils.getStackTrace(this.getCause())
+                    + "\nWith Root Cause: " + ExceptionUtils.getStackTrace(rootException);
         }
     }
 }

@@ -13,12 +13,4 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-postgresql.default.sysattrs.type=REDSHIFT
-postgresql.default.jdbcUrl=jdbc:redshift://dbdeploy-redshift.cct15crrtctb.us-east-1.redshift.amazonaws.com:5439/dbdeploy
-postgresql.default.sourcePath=platforms/postgresql/example1/step${stepNumber}
-postgresql.default.username=deploybuilddbo
-postgresql.default.password=Deploybuilddb0
-postgresql.default.schema=dbdeploy03
-postgresql.default.schemas.schema1=dbdeploy01
-postgresql.default.schemas.schema2=dbdeploy02
-postgresql.default.driver=com.amazon.redshift.jdbc4.Driver
+invalidFile: true

@@ -34,4 +34,4 @@ The default configuration of CreateDbInstance will create the smallest possible 
 When you are not actively using the DB, you can destroy the instance using the same CreateDbInstance utility.
 
 
-2) Using the connection URL from the previous step, update the amazon-personal-oracle-creds.properties file as needed.
+2) Using the connection URL from the previous step, update the amazon-personal-oracle-creds.yaml file as needed.

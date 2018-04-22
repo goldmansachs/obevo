@@ -46,9 +46,12 @@ import com.gs.obevo.dbmetadata.deepcompare.FieldCompareBreak;
 import com.gs.obevo.dbmetadata.deepcompare.ObjectCompareBreak;
 import com.gs.obevo.util.ArgsParser;
 import com.gs.obevo.util.inputreader.Credential;
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.Parameters;
+import org.apache.commons.configuration2.convert.LegacyListDelimiterHandler;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -81,7 +84,11 @@ public class TableSyncher {
     public void execute(DbFileMergerArgs args) {
         Configuration config;
         try {
-            config = new PropertiesConfiguration(args.getDbMergeConfigFile());
+            config = new FileBasedConfigurationBuilder<>(PropertiesConfiguration.class)
+                    .configure(new Parameters().properties()
+                            .setFile(args.getDbMergeConfigFile())
+                            .setListDelimiterHandler(new LegacyListDelimiterHandler(','))
+                    ).getConfiguration();
         } catch (ConfigurationException e) {
             throw new RuntimeException(e);
         }
@@ -109,7 +116,7 @@ public class TableSyncher {
         }
     }
 
-    public static class TableSyncSide {
+    private static class TableSyncSide {
         private final DataSource dataSource;
         private final PhysicalSchema schema;
 

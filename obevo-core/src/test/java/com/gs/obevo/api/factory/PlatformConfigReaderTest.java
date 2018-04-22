@@ -15,8 +15,7 @@
  */
 package com.gs.obevo.api.factory;
 
-import java.util.Properties;
-
+import org.apache.commons.configuration2.ImmutableHierarchicalConfiguration;
 import org.eclipse.collections.impl.factory.Lists;
 import org.junit.Test;
 
@@ -27,35 +26,35 @@ public class PlatformConfigReaderTest {
 
     @Test
     public void testValidDefault() {
-        Properties properties = reader.readPlatformProperties(Lists.immutable.of("PlatformConfigReader/validDefault"));
+        ImmutableHierarchicalConfiguration properties = reader.readPlatformProperties(Lists.immutable.of("PlatformConfigReader/validDefault"));
 
-        assertEquals("val1", properties.getProperty("prop1"));
-        assertEquals("val2", properties.getProperty("prop2"));
-        assertEquals("val3", properties.getProperty("key3.prop3"));
-        assertEquals("val4", properties.getProperty("key4.prop4"));
+        assertEquals("val1", properties.getString("prop1"));
+        assertEquals("val2", properties.getString("prop2"));
+        assertEquals("val3", properties.getString("key3.prop3"));
+        assertEquals("val4", properties.getString("key4.prop4"));
         assertEquals(4, properties.size());
     }
 
     @Test
     public void testValidWithOverride() {
-        Properties properties = reader.readPlatformProperties(Lists.immutable.of("PlatformConfigReader/validWithOverride"));
+        ImmutableHierarchicalConfiguration properties = reader.readPlatformProperties(Lists.immutable.of("PlatformConfigReader/validWithOverride"));
 
         assertEquals(4, properties.size());
-        assertEquals("val1", properties.getProperty("prop1"));
-        assertEquals("val2Override", properties.getProperty("prop2"));
-        assertEquals("val3Override", properties.getProperty("key3.prop3"));
-        assertEquals("val4", properties.getProperty("key4.prop4"));
+        assertEquals("val1", properties.getString("prop1"));
+        assertEquals("val2Override", properties.getString("prop2"));
+        assertEquals("val3Override", properties.getString("key3.prop3"));
+        assertEquals("val4", properties.getString("key4.prop4"));
     }
 
     @Test
     public void testSameFileWarning() {
-        Properties properties = reader.readPlatformProperties(Lists.immutable.of("PlatformConfigReader/sameFileWarning"));
+        ImmutableHierarchicalConfiguration properties = reader.readPlatformProperties(Lists.immutable.of("PlatformConfigReader/sameFileWarning"));
 
         assertEquals(4, properties.size());
-        assertEquals("val1", properties.getProperty("prop1"));
-        assertEquals("val2diff", properties.getProperty("prop2"));
-        assertEquals("val3diff", properties.getProperty("key3.prop3"));
-        assertEquals("val4", properties.getProperty("key4.prop4"));
+        assertEquals("val1", properties.getString("prop1"));
+        assertEquals("val2diff", properties.getString("prop2"));
+        assertEquals("val3diff", properties.getString("key3.prop3"));
+        assertEquals("val4", properties.getString("key4.prop4"));
     }
 
     @Test(expected = IllegalStateException.class)

@@ -15,18 +15,23 @@
  */
 package com.gs.obevo.api.factory;
 
-import com.gs.obevo.api.appdata.DeploySystem;
 import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.util.vfs.FileObject;
-import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.apache.commons.configuration2.ImmutableHierarchicalConfiguration;
+import org.eclipse.collections.api.collection.ImmutableCollection;
 
 public interface EnvironmentEnricher<T extends Environment> {
     /**
-     * Reads the environment that is found in the configurations inside sourcePath
+     * Reads the environment that is found in the configurations inside sourcePath.
      * This would be called when the provided folder is already tokenized and only one environment is expected
      * In this case, no environment is passed in via command line
-     *
-     * An error will be thrown
      */
-    DeploySystem<T> readSystem(HierarchicalConfiguration config, FileObject sourcePath);
+    ImmutableCollection<T> readSystem(HierarchicalConfiguration config, FileObject sourcePath);
+
+    /**
+     *
+     * Reads the environment that is found in the configurations inside sourcePath.
+     */
+    T readEnvironment(ImmutableHierarchicalConfiguration config, FileObject sourcePath);
 }

@@ -19,7 +19,6 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -38,7 +37,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(Parameterized.class)
 public class OracleDeployIT {
     @Parameterized.Parameters
-    public static Collection<Object[]> params() {
+    public static Iterable<Object[]> params() {
         return OracleParamReader.getParamReader().getAppContextAndJdbcDsParams();
     }
 

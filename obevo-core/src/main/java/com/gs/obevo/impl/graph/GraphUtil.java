@@ -24,7 +24,7 @@ package com.gs.obevo.impl.graph;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.collections.IteratorUtils;
+import com.gs.obevo.util.CollectionUtil;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ListIterable;
@@ -101,7 +101,7 @@ public final class GraphUtil {
                     }
                 };
 
-                IteratorUtils.toList(iterator);  // force iteration through the list
+                CollectionUtil.iteratorToList(iterator);  // force iteration through the list
 
                 return sb.toString();
             });

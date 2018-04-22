@@ -401,13 +401,24 @@ public abstract class DbDeployerAppContextImpl extends AbstractDeployerAppContex
 
     @Override
     public DbDeployerAppContext setupEnvInfra(boolean strictSetupEnvInfra) {
-        return setupEnvInfra(strictSetupEnvInfra, isForceEnvCreation());
+        return setupEnvInfra(strictSetupEnvInfra, null);
     }
 
     @Override
-    public DbDeployerAppContext setupEnvInfra(boolean strictSetupEnvInfra, boolean forceEnvCreation) {
-        getEnvironmentInfraSetup().setupEnvInfra(strictSetupEnvInfra, forceEnvCreation);
+    public DbDeployerAppContext setupEnvInfra(boolean strictSetupEnvInfra, Boolean forceEnvCreation) {
+        boolean willForceCreation = isWillForceCreation(forceEnvCreation);
+        getEnvironmentInfraSetup().setupEnvInfra(strictSetupEnvInfra, willForceCreation);
         return this;
+    }
+
+    private boolean isWillForceCreation(Boolean forceEnvCreation) {
+        if (forceEnvCreation != null) {
+            return forceEnvCreation;
+        } else if (env.getForceEnvInfraSetup() != null) {
+            return env.getForceEnvInfraSetup();
+        } else {
+            return isForceEnvCreation();
+        }
     }
 
     @Override

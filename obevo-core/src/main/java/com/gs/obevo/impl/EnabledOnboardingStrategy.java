@@ -22,7 +22,7 @@ import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.platform.DeployerRuntimeException;
 import com.gs.obevo.util.vfs.FileObject;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.vfs2.FileSystemException;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.set.ImmutableSet;
@@ -65,7 +65,7 @@ class EnabledOnboardingStrategy implements OnboardingStrategy {
             exceptionFile.createFile();
             try {
                 OutputStream outputStream = exceptionFile.getContent().getOutputStream(true);
-                IOUtils.write(ExceptionUtils.getFullStackTrace(exc), outputStream);
+                IOUtils.write(ExceptionUtils.getStackTrace(exc), outputStream);
                 outputStream.close();
             } catch (FileSystemException e) {
                 throw new DeployerRuntimeException(e);

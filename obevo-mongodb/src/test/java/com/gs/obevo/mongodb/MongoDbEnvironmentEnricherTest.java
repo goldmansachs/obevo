@@ -21,8 +21,8 @@ import com.gs.obevo.mongodb.api.appdata.MongoDbEnvironment;
 import com.gs.obevo.mongodb.impl.MongoDbEnvironmentEnricher;
 import com.gs.obevo.util.vfs.FileObject;
 import com.gs.obevo.util.vfs.FileRetrievalMode;
-import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.eclipse.collections.api.collection.MutableCollection;
+import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.factory.Sets;
 import org.junit.Test;
@@ -39,7 +39,7 @@ public class MongoDbEnvironmentEnricherTest {
         FileObject input = FileRetrievalMode.CLASSPATH.resolveSingleFileObject("MongoDbEnvironmentEnricher/system-config-basic.xml");
         HierarchicalConfiguration config = new XmlFileConfigReader().getConfig(input);
 
-        MutableCollection<MongoDbEnvironment> envs = enricher.readSystem(config, input).getEnvironments();
+        ImmutableCollection<MongoDbEnvironment> envs = enricher.readSystem(config, input);
 
         validateEnv1(envs.detect(attributeEqual(Environment::getName, "test1")));
         validateEnv2(envs.detect(attributeEqual(Environment::getName, "test2")));

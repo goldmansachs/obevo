@@ -15,8 +15,6 @@
  */
 package com.gs.obevo.dbmetadata.impl.dialects;
 
-import java.util.Collection;
-
 import javax.sql.DataSource;
 
 import com.gs.obevo.api.appdata.PhysicalSchema;
@@ -30,7 +28,7 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class PostgresqlDbMetadataManagerIT extends AbstractDbMetadataManagerIT {
     @Parameterized.Parameters
-    public static Collection<Object[]> params() {
+    public static Iterable<Object[]> params() {
         return PostgreSqlParamReader.getParamReader().getJdbcDsAndSchemaParams();
     }
 

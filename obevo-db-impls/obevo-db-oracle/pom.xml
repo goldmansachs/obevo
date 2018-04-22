@@ -51,7 +51,7 @@
         <profile>
             <id>amazon-build</id>
             <properties>
-                <dbCredsFile>amazon-oracle-creds.properties</dbCredsFile>
+                <dbCredsFile>amazon-oracle-creds.yaml</dbCredsFile>
             </properties>
 
             <dependencies>

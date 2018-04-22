@@ -31,11 +31,15 @@ class CreateDbInstance {
 
     public static void main(String[] args) throws Exception {
         CreateDbInstance instance = new CreateDbInstance();
+
 //        instance.createOracle(oracleDbInstanceId);
+
 //        instance.createSqlServer(sqlserverDbInstanceId);
+//        instance.delete(sqlserverDbInstanceId);
+
 //        instance.createPostgresql(postgresDbInstanceId);
+        instance.delete(postgresDbInstanceId);
 //        instance.describe(oracleDbInstanceId);
-        instance.delete(oracleDbInstanceId);
     }
 
     public void createOracle(String dbInstanceIdentifier) throws Exception {

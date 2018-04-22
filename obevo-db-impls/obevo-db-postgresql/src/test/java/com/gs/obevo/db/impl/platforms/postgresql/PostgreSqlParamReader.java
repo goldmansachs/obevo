@@ -16,25 +16,9 @@
 package com.gs.obevo.db.impl.platforms.postgresql;
 
 import com.gs.obevo.db.testutil.ParamReader;
-import com.typesafe.config.ConfigFactory;
-import org.apache.commons.lang3.StringUtils;
-import org.eclipse.collections.impl.factory.Maps;
 
 public class PostgreSqlParamReader {
     public static ParamReader getParamReader() {
-        String dbCredsFile = System.getProperty("dbCredsFile");
-        if (StringUtils.isEmpty(dbCredsFile)) {
-            dbCredsFile = "postgresql-creds.properties";
-        }
-
-        return new ParamReader(
-                ConfigFactory.parseResources(dbCredsFile),
-                "postgresql",
-                ConfigFactory.parseMap(Maps.mutable.<String, Object>of(
-                        "sysattrs.type", "POSTGRESQL",
-                        "logicalSchemas.schema1", "schema1",
-                        "logicalSchemas.schema2", "schema2"
-                ))
-        );
+        return ParamReader.fromPath(System.getProperty("dbCredsFile"), "postgresql-creds.yaml");
     }
 }

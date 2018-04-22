@@ -41,7 +41,7 @@ import com.gs.obevo.impl.text.TextDependencyExtractor;
 import com.gs.obevo.util.inputreader.ConsoleInputReader;
 import com.gs.obevo.util.inputreader.Credential;
 import com.gs.obevo.util.inputreader.UserInputReader;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.bag.MutableBag;

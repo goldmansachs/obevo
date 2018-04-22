@@ -16,18 +16,30 @@
 package com.gs.obevo.util;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.predicate.Predicate2;
+import org.eclipse.collections.api.list.ImmutableList;
+import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.multimap.list.MutableListMultimap;
 import org.eclipse.collections.impl.collection.mutable.CollectionAdapter;
+import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Multimaps;
 
 public class CollectionUtil {
+    public static <T> ImmutableList<T> iteratorToList(Iterator<T> iterator) {
+        MutableList<T> list = Lists.mutable.empty();
+        while (iterator.hasNext()) {
+            list.add(iterator.next());
+        }
+        return list.toImmutable();
+    }
+
     public static <T> T returnOne(RichIterable<? extends T> coll, String message) {
         if (coll.size() > 1) {
-            throw new IllegalArgumentException("Expectiong only 1 message in this coll (" + message
+            throw new IllegalArgumentException("Expectiong only 1 message in this collection (" + message
                     + "), got this instead: " + coll);
         } else if (coll.size() == 1) {
             return coll.iterator().next();
@@ -38,7 +50,7 @@ public class CollectionUtil {
 
     public static <T> T returnOnlyOne(RichIterable<? extends T> coll, String message) {
         if (coll.size() > 1 || coll.size() == 0) {
-            throw new IllegalArgumentException("Expectiong only 1 message in this coll (" + message
+            throw new IllegalArgumentException("Expectiong only 1 message in this collection (" + message
                     + "), got this instead: " + coll);
         } else {
             return coll.iterator().next();
@@ -47,7 +59,7 @@ public class CollectionUtil {
 
     public static <T> T returnOne(Collection<? extends T> coll, String message) {
         if (coll.size() > 1) {
-            throw new IllegalArgumentException("Expectiong only 1 message in this coll (" + message
+            throw new IllegalArgumentException("Expectiong only 1 message in this collection (" + message
                     + "), got this instead: " + coll);
         } else if (coll.size() == 1) {
             return coll.iterator().next();

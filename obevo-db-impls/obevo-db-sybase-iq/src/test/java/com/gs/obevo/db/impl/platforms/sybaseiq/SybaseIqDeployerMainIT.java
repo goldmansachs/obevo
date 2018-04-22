@@ -15,8 +15,6 @@
  */
 package com.gs.obevo.db.impl.platforms.sybaseiq;
 
-import java.util.Collection;
-
 import javax.sql.DataSource;
 
 import com.gs.obevo.db.api.platform.DbDeployerAppContext;
@@ -33,7 +31,7 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class SybaseIqDeployerMainIT {
     @Parameterized.Parameters
-    public static Collection<Object[]> params() {
+    public static Iterable<Object[]> params() {
         return SybaseIqParamReader.getParamReader().getAppContextAndJdbcDsParams();
     }
 

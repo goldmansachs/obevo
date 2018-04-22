@@ -16,10 +16,11 @@
 package com.gs.obevo.api.appdata;
 
 import com.gs.obevo.api.platform.ChangeType;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
+import org.eclipse.collections.impl.factory.Lists;
 
 public class ChangeIncremental extends Change {
     private String rollbackIfAlreadyDeployedContent;
@@ -48,7 +49,7 @@ public class ChangeIncremental extends Change {
     private transient boolean forceDropForEnvCleaning;
 
     public MutableCollection<String> getBaselinedChanges() {
-        return this.baselinedChanges;
+        return baselinedChanges == null ? Lists.mutable.empty() : baselinedChanges;
     }
 
     public void setBaselinedChanges(MutableCollection<String> baselinedChanges) {

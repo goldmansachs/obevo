@@ -16,17 +16,9 @@
 package com.gs.obevo.db.impl.platforms.h2;
 
 import com.gs.obevo.db.testutil.ParamReader;
-import com.typesafe.config.ConfigFactory;
-import org.eclipse.collections.impl.factory.Maps;
 
 class H2ParamReader {
     public static ParamReader getParamReader() {
-        return new ParamReader(ConfigFactory.parseResources("h2-creds.properties"),
-                "h2", ConfigFactory.parseMap(Maps.mutable.<String, Object>of(
-                "sysattrs.type", "H2",
-                "logicalSchemas.schema1", "SCHEMA1",
-                "logicalSchemas.schema2", "SCHEMA2"
-        ))
-        );
+        return ParamReader.fromPath("h2-creds.yaml");
     }
 }

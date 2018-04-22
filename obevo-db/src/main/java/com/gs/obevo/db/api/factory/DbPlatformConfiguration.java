@@ -17,12 +17,11 @@ package com.gs.obevo.db.api.factory;
 
 import com.gs.obevo.api.factory.PlatformConfiguration;
 import com.gs.obevo.db.api.platform.DbPlatform;
-import com.typesafe.config.Config;
-import org.eclipse.collections.api.block.function.Function;
+import org.apache.commons.configuration2.ImmutableHierarchicalConfiguration;
 import org.eclipse.collections.api.list.ImmutableList;
+import org.eclipse.collections.api.list.ListIterable;
 import org.eclipse.collections.api.set.ImmutableSet;
-import org.eclipse.collections.impl.factory.Sets;
-import org.eclipse.collections.impl.set.mutable.SetAdapter;
+import org.eclipse.collections.impl.list.mutable.ListAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,15 +54,7 @@ public class DbPlatformConfiguration extends PlatformConfiguration {
     }
 
     private ImmutableSet<String> createExtraEnvAttrs() {
-        if (!this.getConfig().hasPath("extraEnvAttrs")) {
-            return Sets.immutable.empty();
-        }
-        final Config attrConfig = this.getConfig().getConfig("extraEnvAttrs");
-        return SetAdapter.adapt(attrConfig.root().keySet()).collect(new Function<String, String>() {
-            @Override
-            public String valueOf(String attrNumber) {
-                return attrConfig.getConfig(attrNumber).getString("name");
-            }
-        }).toImmutable();
+        ListIterable<ImmutableHierarchicalConfiguration> extraEnvAttrs = ListAdapter.adapt(getConfig().immutableChildConfigurationsAt("extraEnvAttrs"));
+        return extraEnvAttrs.collect(c -> c.getString("name")).toSet().toImmutable();
     }
 }

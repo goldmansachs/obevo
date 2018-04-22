@@ -30,7 +30,6 @@ import com.gs.obevo.impl.command.IncompleteBaselineWarning;
 import com.gs.obevo.impl.command.ParallelDeployChangeCommand;
 import com.gs.obevo.impl.command.UnmanageChangeCommand;
 import com.gs.obevo.util.DAStringUtil;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.collections.api.RichIterable;
@@ -133,7 +132,7 @@ public class IncrementalChangeTypeCommandCalculator implements ChangeTypeCommand
                             || !incrementalSource.isActive()) {
                         LOG.debug("Removal of change {} is okay as it had getRollbackIfAlreadyDeployedContent set or it was marked as inactive", incrementalSource);
                     } else {
-                        if (CollectionUtils.isEmpty(incrementalSource.getBaselinedChanges())) {
+                        if (incrementalSource.getBaselinedChanges().isEmpty()) {
                             if (incrementalSource.isDrop()) {
                                 // don't order this as a drop explicitly - put it in the right order
                                 if (!incrementalSource.isManuallyCodedDrop()) {

@@ -21,13 +21,17 @@ import java.util.Properties;
 
 import com.gs.obevo.api.appdata.doc.TextMarkupDocument;
 import com.gs.obevo.api.appdata.doc.TextMarkupDocumentSection;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
+import org.apache.commons.configuration2.BaseHierarchicalConfiguration;
+import org.apache.commons.configuration2.ConfigurationConverter;
+import org.apache.commons.configuration2.ConfigurationUtils;
+import org.apache.commons.configuration2.ImmutableHierarchicalConfiguration;
+import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.ImmutableMap;
 import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.impl.block.factory.StringFunctions;
 import org.eclipse.collections.impl.block.factory.StringPredicates;
 import org.eclipse.collections.impl.factory.Maps;
+import org.eclipse.collections.impl.list.mutable.ListAdapter;
 
 /**
  * Class to parse the content of a string into {@link PackageMetadata}.
@@ -58,34 +62,31 @@ class PackageMetadataReader {
         }
     }
 
-    private Config getConfig(String configContent) {
+    private ImmutableHierarchicalConfiguration getConfig(String configContent) {
         if (configContent == null) {
-            return ConfigFactory.empty();
+            return new BaseHierarchicalConfiguration();
         }
 
         Properties props = new Properties();
         try {
             props.load(new StringReader(configContent));
-            return ConfigFactory.parseProperties(props);
+            return ConfigurationUtils.convertToHierarchical(ConfigurationConverter.getConfiguration(props));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private ImmutableMap<String, String> getSourceEncodings(Config metadataConfig) {
-        if (metadataConfig.hasPath("sourceEncodings")) {
-            Config sourceEncodings = metadataConfig.getConfig("sourceEncodings");
+    private ImmutableMap<String, String> getSourceEncodings(ImmutableHierarchicalConfiguration metadataConfig) {
+        MutableList<ImmutableHierarchicalConfiguration> encodingConfigs = ListAdapter.adapt(metadataConfig.immutableChildConfigurationsAt("sourceEncodings"));
+        MutableMap<String, String> encodingsMap = Maps.mutable.empty();
 
-            MutableMap<String, String> encodingsMap = Maps.mutable.empty();
-            for (String encoding : sourceEncodings.root().keySet()) {
-                String fileList = sourceEncodings.getString(encoding);
-                for (String file : fileList.split(",")) {
-                    encodingsMap.put(file, encoding);
-                }
+        for (ImmutableHierarchicalConfiguration encodingConfig : encodingConfigs) {
+            String fileList = encodingConfig.getString("");
+            for (String file : fileList.split(",")) {
+                encodingsMap.put(file, encodingConfig.getRootElementName());
             }
-
-            return encodingsMap.toImmutable();
         }
-        return Maps.immutable.empty();
+
+        return encodingsMap.toImmutable();
     }
 }

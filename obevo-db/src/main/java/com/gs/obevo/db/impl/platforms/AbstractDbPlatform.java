@@ -38,7 +38,7 @@ import com.gs.obevo.db.api.platform.SqlExecutor;
 import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
 import com.gs.obevo.db.apps.reveng.ChangeEntry;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
-import com.typesafe.config.Config;
+import org.apache.commons.configuration2.ImmutableHierarchicalConfiguration;
 import org.apache.commons.lang3.Validate;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.collection.MutableCollection;
@@ -327,7 +327,7 @@ public abstract class AbstractDbPlatform implements DbPlatform {
     @Override
     public DbMetadataManager getDbMetadataManager() {
         DbPlatformConfiguration dbPlatformConfiguration = DbPlatformConfiguration.getInstance();
-        Config platformConfig = dbPlatformConfiguration.getPlatformConfig(getName());
+        ImmutableHierarchicalConfiguration platformConfig = dbPlatformConfiguration.getPlatformConfig(getName());
         String dbMetadataManagerClass = platformConfig.getString("dbMetadataManager.class");
         try {
             return (DbMetadataManager) Class.forName(dbMetadataManagerClass).newInstance();
