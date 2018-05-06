@@ -29,20 +29,23 @@ public class DeployerArgsTest {
         assertEquals("abc", args.getSourcePath());
         assertNull(args.getEnvNames());
         assertNull(args.getChangesets());
+        assertEquals(null, args.getForceEnvSetup());
     }
 
     @Test
     public void testEnvs() {
-        DeployerArgs args = parseArgs("-sourcePath abc -env e1,e2,e3");
+        DeployerArgs args = parseArgs("-sourcePath abc -env e1,e2,e3 -forceEnvSetup");
         assertEquals("abc", args.getSourcePath());
         assertArrayEquals(new String[] { "e1", "e2", "e3" }, args.getEnvNames());
+        assertEquals(true, args.getForceEnvSetup());
     }
 
     @Test
     public void testChangesets() {
-        DeployerArgs args = parseArgs("-sourcePath abc -changesets c1,c2,c3");
+        DeployerArgs args = parseArgs("-sourcePath abc -changesets c1,c2,c3 -forceEnvSetup");
         assertEquals("abc", args.getSourcePath());
         assertArrayEquals(new String[] { "c1", "c2", "c3" }, args.getChangesets());
+        assertEquals(true, args.getForceEnvSetup());
     }
 
     private DeployerArgs parseArgs(String argsStr) {

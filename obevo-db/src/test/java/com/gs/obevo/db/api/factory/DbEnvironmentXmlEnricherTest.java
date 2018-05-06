@@ -111,14 +111,19 @@ public class DbEnvironmentXmlEnricherTest {
         assertEquals("pass", user2.getPassword());
         assertTrue(user2.isAdmin());
 
+        // serverDirectories is defined as a parent attribute, so this should match across all envs ...
         assertThat(env1.getServerDirectories(), containsInAnyOrder(
                 new ServerDirectory("dir1", "path1"),
                 new ServerDirectory("dir2", "path2")
         ));
-        // serverDirectories is defined as a parent attribute, so this should match across all envs
-        assertEquals(env1.getServerDirectories(), env2.getServerDirectories());
-        assertEquals(env1.getServerDirectories(), env3.getServerDirectories());
-        assertEquals(env1.getServerDirectories(), env4.getServerDirectories());
+        assertEquals(env3.getServerDirectories(), env1.getServerDirectories());
+        assertEquals(env4.getServerDirectories(), env1.getServerDirectories());
+
+        // ... but we override the value for env2
+        assertThat(env2.getServerDirectories(), containsInAnyOrder(
+                new ServerDirectory("dir2", "path2_forTest2"),
+                new ServerDirectory("dir3", "path3")
+        ));
 
         assertEquals(DbEnvironmentXmlEnricherTest1DbPlatform.class, env1.getPlatform().getClass());
         assertFalse(env1.isAutoReorgEnabled());

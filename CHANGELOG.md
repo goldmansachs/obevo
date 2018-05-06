@@ -1,6 +1,12 @@
 # Change Log
 
-## 6.5.3
+## 6.6.0
+
+### Functionality Improvements
+#142: Support Oracle DIRECTORY objects at setup time.
+
+### Technical Improvements
+#173: Support YAML/JSON configurations and move away from type safe config towards commons-config v2
 
 ### Bug Fixes
 #165: Supporting Unicode in regular table/db object files and avoiding "TokenMgrError: Lexical error at line ..." issues

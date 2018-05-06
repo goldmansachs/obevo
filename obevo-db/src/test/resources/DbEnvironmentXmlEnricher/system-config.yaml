@@ -79,7 +79,8 @@ serverDirectories:
     name: dir2
 environments:
   dbEnvironment:
-  - disableAuditTracking: 'true'
+  - name: test1
+    disableAuditTracking: 'true'
     defaultUserId: defId
     dbHost: host
     type: DEV
@@ -94,7 +95,6 @@ environments:
     persistToFile: 'true'
     defaultTablespace: defTab
     jdbcUrl: url
-    name: test1
     includeSchemas: SCHEMA1,SCHEMA2
     dbSchemaSuffix: suff
     tokens:
@@ -112,7 +112,8 @@ environments:
       schemaOverride:
       - schema: SCHEMA1
         overrideValue: overriden_SCHEMA1
-  - invalidObjectCheckEnabled: 'false'
+  - name: test2
+    invalidObjectCheckEnabled: 'false'
     excludeSchemas: SCHEMA1,SCHEMA2
     permissions:
       permission:
@@ -122,16 +123,21 @@ environments:
           groups: DACT_RW_BATCH1, DACT_RW_BATCH2, DACT_RW
           users: CMDRRWDB
     reorgCheckEnabled: 'false'
-    name: test2
     type: UAT
     cleanBuildAllowed: 'false'
     schemaOverrides:
     - schemaOverride:
         schema: SCHEMA3
         overrideValue: overriden_SCHEMA1
-  - autoReorgEnabled: 'true'
+    serverDirectories:
+      serverDirectory:
+      - name: dir2
+        directoryPath: path2_forTest2
+      - name: dir3
+        directoryPath: path3
+  - name: test3
+    autoReorgEnabled: 'true'
     dbPort: '1234'
-    name: test3
     dbHost: myhost1.me.com
     dbSchemaSuffix: _MYSUFFIX
     type: DEV
@@ -141,10 +147,10 @@ environments:
     - schemaOverride:
         schema: SCHEMA4_RO
         overrideValue: overriden_SCHEMA4_RO
-  - autoReorgEnabled: 'true'
+  - name: test4
+    autoReorgEnabled: 'true'
     dbPort: '1234'
     dbSchemaPrefix: MYPREFIX_
-    name: test4
     dbHost: myhost1.me.com
     type: DEV
     cleanBuildAllowed: 'true'
