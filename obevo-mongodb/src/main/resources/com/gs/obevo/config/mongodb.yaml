@@ -13,5 +13,10 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-obevo.configPriority=10
-db.platforms.MONGODB.class=com.gs.obevo.mongodb.impl.MongoDbPlatform
+obevo:
+  configPriority: 10
+
+db:
+  platforms:
+    MONGODB:
+      class: com.gs.obevo.mongodb.impl.MongoDbPlatform
