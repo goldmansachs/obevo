@@ -90,7 +90,7 @@
             <item name="HSQLDB" href="general-db-notes.html" />
             <item name="H2" href="general-db-notes.html" />
             <item name="MongoDB" href="mongodb-notes.html" />
-            <item name="Oracle" href="general-db-notes.html" />
+            <item name="Oracle" href="oracle-notes.html" />
             <item name="PostgreSQL" href="general-db-notes.html" />
             <item name="Redshift" href="redshift-notes.html" />
             <item name="SQL Server" href="sybase-ase-notes.html" />

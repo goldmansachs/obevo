@@ -121,6 +121,10 @@
                         privileges="SELECT, INSERT, UPDATE, DELETE" />
                 </permission>
             </permissions>
+            <serverDirectories>
+                <serverDirectory name="dir2" directoryPath="path2_forTest2" />
+                <serverDirectory name="dir3" directoryPath="path3" />
+            </serverDirectories>
         </dbEnvironment>
         <dbEnvironment name="test3" type="DEV" cleanBuildAllowed="true" dbHost="myhost1.me.com"
             dbPort="1234"
