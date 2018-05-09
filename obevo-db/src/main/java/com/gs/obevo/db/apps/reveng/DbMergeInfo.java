@@ -18,7 +18,7 @@ package com.gs.obevo.db.apps.reveng;
 import java.io.File;
 
 import org.apache.commons.configuration2.Configuration;
-import org.eclipse.collections.api.collection.MutableCollection;
+import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.impl.collection.mutable.CollectionAdapter;
@@ -38,14 +38,22 @@ class DbMergeInfo {
         this.inputDir = inputDir;
     }
 
-    public static MutableCollection<DbMergeInfo> parseFromProperties(Configuration config) {
+    public static RichIterable<DbMergeInfo> parseFromProperties(Configuration config) {
         MutableSet<String> dbs = CollectionAdapter.wrapSet(config.getList(String.class, "instances", Lists.mutable.empty()));
 
+        MutableList<String> exceptions = Lists.mutable.empty();
         MutableList<DbMergeInfo> dbMergeInfos = Lists.mutable.empty();
         for (String db : dbs) {
             Configuration subset = config.subset(db);
             if (subset.containsKey("inputDir")) {
                 File inputDir = new File(subset.getString("inputDir"));
+                if (!inputDir.canRead()) {
+                    if (inputDir.getPath().contains("\r")) {
+                        exceptions.add("Could not find " + db + "." + "inputDir file (use forward-slash instead of back-slash in path): " + inputDir.getPath().replaceAll("\r", ""));
+                    } else {
+                        exceptions.add("Could not find " + db + "." + "inputDir file: " + inputDir);
+                    }
+                }
                 DbMergeInfo mergeInfo = new DbMergeInfo(db, inputDir);
                 if (subset.containsKey("driverClassName")) {
                     mergeInfo.setDriverClassName(subset.getString("driverClassName"));
@@ -59,6 +67,9 @@ class DbMergeInfo {
             }
         }
 
+        if (exceptions.notEmpty()) {
+            throw new IllegalArgumentException("Invalid properties found in configuration:\n" + exceptions.collect(it -> "* " + it).makeString("\n"));
+        }
         return dbMergeInfos;
     }
 
