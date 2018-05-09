@@ -25,4 +25,4 @@ echo Setting OBEVO_CLASSPATH variable as ${OBEVO_CLASSPATH}
 REST_OF_ARGS=${*:2}
 
 # *** Now delegating to the full script
-${OBEVO_HOME}/bin/deploy.sh ${REST_OF_ARGS}
+"${OBEVO_HOME}/bin/deploy.sh" ${REST_OF_ARGS}

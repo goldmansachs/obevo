@@ -32,4 +32,4 @@ GOTO loop1
 :after_loop
 
 REM *** Now delegating to the full script
-%OBEVO_HOME%\bin\deploy.bat %REST_OF_ARGS%
+"%OBEVO_HOME%\bin\deploy.bat" %REST_OF_ARGS%

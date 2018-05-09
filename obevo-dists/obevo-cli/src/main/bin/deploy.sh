@@ -36,4 +36,4 @@ CLASSPATH=${OBEVO_CLASSPATH}:${OBEVO_HOME}/conf:${OBEVO_HOME}/extlib/*:${OBEVO_H
 # *** Set OBEVO_LIBRARY_PATH if we need to add any library paths to the execution, e.g. for Sybase IQ client loads ***
 LD_LIBRARY_PATH=${OBEVO_LIBRARY_PATH}:${LD_LIBRARY_PATH}
 
-${JAVA_HOME}/bin/java $OBEVO_JAVA_OPTS -cp ${CLASSPATH} com.gs.obevo.dist.Main $@
+"${JAVA_HOME}/bin/java" $OBEVO_JAVA_OPTS -cp "${CLASSPATH}" com.gs.obevo.dist.Main $@
