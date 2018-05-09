@@ -32,9 +32,8 @@ import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.convert.LegacyListDelimiterHandler;
-import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.vfs2.FileType;
-import org.eclipse.collections.api.collection.MutableCollection;
+import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.api.tuple.Pair;
@@ -149,21 +148,25 @@ public class DbFileMerger {
     }
 
     public void execute(DbFileMergerArgs args) {
+        PropertiesConfiguration config;
+        RichIterable<DbMergeInfo> dbNameLocationPairs;
         try {
-            PropertiesConfiguration config = new FileBasedConfigurationBuilder<>(PropertiesConfiguration.class)
+            config = new FileBasedConfigurationBuilder<>(PropertiesConfiguration.class)
                     .configure(new Parameters().properties()
                             .setFile(args.getDbMergeConfigFile())
                             .setListDelimiterHandler(new LegacyListDelimiterHandler(','))
                     )
                     .getConfiguration();
-            DbPlatform dialect = DbPlatformConfiguration.getInstance().valueOf(config.getString("dbType"));
-            this.generateDiffs(dialect, DbMergeInfo.parseFromProperties(config), args.getOutputDir());
-        } catch (ConfigurationException e) {
-            throw new DeployerRuntimeException(e);
+            dbNameLocationPairs = DbMergeInfo.parseFromProperties(config);
+        } catch (Exception e) {
+            throw new DeployerRuntimeException("Exception reading configs from file " + args.getDbMergeConfigFile(), e);
         }
+
+        DbPlatform dialect = DbPlatformConfiguration.getInstance().valueOf(config.getString("dbType"));
+        this.generateDiffs(dialect, dbNameLocationPairs, args.getOutputDir());
     }
 
-    private void generateDiffs(DbPlatform dialect, MutableCollection<DbMergeInfo> dbNameLocationPairs, File outputDir) {
+    private void generateDiffs(DbPlatform dialect, RichIterable<DbMergeInfo> dbNameLocationPairs, File outputDir) {
         System.out.println("Generating diffs for " + dbNameLocationPairs);
         MultiKeyMap objectMap = new MultiKeyMap();
         for (DbMergeInfo dbNameLocationPair : dbNameLocationPairs) {

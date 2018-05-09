@@ -92,9 +92,9 @@ public class TableSyncher {
         } catch (ConfigurationException e) {
             throw new RuntimeException(e);
         }
-        MutableCollection<DbMergeInfo> dbMergeInfos = DbMergeInfo.parseFromProperties(config);
+        RichIterable<DbMergeInfo> dbMergeInfos = DbMergeInfo.parseFromProperties(config);
 
-        MutableCollection<TableSyncSide> tableSyncSides = dbMergeInfos.collect(new Function<DbMergeInfo, TableSyncSide>() {
+        RichIterable<TableSyncSide> tableSyncSides = dbMergeInfos.collect(new Function<DbMergeInfo, TableSyncSide>() {
             @Override
             public TableSyncSide valueOf(DbMergeInfo dbMergeInfo) {
                 DataSource ds = ds(dbMergeInfo.getDriverClassName(), dbMergeInfo.getUrl(), dbMergeInfo.getUsername(),

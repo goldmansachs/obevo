@@ -19,9 +19,17 @@ import java.io.File;
 
 import com.gs.obevo.db.testutil.DirectoryAssert;
 import org.apache.commons.io.FileUtils;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.internal.matchers.ThrowableMessageMatcher.hasMessage;
 
 public class DbFileMergerTest {
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     @Test
     public void basicMergeTest() {
         FileUtils.deleteQuietly(new File("./target/merge/unittest"));
@@ -33,5 +41,15 @@ public class DbFileMergerTest {
                 new File("./src/test/resources/scenariotests/reveng-merge/expected")
                 , new File("./target/merge/unittest")
         );
+    }
+
+    @Test
+    public void inputValidationTest() {
+        thrown.expectCause(hasMessage(containsString("db1.inputDir file (use forward-slash")));
+        thrown.expectCause(hasMessage(containsString("db2.inputDir file")));
+        FileUtils.deleteQuietly(new File("./target/merge/unittest"));
+
+        DbFileMerger.main(("-dbMergeConfigFile src/test/resources/scenariotests/reveng-merge/merge-config-inputerror.txt " +
+                "-outputDir ./target/merge/unittest").split(" "));
     }
 }
