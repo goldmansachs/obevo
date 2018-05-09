@@ -9,8 +9,10 @@
 #173: Support YAML/JSON configurations and move away from type safe config towards commons-config v2
 
 ### Bug Fixes
+#125: Clarify error messages when reading merge config file (missing input dirs, forward-slashes specified)
 #165: Supporting Unicode in regular table/db object files and avoiding "TokenMgrError: Lexical error at line ..." issues
 #169: Fixing missing quotes in deploy.sh/bat files in obevo-cli; otherwise, spaces in JAVA_HOME or OBEVO_HOME were not supported.
+#166: Clearer error message if an invalid platform type is specified in config
 
 
 ## 6.5.2
