@@ -12,7 +12,7 @@ Or looking to improve the DB Deployment of a years-old system with hundreds (or 
 
 Obevo has your use case covered.
 
-Supported platforms: DB2, H2, HSQLDB, MongoDB, Oracle, PostgreSQL, Redshift, Sybase ASE, Sybase IQ
+Supported platforms: DB2, H2, HSQLDB, Microsoft SQL Server, MongoDB, Oracle, PostgreSQL, Redshift (from Amazon), Sybase ASE, Sybase IQ
 
 
 ## RDBMS and NoSQL (MongoDB) platforms supported!

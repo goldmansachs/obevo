@@ -1,0 +1,82 @@
+<!--
+
+    Copyright 2017 Goldman Sachs.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+
+# Parallel Deploy Execution
+
+By default, Obevo will execute changes in a deterministic sorted order
+and in a single-thread. This is to ensure that the deploy execution is
+done in the same deterministic way across environments. If it were
+multi-threaded, then we cannot control the deploy order among the
+different threads.
+
+However, at times we may want to execute changes in parallel, notably if
+we expect to invoke a number of long-running activities that would take
+far too long to run in serial. Assuming no dependencies between these
+changes, we can declare them to run in parallel.
+
+To take advantage of this feature, use the *parallelGroup* attribute in
+your incremental //// CHANGE command (this feature is not avaiable for
+rerunnable objects).
+
+For example, the following 3 objects will have the REORG steps defined
+to run in parallel, as REORGs can take a long time.
+
+TABLE_SHARDED_1.sql
+
+```
+//// CHANGE name="init"
+CREATE TABLE TABLE_SHARDED_1 (
+    FIELD1 INT NULL
+) IN ${defaultTablespace}
+GO
+
+//// CHANGE name="reorg" parallelGroup="reorgGroup"
+call sysproc.admin_cmd ('reorg table ${MYSCHEMA_physicalName}.TABLE_SHARDED_1')
+GO
+```
+
+TABLE_SHARDED_2.sql
+
+```
+//// CHANGE name="init"
+CREATE TABLE TABLE_SHARDED_1 (
+    FIELD1 INT NULL
+) IN ${defaultTablespace}
+GO
+
+//// CHANGE name="reorg" parallelGroup="reorgGroup"
+call sysproc.admin_cmd ('reorg table ${MYSCHEMA_physicalName}.TABLE_SHARDED_1')
+GO
+```
+
+TABLE_SHARDED_3.sql
+
+```
+//// CHANGE name="init"
+CREATE TABLE TABLE_SHARDED_1 (
+    FIELD1 INT NULL
+) IN ${defaultTablespace}
+GO
+
+//// CHANGE name="reorg" parallelGroup="reorgGroup"
+call sysproc.admin_cmd ('reorg table ${MYSCHEMA_physicalName}.TABLE_SHARDED_1')
+GO
+```
+
+The changes in that group will deploy in parallel, and only once all the
+changes are completed will the tool move onto deploying the next object.
