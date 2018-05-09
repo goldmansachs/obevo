@@ -60,7 +60,7 @@ Element Descriptions:
 * Then specify a &lt;grant&gt; entry for each kind of user/group and privilege combo that you want to add.
 
 So the above will translate to the following grants:
-* Note: the exact grant statements may differ per DBMS type. e.g. some platforms do not require the GROUP or USER keyword to be specified
+* Note: the _exact grant statements may differ per DBMS type_. e.g. some platforms do not require the GROUP or USER keyword to be specified
 
 ```
 // for TableA on its default permission scheme TABLE

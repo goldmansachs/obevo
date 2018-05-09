@@ -1,0 +1,326 @@
+<!--
+
+    Copyright 2017 Goldman Sachs.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+
+# Rollback
+
+What should you consider when rolling back? Read on for the various
+options.
+
+------------------------------------------------------------------------
+
+<!-- MACRO{toc|fromDepth=0|toDepth=2} -->
+
+## Roll-back / roll-forward considerations during or after DB deployment
+
+
+This section describes actions you would take to handle issues that
+prevent you from otherwise proceeding (or planning ahead for such
+cases). The main use cases:
+
+1.  UC1: Issues during a deployment execution (i.e. the previous
+    section)
+2.  UC2: Issues during application execution after a successful DB
+    deployment, or for planning ahead for such cases (e.g. rollback
+    preparation)
+    -   i.e. in case the DB deployment succeeds, and the application
+        rollout does not, you have two choices with your application:
+        roll-forward or roll-back. Roll-forward should imply that your
+        database changes can remain. What about rolling the application
+        back - what then with your DB code?
+
+The following are various paradigms to follow to handle or plan for
+these situations. We list these out in priority order:
+
+1.  (Most favored) Avoiding rollbacks using backwards-compatible changes
+2.  Rolling forward, i.e. executing new changes to rollback
+3.  Backing up the whole DB (e.g. dbdump and restore)
+4.  (Least favored) Traditional rollback, i.e. preparing rollback
+    scripts alongside your release
+
+You may ultimately need to consider all options; e.g. you may always
+write backwards-compatible changes, but you may still need to roll
+forward in some cases.
+
+More details on each section:
+
+### Paradigm 1: Avoiding rollbacks using backwards-compatible changes
+
+(Only applicable for UC2)
+
+If it were easy to put your database back into its previous state, then
+great. Most often, it is not the case, as tables are stateful objects.
+For example, adding and then removing table columns would mean
+physically changing all the rows in the database, which can be an
+expensive operation. Not to mention that such a rollback operation
+should also be tested.
+
+What is an easier way to roll back your DB changes then? How
+about...not rolling them back at all?
+
+Making your DB schema changes backwards-compatible to your code would
+help in this regard. The DB migration can only be done once and not
+worried about again, as this is a relatively more expensive operation
+than app binary updates.
+
+Some teams have taken it as far as **<u>releasing DB code changes far in
+advance of application code changes</u>** as to prove backwards
+compatibility.
+
+Some general rules on what changes are/aren't backwards-compatible:
+
+-   Backwards-compatible: adding a nullable column
+-   NOT Backwards-compatible: adding a non-nullable column
+-   NOT Backwards-compatible: removing a column in use in production
+    today
+-   Backwards-compatible: removing a column that is not used in
+    production code and has no risk of being used due to rollback
+-   Risk of NOT Backwards-compatible: stored procedure or view changes;
+    treat this as you would treat code in terms of attempting to
+    preserve backwards-compatibility
+
+More notes here on [Martin Fowler's page](http://martinfowler.com/articles/evodb.html)
+(search for references to "destructive chagnes")
+
+However, you may not be able to escape such non-backwards-compatible
+changes; or you may choose not choose for the overhead of
+backwards-compatible changes. Then choose from the next possible
+options.
+
+
+### Paradigm 2: Rolling forward, i.e. executing new changes to rollback
+
+Instead of preparing to rollback, you may instead choose to release a
+new patch version to fix the issue with your release. The patch can be
+either in your application code or in your database code.
+
+A risk here is that you do not have your changes pre-planned, and so if
+an issue comes up, you would need to come up w/ a solution on the fly.
+However, depending on your application characteristics (well-tested,
+nimble for making and deploying changes, able to cope with the bug for
+long enough), this can be suitable for you as this saves the overhead of
+planning out backwards-compatible changes or rollback scripts.
+
+To roll forward, treat this change much as you would treat a patch
+release, e.g.
+
+-   Check out your prod tag/branch that has these DB changes
+-   Add a new //// CHANGE to the file to undo the impact of the change
+    that you added
+-   Commit your code
+-   Execute the deploy...
+
+... For executing the deploy, you have options:
+
+1.  You can always go through the standard deployment process to release
+    this change (i.e. much as you would for an application code change).
+    This is the preferred approach
+2.  Or you may feel you can't wait for the build to go through. In that
+    case, you can just call Obevo locally against your checked-out code.
+    (It is just Java after all; it can execute anywhere. But ensure that
+    your code is committed)
+    -   However, from an SDLC perspective, this is not recommended.
+        Please try to abide by your team's/firm's build and release
+        practices.
+
+
+### Paradigm 3: Backing up the whole DB (e.g. dbdump and restore)
+
+Ultimately, the purest form of rollback would be to take a raw copy of
+the DB before doing the deployment, and then switching back to it if the
+code also needs to get rolled back.
+
+Some DBMSs (e.g. Sybase ASE) do provide such tooling for this (e.g.
+dbdump and restore). Thus, you can resort to this mode of rollback if
+you choose (likely, your DBAs should be taking backups of your DB
+anyway). As the Obevo audit table is also physically on your target DB,
+the state of the audit table will also get rolled back to where it
+should be.
+
+The main negative with this approach is if your DB is huge, then this
+process will take a while to run and requires a lot of disk storage in
+your infrastructure. Hence, most teams will not go with this for
+practical reasons, but certainly if you have the resources and time for
+it, this is an acceptable option.
+
+
+### Paradigm 4: Traditional rollback, i.e. preparing rollback scripts alongside your release
+
+Obevo supports rollback by simply allowing developers to point to their
+old DB package and re-deploy w/ the -rollback flag attached
+
+For example:
+
+```
+# do the deployment of version 1
+$OBEVO_HOME/bin/deploy.bat DEPLOY -env prod -sourcePath /home/myuser/mypackage/1.0.0/db
+
+# do the deployment of version 2 (which contains rollback scripts if needed)
+$OBEVO_HOME/bin/deploy.bat DEPLOY -env prod -sourcePath /home/myuser/mypackage/2.0.0/db
+
+# let's say that goes bad; we'll rollback to version 1 by deploying it w/ the -rollback tag
+$OBEVO_HOME/bin/deploy.bat DEPLOY -env prod -sourcePath /home/myuser/mypackage/1.0.0/db -rollback
+```
+
+In the example above, the changes in version 2 need to include the
+rollback scripts.
+
+In terms of what roll providing the scripts:
+
+-   For stateless objects (i.e. everything except "table" changes):
+    nothing extra is needed. Obevo simply detects the objects in the old
+    location and applies those (doing the appropriate drops and adds as
+    necessary)
+-   For tables:
+    -   If you don't want to add a rollback script for a particular
+        //// CHANGE, nothing extra is needed. Obevo will simply let the
+        change remain.
+    -   If you do want a rollback script for a particular //// CHANGE,
+        add a // ROLLBACK subsection to the change in question. See the
+        example below, note the "chng-from-2.0.0" CHANGE
+    -   Note: the ROLLBACK section should not be blank, as it will be
+        ignored and not considered during rollback execution. This will
+        be corrected in a future release.
+
+```
+//// CHANGE name=chng-from-1.0.0
+CREATE TABLE TABLE_A (
+    A_ID INT NOT NULL,
+    B_ID INT NOT NULL,
+    STRING_FIELD VARCHAR(30) NULL,
+    TIMESTAMP_FIELD TIMESTAMP NULL,
+    PRIMARY KEY (A_ID)
+)
+GO
+//// CHANGE name=chng-from-2.0.0
+ALTER TABLE TABLE_A ADD COLUMN C_ID INT NULL
+GO
+// ROLLBACK
+ALTER TABLE TABLE_A DROP COLUMN C_ID
+GO
+```
+
+In case you are interested in the technical details behind this:
+{panel}First, let's review how regular deployments are done and changes
+detect (see [Design Walkthrough](design-walkthrough.html) doc)
+
+-   For stateless objects (sp, view, ...): when we detect a change
+    between the source code and what was deployed in the db (whether a
+    change in the file, a creation of a new file, or a deletion/drop of
+    the file), we simply detect it and apply the change.
+-   For stateful objects (tables): table changes are detected as new
+    //// CHANGE entries in the file. And we are not allowed to drop or
+    modify any previously-deployed changes
+
+Now for rollback:
+
+-   For stateless objects, we have no problem, as going from v2.0.0 to
+    v1.0.0. is just created as another deployment change, and so we'd
+    deploy whatever changes we'd get when going from 2.0.0 to 1.0.0
+-   For tables, we will typically get a case where the tool detects that
+    we've improperly removed a change from the file that has been
+    deployed already. The -rollback flag handles this by:
+    -   Will not fail the deployment if some exception like this is
+        detected
+    -   For each deployed change, we have the option of specifying a //
+        ROLLBACK command (see below). This will only get activated if we
+        execute -rollback and we have a case where a change deployed as
+        part of 2.0.0 is no longer there in 1.0.0
+    -   Fyi, this -ROLLBACK script is stored in the audit table. This is
+        because it is v2.0.0's changes that we are rolling back, and if
+        we rollback by pointing to the old version, then we'd have no
+        place to get the rollback script from. Hence, we store it in the
+        db{panel}
+
+Note that if you execute this rollback command, it will still ultimately
+remain in your source code to be deployed in subsequent releases and in
+the UAT environments that you deployed to. If you want to remove this
+change entirely (i.e. not let it come back in the next release), see the
+section below for "(Special Case) Undoing a table/incremental change
+permanently in non-prod or after rollback"
+
+
+### Anti-Pattern Paradigm: Backing up individual tables before deployment
+
+This involves creating a backup of the table during your deployment
+(e.g. MY_TABLE_BAK20141017), copying the data over, and proceeding w/
+the deployment.
+
+Pros:
+
+-   Preserves your data, particularly for complex migrations that you do
+    Cons:
+-   Takes time and space to copy the data over (not as efficient in
+    runtime as a db copy, as ultimately this needs to be expressed a
+    SQL)
+-   Requires some coding to perform, incl. the sqls to copy the data
+    over and to rerun stats after rolling back (if we do end up rolling
+    back)
+-   Need to remember to clean up the tables after the fact
+
+While certainly we can add tooling around this to support this use case,
+most teams can get by using the others listed earlier. Hence, we
+haven't built anything to support this paradigm as of yet
+
+
+## Roll-back / roll-forward considerations for non-prod deployments
+
+The above scenarios are what you should do if you are rolling back a
+change in production.
+
+However, in non-prod (e.g. qa/uat), you still have cases where you want
+to undo a change you had applied during your current version. For
+undoing table changes, this would mean adding another //// CHANGE entry
+(assuming you can't just wipe away and clean your db)
+
+But if you are in qa/uat, you may have a lot of these changes building
+up if you have a lot of corrections. What if you want to be able to undo
+the change in uat and be able to delete the change entry in your file
+too? (As discussed a few times earlier, you cannot simply delete a ////
+CHANGE entry as the tool catches that as a validation error)
+
+To do that, you can add the ROLLBACK-IF-ALREADY-DEPLOYED subsection to
+your change, e.g.
+
+```
+    //// CHANGE name=chng-from-1.0.0
+    CREATE TABLE TABLE_A (
+        A_ID INT NOT NULL,
+        B_ID INT NOT NULL,
+        STRING_FIELD VARCHAR(30) NULL,
+        TIMESTAMP_FIELD TIMESTAMP NULL,
+        PRIMARY KEY (A_ID)
+    )
+    GO
+    //// CHANGE name=uat-change
+    ALTER TABLE TABLE_A ADD COLUMN C_ID INT NULL
+    GO
+    // ROLLBACK-IF-ALREADY-DEPLOYED
+    ALTER TABLE TABLE_A DROP COLUMN C_ID
+    GO
+```
+
+The way this will work:
+
+-   If the tool sees that "uat-change" had "NOT" been deployed and
+    it sees the presence of a ROLLBACK-IF-ALREADY-DEPLOYED section, then
+    it will simply ignore the change
+-   If the tool sees that "uat-change" had already been deployed and
+    it sees the presence of a ROLLBACK-IF-ALREADY-DEPLOYED section, then
+    it will execute the rollback and remove the change name from the
+    deployment audit table. Thus, once you've wiped this out from all
+    environments, you can delete this section from your file

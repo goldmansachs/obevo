@@ -16,15 +16,12 @@
 
 -->
 <!--
-These "set" variables are needed as velocity will otherwise process the pound signs and not leave it for markdown.
-Alternatively, we can use setext headers but that onl works for h1 and h2
+Cannot use # as header markers for velocity files as they are interpreted by velocity.
+Instead, use the alternate syntax (===== for h1, dashes for h2, and the xml tags like <h3> otherwise.
 -->
-#set($h1 = '#')
-#set($h2 = '##')
-#set($h3 = '###')
-#set($h4 = '####')
 
-$h1 Setup Obevo
+Setup Obevo
+===========
 
 You can download the binary from the [releases page](https://github.com/goldmansachs/obevo/releases)
 
@@ -36,7 +33,8 @@ For access via other APIs or build tools, please see the relevant pages:
 * [Maven](maven-api.html)
 * [Gradle](gradle-api.html)
 
-$h2 Setting up your Obevo distribution
+Setting up your Obevo distribution
+----------------------------------
 
 Obevo is licensed as Apache 2.0; thus, any proprietary dependencies (notably any proprietary JDBC drivers) cannot be
 included in the distributions that we create.
@@ -52,16 +50,16 @@ As of this writing, this applies to the following DBMS types:
 To use Obevo with these databases, you will need to acquire the JDBC drivers yourself and include them in the distribution
 as follows:
 
-$h3 Zip binary distribution
+<h3>Zip binary distribution</h3>
 
 Add the JDBC drivers to the /extlib or /lib folder
 
 
-$h3 Java API
+<h3>Java API</h3>
 
 Add the JDBC drivers to your classpath using whichever method is relevant for your developer setup
 
-$h3 Maven API
+<h3>Maven API</h3>
 
 Add the JDBC drivers to your Maven repository and declare them as dependencies in your pom file, per the &lt;dependencies&gt; tag example below
 

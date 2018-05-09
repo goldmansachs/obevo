@@ -16,15 +16,12 @@
 
 -->
 <!--
-These "set" variables are needed as velocity will otherwise process the pound signs and not leave it for markdown.
-Alternatively, we can use setext headers but that onl works for h1 and h2
+Cannot use # as header markers for velocity files as they are interpreted by velocity.
+Instead, use the alternate syntax (===== for h1, dashes for h2, and the xml tags like <h3> otherwise.
 -->
-#set($h1 = '#')
-#set($h2 = '##')
-#set($h3 = '###')
-#set($h4 = '####')
 
-$h1 ORM Integration
+ORM Integration
+===============
 
 A standard practice nowadays in db programming is to use ORM tools, like Hibernate or Reladomo, to interact with your
 database in your systems. These tools provide a way to map from your Java objects to your DB objects. If you are on an
@@ -48,9 +45,10 @@ the next section).
 
 
 
-$h2 Reladomo Integration
+Reladomo Integration
+--------------------
 
-$h3 Reverse-engineering files generated from Reladomo
+<h3>Reverse-engineering files generated from Reladomo</h3>
 
 1) Generate the DDLs using the Reladomo API. (See the Reladomo documentation for how to do this). This will result in
 an output directory structure like this:
@@ -106,25 +104,28 @@ ReladomoSchemaConverter schemaConverter = new ReladomoSchemaConverter();
 schemaConverter.convertReladomoDdlsToDaFormat(platform, new File("./src/test/resources/reveng/input"), outputFolder, "yourSchema", true);
 ```
 
-$h3 Generating DDLs directly from Reladomo API
+<h3>Generating DDLs directly from Reladomo API</h3>
+
 In the future, we would like to support generating the Reladomo DDLs directly from an API (as opposed to having to
 generate the DDLs first in the Reladomo format and then reverse-engineering to the Obevo format). This is not yet
 available.
 
 
-$h2 Hibernate Integration
+Hibernate Integration
+---------------------
 
 WARNING - Hibernate integration code has not yet been open-sourced as Hibernate is LGPL and Obevo is Apache 2. We hope to
 resolve this soon.
 
 
-$h3 High Level Steps to Execute
+<h3>High Level Steps to Execute</h3>
 
 1. You will leverage the obevo-db-hibernate jar and maven plugin to call out to the Hibernate DDL generation code
 2. You would have to provide your Hibernate configuration to the maven plugin (expressed via the 
 HibernateSchemaGenFactory class)
 
-$h3 Example
+<h3>Example</h3>
+
 1) Add this dependency to your pom:
 
 ```

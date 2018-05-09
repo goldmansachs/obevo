@@ -24,6 +24,7 @@ import com.gs.obevo.util.inputreader.Credential;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.collection.MutableCollection;
 
 public abstract class AbstractDeployMojo extends AbstractMojo {
@@ -137,7 +138,12 @@ public abstract class AbstractDeployMojo extends AbstractMojo {
                 new BaselineValidatorMain().validateNoBaselineBreaks(dbDeployerAppContext);
             } else {
                 MutableCollection<DbEnvironment> dbEnvironments = DbEnvironmentFactory.getInstance().readFromSourcePath(getSourcePath(), this.env.split(","));
-                this.getLog().info("Will action these environments: " + dbEnvironments.collect(DbEnvironment::getName).makeString(","));
+                this.getLog().info("Will action these environments: " + dbEnvironments.collect(new Function<DbEnvironment, Object>() {
+                    @Override
+                    public Object valueOf(DbEnvironment it) {
+                        return it.getName();
+                    }
+                }).makeString(","));
                 MainDeployerArgs dbArgs = new MainDeployerArgs()
                         .noPrompt(this.noPrompt != null && this.noPrompt)
                         .performInitOnly(performInitOnly)

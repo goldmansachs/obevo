@@ -2,13 +2,17 @@
 
 Requirements:
 
-### Java 7 or higher
+### Java 8 for build, Java 7 for runtime / usage
 * [Oracle JDK Download](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 * [OpenJDK Download](http://openjdk.java.net/install/)
 
-Note that it is possible to develop with JDK8, but
-* the code must conform to Java 7 language syntax
-* libraries must be Java 7 compatible.
+The Obevo binary byte code is in Java 7, so Java 7 users can still leverage Obevo.
+
+However, development is on JDK 8 to leverage the lambda syntax. To enforce Java 7 compatibility, we use:
+* [Retrolambda](https://github.com/orfjackal/retrolambda)
+to convert the binaries to Java 7 bytecode
+* [Animal Sniffer plugin](https://www.mojohaus.org/animal-sniffer/) to ensure that we do not refer to any JDK 8 APIs
+* Tests against the Java 7 binary in Travis CI
 
 
 ### Maven 3.2.5 or higher

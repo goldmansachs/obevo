@@ -57,7 +57,7 @@
       <module name="obevo-internal-test-client-01" target="1.8" />
       <module name="obevo-internal-test-client-02" target="1.8" />
       <module name="obevo-internal-test-util" target="1.8" />
-      <module name="obevo-maven-plugin" target="1.8" />
+      <module name="obevo-maven-plugin" target="1.7" />
       <module name="obevo-mongodb" target="1.8" />
       <module name="obevo-parent" target="1.8" />
       <module name="obevo-reladomo-util" target="1.8" />

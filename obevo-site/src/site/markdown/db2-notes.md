@@ -78,3 +78,19 @@ jdbc:db2://localhost:50000/dbdeploy:progressiveStreaming=false;
 
 We have only seen this in the DB2 Express environment so far. If you run into this in your own standard environment,
 please raise an issue on Github.
+
+
+## DB2 Error Message Handling
+
+Error messages in DB2 will appear somewhat as follows:
+
+```
+Caused by: com.ibm.db2.jcc.b.SqlException: DB2 SQL error: SQLCODE: -750, SQLSTATE: 42986, SQLERRMC: null
+```
+
+If you see such an exception, first search via the SQLCODE for a hint of the problem.
+
+For the example above, do a search like "db2 error code 750" to find the issue. This usually leads to the
+[DB2 error code reference page](https://www.ibm.com/support/knowledgecenter/en/SSEPEK_10.0.0/codes/src/tpc/n750.html).
+
+If the error message does not help you, then reach to your database administrators or contact the Obevo team.

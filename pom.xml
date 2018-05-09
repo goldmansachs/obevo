@@ -588,6 +588,7 @@
                 <version>2.5.3</version>
                 <executions>
                     <execution>
+                        <id>apply-retrolambda</id>
                         <goals>
                             <goal>process-main</goal>
                             <goal>process-test</goal>

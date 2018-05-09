@@ -1,0 +1,82 @@
+<!--
+
+    Copyright 2017 Goldman Sachs.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+
+Maven API
+==========
+
+In terms of the maven plugin - it basically looks like the following.
+
+```
+<plugin>
+    <groupId>${project.parent.groupId}</groupId>
+    <artifactId>obevo-maven-plugin</artifactId>
+    <version>${project.version}</version>
+    <executions>
+        <execution>
+            <id>deploy-db-module</id>
+            <goals>
+                <goal>deploy</goal>
+            </goals>
+            <configuration>
+                <env>dev1</env>
+                <user>deployer</user>
+                <password>deploypass</password>
+                <sourcePath>src/main/database</sourcePath>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+```
+
+The provided goals and arguments are mostly the same. Here is a rundown:
+
+There are a few goals that are mostly similar. Here is a quick
+description:
+
+1) "deploy" goal - does a regular deployment given the arguments
+provided
+
+-   You can provide "noPrompt" and "cleanFirst" boolean arguments as
+    needed
+
+2) "test" goal - runs in the test phase, does a clean + deploy against
+that environment
+
+-   The desired usage here is for your build, i.e. run at build-time
+    against a test db server that only the build uses to verify that
+    your db scripts are correct
+-   It will set noPrompt=true and cleanFirst=true by default
+-   Use the validateBaseline boolean argument if you'd like to leverage
+    the validateBaseline functionality
+
+3) "preview" goal - shows the changes that will be applied to the DB
+along with validations, but without doing an actual deployment A
+suggestion is to have these scripts run against a test db server that no
+one other than the build uses, so that you can guarantee that the
+scripts are fine
+
+
+Configuring Custom Logging for Obevo in Maven
+---------------------------------------------
+
+Obevo uses the [SLF4J API](https://www.slf4j.org), and
+the main jars do not include any logging implementations as third-party
+dependencies.
+
+Hence, you can leverage the usual Maven logging settings to configure
+the log level for Obevo.
