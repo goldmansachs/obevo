@@ -10,6 +10,7 @@
 
 ### Bug Fixes
 #165: Supporting Unicode in regular table/db object files and avoiding "TokenMgrError: Lexical error at line ..." issues
+#169: Fixing missing quotes in deploy.sh/bat files in obevo-cli; otherwise, spaces in JAVA_HOME or OBEVO_HOME were not supported.
 
 
 ## 6.5.2
