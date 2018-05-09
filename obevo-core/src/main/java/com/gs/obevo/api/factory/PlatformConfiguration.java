@@ -73,7 +73,7 @@ public class PlatformConfiguration {
         } catch (IllegalAccessException e) {
             throw new DeployerRuntimeException(e);
         } catch (ClassNotFoundException e) {
-            throw new DeployerRuntimeException(e);
+            throw new DeployerRuntimeException("Could not find platform named " + dbPlatformStr + "; no class found and name was not in the list of default platform strings: " + platformConfigs.keysView());
         }
     }
 
