@@ -17,6 +17,7 @@ package com.gs.obevo.db.impl.platforms.redshift;
 
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.impl.platforms.postgresql.PostgreSqlDbPlatform;
+import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
 
 /**
@@ -43,6 +44,11 @@ public class RedshiftDbPlatform extends PostgreSqlDbPlatform {
     protected ImmutableList<ChangeType> initializeChangeTypes() {
         // sequences are not supported
         return super.initializeChangeTypes()
-                .reject(changeType -> ChangeType.SEQUENCE_STR.equals(changeType.getName()));
+                .reject(new Predicate<ChangeType>() {
+                    @Override
+                    public boolean accept(ChangeType changeType) {
+                        return ChangeType.SEQUENCE_STR.equals(changeType.getName());
+                    }
+                });
     }
 }

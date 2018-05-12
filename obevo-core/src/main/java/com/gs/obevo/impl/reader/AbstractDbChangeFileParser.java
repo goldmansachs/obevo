@@ -19,6 +19,8 @@ import com.gs.obevo.api.appdata.doc.TextMarkupDocument;
 import com.gs.obevo.api.appdata.doc.TextMarkupDocumentSection;
 import com.gs.obevo.api.platform.DeployMetrics;
 import com.gs.obevo.impl.DeployMetricsCollector;
+import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
@@ -84,7 +86,17 @@ abstract class AbstractDbChangeFileParser implements DbChangeFileParser {
     protected abstract void validateStructureNew(TextMarkupDocument doc);
 
     private void validateAttributes(TextMarkupDocument doc) {
-        ImmutableList<String> disallowedSections = doc.getSections().collect(TextMarkupDocumentSection::getName).select(disallowedSectionNames::contains);
+        ImmutableList<String> disallowedSections = doc.getSections().collect(new Function<TextMarkupDocumentSection, String>() {
+            @Override
+            public String valueOf(TextMarkupDocumentSection section1) {
+                return section1.getName();
+            }
+        }).select(new Predicate<String>() {
+            @Override
+            public boolean accept(String object) {
+                return disallowedSectionNames.contains(object);
+            }
+        });
 
         if (disallowedSections.notEmpty()) {
             throw new IllegalArgumentException("Found these disallowed sections: " + disallowedSections);

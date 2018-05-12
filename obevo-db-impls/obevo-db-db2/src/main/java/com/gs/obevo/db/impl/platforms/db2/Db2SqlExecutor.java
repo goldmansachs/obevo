@@ -91,7 +91,12 @@ public class Db2SqlExecutor extends AbstractSqlExecutor {
         //
         // Given these two requirements, we use a LinkedHashSet
         LinkedHashSet<String> currentSchemaPaths = new LinkedHashSet(currentSchemaPathList);
-        currentSchemaPaths.addAll(physicalSchemas.collect(PhysicalSchema::getPhysicalName).castToSet());
+        currentSchemaPaths.addAll(physicalSchemas.collect(new Function<PhysicalSchema, String>() {
+            @Override
+            public String valueOf(PhysicalSchema physicalSchema) {
+                return physicalSchema.getPhysicalName();
+            }
+        }).castToSet());
 
         // This is needed to work w/ stored procedures
         // Ideally, we'd use "set current path current path, " + physicalSchemaList

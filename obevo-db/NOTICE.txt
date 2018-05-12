@@ -25,6 +25,7 @@ This product depends on (links to) the following software:
   Eclipse Collections API under Eclipse Public License - v 1.0
   Eclipse Collections Main Library under Eclipse Public License - v 1.0
   FreeMarker under Apache License, Version 2.0
+  IntelliJ IDEA Annotations under The Apache Software License, Version 2.0
   JCL 1.1.1 implemented over SLF4J under MIT License
   JGraphT - Core under Eclipse Public License (EPL) 1.0
   Joda time under Apache 2
@@ -32,6 +33,7 @@ This product depends on (links to) the following software:
   obevo-core under The Apache License, Version 2.0
   obevo-internal-comparer under The Apache License, Version 2.0
   opencsv under Apache 2
+  org.jetbrains.kotlin:kotlin-stdlib under The Apache License, Version 2.0
   SLF4J API Module under MIT License
   SnakeYAML under Apache License, Version 2.0
 

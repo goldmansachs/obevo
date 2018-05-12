@@ -39,6 +39,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.vfs2.FileFilter;
 import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.block.function.Function0;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
@@ -138,18 +139,43 @@ public class DbDirectoryChangesetReader implements FileSourceContext {
                     }
 
                     MutableCollection<Change> tableChanges = schemaChanges.select(
-                            Predicates.attributeIn(Change::getChangeTypeName, Sets.immutable.of(ChangeType.TABLE_STR, ChangeType.FOREIGN_KEY_STR)));
-                    MutableMultimap<String, Change> tableChangeMap = tableChanges.groupBy(Change::getDbObjectKey);
+                            Predicates.attributeIn(new Function<Change, Object>() {
+                                @Override
+                                public Object valueOf(Change change) {
+                                    return change.getChangeTypeName();
+                                }
+                            }, Sets.immutable.of(ChangeType.TABLE_STR, ChangeType.FOREIGN_KEY_STR)));
+                    MutableMultimap<String, Change> tableChangeMap = tableChanges.groupBy(new Function<Change, String>() {
+                        @Override
+                        public String valueOf(Change change) {
+                            return change.getDbObjectKey();
+                        }
+                    });
 
-                    MutableCollection<Change> staticDataChanges = schemaChanges.select(Predicates.attributeEqual(Change::getChangeTypeName, ChangeType.STATICDATA_STR));
+                    MutableCollection<Change> staticDataChanges = schemaChanges.select(Predicates.attributeEqual(new Function<Change, Object>() {
+                        @Override
+                        public Object valueOf(Change change) {
+                            return change.getChangeTypeName();
+                        }
+                    }, ChangeType.STATICDATA_STR));
 
                     // now enrich the staticData objects w/ the information from the tables to facilitate the
                     // deployment order calculation.
                     for (Change staticDataChange : staticDataChanges) {
                         MutableCollection<Change> relatedTableChanges = tableChangeMap.get(staticDataChange.getDbObjectKey());
-                        MutableCollection<Change> foreignKeys = relatedTableChanges.select(_this -> _this.getChangeTypeName().equals(ChangeType.FOREIGN_KEY_STR));
+                        MutableCollection<Change> foreignKeys = relatedTableChanges.select(new Predicate<Change>() {
+                            @Override
+                            public boolean accept(Change it) {
+                                return it.getChangeTypeName().equals(ChangeType.FOREIGN_KEY_STR);
+                            }
+                        });
 
-                        String fkContent = foreignKeys.collect(Change::getContent).makeString("\n\n");
+                        String fkContent = foreignKeys.collect(new Function<Change, String>() {
+                            @Override
+                            public String valueOf(Change change) {
+                                return change.getContent();
+                            }
+                        }).makeString("\n\n");
 
                         staticDataChange.setContentForDependencyCalculation(fkContent);
                     }
@@ -197,7 +223,12 @@ public class DbDirectoryChangesetReader implements FileSourceContext {
                 this.isUsingChangesConvention(tableDir) ? CHANGES_WILDCARD_FILTER : new NotFileFilter(baselineFilter), acceptedExtensions);
 
         ImmutableList<Change> nonBaselineChanges = parseChanges(changeType, nonBaselineFiles, this.tableChangeParser, schema, sourceEncoding);
-        ImmutableListMultimap<String, Change> nonBaselineChangeMap = nonBaselineChanges.groupBy(Change::getDbObjectKey);
+        ImmutableListMultimap<String, Change> nonBaselineChangeMap = nonBaselineChanges.groupBy(new Function<Change, String>() {
+            @Override
+            public String valueOf(Change change) {
+                return change.getDbObjectKey();
+            }
+        });
 
         if (useBaseline) {
             LOG.info("Using the 'useBaseline' mode to read in the db changes");
@@ -216,12 +247,22 @@ public class DbDirectoryChangesetReader implements FileSourceContext {
                 this.copyDbObjectMetadataOverToBaseline(regularChange, baselineChange);
             }
 
-            MutableSet<String> baselineDbObjectKeys = baselineChanges.collect(Change::getDbObjectKey).toSet();
+            final MutableSet<String> baselineDbObjectKeys = baselineChanges.collect(new Function<Change, String>() {
+                @Override
+                public String valueOf(Change change) {
+                    return change.getDbObjectKey();
+                }
+            }).toSet();
             LOG.info("Found the following baseline changes: will try to deploy via baseline for these db objects: "
                     + baselineDbObjectKeys.makeString(","));
 
             nonBaselineChanges = nonBaselineChanges
-                    .reject(_this -> baselineDbObjectKeys.contains(_this.getDbObjectKey()))
+                    .reject(new Predicate<Change>() {
+                        @Override
+                        public boolean accept(Change it) {
+                            return baselineDbObjectKeys.contains(it.getDbObjectKey());
+                        }
+                    })
                     .newWithAll(baselineChanges);
         }
 
@@ -244,7 +285,7 @@ public class DbDirectoryChangesetReader implements FileSourceContext {
                         not(
                                 or(
                                         new WildcardFileFilter("package-info*"),
-                                        new WildcardFileFilter("*." + OnboardingStrategy.EXCEPTION_EXTENSION)
+                                        new WildcardFileFilter("*." + OnboardingStrategy.Companion.getExceptionExtension())
                                 )
                         )
                 ),
@@ -270,34 +311,40 @@ public class DbDirectoryChangesetReader implements FileSourceContext {
 
     private ImmutableList<Change> parseChanges(final ChangeType changeType, ImmutableList<FileObject> files,
             final DbChangeFileParser changeParser, final String schema, final String sourceEncoding) {
-        return files.flatCollect(file -> {
-            PackageMetadata packageMetadata = getPackageMetadata(file, sourceEncoding);
-            String encoding = null;
-            TextMarkupDocumentSection metadataSection = null;
-            if (packageMetadata != null) {
-                encoding = packageMetadata.getFileToEncodingMap().get(file.getName().getBaseName());
-                metadataSection = packageMetadata.getMetadataSection();
-            }
-            CharsetStrategy charsetStrategy = CharsetStrategyFactory.getCharsetStrategy(ObjectUtils.defaultIfNull(encoding, sourceEncoding));
-            final String objectName = file.getName().getBaseName().split("\\.")[0];
-            try {
-                LOG.debug("Attempting to read file {}", file);
-                return changeParser.value(changeType, file, file.getStringContent(charsetStrategy), objectName, schema, metadataSection);
-            } catch (RuntimeException e) {
-                throw new IllegalArgumentException("Error while parsing file " + file + " of change type " + changeType.getName() + "; please see the cause in the stack trace below: " + e.getMessage(), e);
+        return files.flatCollect(new Function<FileObject, Iterable<Change>>() {
+            @Override
+            public Iterable<Change> valueOf(FileObject file) {
+                PackageMetadata packageMetadata = DbDirectoryChangesetReader.this.getPackageMetadata(file, sourceEncoding);
+                String encoding = null;
+                TextMarkupDocumentSection metadataSection = null;
+                if (packageMetadata != null) {
+                    encoding = packageMetadata.getFileToEncodingMap().get(file.getName().getBaseName());
+                    metadataSection = packageMetadata.getMetadataSection();
+                }
+                CharsetStrategy charsetStrategy = CharsetStrategyFactory.getCharsetStrategy(ObjectUtils.defaultIfNull(encoding, sourceEncoding));
+                final String objectName = file.getName().getBaseName().split("\\.")[0];
+                try {
+                    LOG.debug("Attempting to read file {}", file);
+                    return changeParser.value(changeType, file, file.getStringContent(charsetStrategy), objectName, schema, metadataSection);
+                } catch (RuntimeException e) {
+                    throw new IllegalArgumentException("Error while parsing file " + file + " of change type " + changeType.getName() + "; please see the cause in the stack trace below: " + e.getMessage(), e);
+                }
             }
         });
     }
 
     private PackageMetadata getPackageMetadata(final FileObject file, final String sourceEncoding) {
-        return packageMetadataCache.getIfAbsentPut(file.getParent(), () -> {
-            FileObject packageMetadataFile = file.getParent().getChild("package-info.txt");
+        return packageMetadataCache.getIfAbsentPut(file.getParent(), new Function0<PackageMetadata>() {
+            @Override
+            public PackageMetadata value() {
+                FileObject packageMetadataFile = file.getParent().getChild("package-info.txt");
 
-            // we check for containsKey, as we may end up persisting null as the value in the map
-            if (packageMetadataFile == null || !packageMetadataFile.isReadable()) {
-                return null;
-            } else {
-                return packageMetadataReader.getPackageMetadata(packageMetadataFile.getStringContent(CharsetStrategyFactory.getCharsetStrategy(sourceEncoding)));
+                // we check for containsKey, as we may end up persisting null as the value in the map
+                if (packageMetadataFile == null || !packageMetadataFile.isReadable()) {
+                    return null;
+                } else {
+                    return packageMetadataReader.getPackageMetadata(packageMetadataFile.getStringContent(CharsetStrategyFactory.getCharsetStrategy(sourceEncoding)));
+                }
             }
         });
     }

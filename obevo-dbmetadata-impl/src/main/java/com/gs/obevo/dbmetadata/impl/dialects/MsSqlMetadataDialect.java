@@ -179,7 +179,12 @@ public class MsSqlMetadataDialect extends AbstractMetadataDialect {
                 ")\n";
         ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(jdbc.query(conn, sql, new MapListHandler())).toImmutable();
 
-        return maps.collect(map -> new DaRuleImpl((String) map.get("RULE_NAME"), schema));
+        return maps.collect(new Function<Map<String, Object>, DaRule>() {
+            @Override
+            public DaRule valueOf(Map<String, Object> map) {
+                return new DaRuleImpl((String) map.get("RULE_NAME"), schema);
+            }
+        });
     }
 
     @Override
@@ -190,7 +195,12 @@ public class MsSqlMetadataDialect extends AbstractMetadataDialect {
                 "AND DOMAIN_SCHEMA = '" + schema.getSubschemaName() + "'";
         ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(jdbc.query(conn, sql, new MapListHandler())).toImmutable();
 
-        return maps.collect(map -> new DaUserTypeImpl((String) map.get("USER_TYPE_NAME"), schema));
+        return maps.collect(new Function<Map<String, Object>, DaUserType>() {
+            @Override
+            public DaUserType valueOf(Map<String, Object> map) {
+                return new DaUserTypeImpl((String) map.get("USER_TYPE_NAME"), schema);
+            }
+        });
     }
 
     @Override

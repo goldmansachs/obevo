@@ -68,11 +68,16 @@ public class TextMarkupDocumentReader {
         this.legacyMode = legacyMode;
     }
 
-    public TextMarkupDocument parseString(String text, TextMarkupDocumentSection otherSection) {
+    public TextMarkupDocument parseString(String text, final TextMarkupDocumentSection otherSection) {
         ImmutableList<TextMarkupDocumentSection> textMarkupDocumentSections = this.parseString(text, this.firstLevelElements, true, "////");
 
         if (otherSection != null) {
-            TextMarkupDocumentSection thisSection = textMarkupDocumentSections.detect(_this -> _this.getName().equals(otherSection.getName()));
+            TextMarkupDocumentSection thisSection = textMarkupDocumentSections.detect(new Predicate<TextMarkupDocumentSection>() {
+                @Override
+                public boolean accept(TextMarkupDocumentSection it) {
+                    return it.getName().equals(otherSection.getName());
+                }
+            });
             if (thisSection != null) {
                 thisSection.mergeAttributes(otherSection);
             } else {

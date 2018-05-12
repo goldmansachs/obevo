@@ -106,7 +106,12 @@ public class SameSchemaDeployExecutionDao implements DeployExecutionDao {
         this.dbMetadataManager = dbMetadataManager;
         this.platform = platform;
         this.physicalSchemas = physicalSchemas;
-        this.nextIdBySchema = physicalSchemas.toMap(Functions.getPassThru(), object -> new MutableInt(1)).toImmutable();
+        this.nextIdBySchema = physicalSchemas.toMap(Functions.<PhysicalSchema>getPassThru(), new Function<PhysicalSchema, MutableInt>() {
+            @Override
+            public MutableInt valueOf(PhysicalSchema object) {
+                return new MutableInt(1);
+            }
+        }).toImmutable();
         this.tableSqlSuffix = tableSqlSuffix;
         this.env = env;
         this.changeTypeBehaviorRegistry = changeTypeBehaviorRegistry;

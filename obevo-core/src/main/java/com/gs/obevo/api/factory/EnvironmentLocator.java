@@ -34,7 +34,7 @@ class EnvironmentLocator {
     private final PlatformConfiguration platformConfiguration;
 
     EnvironmentLocator() {
-        this(Lists.immutable.of(new XmlFileConfigReader()));
+        this(Lists.immutable.<FileConfigReader>of(new XmlFileConfigReader()));
     }
 
     private EnvironmentLocator(RichIterable<FileConfigReader> configReaders) {

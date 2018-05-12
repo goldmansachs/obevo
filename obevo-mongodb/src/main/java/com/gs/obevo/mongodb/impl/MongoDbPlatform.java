@@ -22,6 +22,7 @@ import com.gs.obevo.api.platform.ChangeTypeImpl;
 import com.gs.obevo.api.platform.DeployerAppContext;
 import com.gs.obevo.api.platform.Platform;
 import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.block.factory.Functions;
@@ -54,13 +55,23 @@ public class MongoDbPlatform implements Platform {
     }
 
     @Override
-    public ChangeType getChangeType(String name) {
-        return getChangeTypes().detect(_this -> _this.getName().equals(name));
+    public ChangeType getChangeType(final String name) {
+        return getChangeTypes().detect(new Predicate<ChangeType>() {
+            @Override
+            public boolean accept(ChangeType it) {
+                return it.getName().equals(name);
+            }
+        });
     }
 
     @Override
-    public boolean hasChangeType(String name) {
-        return getChangeTypes().anySatisfy(_this -> _this.getName().equals(name));
+    public boolean hasChangeType(final String name) {
+        return getChangeTypes().anySatisfy(new Predicate<ChangeType>() {
+            @Override
+            public boolean accept(ChangeType it) {
+                return it.getName().equals(name);
+            }
+        });
     }
 
     @Override

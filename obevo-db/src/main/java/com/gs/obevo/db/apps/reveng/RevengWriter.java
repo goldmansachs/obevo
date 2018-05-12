@@ -34,6 +34,8 @@ import freemarker.template.TemplateExceptionHandler;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.block.predicate.Predicate2;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.MutableMap;
@@ -115,13 +117,33 @@ public class RevengWriter {
         if (excludeObjects != null) {
             objectExclusionPredicateBuilder = objectExclusionPredicateBuilder.add(ObjectTypeAndNamePredicateBuilder.parse(excludeObjects, ObjectTypeAndNamePredicateBuilder.FilterType.EXCLUDE));
         }
-        Predicates<? super RevEngDestination> objectExclusionPredicate = objectExclusionPredicateBuilder.build(
-                dest -> dest.getDbObjectType().getName(),
-                RevEngDestination::getObjectName
+        final Predicates<? super RevEngDestination> objectExclusionPredicate = objectExclusionPredicateBuilder.build(
+                new Function<RevEngDestination, String>() {
+                    @Override
+                    public String valueOf(RevEngDestination dest) {
+                        return dest.getDbObjectType().getName();
+                    }
+                },
+                new Function<RevEngDestination, String>() {
+                    @Override
+                    public String valueOf(RevEngDestination revEngDestination) {
+                        return revEngDestination.getObjectName();
+                    }
+                }
         );
 
-        MutableMap<RevEngDestination, MutableList<ChangeEntry>> revEngDestinationMap = HashingStrategyMaps.mutable.of(HashingStrategies.fromFunction(RevEngDestination::getIdentity));
-        for (ChangeEntry allRevEngDestination : allRevEngDestinations.select(entry -> objectExclusionPredicate.accept(entry.getDestination()))) {
+        MutableMap<RevEngDestination, MutableList<ChangeEntry>> revEngDestinationMap = HashingStrategyMaps.mutable.of(HashingStrategies.fromFunction(new Function<RevEngDestination, String>() {
+            @Override
+            public String valueOf(RevEngDestination revEngDestination) {
+                return revEngDestination.getIdentity();
+            }
+        }));
+        for (ChangeEntry allRevEngDestination : allRevEngDestinations.select(new Predicate<ChangeEntry>() {
+            @Override
+            public boolean accept(ChangeEntry entry) {
+                return objectExclusionPredicate.accept(entry.getDestination());
+            }
+        })) {
             MutableList<ChangeEntry> changeEntries = revEngDestinationMap.get(allRevEngDestination.getDestination());
             if (changeEntries == null) {
                 changeEntries = Lists.mutable.empty();
@@ -136,9 +158,24 @@ public class RevengWriter {
             RevEngDestination dest = pair.getOne();
 
             MutableList<ChangeEntry> changes = pair.getTwo()
-                    .toSortedListBy(Functions.firstNotNullValue(ChangeEntry::getName, Functions.getFixedValue("")))
-                    .toSortedListBy(ChangeEntry::getOrder);
-            MutableList<String> metadataAnnotations = changes.flatCollect(ChangeEntry::getMetadataAnnotations);
+                    .toSortedListBy(Functions.firstNotNullValue(new Function<ChangeEntry, String>() {
+                        @Override
+                        public String valueOf(ChangeEntry changeEntry1) {
+                            return changeEntry1.getName();
+                        }
+                    }, Functions.<ChangeEntry, String>getFixedValue("")))
+                    .toSortedListBy(new Function<ChangeEntry, Integer>() {
+                        @Override
+                        public Integer valueOf(ChangeEntry changeEntry1) {
+                            return changeEntry1.getOrder();
+                        }
+                    });
+            MutableList<String> metadataAnnotations = changes.flatCollect(new Function<ChangeEntry, Iterable<String>>() {
+                @Override
+                public Iterable<String> valueOf(ChangeEntry changeEntry1) {
+                    return changeEntry1.getMetadataAnnotations();
+                }
+            });
             String metadataString;
             if (metadataAnnotations.isEmpty()) {
                 metadataString = "";
@@ -146,7 +183,17 @@ public class RevengWriter {
                 metadataString = "//// METADATA " + metadataAnnotations.makeString(" ");
             }
             String mainSql = (metadataString.isEmpty() ? "" : metadataString + "\n")
-                    + changes.collect(ChangeEntry::getSql).collect(String::trim).makeString("\n");
+                    + changes.collect(new Function<ChangeEntry, String>() {
+                @Override
+                public String valueOf(ChangeEntry changeEntry1) {
+                    return changeEntry1.getSql();
+                }
+            }).collect(new Function<String, String>() {
+                @Override
+                public String valueOf(String s) {
+                    return s.trim();
+                }
+            }).makeString("\n");
 
             try {
                 File mainDestinationFile = dest.getDestinationFile(outputDir, false);
@@ -187,7 +234,12 @@ public class RevengWriter {
             }
         }
 
-        MutableSet<String> schemas = allRevEngDestinations.collect(entry -> entry.getDestination().getSchema(), Sets.mutable.empty());
+        MutableSet<String> schemas = allRevEngDestinations.collect(new Function<ChangeEntry, String>() {
+            @Override
+            public String valueOf(ChangeEntry entry) {
+                return entry.getDestination().getSchema();
+            }
+        }, Sets.mutable.<String>empty());
 
         Writer fileWriter = null;
         try {

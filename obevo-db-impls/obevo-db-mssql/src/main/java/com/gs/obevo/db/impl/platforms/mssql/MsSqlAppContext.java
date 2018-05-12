@@ -22,11 +22,17 @@ import com.gs.obevo.db.impl.core.DbDeployerAppContextImpl;
 import com.gs.obevo.db.impl.core.envinfrasetup.EnvironmentInfraSetup;
 import com.gs.obevo.db.impl.core.jdbc.DataSourceFactory;
 import com.gs.obevo.impl.ChangeTypeBehaviorRegistry.ChangeTypeBehaviorRegistryBuilder;
+import org.eclipse.collections.api.block.function.Function0;
 
 public class MsSqlAppContext extends DbDeployerAppContextImpl {
 
     public SqlExecutor getSqlExecutor() {
-        return this.singleton("getSqlExecutor", () -> new MsSqlSqlExecutor(getManagedDataSource()));
+        return this.singleton("getSqlExecutor", new Function0<MsSqlSqlExecutor>() {
+            @Override
+            public MsSqlSqlExecutor value() {
+                return new MsSqlSqlExecutor(MsSqlAppContext.this.getManagedDataSource());
+            }
+        });
     }
 
     @Override

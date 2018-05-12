@@ -25,6 +25,8 @@ import org.apache.commons.configuration2.BaseHierarchicalConfiguration;
 import org.apache.commons.configuration2.ConfigurationConverter;
 import org.apache.commons.configuration2.ConfigurationUtils;
 import org.apache.commons.configuration2.ImmutableHierarchicalConfiguration;
+import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.ImmutableMap;
 import org.eclipse.collections.api.map.MutableMap;
@@ -47,9 +49,19 @@ class PackageMetadataReader {
         TextMarkupDocument textMarkupDocument = textMarkupDocumentReader.parseString(fileContent, null);
         TextMarkupDocumentSection metadataSection = textMarkupDocument.findSectionWithElementName(TextMarkupDocumentReader.TAG_METADATA);
         String packageMetadataContent = textMarkupDocument.getSections()
-                .select(_this -> _this.getName() == null)
+                .select(new Predicate<TextMarkupDocumentSection>() {
+                    @Override
+                    public boolean accept(TextMarkupDocumentSection it) {
+                        return it.getName() == null;
+                    }
+                })
                 .toReversed()
-                .collect(TextMarkupDocumentSection::getContent)
+                .collect(new Function<TextMarkupDocumentSection, String>() {
+                    @Override
+                    public String valueOf(TextMarkupDocumentSection section) {
+                        return section.getContent();
+                    }
+                })
                 .collect(StringFunctions.trim())
                 .detect(StringPredicates.notEmpty());
 

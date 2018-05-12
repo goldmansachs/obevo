@@ -20,6 +20,7 @@ import com.gs.obevo.dbmetadata.api.DaCatalog;
 import com.gs.obevo.dbmetadata.api.DaSchemaInfoLevel;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
 import org.apache.commons.lang3.Validate;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.list.MutableList;
@@ -49,10 +50,20 @@ public class DbChecksumManagerImpl implements DbChecksumManager {
 
             ImmutableCollection<ChecksumEntry> newChecksums = checksumCalculator.getChecksums(catalog)
                     .select(checksumEntryInclusionPredicate);
-            MapIterable<String, ChecksumEntry> newChecksumMap = newChecksums.groupByUniqueKey(ChecksumEntry::getKey);
+            MapIterable<String, ChecksumEntry> newChecksumMap = newChecksums.groupByUniqueKey(new Function<ChecksumEntry, String>() {
+                @Override
+                public String valueOf(ChecksumEntry checksumEntry) {
+                    return checksumEntry.getKey();
+                }
+            });
 
             ImmutableCollection<ChecksumEntry> existingChecksums = dbChecksumDao.getPersistedEntries(physicalSchema);
-            MapIterable<String, ChecksumEntry> existingChecksumMap = existingChecksums.groupByUniqueKey(ChecksumEntry::getKey);
+            MapIterable<String, ChecksumEntry> existingChecksumMap = existingChecksums.groupByUniqueKey(new Function<ChecksumEntry, String>() {
+                @Override
+                public String valueOf(ChecksumEntry checksumEntry) {
+                    return checksumEntry.getKey();
+                }
+            });
 
             SetIterable<String> allChecksumKeys = newChecksumMap.keysView().toSet().withAll(existingChecksumMap.keysView());
 

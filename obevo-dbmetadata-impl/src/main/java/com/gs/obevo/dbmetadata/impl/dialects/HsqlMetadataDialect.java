@@ -25,6 +25,7 @@ import com.gs.obevo.dbmetadata.api.DaUserType;
 import com.gs.obevo.dbmetadata.api.DaUserTypeImpl;
 import org.apache.commons.dbutils.handlers.ColumnListHandler;
 import org.apache.commons.dbutils.handlers.MapListHandler;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
@@ -54,16 +55,21 @@ public class HsqlMetadataDialect extends AbstractMetadataDialect {
                 new MapListHandler()
         )).toImmutable();
 
-        return maps.collect(map -> new DaUserTypeImpl((String) map.get("USER_TYPE_NAME"), schema));
+        return maps.collect(new Function<Map<String, Object>, DaUserType>() {
+            @Override
+            public DaUserType valueOf(Map<String, Object> map) {
+                return new DaUserTypeImpl((String) map.get("USER_TYPE_NAME"), schema);
+            }
+        });
     }
 
     @Override
     public ImmutableSet<String> getGroupNamesOptional(Connection conn, PhysicalSchema physicalSchema) throws SQLException {
-        return Sets.immutable.withAll(jdbc.query(conn, "select ROLE_NAME from INFORMATION_SCHEMA.APPLICABLE_ROLES", new ColumnListHandler<>()));
+        return Sets.immutable.<String >withAll(jdbc.query(conn, "select ROLE_NAME from INFORMATION_SCHEMA.APPLICABLE_ROLES", new ColumnListHandler<String>()));
     }
 
     @Override
     public ImmutableSet<String> getUserNamesOptional(Connection conn, PhysicalSchema physicalSchema) throws SQLException {
-        return Sets.immutable.withAll(jdbc.query(conn, "select USER_NAME from INFORMATION_SCHEMA.SYSTEM_USERS", new ColumnListHandler<>()));
+        return Sets.immutable.<String>withAll(jdbc.query(conn, "select USER_NAME from INFORMATION_SCHEMA.SYSTEM_USERS", new ColumnListHandler<String>()));
     }
 }

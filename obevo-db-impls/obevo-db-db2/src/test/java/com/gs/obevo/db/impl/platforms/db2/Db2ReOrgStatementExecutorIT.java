@@ -27,6 +27,7 @@ import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
 import com.gs.obevo.db.impl.platforms.db2.Db2PostDeployAction.SchemaObjectRow;
 import com.gs.obevo.impl.DeployMetricsCollectorImpl;
 import org.apache.commons.dbutils.handlers.ColumnListHandler;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.set.MutableSet;
@@ -94,7 +95,17 @@ public class Db2ReOrgStatementExecutorIT {
             @Override
             public MutableList<SchemaObjectRow> safeValueOf(Connection conn) throws Exception {
                 return postDeployAction.getTablesNeedingReorg(conn, environment)
-                        .toList().sortThis(Comparators.fromFunctions(SchemaObjectRow::getSchema, SchemaObjectRow::getName));
+                        .toList().sortThis(Comparators.fromFunctions(new Function<SchemaObjectRow, String>() {
+                            @Override
+                            public String valueOf(SchemaObjectRow schemaObjectRow1) {
+                                return schemaObjectRow1.getSchema();
+                            }
+                        }, new Function<SchemaObjectRow, String>() {
+                            @Override
+                            public String valueOf(SchemaObjectRow schemaObjectRow) {
+                                return schemaObjectRow.getName();
+                            }
+                        }));
             }
         });
 

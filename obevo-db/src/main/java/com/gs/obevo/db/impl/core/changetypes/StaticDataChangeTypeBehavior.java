@@ -24,6 +24,7 @@ import com.gs.obevo.api.platform.CommandExecutionContext;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.platform.SqlExecutor;
 import com.gs.obevo.impl.changetypes.GroupChangeTypeSemantic;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.list.ListIterable;
 import org.slf4j.Logger;
@@ -74,7 +75,12 @@ public class StaticDataChangeTypeBehavior implements ChangeTypeBehavior {
         if (hasInsertIntoPattern && hasCsvPattern) {
             throw new IllegalArgumentException("Within a group of staticData changes, " +
                     "we cannot have a mix of CSV data files and InsertInto data files. Please convert all of them to " +
-                    "the CSV format: " + staticDatas.collect(Change::getDisplayString).makeString(", "));
+                    "the CSV format: " + staticDatas.collect(new Function<Change, String>() {
+                @Override
+                public String valueOf(Change change1) {
+                    return change1.getDisplayString();
+                }
+            }).makeString(", "));
         }
 
         if (hasCsvPattern) {

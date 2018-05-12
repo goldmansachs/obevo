@@ -45,6 +45,8 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.bag.MutableBag;
+import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.block.procedure.Procedure2;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
@@ -174,22 +176,30 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
             this.deployExecutionDao.init();
             this.artifactDeployerDao.init();
 
-            MapIterable<String, DeployExecution> executionsBySchema = env.getSchemas().toMap(Schema::getName, schema -> {
-                DeployExecution deployExecution = new DeployExecutionImpl(
-                        deployerArgs.getDeployRequesterId(),
-                        credential.getUsername(),
-                        schema.getName(),
-                        PlatformConfiguration.getInstance().getToolVersion(),
-                        new Timestamp(new Date().getTime()),
-                        deployerArgs.isPerformInitOnly(),
-                        deployerArgs.isRollback(),
-                        deployerArgs.getProductVersion(),
-                        deployerArgs.getReason(),
-                        deployerArgs.getDeployExecutionAttributes()
-                );
-                deployExecution.setStatus(DeployExecutionStatus.IN_PROGRESS);
-                deployExecutionDao.persistNew(deployExecution, env.getPhysicalSchema(schema.getName()));
-                return deployExecution;
+            MapIterable<String, DeployExecution> executionsBySchema = env.getSchemas().toMap(new Function<Schema, String>() {
+                @Override
+                public String valueOf(Schema schema) {
+                    return schema.getName();
+                }
+            }, new Function<Schema, DeployExecution>() {
+                @Override
+                public DeployExecution valueOf(Schema schema) {
+                    DeployExecution deployExecution = new DeployExecutionImpl(
+                            deployerArgs.getDeployRequesterId(),
+                            credential.getUsername(),
+                            schema.getName(),
+                            PlatformConfiguration.getInstance().getToolVersion(),
+                            new Timestamp(new Date().getTime()),
+                            deployerArgs.isPerformInitOnly(),
+                            deployerArgs.isRollback(),
+                            deployerArgs.getProductVersion(),
+                            deployerArgs.getReason(),
+                            deployerArgs.getDeployExecutionAttributes()
+                    );
+                    deployExecution.setStatus(DeployExecutionStatus.IN_PROGRESS);
+                    deployExecutionDao.persistNew(deployExecution, env.getPhysicalSchema(schema.getName()));
+                    return deployExecution;
+                }
             });
 
             // If there are no deployments required, then just update the artifact tables and return
@@ -261,7 +271,12 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
         if (LOG.isInfoEnabled()) {
             LOG.info("Environment information:");
             LOG.info("Logical schemas [{}]: {}", env.getSchemaNames().size(), env.getSchemaNames().makeString(","));
-            LOG.info("Physical schemas [{}]: {}", env.getPhysicalSchemas().size(), env.getPhysicalSchemas().collect(PhysicalSchema::getPhysicalName).makeString(","));
+            LOG.info("Physical schemas [{}]: {}", env.getPhysicalSchemas().size(), env.getPhysicalSchemas().collect(new Function<PhysicalSchema, String>() {
+                @Override
+                public String valueOf(PhysicalSchema physicalSchema) {
+                    return physicalSchema.getPhysicalName();
+                }
+            }).makeString(","));
         }
     }
 
@@ -270,7 +285,12 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
         deployMetricsCollector.addMetric("schemaCount", env.getSchemaNames().size());
         deployMetricsCollector.addMetric("schemas", env.getSchemaNames().makeString(","));
         deployMetricsCollector.addMetric("physicalSchemaCount", env.getPhysicalSchemas().size());
-        deployMetricsCollector.addMetric("physicalSchemas", env.getPhysicalSchemas().collect(PhysicalSchema::getPhysicalName).makeString(","));
+        deployMetricsCollector.addMetric("physicalSchemas", env.getPhysicalSchemas().collect(new Function<PhysicalSchema, String>() {
+            @Override
+            public String valueOf(PhysicalSchema physicalSchema) {
+                return physicalSchema.getPhysicalName();
+            }
+        }).makeString(","));
     }
 
     private void validatePriorToDeployment(E env, DeployStrategy deployStrategy, ImmutableList<Change> sourceChanges, ImmutableCollection<Change> deployedChanges, Changeset artifactsToProcess) {
@@ -310,7 +330,12 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
         }
 
         for (ExecuteChangeCommand changeCommand : artifactsToProcess.getInserts()) {
-            MutableSet<String> previousFailedObjects = failedObjectNames.intersect(changeCommand.getChanges().toSet().collect(Change::getDbObjectKey));
+            MutableSet<String> previousFailedObjects = failedObjectNames.intersect(changeCommand.getChanges().toSet().collect(new Function<Change, String>() {
+                @Override
+                public String valueOf(Change change2) {
+                    return change2.getDbObjectKey();
+                }
+            }));
             if (previousFailedObjects.notEmpty()) {
                 // We skip subsequent changes in objects that failed as we don't any unexpected activities to happen on
                 // a particular DB object
@@ -363,15 +388,30 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
                         + ExceptionUtils.getStackTrace(exc));
                 failedChanges.add(new FailedChange(changeCommand, exc));
 
-                failedObjectNames.withAll(changeCommand.getChanges().collect(Change::getDbObjectKey));
-                failedChangeKeys.withAll(changeCommand.getChanges().collect(Change::getChangeKey));
+                failedObjectNames.withAll(changeCommand.getChanges().collect(new Function<Change, String>() {
+                    @Override
+                    public String valueOf(Change change1) {
+                        return change1.getDbObjectKey();
+                    }
+                }));
+                failedChangeKeys.withAll(changeCommand.getChanges().collect(new Function<Change, ChangeKey>() {
+                    @Override
+                    public ChangeKey valueOf(Change change) {
+                        return change.getChangeKey();
+                    }
+                }));
             }
         }
 
         if (!failedChanges.isEmpty()) {
             deployMetricsCollector.addMetric("exceptionCount", failedChanges.size());
-            MutableList<String> changeMessages = failedChanges.collect(object -> object.getChangeCommand().getCommandDescription() + "\n"
-                    + "    Root Exception Message: " + ExceptionUtils.getRootCauseMessage(object.getException()));
+            MutableList<String> changeMessages = failedChanges.collect(new Function<FailedChange, String>() {
+                @Override
+                public String valueOf(FailedChange object) {
+                    return object.getChangeCommand().getCommandDescription() + "\n"
+                            + "    Root Exception Message: " + ExceptionUtils.getRootCauseMessage(object.getException());
+                }
+            });
 
             String exceptionMessage = "Failed deploying the following artifacts.\n" + changeMessages
                     .makeString("\n");
@@ -439,7 +479,17 @@ public class MainDeployer<P extends Platform, E extends Environment<P>> {
         deployMetricsCollector.addMetric("changeset.warningCount", changeset.getChangeWarnings().size());
         deployMetricsCollector.addMetric("changeset.deferredCount", changeset.getDeferredChanges().size());
 
-        MutableBag<String> warningBag = changeset.getChangeWarnings().collect(warning -> warning.getClass().getName()).toBag();
-        warningBag.toMapOfItemToCount().forEachKeyValue((warningClassName, count) -> deployMetricsCollector.addMetric("changeset.warningTypeCounts." + warningClassName, count));
+        MutableBag<String> warningBag = changeset.getChangeWarnings().collect(new Function<ChangeCommandWarning, String>() {
+            @Override
+            public String valueOf(ChangeCommandWarning warning) {
+                return warning.getClass().getName();
+            }
+        }).toBag();
+        warningBag.toMapOfItemToCount().forEachKeyValue(new Procedure2<String, Integer>() {
+            @Override
+            public void value(String warningClassName, Integer count) {
+                deployMetricsCollector.addMetric("changeset.warningTypeCounts." + warningClassName, count);
+            }
+        });
     }
 }

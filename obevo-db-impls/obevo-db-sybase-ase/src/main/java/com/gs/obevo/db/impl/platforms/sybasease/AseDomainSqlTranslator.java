@@ -23,6 +23,7 @@ import com.gs.obevo.db.sqlparser.tokenparser.SqlToken;
 import com.gs.obevo.db.sqlparser.tokenparser.SqlTokenParser;
 import com.gs.obevo.db.sqlparser.tokenparser.SqlTokenType;
 import com.gs.obevo.impl.text.CommentRemover;
+import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.MutableList;
 
 public abstract class AseDomainSqlTranslator implements UnparsedSqlTranslator {
@@ -32,7 +33,12 @@ public abstract class AseDomainSqlTranslator implements UnparsedSqlTranslator {
         if (sql.startsWith("sp_addtype")) {
             // all the params are in string literals, e.g. 'param'. Let's extract it out
             MutableList<SqlToken> allParts = new SqlTokenParser().parseTokens(sql);
-            MutableList<SqlToken> parts = allParts.select(_this -> _this.getTokenType().equals(SqlTokenType.STRING));
+            MutableList<SqlToken> parts = allParts.select(new Predicate<SqlToken>() {
+                @Override
+                public boolean accept(SqlToken it) {
+                    return it.getTokenType().equals(SqlTokenType.STRING);
+                }
+            });
 
             String domainName = null;
             String domainType = null;

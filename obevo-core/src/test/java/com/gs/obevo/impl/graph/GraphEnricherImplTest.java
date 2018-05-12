@@ -20,6 +20,7 @@ import com.gs.obevo.api.appdata.CodeDependencyType;
 import com.gs.obevo.api.appdata.ObjectKey;
 import com.gs.obevo.api.platform.ChangeType;
 import org.eclipse.collections.api.RichIterable;
+import org.eclipse.collections.api.block.function.Function2;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.block.factory.StringFunctions;
@@ -253,7 +254,12 @@ public class GraphEnricherImplTest {
         ObjectKey key = new ObjectKey(schema, changeType, objectName);
         when(sort.getObjectKey()).thenReturn(key);
         if (dependencies != null) {
-            when(sort.getCodeDependencies()).thenReturn(dependencies.collectWith(CodeDependency::new, CodeDependencyType.EXPLICIT));
+            when(sort.getCodeDependencies()).thenReturn(dependencies.collectWith(new Function2<String, CodeDependencyType, CodeDependency>() {
+                @Override
+                public CodeDependency value(String target, CodeDependencyType codeDependencyType) {
+                    return new CodeDependency(target, codeDependencyType);
+                }
+            }, CodeDependencyType.EXPLICIT));
         }
         when(sort.getChangeName()).thenReturn(changeName);
         when(sort.getOrderWithinObject()).thenReturn(orderWithinObject);

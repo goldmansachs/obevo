@@ -21,6 +21,7 @@ import javax.sql.DataSource;
 
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.platform.DeployExecutionException;
+import com.gs.obevo.api.platform.FailedChange;
 import com.gs.obevo.db.api.factory.DbEnvironmentFactory;
 import com.gs.obevo.db.api.platform.DbDeployerAppContext;
 import com.gs.obevo.db.impl.core.jdbc.JdbcDataSourceFactory;
@@ -28,6 +29,7 @@ import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
 import com.gs.obevo.db.impl.platforms.h2.H2JdbcDataSourceFactory;
 import com.gs.obevo.util.inputreader.Credential;
 import org.apache.commons.dbutils.DbUtils;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.junit.Test;
 
@@ -65,8 +67,18 @@ public class MigrationScenarioTest {
                     .cleanEnvironment()
                     .deploy();
         } catch (DeployExecutionException e) {
-            ImmutableList<Change> changes = e.getFailedChanges().flatCollect(fc -> fc.getChangeCommand().getChanges());
-            assertThat(changes.collect(c -> c.getDbObjectKey() + ":" + c.getChangeName()).castToList(), containsInAnyOrder(
+            ImmutableList<Change> changes = e.getFailedChanges().flatCollect(new Function<FailedChange, Iterable<Change>>() {
+                @Override
+                public Iterable<Change> valueOf(FailedChange fc) {
+                    return fc.getChangeCommand().getChanges();
+                }
+            });
+            assertThat(changes.collect(new Function<Change, String>() {
+                @Override
+                public String valueOf(Change c) {
+                    return c.getDbObjectKey() + ":" + c.getChangeName();
+                }
+            }).castToList(), containsInAnyOrder(
                     "SCHEMA1:migration_fail_example:migrate"
             ));
         }

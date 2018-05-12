@@ -29,6 +29,8 @@ import com.gs.obevo.util.VisibleForTesting;
 import com.gs.obevo.util.hash.OldWhitespaceAgnosticDbChangeHashStrategy;
 import com.gs.obevo.util.vfs.FileObject;
 import org.eclipse.collections.api.bag.MutableBag;
+import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.block.function.Function2;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.set.MutableSet;
@@ -129,7 +131,12 @@ public class RerunnableChangeParser extends AbstractDbChangeFileParser {
         }
 
         if (dependenciesStr != null) {
-            change.setCodeDependencies(Sets.immutable.with(dependenciesStr.split(",")).reject(StringPredicates.empty()).collectWith(CodeDependency::new, CodeDependencyType.EXPLICIT));
+            change.setCodeDependencies(Sets.immutable.with(dependenciesStr.split(",")).reject(StringPredicates.empty()).collectWith(new Function2<String, CodeDependencyType, CodeDependency>() {
+                @Override
+                public CodeDependency value(String target, CodeDependencyType codeDependencyType) {
+                    return new CodeDependency(target, codeDependencyType);
+                }
+            }, CodeDependencyType.EXPLICIT));
         } else {
             if (excludeDependenciesStr != null) {
                 change.setExcludeDependencies(Sets.immutable.with(excludeDependenciesStr.split(",")).reject(StringPredicates.empty()));
@@ -153,7 +160,12 @@ public class RerunnableChangeParser extends AbstractDbChangeFileParser {
 
     @Override
     protected void validateStructureOld(TextMarkupDocument doc) {
-        final MutableSet<String> foundSections = doc.getSections().collect(TextMarkupDocumentSection::getName).toSet().reject(Predicates.isNull());
+        final MutableSet<String> foundSections = doc.getSections().collect(new Function<TextMarkupDocumentSection, String>() {
+            @Override
+            public String valueOf(TextMarkupDocumentSection section) {
+                return section.getName();
+            }
+        }).toSet().reject(Predicates.isNull());
         final MutableSet<String> expectedSections = Sets.mutable.with(TextMarkupDocumentReader.TAG_METADATA, TextMarkupDocumentReader.TAG_BODY, TextMarkupDocumentReader.TAG_DROP_COMMAND);
         final MutableSet<String> extraSections = foundSections.difference(expectedSections);
         if (extraSections.notEmpty()) {
@@ -170,12 +182,22 @@ public class RerunnableChangeParser extends AbstractDbChangeFileParser {
             throw new IllegalArgumentException("No content defined");
         }
 
-        ImmutableList<TextMarkupDocumentSection> disallowedSections = docSections.reject(Predicates.attributeIn(TextMarkupDocumentSection::getName, Sets.immutable.with(null, TextMarkupDocumentReader.TAG_METADATA, TextMarkupDocumentReader.TAG_DROP_COMMAND, TextMarkupDocumentReader.TAG_BODY)));
+        ImmutableList<TextMarkupDocumentSection> disallowedSections = docSections.reject(Predicates.attributeIn(new Function<TextMarkupDocumentSection, Object>() {
+            @Override
+            public Object valueOf(TextMarkupDocumentSection section) {
+                return section.getName();
+            }
+        }, Sets.immutable.with(null, TextMarkupDocumentReader.TAG_METADATA, TextMarkupDocumentReader.TAG_DROP_COMMAND, TextMarkupDocumentReader.TAG_BODY)));
         if (disallowedSections.notEmpty()) {
             throw new IllegalArgumentException("Only allowed 1 content section and at most 1 of these [" + allowedSectionString + "]; instead, found these disallowed sections: " + disallowedSections);
         }
 
-        ImmutableList<String> sectionNames = docSections.collect(TextMarkupDocumentSection::getName);
+        ImmutableList<String> sectionNames = docSections.collect(new Function<TextMarkupDocumentSection, String>() {
+            @Override
+            public String valueOf(TextMarkupDocumentSection section) {
+                return section.getName();
+            }
+        });
         MutableBag<String> duplicateSections = sectionNames.toBag().selectByOccurrences(IntPredicates.greaterThan(1));
         if (duplicateSections.notEmpty()) {
             throw new IllegalArgumentException("Only allowed 1 content section and at most 1 of these [" + allowedSectionString + "]; instead, found these extra sections instances: " + duplicateSections.toSet());

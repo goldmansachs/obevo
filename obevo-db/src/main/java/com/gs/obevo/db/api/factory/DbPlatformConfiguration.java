@@ -18,6 +18,7 @@ package com.gs.obevo.db.api.factory;
 import com.gs.obevo.api.factory.PlatformConfiguration;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import org.apache.commons.configuration2.ImmutableHierarchicalConfiguration;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.ListIterable;
 import org.eclipse.collections.api.set.ImmutableSet;
@@ -55,6 +56,11 @@ public class DbPlatformConfiguration extends PlatformConfiguration {
 
     private ImmutableSet<String> createExtraEnvAttrs() {
         ListIterable<ImmutableHierarchicalConfiguration> extraEnvAttrs = ListAdapter.adapt(getConfig().immutableChildConfigurationsAt("extraEnvAttrs"));
-        return extraEnvAttrs.collect(c -> c.getString("name")).toSet().toImmutable();
+        return extraEnvAttrs.collect(new Function<ImmutableHierarchicalConfiguration, String>() {
+            @Override
+            public String valueOf(ImmutableHierarchicalConfiguration c) {
+                return c.getString("name");
+            }
+        }).toSet().toImmutable();
     }
 }

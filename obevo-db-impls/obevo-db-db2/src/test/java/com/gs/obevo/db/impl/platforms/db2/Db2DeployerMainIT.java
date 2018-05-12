@@ -27,6 +27,7 @@ import com.gs.obevo.db.api.platform.DbDeployerAppContext;
 import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.handlers.ColumnListHandler;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.function.primitive.IntToObjectFunction;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.factory.Lists;
@@ -111,7 +112,12 @@ public class Db2DeployerMainIT {
         }
 
         String schema1 = "DEPLOY_TRACKER";
-        MutableList<DeployExecution> executions = dbDeployerAppContext.getDeployExecutionDao().getDeployExecutions(schema1).toSortedListBy(DeployExecution::getId);
+        MutableList<DeployExecution> executions = dbDeployerAppContext.getDeployExecutionDao().getDeployExecutions(schema1).toSortedListBy(new Function<DeployExecution, Long>() {
+            @Override
+            public Long valueOf(DeployExecution deployExecution) {
+                return deployExecution.getId();
+            }
+        });
         assertThat(executions, hasSize(4));
         DeployExecution execution4 = dbDeployerAppContext.getDeployExecutionDao().getLatestDeployExecution(schema1);
         verifyExecution1(executions.get(0));

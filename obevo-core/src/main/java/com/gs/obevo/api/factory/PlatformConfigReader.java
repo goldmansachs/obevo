@@ -31,6 +31,8 @@ import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.commons.configuration2.tree.OverrideCombiner;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.bag.MutableBag;
+import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.block.procedure.Procedure2;
 import org.eclipse.collections.api.list.ListIterable;
 import org.eclipse.collections.api.list.MutableList;
@@ -58,11 +60,21 @@ class PlatformConfigReader {
         validate(prioritizedProperties);
 
         // order properties by priority: higher-numbered files will replace properties of lower-numbered files
-        prioritizedProperties.sortThisBy(PropertyInput::getPriority).reverseThis();  // needs to be reversed as CombinedConfiguration takes the higher-priority files first
+        prioritizedProperties.sortThisBy(new Function<PropertyInput, Integer>() {
+            @Override
+            public Integer valueOf(PropertyInput propertyInput1) {
+                return propertyInput1.getPriority();
+            }
+        }).reverseThis();  // needs to be reversed as CombinedConfiguration takes the higher-priority files first
 
         // merge properties
         CombinedConfiguration combinedConfiguration = new CombinedConfiguration(new OverrideCombiner());
-        for (HierarchicalConfiguration<ImmutableNode> properties : prioritizedProperties.collect(PropertyInput::getProps)) {
+        for (HierarchicalConfiguration<ImmutableNode> properties : prioritizedProperties.collect(new Function<PropertyInput, HierarchicalConfiguration<ImmutableNode>>() {
+            @Override
+            public HierarchicalConfiguration<ImmutableNode> valueOf(PropertyInput propertyInput) {
+                return propertyInput.getProps();
+            }
+        })) {
             combinedConfiguration.addConfiguration(properties);
         }
 
@@ -73,13 +85,28 @@ class PlatformConfigReader {
     }
 
     private MutableList<PropertyInput> readConfigPackages(RichIterable<String> configPackages) {
-        MutableSet<PropertyInput> prioritizedProperties = HashingStrategySets.mutable.of(HashingStrategies.fromFunction(PropertyInput::getPropertyFilePath));
+        MutableSet<PropertyInput> prioritizedProperties = HashingStrategySets.mutable.of(HashingStrategies.fromFunction(new Function<PropertyInput, URL>() {
+            @Override
+            public URL valueOf(PropertyInput propertyInput) {
+                return propertyInput.getPropertyFilePath();
+            }
+        }));
 
         for (String configPackage : configPackages) {
             ListIterable<FileObject> fileObjects = FileRetrievalMode.CLASSPATH.resolveFileObjects(configPackage)
-                    .flatCollect(object -> ArrayAdapter.adapt(object.getChildren()));
+                    .flatCollect(new Function<FileObject, Iterable<FileObject>>() {
+                        @Override
+                        public Iterable<FileObject> valueOf(FileObject object) {
+                            return ArrayAdapter.adapt(object.getChildren());
+                        }
+                    });
             ListIterable<FileObject> propertyFiles = fileObjects
-                    .select(_this -> _this.getName().getExtension().equals("yaml"));
+                    .select(new Predicate<FileObject>() {
+                        @Override
+                        public boolean accept(FileObject it) {
+                            return it.getName().getExtension().equals("yaml");
+                        }
+                    });
 
             for (FileObject propertyFile : propertyFiles) {
                 HierarchicalConfiguration<ImmutableNode> fileProps = loadPropertiesFromUrl(propertyFile);
@@ -102,7 +129,12 @@ class PlatformConfigReader {
             throw new IllegalStateException("Could not find default configuration " + "abc" + " in the classpath");
         }
 
-        MutableListMultimap<String, PropertyInput> propertiesByFileName = prioritizedProperties.groupBy(PropertyInput::getFileName);
+        MutableListMultimap<String, PropertyInput> propertiesByFileName = prioritizedProperties.groupBy(new Function<PropertyInput, String>() {
+            @Override
+            public String valueOf(PropertyInput propertyInput) {
+                return propertyInput.getFileName();
+            }
+        });
         final MutableList<String> warnings = Lists.mutable.empty();
         final MutableList<String> errors = Lists.mutable.empty();
 
@@ -110,12 +142,27 @@ class PlatformConfigReader {
             @Override
             public void value(String fileName, Iterable<PropertyInput> propertyInputsIter) {
                 MutableList<PropertyInput> propertyInputs = CollectionAdapter.wrapList(propertyInputsIter);
-                MutableBag<Integer> priorities = propertyInputs.collect(PropertyInput::getPriority).toBag();
+                MutableBag<Integer> priorities = propertyInputs.collect(new Function<PropertyInput, Integer>() {
+                    @Override
+                    public Integer valueOf(PropertyInput propertyInput1) {
+                        return propertyInput1.getPriority();
+                    }
+                }).toBag();
                 MutableBag<Integer> duplicatePriorities = priorities.selectByOccurrences(IntPredicates.greaterThan(1));
                 if (duplicatePriorities.notEmpty()) {
-                    errors.add("File name [" + fileName + "] was found with the same priority [" + duplicatePriorities + "] in multiple locations [" + propertyInputs.collect(PropertyInput::getPropertyFilePath) + "]. Please ensure that priorities are distinct.");
+                    errors.add("File name [" + fileName + "] was found with the same priority [" + duplicatePriorities + "] in multiple locations [" + propertyInputs.collect(new Function<PropertyInput, URL>() {
+                        @Override
+                        public URL valueOf(PropertyInput propertyInput) {
+                            return propertyInput.getPropertyFilePath();
+                        }
+                    }) + "]. Please ensure that priorities are distinct.");
                 } else if (priorities.size() > 1) {
-                    warnings.add("File name [" + fileName + "] was found in multiple locations [" + propertyInputs.collect(PropertyInput::getPropertyFilePath) + "]. Will refer to them in their priority order, but ideally the file name should be different.");
+                    warnings.add("File name [" + fileName + "] was found in multiple locations [" + propertyInputs.collect(new Function<PropertyInput, URL>() {
+                        @Override
+                        public URL valueOf(PropertyInput propertyInput) {
+                            return propertyInput.getPropertyFilePath();
+                        }
+                    }) + "]. Will refer to them in their priority order, but ideally the file name should be different.");
                 }
             }
         });

@@ -26,6 +26,7 @@ import com.gs.obevo.db.api.platform.DbDeployerAppContext;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.db.api.platform.DbTranslationDialect;
 import com.gs.obevo.util.inputreader.Credential;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.map.ImmutableMap;
@@ -120,7 +121,12 @@ public class DbEnvironment extends Environment<DbPlatform> {
         }
 
         return super.getDisplayString() + ": Connecting to [" + connectionInfo + "] against schemas ["
-                + this.getPhysicalSchemas().collect(PhysicalSchema::getPhysicalName).makeString(",") + "]";
+                + this.getPhysicalSchemas().collect(new Function<PhysicalSchema, String>() {
+            @Override
+            public String valueOf(PhysicalSchema physicalSchema) {
+                return physicalSchema.getPhysicalName();
+            }
+        }).makeString(",") + "]";
     }
 
     public String getDbHost() {
@@ -211,8 +217,13 @@ public class DbEnvironment extends Environment<DbPlatform> {
         return getPermissions(change.getPermissionScheme());
     }
 
-    public ImmutableList<Permission> getPermissions(String permissionScheme) {
-        return getPermissions().select(_this -> _this.getScheme().equalsIgnoreCase(permissionScheme));
+    public ImmutableList<Permission> getPermissions(final String permissionScheme) {
+        return getPermissions().select(new Predicate<Permission>() {
+            @Override
+            public boolean accept(Permission it) {
+                return it.getScheme().equalsIgnoreCase(permissionScheme);
+            }
+        });
     }
 
     public void setPermissions(ImmutableList<Permission> permissions) {
@@ -319,11 +330,36 @@ public class DbEnvironment extends Environment<DbPlatform> {
         // ideally, the groups are defined in the groups field; however, we have not enforced this in the past, and most
         // folks just define the groups via the permission schemes. Hence, we add this extra getter here to allow
         // clients to get the groups they need
-        MutableSet<String> groupNames = permissions.flatCollect(Permission::getGrants).flatCollect(grant -> grant.getGrantTargets().get(GrantTargetType.GROUP)).toSet();
+        MutableSet<String> groupNames = permissions.flatCollect(new Function<Permission, Iterable<Grant>>() {
+            @Override
+            public Iterable<Grant> valueOf(Permission permission) {
+                return permission.getGrants();
+            }
+        }).flatCollect(new Function<Grant, Iterable<String>>() {
+            @Override
+            public Iterable<String> valueOf(Grant grant) {
+                return grant.getGrantTargets().get(GrantTargetType.GROUP);
+            }
+        }).toSet();
 
-        MutableSet<Group> permissionGroups = groupNames.collect(Group::new);
+        MutableSet<Group> permissionGroups = groupNames.collect(new Function<String, Group>() {
+            @Override
+            public Group valueOf(String name) {
+                return new Group(name);
+            }
+        });
 
-        permissionGroups.removeIf(Predicates.attributeIn(Group::getName, this.groups.collect(Group::getName)));  // ensure that we don't duplicate groups across the permissions and config groups list
+        permissionGroups.removeIf(Predicates.attributeIn(new Function<Group, Object>() {
+            @Override
+            public Object valueOf(Group group1) {
+                return group1.getName();
+            }
+        }, this.groups.collect(new Function<Group, String>() {
+            @Override
+            public String valueOf(Group group) {
+                return group.getName();
+            }
+        })));  // ensure that we don't duplicate groups across the permissions and config groups list
 
         return this.groups.newWithAll(permissionGroups);
     }
@@ -334,12 +370,37 @@ public class DbEnvironment extends Environment<DbPlatform> {
 
     public ImmutableList<User> getUsers() {
         // See note in getGroups() on why we get the users from the permissions
-        MutableSet<String> userNames = permissions.flatCollect(Permission::getGrants).flatCollect(grant -> grant.getGrantTargets().get(GrantTargetType.USER)).toSet();  // remove duplicates within the permissions list
+        MutableSet<String> userNames = permissions.flatCollect(new Function<Permission, Iterable<Grant>>() {
+            @Override
+            public Iterable<Grant> valueOf(Permission permission) {
+                return permission.getGrants();
+            }
+        }).flatCollect(new Function<Grant, Iterable<String>>() {
+            @Override
+            public Iterable<String> valueOf(Grant grant) {
+                return grant.getGrantTargets().get(GrantTargetType.USER);
+            }
+        }).toSet();  // remove duplicates within the permissions list
 
-        MutableSet<User> permissionUsers = userNames.collect(username -> new User(username, null, false));
+        MutableSet<User> permissionUsers = userNames.collect(new Function<String, User>() {
+            @Override
+            public User valueOf(String username) {
+                return new User(username, null, false);
+            }
+        });
 
-        ImmutableList<String> existingUserNames = this.users.collect(User::getName);
-        permissionUsers.removeIf((Predicate<User>) _this -> existingUserNames.contains(_this.getName()));  // ensure that we don't duplicate users across the permissions and config users list
+        final ImmutableList<String> existingUserNames = this.users.collect(new Function<User, String>() {
+            @Override
+            public String valueOf(User user) {
+                return user.getName();
+            }
+        });
+        permissionUsers.removeIf(new Predicate<User>() {
+            @Override
+            public boolean accept(User it) {
+                return existingUserNames.contains(it.getName());
+            }
+        });  // ensure that we don't duplicate users across the permissions and config users list
 
         return this.users.newWithAll(permissionUsers);
     }
@@ -414,7 +475,7 @@ public class DbEnvironment extends Environment<DbPlatform> {
     }
 
     public ImmutableList<ServerDirectory> getServerDirectories() {
-        return serverDirectories == null ? Lists.immutable.empty() : serverDirectories;
+        return serverDirectories == null ? Lists.immutable.<ServerDirectory>empty() : serverDirectories;
     }
 
     public void setServerDirectories(ImmutableList<ServerDirectory> serverDirectories) {

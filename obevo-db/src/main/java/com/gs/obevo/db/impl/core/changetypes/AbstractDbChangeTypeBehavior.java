@@ -60,10 +60,13 @@ public abstract class AbstractDbChangeTypeBehavior implements DbChangeTypeBehavi
 
     @Override
     public void deploy(final Change change, final CommandExecutionContext cec) {
-        sqlExecutor.executeWithinContext(change.getPhysicalSchema(env), (Procedure<Connection>) conn -> {
-            baseArtifactDeployer.deployArtifact(conn, change);
-            if (shouldApplyGrants(change)) {
-                applyGrants(conn, change.getPhysicalSchema(env), change.getObjectName(), env.getPermissions(change), cec);
+        sqlExecutor.executeWithinContext(change.getPhysicalSchema(env), new Procedure<Connection>() {
+            @Override
+            public void value(Connection conn) {
+                baseArtifactDeployer.deployArtifact(conn, change);
+                if (AbstractDbChangeTypeBehavior.this.shouldApplyGrants(change)) {
+                    AbstractDbChangeTypeBehavior.this.applyGrants(conn, change.getPhysicalSchema(env), change.getObjectName(), env.getPermissions(change), cec);
+                }
             }
         });
     }

@@ -23,6 +23,7 @@ import com.gs.obevo.impl.reader.TableChangeParser.GetChangeType;
 import com.gs.obevo.util.hash.DbChangeHashStrategy;
 import com.gs.obevo.util.vfs.FileObject;
 import org.apache.commons.vfs2.FileName;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
@@ -65,8 +66,18 @@ public class TableChangeParserTest {
 
         ImmutableList<Change> changes = parser.value(tableChangeType, null, fileContent, "MyTemplate${suffix}", "schema", null);
         assertEquals(4, changes.size());
-        assertEquals(2, changes.count(Predicates.attributeEqual(_this -> _this.getObjectName(), "MyTemplate1")));
-        assertEquals(2, changes.count(Predicates.attributeEqual(_this -> _this.getObjectName(), "MyTemplate2")));
+        assertEquals(2, changes.count(Predicates.attributeEqual(new Function<Change, Object>() {
+            @Override
+            public Object valueOf(Change it) {
+                return it.getObjectName();
+            }
+        }, "MyTemplate1")));
+        assertEquals(2, changes.count(Predicates.attributeEqual(new Function<Change, Object>() {
+            @Override
+            public Object valueOf(Change it) {
+                return it.getObjectName();
+            }
+        }, "MyTemplate2")));
     }
 
     @Test

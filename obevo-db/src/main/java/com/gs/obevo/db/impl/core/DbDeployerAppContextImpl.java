@@ -59,6 +59,7 @@ import com.gs.obevo.impl.reader.TableChangeParser.GetChangeType;
 import com.gs.obevo.util.CollectionUtil;
 import com.gs.obevo.util.inputreader.Credential;
 import org.apache.commons.lang3.Validate;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.function.Function0;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
@@ -127,7 +128,12 @@ public abstract class DbDeployerAppContextImpl extends AbstractDeployerAppContex
             throw new IllegalStateException("The following change types were not enriched: " + unenrichedChangeTypes);
         }
 
-        CollectionUtil.verifyNoDuplicates(changeTypes, ChangeType::getName, "Not expecting multiple ChangeTypes with the same name");
+        CollectionUtil.verifyNoDuplicates(changeTypes, new Function<ChangeType, Object>() {
+            @Override
+            public Object valueOf(ChangeType changeType) {
+                return changeType.getName();
+            }
+        }, "Not expecting multiple ChangeTypes with the same name");
     }
 
     protected DbPlatform platform() {
@@ -141,14 +147,24 @@ public abstract class DbDeployerAppContextImpl extends AbstractDeployerAppContex
     protected ChangeTypeBehaviorRegistryBuilder getChangeTypeBehaviors() {
         ChangeTypeBehaviorRegistryBuilder builder = ChangeTypeBehaviorRegistry.newBuilder();
 
-        PartitionImmutableList<ChangeType> staticDataPartition = platform().getChangeTypes().partition(_this -> _this.getName().equals(ChangeType.STATICDATA_STR));
+        PartitionImmutableList<ChangeType> staticDataPartition = platform().getChangeTypes().partition(new Predicate<ChangeType>() {
+            @Override
+            public boolean accept(ChangeType it) {
+                return it.getName().equals(ChangeType.STATICDATA_STR);
+            }
+        });
 
         for (ChangeType staticDataType : staticDataPartition.getSelected()) {
             StaticDataChangeTypeBehavior behavior = new StaticDataChangeTypeBehavior(env, getSqlExecutor(), simpleArtifactDeployer(), getCsvStaticDataLoader());
             builder.put(staticDataType.getName(), groupSemantic(), behavior);
         }
 
-        PartitionImmutableList<ChangeType> rerunnablePartition = staticDataPartition.getRejected().partition(ChangeType::isRerunnable);
+        PartitionImmutableList<ChangeType> rerunnablePartition = staticDataPartition.getRejected().partition(new Predicate<ChangeType>() {
+            @Override
+            public boolean accept(ChangeType changeType) {
+                return changeType.isRerunnable();
+            }
+        });
 
         for (ChangeType rerunnableChange : rerunnablePartition.getSelected()) {
             if (!(rerunnableChange instanceof DbChangeType)) {

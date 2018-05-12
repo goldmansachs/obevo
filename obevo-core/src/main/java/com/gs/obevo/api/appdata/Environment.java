@@ -28,6 +28,8 @@ import com.gs.obevo.util.vfs.FileRetrievalMode;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.Validate;
 import org.eclipse.collections.api.RichIterable;
+import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ListIterable;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.ImmutableMap;
@@ -164,15 +166,18 @@ public class Environment<T extends Platform> {
                 fileObjects.add(coreSourcePath);
             }
             if (additionalSourceDirs != null) {
-                fileObjects.addAll(additionalSourceDirs.flatCollect(path -> {
-                    MutableList<FileObject> resolvedFileObjects = Lists.mutable.empty();
-                    for (FileResolverStrategy fileResolverStrategy : fileResolverStrategies) {
-                        resolvedFileObjects.addAllIterable(fileResolverStrategy.resolveFileObjects(path));
+                fileObjects.addAll(additionalSourceDirs.flatCollect(new Function<String, Iterable<FileObject>>() {
+                    @Override
+                    public Iterable<FileObject> valueOf(String path) {
+                        MutableList<FileObject> resolvedFileObjects = Lists.mutable.empty();
+                        for (FileResolverStrategy fileResolverStrategy : fileResolverStrategies) {
+                            resolvedFileObjects.addAllIterable(fileResolverStrategy.resolveFileObjects(path));
+                        }
+                        if (resolvedFileObjects.isEmpty()) {
+                            throw new IllegalArgumentException("Unable to find the given path [" + path + "] via any of the fileResolverStrategies:" + fileResolverStrategies.makeString(", "));
+                        }
+                        return resolvedFileObjects;
                     }
-                    if (resolvedFileObjects.isEmpty()) {
-                        throw new IllegalArgumentException("Unable to find the given path [" + path + "] via any of the fileResolverStrategies:" + fileResolverStrategies.makeString(", "));
-                    }
-                    return resolvedFileObjects;
                 }).toList());
             }
             this.sourceDirs = Lists.mutable.withAll(fileObjects);
@@ -228,11 +233,21 @@ public class Environment<T extends Platform> {
     }
 
     public ImmutableSet<String> getSchemaNames() {
-        return this.getSchemas().collect(Schema::getName);
+        return this.getSchemas().collect(new Function<Schema, String>() {
+            @Override
+            public String valueOf(Schema schema) {
+                return schema.getName();
+            }
+        });
     }
 
     public String getPhysicalSchemaPrefixInternal(String schema) {
-        Validate.isTrue(getAllSchemas().collect(Schema::getName).contains(schema),
+        Validate.isTrue(getAllSchemas().collect(new Function<Schema, String>() {
+                    @Override
+                    public String valueOf(Schema schema1) {
+                        return schema1.getName();
+                    }
+                }).contains(schema),
                 "Schema does not exist in the environment. Requested schema: " + schema
                         + "; available schemas: " + getSchemaNames().makeString(","));
 
@@ -244,7 +259,12 @@ public class Environment<T extends Platform> {
      * with the rest of the code.
      */
     public ImmutableSet<Schema> getSchemas() {
-        return this.allSchemas.reject(Schema::isReadOnly);
+        return this.allSchemas.reject(new Predicate<Schema>() {
+            @Override
+            public boolean accept(Schema schema) {
+                return schema.isReadOnly();
+            }
+        });
     }
 
     public void setSchemas(ImmutableSet<Schema> schemas) {
@@ -285,11 +305,31 @@ public class Environment<T extends Platform> {
     }
 
     public ImmutableSet<PhysicalSchema> getPhysicalSchemas() {
-        return this.getSchemas().collect(Schema::getName).collect(this::getPhysicalSchema);
+        return this.getSchemas().collect(new Function<Schema, String>() {
+            @Override
+            public String valueOf(Schema schema1) {
+                return schema1.getName();
+            }
+        }).collect(new Function<String, PhysicalSchema>() {
+            @Override
+            public PhysicalSchema valueOf(String schema) {
+                return Environment.this.getPhysicalSchema(schema);
+            }
+        });
     }
 
     public ImmutableSet<PhysicalSchema> getAllPhysicalSchemas() {
-        return this.getAllSchemas().collect(Schema::getName).collect(this::getPhysicalSchema);
+        return this.getAllSchemas().collect(new Function<Schema, String>() {
+            @Override
+            public String valueOf(Schema schema1) {
+                return schema1.getName();
+            }
+        }).collect(new Function<String, PhysicalSchema>() {
+            @Override
+            public PhysicalSchema valueOf(String schema) {
+                return Environment.this.getPhysicalSchema(schema);
+            }
+        });
     }
 
     public void setSchemaNameOverrides(ImmutableMap<String, String> schemaNameOverrides) {

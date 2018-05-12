@@ -23,6 +23,7 @@ import com.gs.obevo.api.appdata.ObjectKey;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.Platform;
 import com.gs.obevo.impl.ExecuteChangeCommand;
+import org.eclipse.collections.api.block.function.Function2;
 import org.eclipse.collections.api.list.ListIterable;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.block.factory.Functions;
@@ -125,7 +126,12 @@ public class ChangeCommandSorterImplTest {
         when(change.getChangeType()).thenReturn(changeType);
         when(change.getObjectName()).thenReturn(objectName);
         when(change.getChangeName()).thenReturn(changeName);
-        when(change.getCodeDependencies()).thenReturn(dependencies.collectWith(CodeDependency::new, CodeDependencyType.EXPLICIT));
+        when(change.getCodeDependencies()).thenReturn(dependencies.collectWith(new Function2<String, CodeDependencyType, CodeDependency>() {
+            @Override
+            public CodeDependency value(String target, CodeDependencyType codeDependencyType) {
+                return new CodeDependency(target, codeDependencyType);
+            }
+        }, CodeDependencyType.EXPLICIT));
         change.getContentForDependencyCalculation();
 
         ExecuteChangeCommand command = mock(ExecuteChangeCommand.class);
@@ -142,7 +148,12 @@ public class ChangeCommandSorterImplTest {
         when(change.getChangeType()).thenReturn(changeType);
         when(change.getObjectName()).thenReturn(objectName);
         when(change.getChangeName()).thenReturn(changeName);
-        when(change.getCodeDependencies()).thenReturn(dependencies.collectWith(CodeDependency::new, CodeDependencyType.EXPLICIT));
+        when(change.getCodeDependencies()).thenReturn(dependencies.collectWith(new Function2<String, CodeDependencyType, CodeDependency>() {
+            @Override
+            public CodeDependency value(String target, CodeDependencyType codeDependencyType) {
+                return new CodeDependency(target, codeDependencyType);
+            }
+        }, CodeDependencyType.EXPLICIT));
         when(change.getOrderWithinObject()).thenReturn(orderWithinObject);
 
         ExecuteChangeCommand command = mock(ExecuteChangeCommand.class);

@@ -35,6 +35,7 @@ import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.collection.mutable.CollectionAdapter;
 import org.eclipse.collections.impl.factory.Multimaps;
 import org.eclipse.collections.impl.list.mutable.ListAdapter;
+import schemacrawler.schema.Column;
 import schemacrawler.schema.ForeignKey;
 import schemacrawler.schema.Index;
 import schemacrawler.schema.Table;
@@ -51,7 +52,12 @@ public class DaTableImpl implements DaTable {
     public DaTableImpl(Table table, SchemaStrategy schemaStrategy, Multimap<String, ExtraIndexInfo> extraIndexes) {
         this.table = Validate.notNull(table);
         this.schemaStrategy = schemaStrategy;
-        this.extraIndexInfoMap = extraIndexes.get(table.getName()).groupByUniqueKey(ExtraIndexInfo::getIndexName);
+        this.extraIndexInfoMap = extraIndexes.get(table.getName()).groupByUniqueKey(new Function<ExtraIndexInfo, String>() {
+            @Override
+            public String valueOf(ExtraIndexInfo extraIndexInfo) {
+                return extraIndexInfo.getIndexName();
+            }
+        });
     }
 
     @Override
@@ -66,7 +72,12 @@ public class DaTableImpl implements DaTable {
 
     @Override
     public ImmutableList<DaColumn> getColumns() {
-        return ListAdapter.adapt(table.getColumns()).collect(object -> (DaColumn) new DaColumnImpl(object, schemaStrategy)).toImmutable();
+        return ListAdapter.adapt(table.getColumns()).collect(new Function<Column, DaColumn>() {
+            @Override
+            public DaColumn valueOf(Column object) {
+                return (DaColumn) new DaColumnImpl(object, schemaStrategy);
+            }
+        }).toImmutable();
     }
 
     @Override

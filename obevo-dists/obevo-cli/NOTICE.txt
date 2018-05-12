@@ -27,6 +27,7 @@ This product depends on (links to) the following software:
   FreeMarker under Apache License, Version 2.0
   h2 under EPL 1.0
   HyperSQL Database under HSQLDB License, a BSD open source license
+  IntelliJ IDEA Annotations under The Apache Software License, Version 2.0
   JCL 1.1.1 implemented over SLF4J under MIT License
   JGraphT - Core under Eclipse Public License (EPL) 1.0
   Joda time under Apache 2
@@ -51,6 +52,7 @@ This product depends on (links to) the following software:
   obevo-mongodb under The Apache License, Version 2.0
   obevo-reladomo-util under The Apache License, Version 2.0
   opencsv under Apache 2
+  org.jetbrains.kotlin:kotlin-stdlib under The Apache License, Version 2.0
   PostgreSQL JDBC Driver - JDBC 4.1 under The PostgreSQL License
   SchemaCrawler under Eclipse Public License - v 1.0
   SchemaCrawler for HyperSQL under Eclipse Public License - v 1.0

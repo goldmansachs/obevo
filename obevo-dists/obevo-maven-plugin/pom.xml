@@ -34,28 +34,6 @@
 
     <build>
         <plugins>
-            <!-- Disabling retrolambda and Java 8 syntax for this module as it seems to cause problems in remote build -->
-            <plugin>
-                <groupId>net.orfjackal.retrolambda</groupId>
-                <artifactId>retrolambda-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>apply-retrolambda</id>
-                        <goals />
-                    </execution>
-                </executions>
-                <configuration>
-                    <target>1.7</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                </configuration>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>

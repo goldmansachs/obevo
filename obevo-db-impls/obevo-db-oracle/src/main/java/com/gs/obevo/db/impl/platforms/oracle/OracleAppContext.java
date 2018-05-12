@@ -19,10 +19,16 @@ import com.gs.obevo.db.api.platform.SqlExecutor;
 import com.gs.obevo.db.impl.core.DbDeployerAppContextImpl;
 import com.gs.obevo.db.impl.core.envinfrasetup.EnvironmentInfraSetup;
 import com.gs.obevo.db.impl.core.jdbc.DataSourceFactory;
+import org.eclipse.collections.api.block.function.Function0;
 
 public class OracleAppContext extends DbDeployerAppContextImpl {
     public SqlExecutor getSqlExecutor() {
-        return this.singleton("getSqlExecutor", () -> new OracleSqlExecutor(getManagedDataSource()));
+        return this.singleton("getSqlExecutor", new Function0<OracleSqlExecutor>() {
+            @Override
+            public OracleSqlExecutor value() {
+                return new OracleSqlExecutor(OracleAppContext.this.getManagedDataSource());
+            }
+        });
     }
 
     @Override

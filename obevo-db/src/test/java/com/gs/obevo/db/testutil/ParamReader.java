@@ -35,6 +35,7 @@ import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.ImmutableHierarchicalConfiguration;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.function.primitive.IntToObjectFunction;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.list.mutable.ListAdapter;
@@ -76,7 +77,12 @@ public class ParamReader {
     }
 
     public Collection<Object[]> getAppContextParams() {
-        return getSysConfigs().collect(config -> new Object[] { getAppContext(config) });
+        return getSysConfigs().collect(new Function<ImmutableHierarchicalConfiguration, Object[]>() {
+            @Override
+            public Object[] valueOf(ImmutableHierarchicalConfiguration config) {
+                return new Object[] { getAppContext(config) };
+            }
+        });
     }
 
     public Collection<Object[]> getAppContextAndJdbcDsParams() {
@@ -84,9 +90,14 @@ public class ParamReader {
     }
 
     private Collection<Object[]> getAppContextAndJdbcDsParams(final int numConnections) {
-        return getSysConfigs().collect(config -> new Object[] {
-                getAppContext(config),
-                getJdbcDs(config, numConnections)
+        return getSysConfigs().collect(new Function<ImmutableHierarchicalConfiguration, Object[]>() {
+            @Override
+            public Object[] valueOf(ImmutableHierarchicalConfiguration config) {
+                return new Object[] {
+                        getAppContext(config),
+                        getJdbcDs(config, numConnections)
+                };
+            }
         });
     }
 
@@ -95,15 +106,23 @@ public class ParamReader {
     }
 
     public Collection<Object[]> getJdbcDsAndSchemaParams(final int numConnections) {
-        return getSysConfigs().collect(config -> {
-            final PhysicalSchema schema = PhysicalSchema.parseFromString(config.getString("metaschema"));
+        return getSysConfigs().collect(new Function<ImmutableHierarchicalConfiguration, Object[]>() {
+            @Override
+            public Object[] valueOf(ImmutableHierarchicalConfiguration config) {
+                final PhysicalSchema schema = PhysicalSchema.parseFromString(config.getString("metaschema"));
 
-            return new Object[] { getJdbcDs(config, numConnections), schema };
+                return new Object[] { getJdbcDs(config, numConnections), schema };
+            }
         });
     }
 
-    private static IntToObjectFunction<DbDeployerAppContext> getAppContext(ImmutableHierarchicalConfiguration config) {
-        return stepNumber -> replaceStepNumber(config.getString("sourcePath"), stepNumber, config).buildAppContext();
+    private static IntToObjectFunction<DbDeployerAppContext> getAppContext(final ImmutableHierarchicalConfiguration config) {
+        return new IntToObjectFunction<DbDeployerAppContext>() {
+            @Override
+            public DbDeployerAppContext valueOf(int stepNumber) {
+                return replaceStepNumber(config.getString("sourcePath"), stepNumber, config).buildAppContext();
+            }
+        };
     }
 
     private static DataSource getJdbcDs(final ImmutableHierarchicalConfiguration config, final int numConnections) {

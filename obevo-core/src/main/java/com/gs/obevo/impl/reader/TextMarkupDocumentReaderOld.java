@@ -18,6 +18,7 @@ package com.gs.obevo.impl.reader;
 import com.gs.obevo.api.appdata.doc.TextMarkupDocument;
 import com.gs.obevo.api.appdata.doc.TextMarkupDocumentSection;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.MutableMap;
@@ -36,11 +37,16 @@ class TextMarkupDocumentReaderOld {
     private final MutableList<String> secondLevelElements = Lists.mutable.with(TAG_ROLLBACK,
             TAG_ROLLBACK_IF_ALREADY_DEPLOYED);
 
-    public TextMarkupDocument parseString(String text, TextMarkupDocumentSection otherSection) {
+    public TextMarkupDocument parseString(String text, final TextMarkupDocumentSection otherSection) {
         ImmutableList<TextMarkupDocumentSection> textMarkupDocumentSections = this.parseString(text, this.firstLevelElements, true, "////");
 
         if (otherSection != null) {
-            TextMarkupDocumentSection thisSection = textMarkupDocumentSections.detect(_this -> _this.getName().equals(otherSection.getName()));
+            TextMarkupDocumentSection thisSection = textMarkupDocumentSections.detect(new Predicate<TextMarkupDocumentSection>() {
+                @Override
+                public boolean accept(TextMarkupDocumentSection it) {
+                    return it.getName().equals(otherSection.getName());
+                }
+            });
             if (thisSection != null) {
                 thisSection.mergeAttributes(otherSection);
             } else {

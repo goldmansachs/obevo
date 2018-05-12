@@ -19,6 +19,7 @@ import com.gs.obevo.api.appdata.DeployExecution;
 import com.gs.obevo.api.platform.DeployExecutionDao;
 import com.gs.obevo.util.VisibleForTesting;
 import org.apache.commons.lang3.ObjectUtils;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
@@ -49,10 +50,13 @@ public class DefaultRollbackDetector implements RollbackDetector {
     @Override
     public boolean determineRollback(final String productVersion, final ImmutableSet<String> schemas, final DeployExecutionDao deployExecutionDao) {
         MutableMap<String, Boolean> rollbackFlags = schemas.toMap(
-                Functions.getPassThru(),
-                schema -> {
-                    LOG.info("Checking rollback status on Product Version {} and Schema {}", productVersion, schema);
-                    return determineRollbackForSchema(productVersion, deployExecutionDao.getDeployExecutions(schema));
+                Functions.<String>getPassThru(),
+                new Function<String, Boolean>() {
+                    @Override
+                    public Boolean valueOf(String schema) {
+                        LOG.info("Checking rollback status on Product Version {} and Schema {}", productVersion, schema);
+                        return DefaultRollbackDetector.this.determineRollbackForSchema(productVersion, deployExecutionDao.getDeployExecutions(schema));
+                    }
                 }
         );
 
@@ -100,7 +104,12 @@ public class DefaultRollbackDetector implements RollbackDetector {
         if (LOG.isInfoEnabled()) {
             LOG.info("Found {} {} for this schema", deployExecutions.size(), message);
             if (LOG.isDebugEnabled()) {
-                for (DeployExecution deployExecution : deployExecutions.toSortedListBy(DeployExecution::getId)) {
+                for (DeployExecution deployExecution : deployExecutions.toSortedListBy(new Function<DeployExecution, Long>() {
+                    @Override
+                    public Long valueOf(DeployExecution deployExecution1) {
+                        return deployExecution1.getId();
+                    }
+                })) {
                     LOG.debug("Execution ID={}, Version Name={}, Deploy Time={}, Rollback={}",
                             deployExecution.getId(), getDeployVersion(deployExecution), deployExecution.getDeployTime(), deployExecution.isRollback());
                 }
@@ -124,7 +133,12 @@ public class DefaultRollbackDetector implements RollbackDetector {
             return Lists.immutable.empty();
         }
 
-        MutableList<DeployExecution> idSortedExecutions = deployExecutions.toSortedListBy(DeployExecution::getId);
+        MutableList<DeployExecution> idSortedExecutions = deployExecutions.toSortedListBy(new Function<DeployExecution, Long>() {
+            @Override
+            public Long valueOf(DeployExecution deployExecution) {
+                return deployExecution.getId();
+            }
+        });
         MutableStack<DeployExecution> executionStack = Stacks.mutable.empty();
 
         for (DeployExecution currentExecution : idSortedExecutions) {

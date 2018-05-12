@@ -22,6 +22,7 @@ import com.gs.obevo.mongodb.impl.MongoDbEnvironmentEnricher;
 import com.gs.obevo.util.vfs.FileObject;
 import com.gs.obevo.util.vfs.FileRetrievalMode;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.factory.Sets;
@@ -41,8 +42,18 @@ public class MongoDbEnvironmentEnricherTest {
 
         ImmutableCollection<MongoDbEnvironment> envs = enricher.readSystem(config, input);
 
-        validateEnv1(envs.detect(attributeEqual(Environment::getName, "test1")));
-        validateEnv2(envs.detect(attributeEqual(Environment::getName, "test2")));
+        validateEnv1(envs.detect(attributeEqual(new Function<MongoDbEnvironment, Object>() {
+            @Override
+            public Object valueOf(MongoDbEnvironment mongoDbEnvironment1) {
+                return mongoDbEnvironment1.getName();
+            }
+        }, "test1")));
+        validateEnv2(envs.detect(attributeEqual(new Function<MongoDbEnvironment, Object>() {
+            @Override
+            public Object valueOf(MongoDbEnvironment mongoDbEnvironment) {
+                return mongoDbEnvironment.getName();
+            }
+        }, "test2")));
     }
 
     private void validateEnv1(MongoDbEnvironment env1) {

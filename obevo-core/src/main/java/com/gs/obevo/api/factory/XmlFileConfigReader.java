@@ -32,6 +32,7 @@ import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.commons.configuration2.tree.NodeHandler;
 import org.apache.commons.configuration2.tree.QueryResult;
 import org.apache.commons.vfs2.FileType;
+import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.factory.Sets;
@@ -119,8 +120,8 @@ public class XmlFileConfigReader implements FileConfigReader {
                 "excludeSchemas"
         );
         ImmutableSet<String> ignorableSysNodes = Sets.immutable.of("excludeSchemas", "includeSchemas", "schemaOverrides", "tokens");
-        ImmutableSet<String> ignorableEnvNodes = Sets.immutable.of("groups", "users");
-        ImmutableSet<String> ignorableEnvAttributes = Sets.immutable.of("sourceDirs", "acceptedExtensions", "dataDelimiter", "nullToken");
+        final ImmutableSet<String> ignorableEnvNodes = Sets.immutable.of("groups", "users");
+        final ImmutableSet<String> ignorableEnvAttributes = Sets.immutable.of("sourceDirs", "acceptedExtensions", "dataDelimiter", "nullToken");
 
         for (String ignorableAttribute : ignorableSysAttributes) {
             if (sysCfg.containsKey(ignorableAttribute)) {
@@ -146,15 +147,18 @@ public class XmlFileConfigReader implements FileConfigReader {
         if (envConfigs.isEmpty()) {
             envConfigs = ListAdapter.adapt(sysCfg.configurationsAt("environments.environment")).toImmutable();
         }
-        envConfigs.each(envCfg -> {
-            for (String ignorableAttribute : ignorableEnvAttributes) {
-                if (envCfg.containsKey(ignorableAttribute)) {
-                    envCfg.clearProperty(ignorableAttribute);
+        envConfigs.each(new Procedure<HierarchicalConfiguration<ImmutableNode>>() {
+            @Override
+            public void value(HierarchicalConfiguration<ImmutableNode> envCfg) {
+                for (String ignorableAttribute : ignorableEnvAttributes) {
+                    if (envCfg.containsKey(ignorableAttribute)) {
+                        envCfg.clearProperty(ignorableAttribute);
+                    }
                 }
-            }
-            for (String ignorableSysNode : ignorableEnvNodes) {
-                if (!envCfg.configurationsAt(ignorableSysNode).isEmpty()) {
-                    envCfg.clearTree(ignorableSysNode);
+                for (String ignorableSysNode : ignorableEnvNodes) {
+                    if (!envCfg.configurationsAt(ignorableSysNode).isEmpty()) {
+                        envCfg.clearTree(ignorableSysNode);
+                    }
                 }
             }
         });

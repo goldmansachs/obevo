@@ -16,6 +16,8 @@
 package com.gs.obevo.impl;
 
 import org.eclipse.collections.api.RichIterable;
+import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
 
 public class Changeset {
@@ -48,12 +50,22 @@ public class Changeset {
     }
 
     public void validateForDeployment() {
-        RichIterable<ChangeCommandWarning> fatalWarnings = this.changeWarnings.select(ChangeCommandWarning::isFatal);
+        RichIterable<ChangeCommandWarning> fatalWarnings = this.changeWarnings.select(new Predicate<ChangeCommandWarning>() {
+            @Override
+            public boolean accept(ChangeCommandWarning changeCommandWarning1) {
+                return changeCommandWarning1.isFatal();
+            }
+        });
 
         if (!fatalWarnings.isEmpty()) {
             // check for serious exceptions
             throw new IllegalArgumentException("Found exceptions:\n"
-                    + fatalWarnings.collect(ChangeCommandWarning::getCommandDescription).makeString("\n"));
+                    + fatalWarnings.collect(new Function<ChangeCommandWarning, String>() {
+                @Override
+                public String valueOf(ChangeCommandWarning changeCommandWarning) {
+                    return changeCommandWarning.getCommandDescription();
+                }
+            }).makeString("\n"));
         }
     }
 

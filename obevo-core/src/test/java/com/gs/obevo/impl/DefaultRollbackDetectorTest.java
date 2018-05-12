@@ -16,6 +16,7 @@
 package com.gs.obevo.impl;
 
 import com.gs.obevo.api.appdata.DeployExecution;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Sets;
 import org.junit.Test;
@@ -83,13 +84,23 @@ public class DefaultRollbackDetectorTest {
     public void testGetActiveDeploymentsOnNormalCase() throws Exception {
         assertEquals(Lists.immutable.with(1L), rollbackDetector.getActiveDeployments(Sets.immutable.with(
                 newExecution(1, "a")
-        )).collect(DeployExecution::getId));
+        )).collect(new Function<DeployExecution, Long>() {
+            @Override
+            public Long valueOf(DeployExecution deployExecution1) {
+                return deployExecution1.getId();
+            }
+        }));
 
         assertEquals(Lists.immutable.with(1L, 2L, 3L), rollbackDetector.getActiveDeployments(Sets.immutable.with(
                 newExecution(1, "a")
                 , newExecution(2, "b")
                 , newExecution(3, "c")
-        )).collect(DeployExecution::getId));
+        )).collect(new Function<DeployExecution, Long>() {
+            @Override
+            public Long valueOf(DeployExecution deployExecution) {
+                return deployExecution.getId();
+            }
+        }));
     }
 
     @Test
@@ -98,7 +109,12 @@ public class DefaultRollbackDetectorTest {
                 newExecution(1, "a")
                 , newExecution(2, "b")
                 , newExecution(3, "a", true)  // we go back to a; hence, erasing the impact of b
-        )).collect(DeployExecution::getId));
+        )).collect(new Function<DeployExecution, Long>() {
+            @Override
+            public Long valueOf(DeployExecution deployExecution1) {
+                return deployExecution1.getId();
+            }
+        }));
 
         assertEquals(Lists.immutable.with(3L, 4L, 5L), rollbackDetector.getActiveDeployments(Sets.immutable.with(
                 newExecution(1, "a")
@@ -106,7 +122,12 @@ public class DefaultRollbackDetectorTest {
                 , newExecution(3, "a", true)  // we go back to a; hence, erasing the impact of b
                 , newExecution(4, "b")
                 , newExecution(5, "c")
-        )).collect(DeployExecution::getId));
+        )).collect(new Function<DeployExecution, Long>() {
+            @Override
+            public Long valueOf(DeployExecution deployExecution) {
+                return deployExecution.getId();
+            }
+        }));
     }
 
     /**
@@ -124,7 +145,12 @@ public class DefaultRollbackDetectorTest {
                 , newExecution(6, null)
                 , newExecution(7, "c", true)
                 , newExecution(8, null)
-        )).collect(DeployExecution::getId));
+        )).collect(new Function<DeployExecution, Long>() {
+            @Override
+            public Long valueOf(DeployExecution deployExecution) {
+                return deployExecution.getId();
+            }
+        }));
     }
 
     @Test
@@ -138,7 +164,12 @@ public class DefaultRollbackDetectorTest {
                 , newExecution(6, "e")
                 , newExecution(7, "c", true)
                 , newExecution(8, "e")
-        )).collect(DeployExecution::getId));
+        )).collect(new Function<DeployExecution, Long>() {
+            @Override
+            public Long valueOf(DeployExecution deployExecution) {
+                return deployExecution.getId();
+            }
+        }));
     }
 
     @Test(expected = IllegalStateException.class)

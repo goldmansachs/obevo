@@ -168,12 +168,17 @@ public class SybaseAseMetadataDialect extends AbstractMetadataDialect {
                 new MapListHandler()
         )).toImmutable();
 
-        return maps.collect(map -> new ExtraIndexInfo(
-                (String) map.get("TABLE_NAME"),
-                (String) map.get("INDEX_NAME"),
-                (Integer) map.get("IS_CONSTRAINT") != 0,
-                (Integer) map.get("IS_CLUSTERED") != 0
-        ));
+        return maps.collect(new Function<Map<String, Object>, ExtraIndexInfo>() {
+            @Override
+            public ExtraIndexInfo valueOf(Map<String, Object> map) {
+                return new ExtraIndexInfo(
+                        (String) map.get("TABLE_NAME"),
+                        (String) map.get("INDEX_NAME"),
+                        (Integer) map.get("IS_CONSTRAINT") != 0,
+                        (Integer) map.get("IS_CLUSTERED") != 0
+                );
+            }
+        });
     }
 
     @Override
@@ -190,14 +195,19 @@ public class SybaseAseMetadataDialect extends AbstractMetadataDialect {
 
         ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(jdbc.query(conn, query, new MapListHandler())).toImmutable();
 
-        ImmutableList<ExtraRerunnableInfo> viewInfos = maps.collect(object -> new ExtraRerunnableInfo(
-                (String) object.get("name"),
-                null,
-                (String) object.get("text"),
-                null,
-                ((Integer) object.get("colid2")).intValue(),
-                ((Integer) object.get("colid")).intValue()
-        ));
+        ImmutableList<ExtraRerunnableInfo> viewInfos = maps.collect(new Function<Map<String, Object>, ExtraRerunnableInfo>() {
+            @Override
+            public ExtraRerunnableInfo valueOf(Map<String, Object> object) {
+                return new ExtraRerunnableInfo(
+                        (String) object.get("name"),
+                        null,
+                        (String) object.get("text"),
+                        null,
+                        ((Integer) object.get("colid2")).intValue(),
+                        ((Integer) object.get("colid")).intValue()
+                );
+            }
+        });
 
         return viewInfos.groupBy(ExtraRerunnableInfo.TO_NAME).multiValuesView().collect(new Function<RichIterable<ExtraRerunnableInfo>, ExtraRerunnableInfo>() {
             @Override

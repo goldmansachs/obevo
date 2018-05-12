@@ -31,6 +31,9 @@ import com.gs.obevo.impl.graph.GraphSorter;
 import com.gs.obevo.impl.graph.SortableDependency;
 import org.apache.commons.lang3.ObjectUtils;
 import org.eclipse.collections.api.RichIterable;
+import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.block.function.Function2;
+import org.eclipse.collections.api.block.procedure.primitive.ObjectIntProcedure;
 import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
@@ -56,31 +59,34 @@ public class GroupChangeTypeCommandCalculator implements ChangeTypeCommandCalcul
 
     @Override
     public ImmutableList<ChangeCommand> calculateCommands(ChangeType changeType, RichIterable<ChangePair> changePairs, RichIterable<Change> sources, boolean rollback, boolean initAllowedOnHashExceptions) {
-        RerunnableObjectInfo rerunnableObjectInfo = changePairs.injectInto(new RerunnableObjectInfo(), (rerunnableObjectInfo1, changePair) -> {
-            // TODO make this a bit more OO, e.g. avoid the instanceof all over the place
-            Change source = changePair.getSourceChange();
-            Change deployed = changePair.getDeployedChange();
+        RerunnableObjectInfo rerunnableObjectInfo = changePairs.injectInto(new RerunnableObjectInfo(), new Function2<RerunnableObjectInfo, ChangePair, RerunnableObjectInfo>() {
+            @Override
+            public RerunnableObjectInfo value(RerunnableObjectInfo rerunnableObjectInfo1, ChangePair changePair) {
+                // TODO make this a bit more OO, e.g. avoid the instanceof all over the place
+                Change source = changePair.getSourceChange();
+                Change deployed = changePair.getDeployedChange();
 
-            if (source == null && deployed == null) {
-                // this branch and exception throwing here is to avoid null deference warnings in findbugs for the next else branch
-                throw new IllegalStateException("This code branch should never happen; either of source or deployed should exist");
+                if (source == null && deployed == null) {
+                    // this branch and exception throwing here is to avoid null deference warnings in findbugs for the next else branch
+                    throw new IllegalStateException("This code branch should never happen; either of source or deployed should exist");
+                }
+
+                if (source == null && deployed != null) {
+                    // In this case - the change exists in the target DB but was removed from the source
+                    rerunnableObjectInfo1.addDroppedObject(deployed);
+                } else if (source != null && deployed == null) {
+                    rerunnableObjectInfo1.addChangedObject(source);
+                } else if (ObjectUtils.equals(source.getContentHash(), deployed.getContentHash())
+                        || source.getAcceptableHashes().contains(deployed.getContentHash())) {
+                    // In this case - the change exists in both the source and target db.
+                    // We need to check if anything has changed, using the hash
+                    LOG.trace("Nothing to do here; source [{}] and target [{}] match in hash", source, deployed);
+                } else {
+                    rerunnableObjectInfo1.addChangedObject(source);
+                }
+
+                return rerunnableObjectInfo1;
             }
-
-            if (source == null && deployed != null) {
-                // In this case - the change exists in the target DB but was removed from the source
-                rerunnableObjectInfo1.addDroppedObject(deployed);
-            } else if (source != null && deployed == null) {
-                rerunnableObjectInfo1.addChangedObject(source);
-            } else if (ObjectUtils.equals(source.getContentHash(), deployed.getContentHash())
-                    || source.getAcceptableHashes().contains(deployed.getContentHash())) {
-                // In this case - the change exists in both the source and target db.
-                // We need to check if anything has changed, using the hash
-                LOG.trace("Nothing to do here; source [{}] and target [{}] match in hash", source, deployed);
-            } else {
-                rerunnableObjectInfo1.addChangedObject(source);
-            }
-
-            return rerunnableObjectInfo1;
         });
 
         return this.processRerunnableChanges(rerunnableObjectInfo);
@@ -92,8 +98,18 @@ public class GroupChangeTypeCommandCalculator implements ChangeTypeCommandCalcul
     private ImmutableList<ChangeCommand> processRerunnableChanges(RerunnableObjectInfo rerunnableObjectInfo) {
         final MutableList<ChangeCommand> commands = Lists.mutable.empty();
         MutableCollection<Change> drops = rerunnableObjectInfo.getDroppedObjects();
-        drops.toSortedListBy(Change::getObjectName)
-                .forEachWithIndex((droppedObject, order) -> commands.add(new UnmanageChangeCommand(droppedObject, "static data change to be unmanaged")));
+        drops.toSortedListBy(new Function<Change, String>() {
+            @Override
+            public String valueOf(Change change) {
+                return change.getObjectName();
+            }
+        })
+                .forEachWithIndex(new ObjectIntProcedure<Change>() {
+                    @Override
+                    public void value(Change droppedObject, int order) {
+                        commands.add(new UnmanageChangeCommand(droppedObject, "static data change to be unmanaged"));
+                    }
+                });
 
         return commands.withAll(this.handleChanges(rerunnableObjectInfo.getChangedObjects())).toImmutable();
     }

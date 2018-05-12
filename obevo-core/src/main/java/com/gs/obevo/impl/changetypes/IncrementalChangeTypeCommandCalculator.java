@@ -34,6 +34,8 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.HashingStrategy;
+import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.ListIterable;
@@ -73,9 +75,14 @@ public class IncrementalChangeTypeCommandCalculator implements ChangeTypeCommand
     public ImmutableList<ChangeCommand> calculateCommands(ChangeType changeType, RichIterable<ChangePair> changePairs, RichIterable<Change> unused, final boolean rollback, final boolean initAllowedOnHashExceptions) {
         final MutableList<ChangeCommand> changeset = Lists.mutable.empty();
 
-        ImmutableSet<ObjectKey> dropObjectKeys = getDroppedTableChangesThatAreAlreadyRemoved(changePairs);
+        final ImmutableSet<ObjectKey> dropObjectKeys = getDroppedTableChangesThatAreAlreadyRemoved(changePairs);
 
-        PartitionIterable<ChangePair> dropObjectPartition = changePairs.partition(_this -> dropObjectKeys.contains(_this.getObjectKey()));
+        PartitionIterable<ChangePair> dropObjectPartition = changePairs.partition(new Predicate<ChangePair>() {
+            @Override
+            public boolean accept(ChangePair it) {
+                return dropObjectKeys.contains(it.getObjectKey());
+            }
+        });
         for (ChangePair changePair : dropObjectPartition.getSelected()) {
             changeset.add(new AlreadyDroppedTableWarning(changePair.getSourceChange()));
         }
@@ -192,12 +199,22 @@ public class IncrementalChangeTypeCommandCalculator implements ChangeTypeCommand
 
         changeset.withAll(this.handleBaselineChanges(newBaselines, baselinedDrops));
 
-        PartitionMutableList<ChangeIncremental> parallelChangesPartition = deployChanges.partition(Predicates.attributeNotNull(ChangeIncremental::getParallelGroup));
+        PartitionMutableList<ChangeIncremental> parallelChangesPartition = deployChanges.partition(Predicates.attributeNotNull(new Function<ChangeIncremental, Object>() {
+            @Override
+            public Object valueOf(ChangeIncremental changeIncremental) {
+                return changeIncremental.getParallelGroup();
+            }
+        }));
         for (ChangeIncremental singleChange : parallelChangesPartition.getRejected()) {
             changeset.add(changeCommandFactory.createDeployCommand(singleChange));
         }
 
-        MutableListMultimap<String, ChangeIncremental> parallelGroupedChanges = parallelChangesPartition.getSelected().groupBy(ChangeIncremental::getParallelGroup);
+        MutableListMultimap<String, ChangeIncremental> parallelGroupedChanges = parallelChangesPartition.getSelected().groupBy(new Function<ChangeIncremental, String>() {
+            @Override
+            public String valueOf(ChangeIncremental changeIncremental) {
+                return changeIncremental.getParallelGroup();
+            }
+        });
 
         for (RichIterable<ChangeIncremental> groupedChanges : parallelGroupedChanges.multiValuesView()) {
             if (groupedChanges.size() == 1) {
@@ -217,13 +234,38 @@ public class IncrementalChangeTypeCommandCalculator implements ChangeTypeCommand
     private ImmutableSet<ObjectKey> getDroppedTableChangesThatAreAlreadyRemoved(RichIterable<ChangePair> changePairs) {
         MutableSet<ObjectKey> dropOnlyObjectKeys = Sets.mutable.empty();
 
-        Multimap<ObjectKey, ChangePair> changePairsByObjectName = changePairs.groupBy(ChangePair::getObjectKey);
+        Multimap<ObjectKey, ChangePair> changePairsByObjectName = changePairs.groupBy(new Function<ChangePair, ObjectKey>() {
+            @Override
+            public ObjectKey valueOf(ChangePair changePair2) {
+                return changePair2.getObjectKey();
+            }
+        });
         for (Pair<ObjectKey, RichIterable<ChangePair>> stringRichIterablePair : changePairsByObjectName.keyMultiValuePairsView()) {
             ObjectKey objectKey = stringRichIterablePair.getOne();
             RichIterable<ChangePair> objectChangePairs = stringRichIterablePair.getTwo();
-            if (objectChangePairs.allSatisfy(Predicates.attributeNotNull(ChangePair::getSourceChange).and(Predicates.attributeIsNull(ChangePair::getDeployedChange)))) {
-                RichIterable<Change> sourceChanges = objectChangePairs.collect(ChangePair::getSourceChange);
-                Change lastChange = sourceChanges.maxBy(Change::getOrderWithinObject);
+            if (objectChangePairs.allSatisfy(Predicates.attributeNotNull(new Function<ChangePair, Object>() {
+                @Override
+                public Object valueOf(ChangePair changePair1) {
+                    return changePair1.getSourceChange();
+                }
+            }).and(Predicates.attributeIsNull(new Function<ChangePair, Object>() {
+                @Override
+                public Object valueOf(ChangePair changePair) {
+                    return changePair.getDeployedChange();
+                }
+            })))) {
+                RichIterable<Change> sourceChanges = objectChangePairs.collect(new Function<ChangePair, Change>() {
+                    @Override
+                    public Change valueOf(ChangePair changePair) {
+                        return changePair.getSourceChange();
+                    }
+                });
+                Change lastChange = sourceChanges.maxBy(new Function<Change, Integer>() {
+                    @Override
+                    public Integer valueOf(Change change) {
+                        return change.getOrderWithinObject();
+                    }
+                });
                 if (((ChangeIncremental) lastChange).isDrop() && !((ChangeIncremental) lastChange).isForceDropForEnvCleaning()) {
                     dropOnlyObjectKeys.add(objectKey);
                 }
@@ -234,7 +276,12 @@ public class IncrementalChangeTypeCommandCalculator implements ChangeTypeCommand
     }
 
     private ListIterable<ChangeCommand> handleBaselineChanges(MutableList<ChangeIncremental> newBaselines, MutableList<ChangeIncremental> baselinedDrops) {
-        HashingStrategy<Change> hashStrategyForBaseline = HashingStrategies.fromFunction(Change::getObjectKey);
+        HashingStrategy<Change> hashStrategyForBaseline = HashingStrategies.fromFunction(new Function<Change, ObjectKey>() {
+            @Override
+            public ObjectKey valueOf(Change change) {
+                return change.getObjectKey();
+            }
+        });
 
         MutableMap<Change, MutableMap<String, Change>> baselineDeployedMap = HashingStrategyMaps.mutable.of(hashStrategyForBaseline);
 

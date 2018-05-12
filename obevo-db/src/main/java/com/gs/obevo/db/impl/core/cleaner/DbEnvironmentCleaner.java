@@ -42,6 +42,7 @@ import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
@@ -213,7 +214,12 @@ public class DbEnvironmentCleaner implements EnvironmentCleaner {
                 MutableCollection<Schema> schemas = physicalSchemaToSchemaMap.get(physicalSchema);
 
                 for (Schema schema : schemas) {
-                    schemaDrops = schemaDrops.select(schema.getObjectExclusionPredicateBuilder().build(_this -> _this.getObjectType().getName(), DbCleanCommand.TO_OBJECT_NAME));
+                    schemaDrops = schemaDrops.select(schema.getObjectExclusionPredicateBuilder().build(new Function<DbCleanCommand, String>() {
+                        @Override
+                        public String valueOf(DbCleanCommand it) {
+                            return it.getObjectType().getName();
+                        }
+                    }, DbCleanCommand.TO_OBJECT_NAME));
                 }
 
                 return schemaDrops;
@@ -254,7 +260,12 @@ public class DbEnvironmentCleaner implements EnvironmentCleaner {
             }
         });
 
-        PartitionIterable<Change> rerunnableChangesPartition = artifacts.partition(change -> change.getChangeType().isRerunnable());
+        PartitionIterable<Change> rerunnableChangesPartition = artifacts.partition(new Predicate<Change>() {
+            @Override
+            public boolean accept(Change change) {
+                return change.getChangeType().isRerunnable();
+            }
+        });
         Changeset changeset = this.changesetCreator.determineChangeset(
                 rerunnableChangesPartition.getSelected(),
                 rerunnableChangesPartition.getRejected(),

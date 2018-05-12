@@ -26,6 +26,7 @@ import com.gs.obevo.util.vfs.FileObject;
 import com.gs.obevo.util.vfs.FileRetrievalMode;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileSelectInfo;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.impl.block.factory.Functions;
@@ -135,9 +136,19 @@ public class DbDirectoryChangesetReaderTest {
                     .build()
             );
             assertEquals(expectedSchema1Changes.with(this.sptestexclude),
-                    changes.select(Predicates.attributeEqual(Change::getSchema, "schema1")));
+                    changes.select(Predicates.attributeEqual(new Function<Change, Object>() {
+                        @Override
+                        public Object valueOf(Change change1) {
+                            return change1.getSchema();
+                        }
+                    }, "schema1")));
             assertEquals(expectedSchema2Changes,
-                    changes.select(Predicates.attributeEqual(Change::getSchema, "schema2")));
+                    changes.select(Predicates.attributeEqual(new Function<Change, Object>() {
+                        @Override
+                        public Object valueOf(Change change) {
+                            return change.getSchema();
+                        }
+                    }, "schema2")));
         }
 
         // test 2 - specify the include env; this will allow both artifacts w/ include and exclude in as both conditions
@@ -157,9 +168,19 @@ public class DbDirectoryChangesetReaderTest {
                     .setBaseline(false)
                     .build());
             assertEquals(expectedSchema1Changes.with(this.sptestexclude).with(this.sptestinclude),
-                    changes.select(Predicates.attributeEqual(Change::getSchema, "schema1")));
+                    changes.select(Predicates.attributeEqual(new Function<Change, Object>() {
+                        @Override
+                        public Object valueOf(Change change1) {
+                            return change1.getSchema();
+                        }
+                    }, "schema1")));
             assertEquals(expectedSchema2Changes,
-                    changes.select(Predicates.attributeEqual(Change::getSchema, "schema2")));
+                    changes.select(Predicates.attributeEqual(new Function<Change, Object>() {
+                        @Override
+                        public Object valueOf(Change change) {
+                            return change.getSchema();
+                        }
+                    }, "schema2")));
         }
 
         // test 3 - specify the exclude env; neither condition passes in this case
@@ -177,9 +198,19 @@ public class DbDirectoryChangesetReaderTest {
                 .setBaseline(false)
                 .build());
         assertEquals(expectedSchema1Changes,
-                changes.select(Predicates.attributeEqual(Change::getSchema, "schema1")));
+                changes.select(Predicates.attributeEqual(new Function<Change, Object>() {
+                    @Override
+                    public Object valueOf(Change change1) {
+                        return change1.getSchema();
+                    }
+                }, "schema1")));
         assertEquals(expectedSchema2Changes,
-                changes.select(Predicates.attributeEqual(Change::getSchema, "schema2")));
+                changes.select(Predicates.attributeEqual(new Function<Change, Object>() {
+                    @Override
+                    public Object valueOf(Change change) {
+                        return change.getSchema();
+                    }
+                }, "schema2")));
 
         // assertThat(changes.get("schema1"), hasItems(expectedSchema1Changes));
         // assertThat(changes.get("schema2"), hasItems(expectedSchema2Changes));
