@@ -19,6 +19,8 @@ import com.gs.obevo.db.sqlparser.tokenparser.SqlToken;
 import com.gs.obevo.db.sqlparser.tokenparser.SqlTokenParser;
 import com.gs.obevo.db.sqlparser.tokenparser.SqlTokenType;
 import com.gs.obevo.db.sqlparser.tokenparser.TokenMgrError;
+import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.MutableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,11 +37,21 @@ public class CommentRemover {
     public static String removeComments(String content, String logMessage) {
         try {
             MutableList<SqlToken> sqlTokens = new SqlTokenParser().parseTokens(content);
-            MutableList<SqlToken> nonCommentTokens = sqlTokens.reject(_this -> _this.getTokenType().equals(SqlTokenType.COMMENT));
+            MutableList<SqlToken> nonCommentTokens = sqlTokens.reject(new Predicate<SqlToken>() {
+                @Override
+                public boolean accept(SqlToken it) {
+                    return it.getTokenType().equals(SqlTokenType.COMMENT);
+                }
+            });
 
             // makeString returns a space due to the current kludge that the SqlTokenParser also stripes newline from
             // line comments
-            return nonCommentTokens.collect(SqlToken::getText).makeString(" ");
+            return nonCommentTokens.collect(new Function<SqlToken, String>() {
+                @Override
+                public String valueOf(SqlToken sqlToken) {
+                    return sqlToken.getText();
+                }
+            }).makeString(" ");
         } catch (TokenMgrError e) {
             // javacc will throw parsing exceptions as a java.lang.Error (!). We will catch this regardless
             LOG.warn("Error in removing comments from [{}] due to a parsing error (possibly in quote parsing or invalid characters); will default to returning the original string", logMessage, e);

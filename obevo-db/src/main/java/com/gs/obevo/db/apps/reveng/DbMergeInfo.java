@@ -19,6 +19,7 @@ import java.io.File;
 
 import org.apache.commons.configuration2.Configuration;
 import org.eclipse.collections.api.RichIterable;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.impl.collection.mutable.CollectionAdapter;
@@ -39,7 +40,7 @@ class DbMergeInfo {
     }
 
     public static RichIterable<DbMergeInfo> parseFromProperties(Configuration config) {
-        MutableSet<String> dbs = CollectionAdapter.wrapSet(config.getList(String.class, "instances", Lists.mutable.empty()));
+        MutableSet<String> dbs = CollectionAdapter.wrapSet(config.getList(String.class, "instances", Lists.mutable.<String>empty()));
 
         MutableList<String> exceptions = Lists.mutable.empty();
         MutableList<DbMergeInfo> dbMergeInfos = Lists.mutable.empty();
@@ -68,7 +69,12 @@ class DbMergeInfo {
         }
 
         if (exceptions.notEmpty()) {
-            throw new IllegalArgumentException("Invalid properties found in configuration:\n" + exceptions.collect(it -> "* " + it).makeString("\n"));
+            throw new IllegalArgumentException("Invalid properties found in configuration:\n" + exceptions.collect(new Function<String, String>() {
+                @Override
+                public String valueOf(String it) {
+                    return "* " + it;
+                }
+            }).makeString("\n"));
         }
         return dbMergeInfos;
     }

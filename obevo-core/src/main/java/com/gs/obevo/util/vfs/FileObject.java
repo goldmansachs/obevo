@@ -38,6 +38,7 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.NameScope;
 import org.apache.commons.vfs2.operations.FileOperations;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.impl.factory.Lists;
 
 /**
@@ -157,7 +158,12 @@ public class FileObject implements org.apache.commons.vfs2.FileObject {
     @Override
     public FileObject[] getChildren() {
         try {
-            return Lists.mutable.with(this.fileObject.getChildren()).collect(FileObject::toDaFileObject).toArray(new FileObject[0]);
+            return Lists.mutable.with(this.fileObject.getChildren()).collect(new Function<org.apache.commons.vfs2.FileObject, FileObject>() {
+                @Override
+                public FileObject valueOf(org.apache.commons.vfs2.FileObject fileObject1) {
+                    return toDaFileObject(fileObject1);
+                }
+            }).toArray(new FileObject[0]);
         } catch (FileSystemException e) {
             throw new VFSFileSystemException(e);
         }
@@ -193,7 +199,12 @@ public class FileObject implements org.apache.commons.vfs2.FileObject {
     @Override
     public FileObject[] findFiles(FileSelector selector) {
         try {
-            return Lists.mutable.with(this.fileObject.findFiles(selector)).collect(FileObject::toDaFileObject)
+            return Lists.mutable.with(this.fileObject.findFiles(selector)).collect(new Function<org.apache.commons.vfs2.FileObject, FileObject>() {
+                @Override
+                public FileObject valueOf(org.apache.commons.vfs2.FileObject fileObject1) {
+                    return toDaFileObject(fileObject1);
+                }
+            })
                     .toArray(new FileObject[0]);
         } catch (FileSystemException e) {
             throw new VFSFileSystemException(e);

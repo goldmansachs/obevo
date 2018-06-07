@@ -29,6 +29,7 @@ import com.gs.obevo.api.platform.MainDeployerArgs;
 import com.gs.obevo.db.api.platform.DbDeployerAppContext;
 import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
 import org.apache.commons.dbutils.DbUtils;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.function.primitive.IntToObjectFunction;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.factory.Sets;
@@ -89,7 +90,12 @@ public class SybaseAseDeployerMainIT {
         DeployExecution execution2 = context2.getDeployExecutionDao().getLatestDeployExecution(schema);
         verifyExecution2(execution2);
 
-        MutableList<DeployExecution> executions = context2.getDeployExecutionDao().getDeployExecutions(schema).toSortedListBy(DeployExecution::getId);
+        MutableList<DeployExecution> executions = context2.getDeployExecutionDao().getDeployExecutions(schema).toSortedListBy(new Function<DeployExecution, Long>() {
+            @Override
+            public Long valueOf(DeployExecution deployExecution) {
+                return deployExecution.getId();
+            }
+        });
         verifyExecution1(executions.get(0));
         verifyExecution2(executions.get(1));
     }

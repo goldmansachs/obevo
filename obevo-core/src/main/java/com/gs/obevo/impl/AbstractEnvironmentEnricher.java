@@ -33,6 +33,8 @@ import org.apache.commons.configuration2.ImmutableHierarchicalConfiguration;
 import org.apache.commons.configuration2.tree.OverrideCombiner;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileType;
+import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.map.MutableMap;
@@ -52,8 +54,8 @@ public abstract class AbstractEnvironmentEnricher<E extends Environment> impleme
     private final PlatformConfiguration dbPlatformConfiguration = PlatformConfiguration.getInstance();
 
     @Override
-    public ImmutableCollection<E> readSystem(HierarchicalConfiguration sysCfg, FileObject sourcePath) {
-        Platform systemDbPlatform = dbPlatformConfiguration.valueOf(sysCfg.getString("type"));
+    public ImmutableCollection<E> readSystem(final HierarchicalConfiguration sysCfg, final FileObject sourcePath) {
+        final Platform systemDbPlatform = dbPlatformConfiguration.valueOf(sysCfg.getString("type"));
 
         // Check for dbEnvironments first for backwards-compatibility
         ImmutableList<HierarchicalConfiguration> envConfigs = iterConfigMutable(sysCfg, "environments.dbEnvironment");
@@ -61,21 +63,29 @@ public abstract class AbstractEnvironmentEnricher<E extends Environment> impleme
             envConfigs = iterConfigMutable(sysCfg, "environments.environment");
         }
 
-        ImmutableList<E> envList = envConfigs.collect(envCfg -> {
-            E dbEnv = createNewEnv();
+        ImmutableList<E> envList = envConfigs.collect(new Function<HierarchicalConfiguration, E>() {
+            @Override
+            public E valueOf(HierarchicalConfiguration envCfg) {
+                E dbEnv = AbstractEnvironmentEnricher.this.createNewEnv();
 
-            // combining the sys and env configurations before passing to downstream methods so that we can support only having env configs passed in
-            CombinedConfiguration combinedConfiguration = new CombinedConfiguration(new OverrideCombiner());
-            combinedConfiguration.addConfiguration(envCfg);
-            combinedConfiguration.addConfiguration(sysCfg);
-            combinedConfiguration.setExpressionEngine(sysCfg.getExpressionEngine());
+                // combining the sys and env configurations before passing to downstream methods so that we can support only having env configs passed in
+                CombinedConfiguration combinedConfiguration = new CombinedConfiguration(new OverrideCombiner());
+                combinedConfiguration.addConfiguration(envCfg);
+                combinedConfiguration.addConfiguration(sysCfg);
+                combinedConfiguration.setExpressionEngine(sysCfg.getExpressionEngine());
 
-            enrich(dbEnv, combinedConfiguration, sourcePath, systemDbPlatform);
-            createEnv(dbEnv, combinedConfiguration, systemDbPlatform);
-            return dbEnv;
+                AbstractEnvironmentEnricher.this.enrich(dbEnv, combinedConfiguration, sourcePath, systemDbPlatform);
+                AbstractEnvironmentEnricher.this.createEnv(dbEnv, combinedConfiguration, systemDbPlatform);
+                return dbEnv;
+            }
         });
 
-        CollectionUtil.verifyNoDuplicates(envList, Environment::getName, "Invalid configuration from " + sourcePath + "; not expecting duplicate env names");
+        CollectionUtil.verifyNoDuplicates(envList, new Function<E, Object>() {
+            @Override
+            public Object valueOf(E e) {
+                return e.getName();
+            }
+        }, "Invalid configuration from " + sourcePath + "; not expecting duplicate env names");
         return envList;
     }
 
@@ -107,7 +117,17 @@ public abstract class AbstractEnvironmentEnricher<E extends Environment> impleme
         dbEnv.setCleanBuildAllowed(envCfg.getBoolean("cleanBuildAllowed", false));
 
         MutableMap<String, String> tokens = iterConfig(envCfg, "tokens.token")
-                .toMap(tok -> tok.getString("key"), tok -> tok.getString("value"));
+                .toMap(new Function<ImmutableHierarchicalConfiguration, String>() {
+                    @Override
+                    public String valueOf(ImmutableHierarchicalConfiguration tok) {
+                        return tok.getString("key");
+                    }
+                }, new Function<ImmutableHierarchicalConfiguration, String>() {
+                    @Override
+                    public String valueOf(ImmutableHierarchicalConfiguration tok) {
+                        return tok.getString("value");
+                    }
+                });
         dbEnv.setTokens(tokens.toImmutable());
 
         dbEnv.setRollbackDetectionEnabled(envCfg.getBoolean("rollbackDetectionEnabled", true));
@@ -131,32 +151,52 @@ public abstract class AbstractEnvironmentEnricher<E extends Environment> impleme
         enrichSchemas(dbEnv, envCfg, systemDbPlatform);
     }
 
-    private void enrichSchemas(Environment dbEnv, ImmutableHierarchicalConfiguration envCfg, Platform systemDbPlatform) {
+    private void enrichSchemas(Environment dbEnv, ImmutableHierarchicalConfiguration envCfg, final Platform systemDbPlatform) {
         dbEnv.setName(envCfg.getString("name"));
         dbEnv.setDefaultUserId(envCfg.getString("defaultUserId"));
         dbEnv.setDefaultPassword(envCfg.getString("defaultPassword"));
 
-        int schemaNameValidationVersion = envCfg.getInt("schemaNameValidation", dbPlatformConfiguration.getFeatureToggleVersion("schemaNameValidation"));
+        final int schemaNameValidationVersion = envCfg.getInt("schemaNameValidation", dbPlatformConfiguration.getFeatureToggleVersion("schemaNameValidation"));
 
         // TODO add include/exclude schemas functionality
         ImmutableList<Schema> schemaObjs = iterConfig(envCfg, "schemas.schema")
-                .collect(cfg -> convertCfgToSchema(cfg, systemDbPlatform, schemaNameValidationVersion));
+                .collect(new Function<ImmutableHierarchicalConfiguration, Schema>() {
+                    @Override
+                    public Schema valueOf(ImmutableHierarchicalConfiguration cfg) {
+                        return AbstractEnvironmentEnricher.this.convertCfgToSchema(cfg, systemDbPlatform, schemaNameValidationVersion);
+                    }
+                });
 
-        MutableSet<String> schemasToInclude = iterString(envCfg, "includeSchemas").toSet();
-        MutableSet<String> schemasToExclude = iterString(envCfg, "excludeSchemas").toSet();
+        final MutableSet<String> schemasToInclude = iterString(envCfg, "includeSchemas").toSet();
+        final MutableSet<String> schemasToExclude = iterString(envCfg, "excludeSchemas").toSet();
 
         if (!schemasToInclude.isEmpty() && !schemasToExclude.isEmpty()) {
             throw new IllegalArgumentException("Environment " + dbEnv.getName() + " has includeSchemas ["
                     + schemasToInclude + "] and excludeSchemas [" + schemasToExclude
                     + "] defined; please only specify one of them");
         } else if (!schemasToInclude.isEmpty()) {
-            schemaObjs = schemaObjs.select(_this -> schemasToInclude.contains(_this.getName()));
+            schemaObjs = schemaObjs.select(new Predicate<Schema>() {
+                @Override
+                public boolean accept(Schema it) {
+                    return schemasToInclude.contains(it.getName());
+                }
+            });
         } else if (!schemasToExclude.isEmpty()) {
-            schemaObjs = schemaObjs.reject(_this -> schemasToExclude.contains(_this.getName()));
+            schemaObjs = schemaObjs.reject(new Predicate<Schema>() {
+                @Override
+                public boolean accept(Schema it) {
+                    return schemasToExclude.contains(it.getName());
+                }
+            });
         }
 
         MutableMap<String, String> schemaNameOverrides = Maps.mutable.empty();
-        ImmutableSet<String> schemaNames = schemaObjs.collect(Schema::getName).toSet().toImmutable();
+        ImmutableSet<String> schemaNames = schemaObjs.collect(new Function<Schema, String>() {
+            @Override
+            public String valueOf(Schema schema1) {
+                return schema1.getName();
+            }
+        }).toSet().toImmutable();
         for (ImmutableHierarchicalConfiguration schemaOverride : iterConfig(envCfg, "schemaOverrides.schemaOverride")) {
             String schema = schemaOverride.getString("schema");
             if (schemaNames.contains(schema)) {
@@ -169,7 +209,12 @@ public abstract class AbstractEnvironmentEnricher<E extends Environment> impleme
 
         dbEnv.setSchemaNameOverrides(schemaNameOverrides.toImmutable());
         // ensure that we only store the unique schema names here
-        dbEnv.setSchemas(HashingStrategySets.mutable.ofAll(HashingStrategies.fromFunction(Schema::getName), schemaObjs).toImmutable());
+        dbEnv.setSchemas(HashingStrategySets.mutable.ofAll(HashingStrategies.fromFunction(new Function<Schema, String>() {
+            @Override
+            public String valueOf(Schema schema) {
+                return schema.getName();
+            }
+        }), schemaObjs).toImmutable());
     }
 
     private Schema convertCfgToSchema(ImmutableHierarchicalConfiguration object, final Platform systemDbPlatform, final int schemaNameValidation) {
@@ -218,12 +263,12 @@ public abstract class AbstractEnvironmentEnricher<E extends Environment> impleme
 
     protected static ImmutableList<ImmutableHierarchicalConfiguration> iterConfig(ImmutableHierarchicalConfiguration c, String path) {
         List<ImmutableHierarchicalConfiguration> list = c.immutableConfigurationsAt(path);
-        return list != null ? ListAdapter.adapt(list).toImmutable() : Lists.immutable.empty();
+        return list != null ? ListAdapter.adapt(list).toImmutable() : Lists.immutable.<ImmutableHierarchicalConfiguration>empty();
     }
 
     private static ImmutableList<HierarchicalConfiguration> iterConfigMutable(HierarchicalConfiguration c, String path) {
         List<HierarchicalConfiguration> list = c.configurationsAt(path);
-        return list != null ? ListAdapter.adapt(list).toImmutable() : Lists.immutable.empty();
+        return list != null ? ListAdapter.adapt(list).toImmutable() : Lists.immutable.<HierarchicalConfiguration>empty();
     }
 
     protected static ImmutableList<String> iterString(ImmutableHierarchicalConfiguration c, String path) {
@@ -238,6 +283,6 @@ public abstract class AbstractEnvironmentEnricher<E extends Environment> impleme
 
     private static ImmutableList<String> iterListString(ImmutableHierarchicalConfiguration c, String path) {
         List<String> list = c.getList(String.class, path);
-        return list != null ? ListAdapter.adapt(list).toImmutable() : Lists.immutable.empty();
+        return list != null ? ListAdapter.adapt(list).toImmutable() : Lists.immutable.<String>empty();
     }
 }

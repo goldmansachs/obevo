@@ -26,6 +26,7 @@ import com.gs.obevo.util.RegexUtil;
 import com.gs.obevo.util.inputreader.Credential;
 import com.gs.obevo.util.inputreader.CredentialReader;
 import org.eclipse.collections.api.RichIterable;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.factory.Lists;
@@ -75,7 +76,12 @@ public abstract class AbstractMain<EnvType extends Environment> {
         } else {
             throw new IllegalArgumentException(
                     "Multiple environments of names ["
-                            + environments.collect(Environment::getName)
+                            + environments.collect(new Function<EnvType, String>() {
+                        @Override
+                        public String valueOf(EnvType envType) {
+                            return envType.getName();
+                        }
+                    })
                             + "] found at: "
                             + checkoutFolder
                             + "\n"
@@ -112,7 +118,12 @@ public abstract class AbstractMain<EnvType extends Environment> {
     public void start(final DeployerArgs args) {
         RichIterable<EnvType> requestedEnvs = getRequestedEnvironments(args.getSourcePath(), args.getEnvNames());
 
-        RichIterable<DeployerAppContext> deployContexts = requestedEnvs.collect(environment -> createRuntimeContext(environment, args));
+        RichIterable<DeployerAppContext> deployContexts = requestedEnvs.collect(new Function<EnvType, DeployerAppContext>() {
+            @Override
+            public DeployerAppContext valueOf(EnvType environment) {
+                return AbstractMain.this.createRuntimeContext(environment, args);
+            }
+        });
 
         for (DeployerAppContext ctxt : deployContexts) {
             this.start(ctxt, args);

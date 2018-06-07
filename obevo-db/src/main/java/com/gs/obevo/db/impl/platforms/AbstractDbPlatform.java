@@ -40,6 +40,7 @@ import com.gs.obevo.db.apps.reveng.ChangeEntry;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
 import org.apache.commons.configuration2.ImmutableHierarchicalConfiguration;
 import org.apache.commons.lang3.Validate;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
@@ -69,7 +70,12 @@ public abstract class AbstractDbPlatform implements DbPlatform {
         this.appContextBuilderClass = initializeAppContextBuilderClass();
         this.defaultDriverClassName = initializeDefaultDriverClassName();
         this.changeTypes = initializeChangeTypes();
-        this.changeTypeMap = changeTypes.groupByUniqueKey(ChangeType::getName).toImmutable();
+        this.changeTypeMap = changeTypes.groupByUniqueKey(new Function<ChangeType, String>() {
+            @Override
+            public String valueOf(ChangeType changeType) {
+                return changeType.getName();
+            }
+        }).toImmutable();
     }
 
     @Override
@@ -177,15 +183,25 @@ public abstract class AbstractDbPlatform implements DbPlatform {
     /**
      * Internal method meant to help subclasses modify the changeType list.
      */
-    protected DbChangeType getChangeType(MutableList<ChangeType> inputs, String changeTypeName) {
-        return (DbChangeType) inputs.detect(_this -> _this.getName().equals(changeTypeName));
+    protected DbChangeType getChangeType(MutableList<ChangeType> inputs, final String changeTypeName) {
+        return (DbChangeType) inputs.detect(new Predicate<ChangeType>() {
+            @Override
+            public boolean accept(ChangeType it) {
+                return it.getName().equals(changeTypeName);
+            }
+        });
     }
 
     /**
      * Internal method meant to help subclasses modify the changeType list.
      */
-    protected void replaceChangeType(MutableCollection<ChangeType> inputs, ChangeType changeType) {
-        inputs.removeIf((Predicate<ChangeType>) _this -> _this.getName().equals(changeType.getName()));
+    protected void replaceChangeType(MutableCollection<ChangeType> inputs, final ChangeType changeType) {
+        inputs.removeIf(new Predicate<ChangeType>() {
+            @Override
+            public boolean accept(ChangeType it) {
+                return it.getName().equals(changeType.getName());
+            }
+        });
         inputs.with(changeType);
     }
 

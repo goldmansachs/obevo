@@ -16,6 +16,7 @@
 package com.gs.obevo.impl.changecalc;
 
 import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeKey;
 import com.gs.obevo.api.platform.ChangeCommand;
 import com.gs.obevo.api.platform.ChangePair;
 import com.gs.obevo.api.platform.ChangeType;
@@ -28,6 +29,7 @@ import com.gs.obevo.impl.ExecuteChangeCommand;
 import com.gs.obevo.impl.changesorter.ChangeCommandSorter;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.HashingStrategy;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.block.procedure.Procedure2;
 import org.eclipse.collections.api.list.ImmutableList;
@@ -48,13 +50,28 @@ import static org.eclipse.collections.impl.block.factory.Predicates.instanceOf;
 
 public class ChangesetCreatorImpl implements ChangesetCreator {
     private static final Logger LOG = LoggerFactory.getLogger(ChangesetCreatorImpl.class);
-    private static final HashingStrategy<Change> hashStrategy = HashingStrategies.fromFunction(Change::getChangeKey);
+    private static final HashingStrategy<Change> hashStrategy = HashingStrategies.fromFunction(new Function<Change, ChangeKey>() {
+        @Override
+        public ChangeKey valueOf(Change change) {
+            return change.getChangeKey();
+        }
+    });
     /**
      * By default, we will always defer those predicates marked w/ the changeset attribute as the existence of that
      * indicates something that may not be good to run alongside a regular release.
      */
     private static final Predicate<? super ExecuteChangeCommand> DEFAULT_DEFERRED_PREDICATE =
-            attributeAnySatisfy(ChangeCommand::getChanges, attributeIsNull(Change::getChangeset));
+            attributeAnySatisfy(new Function<ExecuteChangeCommand, Iterable<Change>>() {
+                @Override
+                public Iterable<Change> valueOf(ExecuteChangeCommand executeChangeCommand) {
+                    return executeChangeCommand.getChanges();
+                }
+            }, attributeIsNull(new Function<Change, Object>() {
+                @Override
+                public Object valueOf(Change change) {
+                    return change.getChangeset();
+                }
+            }));
 
     private final ChangeCommandSorter changeCommandSorter;
     private final ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry;
@@ -67,32 +84,48 @@ public class ChangesetCreatorImpl implements ChangesetCreator {
     @Override
     public Changeset determineChangeset(RichIterable<Change> deploys, final RichIterable<Change> sources,
             final boolean rollback, final boolean initAllowedOnHashExceptions, Predicate<? super ExecuteChangeCommand> changesetPredicate) {
-        final Multimap<ChangeType, Change> deployChangesByType = deploys.groupBy(Change::getChangeType);
-        final Multimap<ChangeType, Change> sourceChangesByType = sources.groupBy(Change::getChangeType);
+        final Multimap<ChangeType, Change> deployChangesByType = deploys.groupBy(new Function<Change, ChangeType>() {
+            @Override
+            public ChangeType valueOf(Change change) {
+                return change.getChangeType();
+            }
+        });
+        final Multimap<ChangeType, Change> sourceChangesByType = sources.groupBy(new Function<Change, ChangeType>() {
+            @Override
+            public ChangeType valueOf(Change change) {
+                return change.getChangeType();
+            }
+        });
 
         SetIterable<ChangeType> changeTypes = Sets.mutable.withAll(deployChangesByType.keysView()).withAll(sourceChangesByType.keysView());
 
-        RichIterable<ChangeCommand> commands = changeTypes.flatCollect(changeType -> {
-            RichIterable<Change> changeTypeDeploys = deployChangesByType.get(changeType);
-            RichIterable<Change> changeTypeSources = sourceChangesByType.get(changeType);
+        RichIterable<ChangeCommand> commands = changeTypes.flatCollect(new Function<ChangeType, Iterable<ChangeCommand>>() {
+            @Override
+            public Iterable<ChangeCommand> valueOf(ChangeType changeType) {
+                RichIterable<Change> changeTypeDeploys = deployChangesByType.get(changeType);
+                RichIterable<Change> changeTypeSources = sourceChangesByType.get(changeType);
 
-            final MutableMap<Change, ChangePair> changes = HashingStrategyMaps.mutable.of(hashStrategy);
-            Procedure2<Change, Boolean> addChangeToMap = (change, fromSource) -> {
-                ChangePair changePair = changes.get(change);
-                if (changePair == null) {
-                    changePair = new ChangePair();
-                    changes.put(change, changePair);
-                }
-                if (fromSource) {
-                    changePair.setSourceChange(change);
-                } else {
-                    changePair.setDeployedChange(change);
-                }
-            };
-            changeTypeSources.forEachWith(addChangeToMap, true);
-            changeTypeDeploys.forEachWith(addChangeToMap, false);
+                final MutableMap<Change, ChangePair> changes = HashingStrategyMaps.mutable.of(hashStrategy);
+                Procedure2<Change, Boolean> addChangeToMap = new Procedure2<Change, Boolean>() {
+                    @Override
+                    public void value(Change change, Boolean fromSource) {
+                        ChangePair changePair = changes.get(change);
+                        if (changePair == null) {
+                            changePair = new ChangePair();
+                            changes.put(change, changePair);
+                        }
+                        if (fromSource) {
+                            changePair.setSourceChange(change);
+                        } else {
+                            changePair.setDeployedChange(change);
+                        }
+                    }
+                };
+                changeTypeSources.forEachWith(addChangeToMap, true);
+                changeTypeDeploys.forEachWith(addChangeToMap, false);
 
-            return changeTypeBehaviorRegistry.getChangeTypeSemantic(changeType.getName()).getChangeTypeCalculator().calculateCommands(changeType, changes.valuesView(), sources, rollback, initAllowedOnHashExceptions);
+                return changeTypeBehaviorRegistry.getChangeTypeSemantic(changeType.getName()).getChangeTypeCalculator().calculateCommands(changeType, changes.valuesView(), sources, rollback, initAllowedOnHashExceptions);
+            }
         });
 
         PartitionIterable<ChangeCommand> executePartition = commands.partition(instanceOf(ExecuteChangeCommand.class));

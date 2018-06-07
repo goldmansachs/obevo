@@ -186,19 +186,39 @@ public abstract class AbstractDeployerAppContext<E extends Environment, Self ext
     }
 
     private Function<Change, String> getDefinitionFromEnvironmentFunction() {
-        return object -> null;
+        return new Function<Change, String>() {
+            @Override
+            public String valueOf(Change object) {
+                return null;
+            }
+        };
     }
 
     protected ChangesetCreator getChangesetCreator() {
-        return this.singleton("getChangesetCreator", () -> new ChangesetCreatorImpl(changeCommandSorter(), getChangeTypeBehaviorRegistry()));
+        return this.singleton("getChangesetCreator", new Function0<ChangesetCreatorImpl>() {
+            @Override
+            public ChangesetCreatorImpl value() {
+                return new ChangesetCreatorImpl(AbstractDeployerAppContext.this.changeCommandSorter(), AbstractDeployerAppContext.this.getChangeTypeBehaviorRegistry());
+            }
+        });
     }
 
     protected ChangeTypeBehaviorRegistry getChangeTypeBehaviorRegistry() {
-        return this.singleton("getDbChangeReader", getChangeTypeBehaviors()::build);
+        return this.singleton("getDbChangeReader", new Function0<ChangeTypeBehaviorRegistry>() {
+            @Override
+            public ChangeTypeBehaviorRegistry value() {
+                return AbstractDeployerAppContext.this.getChangeTypeBehaviors().build();
+            }
+        });
     }
 
     protected DeployMetricsCollector deployStatsTracker() {
-        return this.singleton("deployStatsTracker", DeployMetricsCollectorImpl::new);
+        return this.singleton("deployStatsTracker", new Function0<DeployMetricsCollectorImpl>() {
+            @Override
+            public DeployMetricsCollectorImpl value() {
+                return new DeployMetricsCollectorImpl();
+            }
+        });
     }
 
     @Override
@@ -209,18 +229,23 @@ public abstract class AbstractDeployerAppContext<E extends Environment, Self ext
     protected abstract ChangeTypeBehaviorRegistryBuilder getChangeTypeBehaviors();
 
     private MainDeployer getDeployer() {
-        return this.singleton("deployer", () -> new MainDeployer(
-                getArtifactDeployerDao()
-                , getInputReader()
-                , getChangeTypeBehaviorRegistry()
-                , getChangesetCreator()
-                , getPostDeployAction()
-                , deployStatsTracker()
-                , getDeployExecutionDao()
-                , getCredential()
-                , getTextDependencyExtractor()
-                , getDeployerPlugin()
-        ));
+        return this.singleton("deployer", new Function0<MainDeployer>() {
+            @Override
+            public MainDeployer value() {
+                return new MainDeployer(
+                        AbstractDeployerAppContext.this.getArtifactDeployerDao()
+                        , AbstractDeployerAppContext.this.getInputReader()
+                        , AbstractDeployerAppContext.this.getChangeTypeBehaviorRegistry()
+                        , AbstractDeployerAppContext.this.getChangesetCreator()
+                        , AbstractDeployerAppContext.this.getPostDeployAction()
+                        , AbstractDeployerAppContext.this.deployStatsTracker()
+                        , AbstractDeployerAppContext.this.getDeployExecutionDao()
+                        , AbstractDeployerAppContext.this.getCredential()
+                        , AbstractDeployerAppContext.this.getTextDependencyExtractor()
+                        , AbstractDeployerAppContext.this.getDeployerPlugin()
+                );
+            }
+        });
     }
 
     private TextDependencyExtractor getTextDependencyExtractor() {

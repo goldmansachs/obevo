@@ -7,6 +7,8 @@
 
 ### Technical Improvements
 #173: Support YAML/JSON configurations and move away from type safe config towards commons-config v2
+#175: Removing retrolambda, moving back to Java 7, and initial support for Kotlin
+#150: Documentation updates
 
 ### Bug Fixes
 #125: Clarify error messages when reading merge config file (missing input dirs, forward-slashes specified)

@@ -23,11 +23,17 @@ import com.gs.obevo.db.impl.core.envinfrasetup.EnvironmentInfraSetup;
 import com.gs.obevo.db.impl.core.jdbc.DataSourceFactory;
 import com.gs.obevo.impl.ChangeTypeBehaviorRegistry.ChangeTypeBehaviorRegistryBuilder;
 import com.gs.obevo.model.AseUserTypeChangeTypeBehavior;
+import org.eclipse.collections.api.block.function.Function0;
 
 public class SybaseAseAppContext extends DbDeployerAppContextImpl {
 
     public SqlExecutor getSqlExecutor() {
-        return this.singleton("getSqlExecutor", () -> new AseSqlExecutor(getManagedDataSource()));
+        return this.singleton("getSqlExecutor", new Function0<AseSqlExecutor>() {
+            @Override
+            public AseSqlExecutor value() {
+                return new AseSqlExecutor(SybaseAseAppContext.this.getManagedDataSource());
+            }
+        });
     }
 
     @Override

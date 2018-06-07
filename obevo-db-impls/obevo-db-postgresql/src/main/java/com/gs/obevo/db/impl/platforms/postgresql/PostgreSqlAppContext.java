@@ -25,15 +25,27 @@ import com.gs.obevo.db.impl.platforms.postgresql.changetypes.PostgreSqlFunctionC
 import com.gs.obevo.impl.ChangeTypeBehaviorRegistry.ChangeTypeBehaviorRegistryBuilder;
 import com.gs.obevo.impl.NoOpPostDeployAction;
 import com.gs.obevo.impl.PostDeployAction;
+import org.eclipse.collections.api.block.function.Function0;
+import org.eclipse.collections.api.block.predicate.Predicate;
 
 public class PostgreSqlAppContext extends DbDeployerAppContextImpl {
     public SqlExecutor getSqlExecutor() {
-        return this.singleton("getSqlExecutor", () -> new PostgreSqlSqlExecutor(getManagedDataSource()));
+        return this.singleton("getSqlExecutor", new Function0<PostgreSqlSqlExecutor>() {
+            @Override
+            public PostgreSqlSqlExecutor value() {
+                return new PostgreSqlSqlExecutor(PostgreSqlAppContext.this.getManagedDataSource());
+            }
+        });
     }
 
     @Override
     public PostDeployAction getPostDeployAction() {
-        return this.singleton("getPostDeployAction", NoOpPostDeployAction::new);
+        return this.singleton("getPostDeployAction", new Function0<NoOpPostDeployAction>() {
+            @Override
+            public NoOpPostDeployAction value() {
+                return new NoOpPostDeployAction();
+            }
+        });
     }
 
     @Override
@@ -48,7 +60,12 @@ public class PostgreSqlAppContext extends DbDeployerAppContextImpl {
 
     @Override
     protected ChangeTypeBehaviorRegistryBuilder getChangeTypeBehaviors() {
-        ChangeType routineChangeType = platform().getChangeTypes().detect(_this -> _this.getName().equals(ChangeType.FUNCTION_STR));
+        ChangeType routineChangeType = platform().getChangeTypes().detect(new Predicate<ChangeType>() {
+            @Override
+            public boolean accept(ChangeType it) {
+                return it.getName().equals(ChangeType.FUNCTION_STR);
+            }
+        });
         return super.getChangeTypeBehaviors()
                 .putBehavior(ChangeType.FUNCTION_STR, new PostgreSqlFunctionChangeTypeBehavior(env, (DbChangeType) routineChangeType, getSqlExecutor(), simpleArtifactDeployer(), grantChangeParser(), graphEnricher(), platform(), getDbMetadataManager()));
     }

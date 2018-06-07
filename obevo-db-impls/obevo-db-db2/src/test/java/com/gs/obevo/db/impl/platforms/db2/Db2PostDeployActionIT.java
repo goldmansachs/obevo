@@ -26,6 +26,7 @@ import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.impl.core.jdbc.DataAccessException;
 import com.gs.obevo.db.impl.platforms.db2.Db2PostDeployAction.SchemaObjectRow;
 import com.gs.obevo.impl.DeployMetricsCollector;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.impl.factory.Sets;
@@ -90,7 +91,12 @@ public class Db2PostDeployActionIT {
                 sqlExecutor.getJdbcTemplate().update(conn, "create or replace view INVALIDTEST_VIEW2 AS SELECT * FROM INVALIDTEST_VIEW WHERE 1=2");
                 sqlExecutor.getJdbcTemplate().update(conn, "drop table INVALIDTEST_TABLE");
 
-                MutableSet<String> invalidObjects = db2PostDeployAction.getInvalidObjects(conn, env.getPhysicalSchemas()).collect(SchemaObjectRow::getName).toSet();
+                MutableSet<String> invalidObjects = db2PostDeployAction.getInvalidObjects(conn, env.getPhysicalSchemas()).collect(new Function<SchemaObjectRow, String>() {
+                    @Override
+                    public String valueOf(SchemaObjectRow schemaObjectRow) {
+                        return schemaObjectRow.getName();
+                    }
+                }).toSet();
                 assertThat("The two views created should go invalid when we drop the table that they are based on",
                         invalidObjects, hasItems("INVALIDTEST_VIEW", "INVALIDTEST_VIEW2"));
 

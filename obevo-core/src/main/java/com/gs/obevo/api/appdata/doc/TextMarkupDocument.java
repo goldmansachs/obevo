@@ -17,6 +17,7 @@ package com.gs.obevo.api.appdata.doc;
 
 import java.util.Objects;
 
+import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
 
 public class TextMarkupDocument {
@@ -30,7 +31,12 @@ public class TextMarkupDocument {
         return this.sections;
     }
 
-    public TextMarkupDocumentSection findSectionWithElementName(String elementName) {
-        return this.sections.detect(_this -> Objects.equals(elementName, _this.getName()));
+    public TextMarkupDocumentSection findSectionWithElementName(final String elementName) {
+        return this.sections.detect(new Predicate<TextMarkupDocumentSection>() {
+            @Override
+            public boolean accept(TextMarkupDocumentSection it) {
+                return Objects.equals(elementName, it.getName());
+            }
+        });
     }
 }

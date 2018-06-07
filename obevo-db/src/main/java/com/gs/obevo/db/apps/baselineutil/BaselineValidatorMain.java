@@ -79,10 +79,13 @@ public class BaselineValidatorMain {
         LOG.info("Starting the first run (normal changes, not the baseline mode)");
         appContext.cleanAndDeploy();
 
-        final MutableMap<PhysicalSchema, ImmutableCollection<DaTable>> regularTableMap = physicalSchemas.toMap(Functions.getPassThru(), object -> {
-            DaCatalog database = metadataManager.getDatabase(object,
-                    new DaSchemaInfoLevel().setRetrieveTableAndColumnDetails(), true, false);
-            return database.getTables().reject(DaTable.IS_VIEW);
+        final MutableMap<PhysicalSchema, ImmutableCollection<DaTable>> regularTableMap = physicalSchemas.toMap(Functions.<PhysicalSchema>getPassThru(), new Function<PhysicalSchema, ImmutableCollection<DaTable>>() {
+            @Override
+            public ImmutableCollection<DaTable> valueOf(PhysicalSchema object) {
+                DaCatalog database = metadataManager.getDatabase(object,
+                        new DaSchemaInfoLevel().setRetrieveTableAndColumnDetails(), true, false);
+                return database.getTables().reject(DaTable.IS_VIEW);
+            }
         });
 
         // run 2
@@ -92,16 +95,22 @@ public class BaselineValidatorMain {
 
         LOG.info("Starting the results comparison (LEFT is the regular tables, RIGHT is the baseline)");
 
-        final MutableMap<PhysicalSchema, ImmutableCollection<DaTable>> baselineTableMap = physicalSchemas.toMap(Functions.getPassThru(), object -> {
-            DaCatalog database = metadataManager.getDatabase(object,
-                    new DaSchemaInfoLevel().setRetrieveTableAndColumnDetails(), true, false);
-            return database.getTables().reject(DaTable.IS_VIEW);
+        final MutableMap<PhysicalSchema, ImmutableCollection<DaTable>> baselineTableMap = physicalSchemas.toMap(Functions.<PhysicalSchema>getPassThru(), new Function<PhysicalSchema, ImmutableCollection<DaTable>>() {
+            @Override
+            public ImmutableCollection<DaTable> valueOf(PhysicalSchema object) {
+                DaCatalog database = metadataManager.getDatabase(object,
+                        new DaSchemaInfoLevel().setRetrieveTableAndColumnDetails(), true, false);
+                return database.getTables().reject(DaTable.IS_VIEW);
+            }
         });
 
-        return physicalSchemas.flatCollect(schema -> {
-            ImmutableCollection<DaTable> regularTables = regularTableMap.get(schema);
-            ImmutableCollection<DaTable> baselineTables = baselineTableMap.get(schema);
-            return BaselineValidatorMain.this.dbMetadataComparisonUtil.compareTables(regularTables, baselineTables);
+        return physicalSchemas.flatCollect(new Function<PhysicalSchema, Iterable<CompareBreak>>() {
+            @Override
+            public Iterable<CompareBreak> valueOf(PhysicalSchema schema) {
+                ImmutableCollection<DaTable> regularTables = regularTableMap.get(schema);
+                ImmutableCollection<DaTable> baselineTables = baselineTableMap.get(schema);
+                return BaselineValidatorMain.this.dbMetadataComparisonUtil.compareTables(regularTables, baselineTables);
+            }
         });
     }
 }

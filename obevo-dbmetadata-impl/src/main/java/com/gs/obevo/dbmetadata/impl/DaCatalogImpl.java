@@ -57,7 +57,12 @@ public class DaCatalogImpl implements DaCatalog {
         this.ruleBindings = ruleBindings;
         this.extraRoutines = extraRoutines;
         this.extraIndexes = extraIndexes;
-        this.extraViewInfoMap = extraViewInfo.groupByUniqueKey(ExtraRerunnableInfo::getName);
+        this.extraViewInfoMap = extraViewInfo.groupByUniqueKey(new Function<ExtraRerunnableInfo, String>() {
+            @Override
+            public String valueOf(ExtraRerunnableInfo extraRerunnableInfo) {
+                return extraRerunnableInfo.getName();
+            }
+        });
         this.routineOverrideValue = routineOverrideValue;
         this.schemaStrategy = schemaStrategy;
         this.packages = packages;

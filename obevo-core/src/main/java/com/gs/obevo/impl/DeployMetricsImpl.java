@@ -18,6 +18,7 @@ package com.gs.obevo.impl;
 import java.io.Serializable;
 
 import com.gs.obevo.api.platform.DeployMetrics;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.ConcurrentMutableMap;
 import org.eclipse.collections.api.map.ImmutableMap;
@@ -35,7 +36,12 @@ public class DeployMetricsImpl implements DeployMetrics {
     }
 
     void addListMetric(String key, final Serializable value) {
-        statMap.updateValue(key, Functions0.newFastList(), listObject -> ((MutableList<Serializable>) listObject).with(value));
+        statMap.updateValue(key, Functions0.newFastList(), new Function<Object, Object>() {
+            @Override
+            public Object valueOf(Object listObject) {
+                return ((MutableList<Serializable>) listObject).with(value);
+            }
+        });
     }
 
     @Override

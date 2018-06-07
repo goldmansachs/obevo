@@ -8,9 +8,11 @@ Requirements:
 
 The Obevo binary byte code is in Java 7, so Java 7 users can still leverage Obevo.
 
-However, development is on JDK 8 to leverage the lambda syntax. To enforce Java 7 compatibility, we use:
-* [Retrolambda](https://github.com/orfjackal/retrolambda)
-to convert the binaries to Java 7 bytecode
+Language: Java 7 syntax and Kotlin (compiling Kotlin to Java 6 bytecode).
+
+We do still need Java 8 for build-time as the Kotlin libraries need Java 8 to run.
+
+To enforce Java 7 compatibility, we use:
 * [Animal Sniffer plugin](https://www.mojohaus.org/animal-sniffer/) to ensure that we do not refer to any JDK 8 APIs
 * Tests against the Java 7 binary in Travis CI
 

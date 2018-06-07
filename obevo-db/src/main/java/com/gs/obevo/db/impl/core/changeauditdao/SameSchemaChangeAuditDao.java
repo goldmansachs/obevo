@@ -47,7 +47,9 @@ import com.gs.obevo.util.knex.InternMap;
 import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.block.procedure.Procedure;
+import org.eclipse.collections.api.block.procedure.primitive.ObjectIntProcedure;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.multimap.list.MutableListMultimap;
@@ -363,14 +365,39 @@ public class SameSchemaChangeAuditDao implements ChangeAuditDao {
             }
         });
 
-        MutableList<Change> incrementalChanges = artfs.reject(change -> change.getChangeType().isRerunnable());
-        MutableListMultimap<ObjectKey, Change> incrementalChangeMap = incrementalChanges.groupBy(Change::getObjectKey);
+        MutableList<Change> incrementalChanges = artfs.reject(new Predicate<Change>() {
+            @Override
+            public boolean accept(Change change) {
+                return change.getChangeType().isRerunnable();
+            }
+        });
+        MutableListMultimap<ObjectKey, Change> incrementalChangeMap = incrementalChanges.groupBy(new Function<Change, ObjectKey>() {
+            @Override
+            public ObjectKey valueOf(Change change) {
+                return change.getObjectKey();
+            }
+        });
         for (RichIterable<Change> objectChanges : incrementalChangeMap.multiValuesView()) {
-            MutableList<Change> sortedObjectChanges = objectChanges.toSortedListBy(Change::getTimeInserted);
-            sortedObjectChanges.forEachWithIndex((each, index) -> each.setOrderWithinObject(5000 + index));
+            MutableList<Change> sortedObjectChanges = objectChanges.toSortedListBy(new Function<Change, Timestamp>() {
+                @Override
+                public Timestamp valueOf(Change change) {
+                    return change.getTimeInserted();
+                }
+            });
+            sortedObjectChanges.forEachWithIndex(new ObjectIntProcedure<Change>() {
+                @Override
+                public void value(Change each, int index) {
+                    each.setOrderWithinObject(5000 + index);
+                }
+            });
         }
 
-        return artfs.toSet().toList().select(_this -> env.getSchemaNames().contains(_this.getSchema())).toImmutable();
+        return artfs.toSet().toList().select(new Predicate<Change>() {
+            @Override
+            public boolean accept(Change it) {
+                return env.getSchemaNames().contains(it.getSchema());
+            }
+        }).toImmutable();
     }
 
     private int updateDeployedArtifactVersionInternal(Connection conn, Change artifact, String newHash, DeployExecution deployExecution) {

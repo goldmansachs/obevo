@@ -10,5 +10,4 @@ The Apache Software Foundation (http://www.apache.org/).
 Each module in this project has a NOTICE.txt file denoting the module's own dependencies.
 
 This product depends on (links to) the following software:
-  SLF4J API Module under MIT License
 

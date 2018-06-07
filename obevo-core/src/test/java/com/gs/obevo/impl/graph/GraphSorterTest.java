@@ -16,7 +16,10 @@
 package com.gs.obevo.impl.graph;
 
 import java.util.Collections;
+import java.util.Set;
 
+import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.ListIterable;
 import org.eclipse.collections.api.list.MutableList;
@@ -97,7 +100,12 @@ public class GraphSorterTest {
         graph.addEdge(sp2, sp1);
         graph.addEdge(sp5, sp4);
 
-        ListIterable<SortableDependency> sorted = sorter.sortChanges(graph, Comparators.fromFunctions(SortableDependency::getChangeName));
+        ListIterable<SortableDependency> sorted = sorter.sortChanges(graph, Comparators.fromFunctions(new Function<SortableDependency, String>() {
+            @Override
+            public String valueOf(SortableDependency sortableDependency) {
+                return sortableDependency.getChangeName();
+            }
+        }));
 
         // First, compare the root topological order (i.e. ensure that the dependencies are respected)
         assertEquals(5, sorted.size());
@@ -191,7 +199,17 @@ public class GraphSorterTest {
     }
 
     private void verifyCycleExists(GraphCycleException e, final ImmutableSet<String> cycleVertices) {
-        Verify.assertAnySatisfy(e.<SortableDependency>getCycleComponents(), each -> SetAdapter.adapt(each).collect(SortableDependency::getChangeName).equals(cycleVertices));
+        Verify.assertAnySatisfy(e.<SortableDependency>getCycleComponents(), new Predicate<Set<SortableDependency>>() {
+            @Override
+            public boolean accept(Set<SortableDependency> each) {
+                return SetAdapter.adapt(each).collect(new Function<SortableDependency, String>() {
+                    @Override
+                    public String valueOf(SortableDependency sortableDependency) {
+                        return sortableDependency.getChangeName();
+                    }
+                }).equals(cycleVertices);
+            }
+        });
     }
 
     private static SortableDependency newVertex(String vertexName) {

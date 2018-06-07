@@ -18,6 +18,7 @@ package com.gs.obevo.api.factory;
 import com.gs.obevo.api.platform.DeployerRuntimeException;
 import com.gs.obevo.api.platform.Platform;
 import org.apache.commons.configuration2.ImmutableHierarchicalConfiguration;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.ListIterable;
 import org.eclipse.collections.api.list.MutableList;
@@ -138,7 +139,17 @@ public class PlatformConfiguration {
     private ImmutableMap<String, Integer> createFeatureToggleVersions() {
         MutableList<ImmutableHierarchicalConfiguration> featureToggles = ListAdapter.adapt(config.immutableChildConfigurationsAt("featureToggles"));
 
-        return featureToggles.toMap(ImmutableHierarchicalConfiguration::getRootElementName, config -> config.getInt("defaultVersion")).toImmutable();
+        return featureToggles.toMap(new Function<ImmutableHierarchicalConfiguration, String>() {
+            @Override
+            public String valueOf(ImmutableHierarchicalConfiguration immutableHierarchicalConfiguration) {
+                return immutableHierarchicalConfiguration.getRootElementName();
+            }
+        }, new Function<ImmutableHierarchicalConfiguration, Integer>() {
+            @Override
+            public Integer valueOf(ImmutableHierarchicalConfiguration config) {
+                return config.getInt("defaultVersion");
+            }
+        }).toImmutable();
     }
 
     public String getSourceEncoding() {

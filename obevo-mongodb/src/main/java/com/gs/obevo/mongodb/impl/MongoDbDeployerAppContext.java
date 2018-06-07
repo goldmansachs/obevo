@@ -28,6 +28,7 @@ import com.gs.obevo.impl.reader.TableChangeParser.GetChangeType;
 import com.gs.obevo.mongodb.api.appdata.MongoDbEnvironment;
 import com.mongodb.MongoClient;
 import org.eclipse.collections.api.block.function.Function0;
+import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.partition.list.PartitionImmutableList;
 import org.eclipse.collections.impl.factory.Lists;
@@ -47,7 +48,12 @@ public class MongoDbDeployerAppContext extends AbstractDeployerAppContext<MongoD
     protected ChangeTypeBehaviorRegistryBuilder getChangeTypeBehaviors() {
         ChangeTypeBehaviorRegistryBuilder builder = ChangeTypeBehaviorRegistry.newBuilder();
 
-        PartitionImmutableList<ChangeType> rerunnablePartition = env.getPlatform().getChangeTypes().partition(ChangeType::isRerunnable);
+        PartitionImmutableList<ChangeType> rerunnablePartition = env.getPlatform().getChangeTypes().partition(new Predicate<ChangeType>() {
+            @Override
+            public boolean accept(ChangeType changeType1) {
+                return changeType1.isRerunnable();
+            }
+        });
 
         for (ChangeType changeType : rerunnablePartition.getSelected()) {
             builder.put(changeType.getName(), rerunnableSemantic(), deployBehavior());

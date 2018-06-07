@@ -16,6 +16,7 @@
 package com.gs.obevo.api.appdata;
 
 import org.apache.commons.lang3.Validate;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
 
 /**
@@ -41,7 +42,12 @@ public class GroupChange extends Change {
         } else {
             return "Group of static data changes (executing the inserts/updates [if any] in order, " +
                     "and deletes [if any] in reverse-order):\n\t\t" +
-                    this.changes.collect(Change::getDisplayString).makeString("\n\t\t");
+                    this.changes.collect(new Function<Change, String>() {
+                        @Override
+                        public String valueOf(Change change) {
+                            return change.getDisplayString();
+                        }
+                    }).makeString("\n\t\t");
         }
     }
 

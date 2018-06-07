@@ -30,6 +30,8 @@ import com.gs.obevo.util.vfs.FileObject;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.block.function.Function2;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.set.MutableSet;
@@ -273,13 +275,16 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
          * hashing agnostic of the white-space (before, we only had the table changes be white-space agnostic).
          * We need the various contentHashStrategies to account for past versions of the algorithm.
          */
-        return this.contentHashStrategies.flatCollect(hashStrategy -> {
-            MutableSet<String> acceptableHashes = Sets.mutable.empty();
-            acceptableHashes.add(hashStrategy.hashContent(content));
-            if (convertedContent != null) {
-                acceptableHashes.add(hashStrategy.hashContent(convertedContent));
+        return this.contentHashStrategies.flatCollect(new Function<DbChangeHashStrategy, Iterable<String>>() {
+            @Override
+            public Iterable<String> valueOf(DbChangeHashStrategy hashStrategy) {
+                MutableSet<String> acceptableHashes = Sets.mutable.empty();
+                acceptableHashes.add(hashStrategy.hashContent(content));
+                if (convertedContent != null) {
+                    acceptableHashes.add(hashStrategy.hashContent(convertedContent));
+                }
+                return acceptableHashes;
             }
-            return acceptableHashes;
         }).toSet().toImmutable();
     }
 
@@ -328,12 +333,22 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
     @Override
     @Deprecated
     public ImmutableSet<String> getDependencies() {
-        return this.dependencies != null ? this.dependencies.collect(CodeDependency::getTarget) : null;
+        return this.dependencies != null ? this.dependencies.collect(new Function<CodeDependency, String>() {
+            @Override
+            public String valueOf(CodeDependency codeDependency) {
+                return codeDependency.getTarget();
+            }
+        }) : null;
     }
 
     @Override
     public void setDependencies(ImmutableSet<String> dependencies) {
-        this.dependencies = dependencies == null ? null : dependencies.collectWith(CodeDependency::new, CodeDependencyType.EXPLICIT);
+        this.dependencies = dependencies == null ? null : dependencies.collectWith(new Function2<String, CodeDependencyType, CodeDependency>() {
+            @Override
+            public CodeDependency value(String target, CodeDependencyType codeDependencyType) {
+                return new CodeDependency(target, codeDependencyType);
+            }
+        }, CodeDependencyType.EXPLICIT);
     }
 
     @Override

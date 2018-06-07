@@ -38,6 +38,7 @@ import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.impl.DeployMetricsCollector;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.slf4j.Logger;
@@ -103,19 +104,69 @@ public class AbstractEnvironmentInfraSetup implements EnvironmentInfraSetup<DbEn
 
     private void handleGroups(Connection conn, PhysicalSchema physicalSchema, boolean failOnSetupException, boolean forceCreation) {
         handleObject(conn, physicalSchema, failOnSetupException, forceCreation,
-                "group", schema -> dbMetadataManager.getGroupNamesOptional(schema),
-                name -> name,
-                DbEnvironment::getGroups, Group::getName,
-                this::createGroup
+                "group", new Function<PhysicalSchema, RichIterable<String>>() {
+                    @Override
+                    public RichIterable<String> valueOf(PhysicalSchema schema) {
+                        return dbMetadataManager.getGroupNamesOptional(schema);
+                    }
+                },
+                new Function<String, String>() {
+                    @Override
+                    public String valueOf(String name) {
+                        return name;
+                    }
+                },
+                new Function<DbEnvironment, ImmutableList<Group>>() {
+                    @Override
+                    public ImmutableList<Group> valueOf(DbEnvironment dbEnvironment) {
+                        return dbEnvironment.getGroups();
+                    }
+                }, new Function<Group, String>() {
+                    @Override
+                    public String valueOf(Group group1) {
+                        return group1.getName();
+                    }
+                },
+                new CreateObject<Group>() {
+                    @Override
+                    public void create(Connection conn1, Group group, PhysicalSchema physicalSchema1) {
+                        AbstractEnvironmentInfraSetup.this.createGroup(conn1, group, physicalSchema1);
+                    }
+                }
         );
     }
 
     private void handleUsers(Connection conn, PhysicalSchema physicalSchema, boolean failOnSetupException, boolean forceCreation) {
         handleObject(conn, physicalSchema, failOnSetupException, forceCreation,
-                "user", schema -> dbMetadataManager.getUserNamesOptional(schema),
-                name -> name,
-                DbEnvironment::getUsers, User::getName,
-                this::createUser
+                "user", new Function<PhysicalSchema, RichIterable<String>>() {
+                    @Override
+                    public RichIterable<String> valueOf(PhysicalSchema schema) {
+                        return dbMetadataManager.getUserNamesOptional(schema);
+                    }
+                },
+                new Function<String, String>() {
+                    @Override
+                    public String valueOf(String name) {
+                        return name;
+                    }
+                },
+                new Function<DbEnvironment, ImmutableList<User>>() {
+                    @Override
+                    public ImmutableList<User> valueOf(DbEnvironment dbEnvironment) {
+                        return dbEnvironment.getUsers();
+                    }
+                }, new Function<User, String>() {
+                    @Override
+                    public String valueOf(User user1) {
+                        return user1.getName();
+                    }
+                },
+                new CreateObject<User>() {
+                    @Override
+                    public void create(Connection conn1, User user, PhysicalSchema physicalSchema1) {
+                        AbstractEnvironmentInfraSetup.this.createUser(conn1, user, physicalSchema1);
+                    }
+                }
         );
     }
 
@@ -123,10 +174,35 @@ public class AbstractEnvironmentInfraSetup implements EnvironmentInfraSetup<DbEn
         String changeTypeName = ChangeType.DIRECTORY;
 
         handleObject(conn, null, failOnSetupException, forceCreation,
-                changeTypeName, schema -> dbMetadataManager.getDirectoriesOptional(),
-                DaDirectory::getName,
-                DbEnvironment::getServerDirectories, ServerDirectory::getName,
-                this::createDirectory
+                changeTypeName, new Function<PhysicalSchema, RichIterable<DaDirectory>>() {
+                    @Override
+                    public RichIterable<DaDirectory> valueOf(PhysicalSchema schema) {
+                        return dbMetadataManager.getDirectoriesOptional();
+                    }
+                },
+                new Function<DaDirectory, String>() {
+                    @Override
+                    public String valueOf(DaDirectory daDirectory) {
+                        return daDirectory.getName();
+                    }
+                },
+                new Function<DbEnvironment, ImmutableList<ServerDirectory>>() {
+                    @Override
+                    public ImmutableList<ServerDirectory> valueOf(DbEnvironment dbEnvironment) {
+                        return dbEnvironment.getServerDirectories();
+                    }
+                }, new Function<ServerDirectory, String>() {
+                    @Override
+                    public String valueOf(ServerDirectory directory1) {
+                        return directory1.getName();
+                    }
+                },
+                new CreateObject<ServerDirectory>() {
+                    @Override
+                    public void create(Connection conn1, ServerDirectory directory, PhysicalSchema physicalSchema) {
+                        AbstractEnvironmentInfraSetup.this.createDirectory(conn1, directory, physicalSchema);
+                    }
+                }
         );
 
         DbChangeTypeBehavior tableChangeType = (DbChangeTypeBehavior) changeTypeBehaviorRegistry.getChangeTypeBehavior(changeTypeName);
@@ -139,7 +215,7 @@ public class AbstractEnvironmentInfraSetup implements EnvironmentInfraSetup<DbEn
     /**
      * General pattern for creating DB objects during infrastructure setup.
      */
-    private <SRCOBJ, DBOBJ> void handleObject(Connection conn, PhysicalSchema physicalSchema, boolean failOnSetupException, boolean forceCreation, String objectTypeName, Function<PhysicalSchema, RichIterable<DBOBJ>> getDbObjects, Function<DBOBJ, String> getDbObjectName, Function<DbEnvironment, ImmutableList<SRCOBJ>> getSourceObjects, Function<SRCOBJ, String> getSourceObjectName, CreateObject<SRCOBJ> createObject) {
+    private <SRCOBJ, DBOBJ> void handleObject(Connection conn, PhysicalSchema physicalSchema, boolean failOnSetupException, boolean forceCreation, String objectTypeName, Function<PhysicalSchema, RichIterable<DBOBJ>> getDbObjects, Function<DBOBJ, String> getDbObjectName, Function<DbEnvironment, ImmutableList<SRCOBJ>> getSourceObjects, final Function<SRCOBJ, String> getSourceObjectName, CreateObject<SRCOBJ> createObject) {
         RichIterable<DBOBJ> existingObjects;
         try {
             existingObjects = getDbObjects.valueOf(physicalSchema);
@@ -154,12 +230,22 @@ public class AbstractEnvironmentInfraSetup implements EnvironmentInfraSetup<DbEn
 
         LOG.debug("{} objects existing in DB: {}", objectTypeName, existingObjects);
 
-        ImmutableSet<String> existingObjectNames = existingObjects.collect(getDbObjectName).collect(String::toLowerCase).toSet().toImmutable();
+        final ImmutableSet<String> existingObjectNames = existingObjects.collect(getDbObjectName).collect(new Function<String, String>() {
+            @Override
+            public String valueOf(String s) {
+                return s.toLowerCase();
+            }
+        }).toSet().toImmutable();
 
         ImmutableList<SRCOBJ> sourceObjects = getSourceObjects.valueOf(env);
         LOG.debug("{} objects from configuration: {}", objectTypeName, sourceObjects);
 
-        ImmutableList<SRCOBJ> missingObjects = sourceObjects.reject(object -> existingObjectNames.contains(getSourceObjectName.valueOf(object).toLowerCase()));
+        ImmutableList<SRCOBJ> missingObjects = sourceObjects.reject(new Predicate<SRCOBJ>() {
+            @Override
+            public boolean accept(SRCOBJ object) {
+                return existingObjectNames.contains(getSourceObjectName.valueOf(object).toLowerCase());
+            }
+        });
 
         if (forceCreation) {
             for (SRCOBJ missingObject : missingObjects) {

@@ -49,7 +49,7 @@ public class ChangeIncremental extends Change {
     private transient boolean forceDropForEnvCleaning;
 
     public MutableCollection<String> getBaselinedChanges() {
-        return baselinedChanges == null ? Lists.mutable.empty() : baselinedChanges;
+        return baselinedChanges == null ? Lists.mutable.<String>empty() : baselinedChanges;
     }
 
     public void setBaselinedChanges(MutableCollection<String> baselinedChanges) {

@@ -21,6 +21,7 @@ import com.gs.obevo.api.appdata.CodeDependency;
 import com.gs.obevo.api.appdata.CodeDependencyType;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.block.function.Function2;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.Sets;
@@ -39,7 +40,12 @@ public class TextDependencyExtractorImpl implements TextDependencyExtractor {
 
     @Override
     public <T extends TextDependencyExtractable> void calculateDependencies(RichIterable<T> changes) {
-        MutableSet<String> objectNames = changes.collect(_this -> _this.getObjectKey().getObjectName()).collect(convertDbObjectName).toSet();
+        MutableSet<String> objectNames = changes.collect(new Function<T, String>() {
+            @Override
+            public String valueOf(T it) {
+                return it.getObjectKey().getObjectName();
+            }
+        }).collect(convertDbObjectName).toSet();
 
         for (T change : changes) {
             // note - only check for nulls here; we may set dependencies to blank explicitly in the overrides
@@ -51,9 +57,19 @@ public class TextDependencyExtractorImpl implements TextDependencyExtractor {
                 MutableSet<CodeDependency> codeDependencies = calculateDependencies(change.getObjectKey().toString(), change.getContentForDependencyCalculation(), objectNames)
                         .reject(Predicates.equal(convertDbObjectName.valueOf(change.getObjectKey().getObjectName())))
                         .reject(Predicates.in(change.getExcludeDependencies()))
-                        .collectWith(CodeDependency::new, CodeDependencyType.DISCOVERED);
+                        .collectWith(new Function2<String, CodeDependencyType, CodeDependency>() {
+                            @Override
+                            public CodeDependency value(String target1, CodeDependencyType codeDependencyType1) {
+                                return new CodeDependency(target1, codeDependencyType1);
+                            }
+                        }, CodeDependencyType.DISCOVERED);
 
-                codeDependencies.withAll(change.getIncludeDependencies().collectWith(CodeDependency::new, CodeDependencyType.EXPLICIT));
+                codeDependencies.withAll(change.getIncludeDependencies().collectWith(new Function2<String, CodeDependencyType, CodeDependency>() {
+                    @Override
+                    public CodeDependency value(String target, CodeDependencyType codeDependencyType) {
+                        return new CodeDependency(target, codeDependencyType);
+                    }
+                }, CodeDependencyType.EXPLICIT));
 
                 change.setCodeDependencies(codeDependencies.toImmutable());
             }

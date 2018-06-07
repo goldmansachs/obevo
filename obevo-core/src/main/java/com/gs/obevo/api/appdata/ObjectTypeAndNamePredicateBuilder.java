@@ -27,6 +27,7 @@ import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.multimap.ImmutableMultimap;
 import org.eclipse.collections.api.multimap.list.MutableListMultimap;
 import org.eclipse.collections.api.multimap.set.MutableSetMultimap;
+import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Multimaps;
@@ -129,21 +130,24 @@ public class ObjectTypeAndNamePredicateBuilder {
             }
         }
 
-        RichIterable<Predicate<? super T>> typePredicates = objectNamesByType.keyMultiValuePairsView().toList().collect(pair -> {
-            String objectType = pair.getOne();
-            RichIterable<String> objectPatterns = pair.getTwo();
-            boolean negatePredicate = filterType == FilterType.EXCLUDE;
-            if (objectType.startsWith("-")) {
-                objectType = objectType.substring(1);
-                negatePredicate = true;
+        RichIterable<Predicate<? super T>> typePredicates = objectNamesByType.keyMultiValuePairsView().toList().collect(new Function<Pair<String, RichIterable<String>>, Predicate<? super T>>() {
+            @Override
+            public Predicate<? super T> valueOf(Pair<String, RichIterable<String>> pair) {
+                String objectType = pair.getOne();
+                RichIterable<String> objectPatterns = pair.getTwo();
+                boolean negatePredicate = filterType == FilterType.EXCLUDE;
+                if (objectType.startsWith("-")) {
+                    objectType = objectType.substring(1);
+                    negatePredicate = true;
+                }
+
+                Predicate<T> objectTypeAndNamePredicate = getObjectTypeAndNamePredicate(
+                        objectTypeFunction, Lists.immutable.with(objectType),
+                        negatePredicate, objectNameFunction, objectPatterns.toList().toImmutable()
+                );
+
+                return objectTypeAndNamePredicate;
             }
-
-            Predicate<T> objectTypeAndNamePredicate = getObjectTypeAndNamePredicate(
-                    objectTypeFunction, Lists.immutable.with(objectType),
-                    negatePredicate, objectNameFunction, objectPatterns.toList().toImmutable()
-            );
-
-            return objectTypeAndNamePredicate;
         });
 
         if (filterType == null || filterType == FilterType.EXCLUDE) {

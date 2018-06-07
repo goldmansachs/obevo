@@ -18,6 +18,7 @@ package com.gs.obevo.impl.changepredicate;
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.util.VisibleForTesting;
 import com.gs.obevo.util.lookuppredicate.LookupPredicateBuilder;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
@@ -46,7 +47,12 @@ public class ChangeKeyPredicateBuilder {
 
     public static Predicate<? super Change> parseFullPredicate(String fullPredicateString) {
         ImmutableList<String> fullPredicateParts = ArrayAdapter.adapt(fullPredicateString.split(PREDICATE_SPLITTER)).toImmutable();
-        ImmutableList<Predicate<? super Change>> singlePredicates = fullPredicateParts.collect(ChangeKeyPredicateBuilder::parseSinglePredicate);
+        ImmutableList<Predicate<? super Change>> singlePredicates = fullPredicateParts.collect(new Function<String, Predicate<? super Change>>() {
+            @Override
+            public Predicate<? super Change> valueOf(String singlePredicateString) {
+                return parseSinglePredicate(singlePredicateString);
+            }
+        });
 
         return Predicates.or(singlePredicates);
     }
@@ -121,10 +127,30 @@ public class ChangeKeyPredicateBuilder {
         }
 
         public Predicate<? super Change> build() {
-            return attributePredicate(Change::getSchema, LookupPredicateBuilder.convert(schemas))
-                    .and(attributePredicate(_this -> _this.getChangeType().getName(), LookupPredicateBuilder.convert(changeTypes)))
-                    .and(attributePredicate(Change::getObjectName, LookupPredicateBuilder.convert(objectNames)))
-                    .and(attributePredicate(Change::getChangeName, LookupPredicateBuilder.convert(changeNames)));
+            return attributePredicate(new Function<Change, String>() {
+                @Override
+                public String valueOf(Change change2) {
+                    return change2.getSchema();
+                }
+            }, LookupPredicateBuilder.convert(schemas))
+                    .and(attributePredicate(new Function<Change, String>() {
+                        @Override
+                        public String valueOf(Change it) {
+                            return it.getChangeType().getName();
+                        }
+                    }, LookupPredicateBuilder.convert(changeTypes)))
+                    .and(attributePredicate(new Function<Change, String>() {
+                        @Override
+                        public String valueOf(Change change1) {
+                            return change1.getObjectName();
+                        }
+                    }, LookupPredicateBuilder.convert(objectNames)))
+                    .and(attributePredicate(new Function<Change, String>() {
+                        @Override
+                        public String valueOf(Change change) {
+                            return change.getChangeName();
+                        }
+                    }, LookupPredicateBuilder.convert(changeNames)));
         }
     }
 }

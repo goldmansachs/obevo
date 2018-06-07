@@ -15,6 +15,7 @@
  */
 package com.gs.obevo.db.impl.core.compare.data;
 
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.MutableMap;
@@ -63,7 +64,12 @@ public class DbDataComparisonConfig {
 
     public void init() {
         this.comparisonCommands = Lists.mutable.empty();
-        MutableMap<String, DbDataSource> sourceMap = this.dbDataSources.groupByUniqueKey(DbDataSource::getName);
+        MutableMap<String, DbDataSource> sourceMap = this.dbDataSources.groupByUniqueKey(new Function<DbDataSource, String>() {
+            @Override
+            public String valueOf(DbDataSource dbDataSource) {
+                return dbDataSource.getName();
+            }
+        });
         for (Pair<String, String> comparisonCommandNamePair : this.comparisonCommandNamePairs) {
             this.comparisonCommands.add(new ComparisonCommand(
                     sourceMap.get(comparisonCommandNamePair.getOne())

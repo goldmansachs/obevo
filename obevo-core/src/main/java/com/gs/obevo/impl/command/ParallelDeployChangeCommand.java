@@ -23,6 +23,7 @@ import com.gs.obevo.api.platform.CommandExecutionContext;
 import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.impl.ExecuteChangeCommand;
 import org.apache.commons.lang3.ObjectUtils;
+import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
@@ -84,7 +85,12 @@ public class ParallelDeployChangeCommand implements ExecuteChangeCommand {
 
     @Override
     public String getCommandDescription() {
-        return "Parallel set of changes:\n" + changes.collect(Change::getDisplayString).makeString("\n");
+        return "Parallel set of changes:\n" + changes.collect(new Function<Change, String>() {
+            @Override
+            public String valueOf(Change change) {
+                return change.getDisplayString();
+            }
+        }).makeString("\n");
     }
 
     @Override
