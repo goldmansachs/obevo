@@ -40,6 +40,7 @@ import org.apache.commons.vfs2.NameScope;
 import org.apache.commons.vfs2.operations.FileOperations;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.impl.factory.Lists;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Wrapper for the FileObject of commons VFS. Can represent either a file-system file or classpath resource file.
@@ -47,7 +48,7 @@ import org.eclipse.collections.impl.factory.Lists;
  * See FileRetrievalModeTest for the tests on this class.
  */
 public class FileObject implements org.apache.commons.vfs2.FileObject {
-    public static FileObject toDaFileObject(org.apache.commons.vfs2.FileObject fileObject) {
+    static FileObject toDaFileObject(org.apache.commons.vfs2.FileObject fileObject) {
         return fileObject == null ? null : new FileObject(fileObject);
     }
 
@@ -83,6 +84,7 @@ public class FileObject implements org.apache.commons.vfs2.FileObject {
     }
 
     @Override
+    @NotNull
     public FileName getName() {
         return this.fileObject.getName();
     }

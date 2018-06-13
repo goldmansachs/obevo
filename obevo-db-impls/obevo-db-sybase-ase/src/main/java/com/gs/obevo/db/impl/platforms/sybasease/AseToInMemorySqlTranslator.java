@@ -17,7 +17,7 @@ package com.gs.obevo.db.impl.platforms.sybasease;
 
 import java.util.regex.Matcher;
 
-import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeInput;
 import com.gs.obevo.db.impl.core.util.RegexpPatterns;
 import com.gs.obevo.db.impl.platforms.sqltranslator.PostParsedSqlTranslator;
 import com.gs.obevo.db.impl.platforms.sqltranslator.UnparsedSqlTranslator;
@@ -27,7 +27,7 @@ import org.eclipse.collections.impl.factory.Lists;
 public final class AseToInMemorySqlTranslator implements PostParsedSqlTranslator, UnparsedSqlTranslator {
 
     // ASE allows a wide range of formats, so we parse for them
-    public static final ImmutableList<String> ACCEPTED_DATE_FORMATS = Lists.immutable.with(
+    static final ImmutableList<String> ACCEPTED_DATE_FORMATS = Lists.immutable.with(
             "dd MMM yyyy HH:mm:ss",
             "MMM dd yyyy",
             "yyyyMMdd",
@@ -35,7 +35,7 @@ public final class AseToInMemorySqlTranslator implements PostParsedSqlTranslator
     );
 
     @Override
-    public String handleAnySqlPostTranslation(String string, Change change) {
+    public String handleAnySqlPostTranslation(String string, ChangeInput change) {
         string = string.replaceAll("(?i)getdate\\(\\)", "CURRENT_DATE");
 
         // keeping for backwards-compatibility
@@ -51,7 +51,7 @@ public final class AseToInMemorySqlTranslator implements PostParsedSqlTranslator
     }
 
     @Override
-    public String handleRawFullSql(String string, Change change) {
+    public String handleRawFullSql(String string, ChangeInput change) {
         string = string.replaceAll("(?i).*sp_bindefault.+", "");
         string = string.replaceAll("(?i).*sp_bindrule.+", "");
 

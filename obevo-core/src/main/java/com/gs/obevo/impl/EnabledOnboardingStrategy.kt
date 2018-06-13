@@ -15,7 +15,7 @@
  */
 package com.gs.obevo.impl
 
-import com.gs.obevo.api.appdata.Change
+import com.gs.obevo.api.appdata.ChangeInput
 import com.gs.obevo.api.platform.DeployerRuntimeException
 import com.gs.obevo.util.vfs.FileObject
 import org.apache.commons.io.IOUtils
@@ -29,7 +29,7 @@ import java.io.IOException
  * if the change fails, or to keep/move to the regular folder if it succeeds.
  */
 internal class EnabledOnboardingStrategy : OnboardingStrategy {
-    override fun handleSuccess(change: Change) {
+    override fun handleSuccess(change: ChangeInput) {
         if (change.fileLocation.exists()) {
             val containingDir = change.fileLocation.parent
 
@@ -41,7 +41,7 @@ internal class EnabledOnboardingStrategy : OnboardingStrategy {
         }
     }
 
-    override fun handleException(change: Change, exc: Exception) {
+    override fun handleException(change: ChangeInput, exc: Exception) {
         if (change.fileLocation.exists()) {
             val containingDir = change.fileLocation.parent
 

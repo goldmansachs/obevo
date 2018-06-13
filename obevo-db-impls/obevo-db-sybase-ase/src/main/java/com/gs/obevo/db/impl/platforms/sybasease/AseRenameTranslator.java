@@ -18,7 +18,7 @@ package com.gs.obevo.db.impl.platforms.sybasease;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeInput;
 import com.gs.obevo.db.impl.platforms.sqltranslator.UnparsedSqlTranslator;
 
 /**
@@ -28,7 +28,7 @@ public class AseRenameTranslator implements UnparsedSqlTranslator {
     private static final Pattern SP_RENAME_PATTERN = Pattern.compile("(?i)\\s*sp_rename\\s+'(\\w+)\\.(\\w+)'\\s*,\\s*'(\\w+)'", Pattern.MULTILINE);
 
     @Override
-    public String handleRawFullSql(String sql, Change change) {
+    public String handleRawFullSql(String sql, ChangeInput change) {
         Matcher matcher = SP_RENAME_PATTERN.matcher(sql);
         if (matcher.find()) {
             // prepend a space in case there is some text that comes up before this

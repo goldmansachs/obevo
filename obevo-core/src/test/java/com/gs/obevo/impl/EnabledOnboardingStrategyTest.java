@@ -18,7 +18,7 @@ package com.gs.obevo.impl;
 import java.io.File;
 import java.io.IOException;
 
-import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeInput;
 import com.gs.obevo.util.vfs.FileObject;
 import com.gs.obevo.util.vfs.FileRetrievalMode;
 import org.apache.commons.io.FileUtils;
@@ -67,13 +67,13 @@ public class EnabledOnboardingStrategyTest {
         assertTrue(new File(testDir, "mydir/exceptions/myfile.sql.exception").exists());
     }
 
-    private Change newChange(String fileLocation) throws IOException {
+    private ChangeInput newChange(String fileLocation) throws IOException {
         File file = new File(testDir, fileLocation);
         file.getParentFile().mkdirs();
         file.createNewFile();
         final FileObject fileObject = FileRetrievalMode.FILE_SYSTEM.resolveSingleFileObject(file.getAbsolutePath());
 
-        Change change = mock(Change.class);
+        ChangeInput change = mock(ChangeInput.class);
         when(change.getFileLocation()).thenReturn(fileObject);
         return change;
     }

@@ -15,9 +15,7 @@
  */
 package com.gs.obevo.impl;
 
-import com.gs.obevo.api.appdata.ChangeKey;
 import com.gs.obevo.api.platform.CommandExecutionContext;
-import org.eclipse.collections.api.set.ImmutableSet;
 
 /**
  * A command that will actually invoke some action against the environment that would affect your applications.
@@ -28,12 +26,4 @@ public interface ExecuteChangeCommand extends AuditChangeCommand {
     boolean isDrop();
 
     ExecuteChangeCommand withDrop(boolean drop);
-
-    /**
-     * List of dependencies that this change relies on. Ideally would be available via {@link #getChanges()}.
-     * TODO refactor this into Change or something else, per GITHUB#158
-     */
-    ImmutableSet<ChangeKey> getDependencyChangeKeys();
-
-    void setDependencyChangeKeys(ImmutableSet<ChangeKey> dependencyChangeKeys);
 }

@@ -15,9 +15,12 @@
  */
 package com.gs.obevo.impl.graph;
 
+import java.util.Objects;
+
 import com.gs.obevo.api.appdata.CodeDependency;
 import com.gs.obevo.api.appdata.CodeDependencyType;
 import com.gs.obevo.api.platform.ChangeType;
+import kotlin.jvm.functions.Function1;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.procedure.primitive.ObjectIntProcedure;
@@ -30,6 +33,7 @@ import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.eclipse.collections.impl.tuple.Tuples;
+import org.jetbrains.annotations.NotNull;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
@@ -45,11 +49,13 @@ public class GraphEnricherImpl implements GraphEnricher {
     private final Function<String, String> convertDbObjectName;
 
     public GraphEnricherImpl(Function<String, String> convertDbObjectName) {
-        this.convertDbObjectName = convertDbObjectName;
+        this.convertDbObjectName = Objects.requireNonNull(convertDbObjectName);
     }
 
     @Override
-    public <T extends SortableDependencyGroup> DirectedGraph<T, DefaultEdge> createDependencyGraph(RichIterable<T> inputs, boolean rollback) {
+    public <T extends SortableDependencyGroup> DirectedGraph<T, DefaultEdge> createDependencyGraph(Iterable<? extends T> inputs2, boolean rollback) {
+        RichIterable<T> inputs = Lists.mutable.withAll(inputs2);
+
         final RichIterable<ChangeIndex<T>> changeIndexes = Lists.mutable.of(
                 new ObjectIndex<T>(),
                 new SchemaObjectIndex<T>(),
@@ -77,12 +83,12 @@ public class GraphEnricherImpl implements GraphEnricher {
                     for (CodeDependency dependency : change.getCodeDependencies()) {
                         T dependencyVertex = null;
                         for (ChangeIndex<T> changeIndex : changeIndexes) {
-                            dependencyVertex = changeIndex.retrieve(change.getObjectKey().getSchema(), dependency.getTarget());
+                            dependencyVertex = changeIndex.retrieve(change.getChangeKey().getObjectKey().getSchema(), dependency.getTarget());
                             if (dependencyVertex != null) {
                                 if (LOG.isTraceEnabled()) {
                                     LOG.trace("Discovered dependency from {} to {} using index {}",
                                             dependencyVertex,
-                                            change.getObjectKey() + "-" + change.getChangeName(),
+                                            change.getChangeKey(),
                                             changeIndex);
                                 }
                                 break;
@@ -111,11 +117,11 @@ public class GraphEnricherImpl implements GraphEnricher {
             @Override
             public String valueOf(Pair<T, SortableDependency> pair) {
                 SortableDependency tSortMetadata = pair.getTwo();
-                String changeType = tSortMetadata.getObjectKey().getChangeType().getName();
+                String changeType = tSortMetadata.getChangeKey().getObjectKey().getChangeType().getName();
                 if (changeType.equals(ChangeType.TRIGGER_INCREMENTAL_OLD_STR) || changeType.equals(ChangeType.FOREIGN_KEY_STR)) {
                     changeType = ChangeType.TABLE_STR;
                 }
-                return changeType + ":" + tSortMetadata.getObjectKey().getSchema() + ":" + convertDbObjectName.valueOf(tSortMetadata.getObjectKey().getObjectName());
+                return changeType + ":" + tSortMetadata.getChangeKey().getObjectKey().getSchema() + ":" + convertDbObjectName.valueOf(tSortMetadata.getChangeKey().getObjectKey().getObjectName());
             }
         });
 
@@ -159,7 +165,7 @@ public class GraphEnricherImpl implements GraphEnricher {
                         return t.getComponents().collect(new Function<SortableDependency, String>() {
                             @Override
                             public String valueOf(SortableDependency sortableDependency) {
-                                return "[" + sortableDependency.getObjectKey().getObjectName() + "." + sortableDependency.getChangeName() + "]";
+                                return "[" + sortableDependency.getChangeKey().getObjectKey().getObjectName() + "." + sortableDependency.getChangeKey().getChangeName() + "]";
                             }
                         }).makeString(", ");
                     }
@@ -170,6 +176,28 @@ public class GraphEnricherImpl implements GraphEnricher {
                         return "-" + ((DependencyEdge) dependencyEdge).getEdgeType();
                     }
                 });
+
+        return graph;
+    }
+
+    @NotNull
+    @Override
+    public <T> DirectedGraph<T, DefaultEdge> createSimpleDependencyGraph(@NotNull Iterable<? extends T> inputs, @NotNull Function1<? super T, ? extends Iterable<? extends T>> edgesFunction) {
+        final DefaultDirectedGraph<T, DefaultEdge> graph = new DefaultDirectedGraph<T, DefaultEdge>(DefaultEdge.class);
+        for (T input : inputs) {
+            graph.addVertex(input);
+        }
+
+        for (T input : inputs) {
+            Iterable<? extends T> targetVertices = edgesFunction.invoke(input);
+            for (T targetVertex : targetVertices) {
+                if (graph.containsVertex(targetVertex)) {
+                    graph.addEdge(targetVertex, input);
+                } else {
+                    LOG.info("Problem?");
+                }
+            }
+        }
 
         return graph;
     }
@@ -189,11 +217,11 @@ public class GraphEnricherImpl implements GraphEnricher {
         @Override
         public void add(T changeGroup) {
             for (SortableDependency change : changeGroup.getComponents()) {
-                T existingChange = retrieve(change.getObjectKey().getSchema(), convertDbObjectName.valueOf(change.getObjectKey().getObjectName()));
+                T existingChange = retrieve(change.getChangeKey().getObjectKey().getSchema(), convertDbObjectName.valueOf(change.getChangeKey().getObjectKey().getObjectName()));
                 // TODO getFirst is not ideal here
                 if (existingChange == null || existingChange.getComponents().getFirst().getOrderWithinObject() < change.getOrderWithinObject()) {
                     // only keep the latest (why latest vs earliest?)
-                    schemaToObjectMap.put(Tuples.pair(change.getObjectKey().getSchema(), convertDbObjectName.valueOf(change.getObjectKey().getObjectName())), changeGroup);
+                    schemaToObjectMap.put(Tuples.pair(change.getChangeKey().getObjectKey().getSchema(), convertDbObjectName.valueOf(change.getChangeKey().getObjectKey().getObjectName())), changeGroup);
                 }
             }
         }
@@ -210,11 +238,11 @@ public class GraphEnricherImpl implements GraphEnricher {
         @Override
         public void add(T changeGroup) {
             for (SortableDependency change : changeGroup.getComponents()) {
-                T existingChange = retrieve(change.getObjectKey().getSchema(), convertDbObjectName.valueOf(change.getObjectKey().getObjectName()));
+                T existingChange = retrieve(change.getChangeKey().getObjectKey().getSchema(), convertDbObjectName.valueOf(change.getChangeKey().getObjectKey().getObjectName()));
                 // TODO getFirst is not ideal here
                 if (existingChange == null || existingChange.getComponents().getFirst().getOrderWithinObject() < change.getOrderWithinObject()) {
                     // only keep the latest (why latest vs earliest?)
-                    objectMap.put(convertDbObjectName.valueOf(change.getObjectKey().getSchema() + "." + change.getObjectKey().getObjectName()), changeGroup);
+                    objectMap.put(convertDbObjectName.valueOf(change.getChangeKey().getObjectKey().getSchema() + "." + change.getChangeKey().getObjectKey().getObjectName()), changeGroup);
                 }
             }
         }
@@ -231,7 +259,7 @@ public class GraphEnricherImpl implements GraphEnricher {
         @Override
         public void add(T changeGroup) {
             for (SortableDependency change : changeGroup.getComponents()) {
-                schemaToObjectMap.put(Tuples.pair(change.getObjectKey().getSchema(), convertDbObjectName.valueOf(change.getObjectKey().getObjectName() + "." + change.getChangeName())), changeGroup);
+                schemaToObjectMap.put(Tuples.pair(change.getChangeKey().getObjectKey().getSchema(), convertDbObjectName.valueOf(change.getChangeKey().getObjectKey().getObjectName() + "." + change.getChangeKey().getChangeName())), changeGroup);
             }
         }
 
@@ -247,7 +275,7 @@ public class GraphEnricherImpl implements GraphEnricher {
         @Override
         public void add(T changeGroup) {
             for (SortableDependency change : changeGroup.getComponents()) {
-                objectMap.put(convertDbObjectName.valueOf(change.getObjectKey().getSchema() + "." + change.getObjectKey().getObjectName() + "." + change.getChangeName()), changeGroup);
+                objectMap.put(convertDbObjectName.valueOf(change.getChangeKey().getObjectKey().getSchema() + "." + change.getChangeKey().getObjectKey().getObjectName() + "." + change.getChangeKey().getChangeName()), changeGroup);
             }
         }
 

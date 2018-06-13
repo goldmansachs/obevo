@@ -344,12 +344,7 @@ public class CsvStaticDataDeployer {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("for " + paramArrays.length + " rows with params: " + Arrays.deepToString(paramArrays));
             }
-            try {
-                this.jdbcTemplate.batchUpdate(conn, sql, paramArrays);
-            } catch (RuntimeException e) {
-                e.printStackTrace();
-                throw e;
-            }
+            this.jdbcTemplate.batchUpdate(conn, sql, paramArrays);
         }
     }
 

@@ -59,7 +59,7 @@ class RerunnableChangeTypeCommandCalculator implements ChangeTypeCommandCalculat
     }
 
     @Override
-    public ImmutableList<ChangeCommand> calculateCommands(ChangeType changeType, RichIterable<ChangePair> changePairs, RichIterable<Change> allSourceChanges, boolean rollback, boolean initAllowedOnHashExceptions) {
+    public ImmutableList<ChangeCommand> calculateCommands(ChangeType changeType, RichIterable<ChangePair> changePairs, RichIterable<Change> allSourceChanges, boolean initAllowedOnHashExceptions) {
         RerunnableObjectInfo rerunnableObjectInfo = changePairs.injectInto(new RerunnableObjectInfo(), new Function2<RerunnableObjectInfo, ChangePair, RerunnableObjectInfo>() {
             @Override
             public RerunnableObjectInfo value(RerunnableObjectInfo rerunnableObjectInfo1, ChangePair changePair) {

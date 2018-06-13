@@ -18,7 +18,6 @@ package com.gs.obevo.db.impl.core;
 import java.sql.Connection;
 
 import com.gs.obevo.api.appdata.Change;
-import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder;
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.appdata.Schema;
@@ -27,7 +26,6 @@ import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.DeployExecutionDao;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
-import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.db.api.platform.SqlExecutor;
 import com.gs.obevo.db.impl.core.checksum.ChecksumBreak;
 import com.gs.obevo.db.impl.core.checksum.ChecksumEntry;
@@ -61,7 +59,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Deployer implementation targeted specifically for DBMS platforms.
  */
-public class DbDeployer implements DeployerPlugin<DbPlatform, DbEnvironment> {
+public class DbDeployer implements DeployerPlugin<DbEnvironment> {
     private static final String INIT_WARNING_MESSAGE =
             "WARNING: An INIT was requested; however, the system has been initialized in the past.\n" +
                     "Please double-check that you need this INIT.";
@@ -85,11 +83,11 @@ public class DbDeployer implements DeployerPlugin<DbPlatform, DbEnvironment> {
     }
 
     @Override
-    public void initializeSchema(final Environment env, PhysicalSchema schema) {
+    public void initializeSchema(final DbEnvironment env, PhysicalSchema schema) {
         this.sqlExecutor.executeWithinContext(schema, new Procedure<Connection>() {
             @Override
             public void value(Connection conn) {
-                ((DbEnvironment) env).getDbTranslationDialect().initSchema(sqlExecutor.getJdbcTemplate(), conn);
+                env.getDbTranslationDialect().initSchema(sqlExecutor.getJdbcTemplate(), conn);
             }
         });
     }

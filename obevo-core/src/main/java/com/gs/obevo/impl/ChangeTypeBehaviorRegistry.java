@@ -18,6 +18,7 @@ package com.gs.obevo.impl;
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.DeployExecution;
 import com.gs.obevo.api.platform.ChangeAuditDao;
+import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.ChangeTypeBehavior;
 import com.gs.obevo.api.platform.ChangeTypeSemantic;
 import com.gs.obevo.api.platform.CommandExecutionContext;
@@ -47,6 +48,10 @@ public class ChangeTypeBehaviorRegistry {
 
     public ChangeTypeBehavior getChangeTypeBehavior(String changeTypeName) {
         return changeTypeBehaviors.get(changeTypeName);
+    }
+
+    public ChangeTypeBehavior getChangeTypeBehavior(ChangeType changeType) {
+        return changeTypeBehaviors.get(changeType.getName());
     }
 
     private ChangeTypeSemantic getChangeTypeSemantic(Change change) {

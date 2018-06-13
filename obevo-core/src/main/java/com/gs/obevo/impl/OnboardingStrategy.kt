@@ -15,7 +15,7 @@
  */
 package com.gs.obevo.impl
 
-import com.gs.obevo.api.appdata.Change
+import com.gs.obevo.api.appdata.ChangeInput
 import com.gs.obevo.util.vfs.FileObject
 import org.eclipse.collections.api.set.ImmutableSet
 
@@ -25,9 +25,9 @@ import org.eclipse.collections.api.set.ImmutableSet
  */
 interface OnboardingStrategy {
 
-    fun handleSuccess(change: Change)
+    fun handleSuccess(change: ChangeInput)
 
-    fun handleException(change: Change, exc: Exception)
+    fun handleException(change: ChangeInput, exc: Exception)
 
     fun validateSourceDirs(sourceDirs: Iterable<FileObject>, schemaNames: ImmutableSet<String>)
 

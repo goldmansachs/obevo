@@ -1,5 +1,16 @@
 # Change Log
 
+## 7.0.0
+
+### Functionality Improvements
+
+### Technical Improvements
+Moving more of the code over to Kotlin
+#153: Refactor of dependency implementation
+
+### Bug Fixes
+
+
 ## 6.6.1
 
 ### Functionality Improvements

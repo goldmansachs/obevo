@@ -266,10 +266,11 @@ public class DbEnvironmentCleaner implements EnvironmentCleaner {
                 return change.getChangeType().isRerunnable();
             }
         });
+
         Changeset changeset = this.changesetCreator.determineChangeset(
-                rerunnableChangesPartition.getSelected(),
+                ChangesetCreator.Companion.getChangePairs(rerunnableChangesPartition.getSelected(), rerunnableChangesPartition.getRejected()),
                 rerunnableChangesPartition.getRejected(),
-                false, false, null);
+                false);
 
         changeset.validateForDeployment();
         LOG.info("Dropping these objects:");

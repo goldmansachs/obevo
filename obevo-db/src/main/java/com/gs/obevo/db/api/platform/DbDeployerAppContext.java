@@ -18,6 +18,7 @@ package com.gs.obevo.db.api.platform;
 import javax.sql.DataSource;
 
 import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeInput;
 import com.gs.obevo.api.platform.DeployExecutionDao;
 import com.gs.obevo.api.platform.DeployerAppContext;
 import com.gs.obevo.api.platform.MainDeployerArgs;
@@ -44,9 +45,9 @@ public interface DbDeployerAppContext extends DeployerAppContext<DbEnvironment, 
 
     ImmutableList<Change> readChangesFromAudit();
 
-    ImmutableList<Change> readChangesFromSource();
+    ImmutableList<ChangeInput> readChangesFromSource();
 
-    ImmutableList<Change> readChangesFromSource(boolean useBaseline);
+    ImmutableList<ChangeInput> readChangesFromSource(boolean useBaseline);
 
     DbMetadataManager getDbMetadataManager();
 

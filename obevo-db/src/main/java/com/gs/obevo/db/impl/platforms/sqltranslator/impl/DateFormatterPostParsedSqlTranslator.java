@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeInput;
 import com.gs.obevo.db.impl.platforms.sqltranslator.PostParsedSqlTranslator;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
@@ -59,7 +59,7 @@ public class DateFormatterPostParsedSqlTranslator implements PostParsedSqlTransl
     }
 
     @Override
-    public String handleAnySqlPostTranslation(String string, Change change) {
+    public String handleAnySqlPostTranslation(String string, ChangeInput change) {
         Matcher matcher = this.datetimeConstantPattern.matcher(string);
         while (matcher.find()) {
             String dateConstant = matcher.group(1);

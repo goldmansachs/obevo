@@ -21,6 +21,7 @@ import java.util.Collection;
 import javax.sql.DataSource;
 
 import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeInput;
 import com.gs.obevo.api.platform.DeployExecutionDao;
 import com.gs.obevo.api.platform.DeployMetrics;
 import com.gs.obevo.api.platform.FileSourceContext;
@@ -111,12 +112,12 @@ class UnitTestDbDeployerAppContext implements DbDeployerAppContext {
     }
 
     @Override
-    public ImmutableList<Change> readChangesFromSource() {
+    public ImmutableList<ChangeInput> readChangesFromSource() {
         return delegate.readChangesFromSource();
     }
 
     @Override
-    public ImmutableList<Change> readChangesFromSource(boolean useBaseline) {
+    public ImmutableList<ChangeInput> readChangesFromSource(boolean useBaseline) {
         return delegate.readChangesFromSource(useBaseline);
     }
 
@@ -171,12 +172,12 @@ class UnitTestDbDeployerAppContext implements DbDeployerAppContext {
     }
 
     @Override
-    public DbDeployerAppContext deploy(Collection<Change> changes) {
+    public DbDeployerAppContext deploy(Collection<ChangeInput> changes) {
         return delegate.deploy(changes);
     }
 
     @Override
-    public DbDeployerAppContext deploy(Collection<Change> changes, MainDeployerArgs deployerArgs) {
+    public DbDeployerAppContext deploy(Collection<ChangeInput> changes, MainDeployerArgs deployerArgs) {
         return delegate.deploy(changes, deployerArgs);
     }
 

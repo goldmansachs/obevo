@@ -15,11 +15,9 @@
  */
 package com.gs.obevo.impl.reader;
 
-import com.gs.obevo.api.appdata.Change;
-import com.gs.obevo.api.appdata.ChangeIncremental;
+import com.gs.obevo.api.appdata.ChangeInput;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.impl.DeployMetricsCollectorImpl;
-import com.gs.obevo.impl.reader.TableChangeParser.GetChangeType;
 import com.gs.obevo.util.hash.DbChangeHashStrategy;
 import com.gs.obevo.util.vfs.FileObject;
 import org.apache.commons.vfs2.FileName;
@@ -47,7 +45,7 @@ public class TableChangeParserTest {
     private final String objectName = "MyObj";
 
     private final ChangeType tableChangeType = mock(ChangeType.class);
-    private final GetChangeType getChangeType = GetChangeType.DEFAULT_IMPL;
+    private final GetChangeType getChangeType = TableChangeParser.DEFAULT_IMPL;
 
     private static class EmptyContentHashStrategy implements DbChangeHashStrategy {
         @Override
@@ -64,17 +62,17 @@ public class TableChangeParserTest {
                 "//// CHANGE name=chng2\ncreate2\n" +
                 "";
 
-        ImmutableList<Change> changes = parser.value(tableChangeType, null, fileContent, "MyTemplate${suffix}", "schema", null);
+        ImmutableList<ChangeInput> changes = parser.value(tableChangeType, null, fileContent, "MyTemplate${suffix}", "schema", null);
         assertEquals(4, changes.size());
-        assertEquals(2, changes.count(Predicates.attributeEqual(new Function<Change, Object>() {
+        assertEquals(2, changes.count(Predicates.attributeEqual(new Function<ChangeInput, Object>() {
             @Override
-            public Object valueOf(Change it) {
+            public Object valueOf(ChangeInput it) {
                 return it.getObjectName();
             }
         }, "MyTemplate1")));
-        assertEquals(2, changes.count(Predicates.attributeEqual(new Function<Change, Object>() {
+        assertEquals(2, changes.count(Predicates.attributeEqual(new Function<ChangeInput, Object>() {
             @Override
-            public Object valueOf(Change it) {
+            public Object valueOf(ChangeInput it) {
                 return it.getObjectName();
             }
         }, "MyTemplate2")));
@@ -255,12 +253,12 @@ public class TableChangeParserTest {
 
     @Test
     public void testDbChange() {
-        ChangeIncremental change = (ChangeIncremental) new TableChangeParser(new EmptyContentHashStrategy(), getChangeType)
+        ChangeInput change = new TableChangeParser(new EmptyContentHashStrategy(), getChangeType)
                 .value(tableChangeType,
                         null, "//// CHANGE name=chng5Rollback applyGrants=true INACTIVE baselinedChanges=\"a,b,c\" \nmychange\n\n// ROLLBACK-IF-ALREADY-DEPLOYED\nmyrollbackcommand\n", objectName
                         , "schem", null).get(0);
-        assertEquals("schem", change.getSchema());
-        assertEquals("chng5Rollback", change.getChangeName());
+        assertEquals("schem", change.getObjectKey().getSchema());
+        assertEquals("chng5Rollback", change.getChangeKey().getChangeName());
         assertEquals("mychange\n", change.getContent());
         assertEquals("mychan", change.getContentHash());
         assertEquals("myrollbackcommand", change.getRollbackIfAlreadyDeployedContent());
@@ -271,12 +269,12 @@ public class TableChangeParserTest {
 
     @Test
     public void testDbChange2DiffValues() {
-        ChangeIncremental change = (ChangeIncremental) new TableChangeParser(new EmptyContentHashStrategy(), getChangeType)
+        ChangeInput change = new TableChangeParser(new EmptyContentHashStrategy(), getChangeType)
                 .value(tableChangeType,
                         null, "//// CHANGE name=chng5Rollback INACTIVE baselinedChanges=\"a,b,c\" \nmychange\n\n// ROLLBACK-IF-ALREADY-DEPLOYED\nmyrollbackcommand\n", objectName
                         , "schem", null).get(0);
-        assertEquals("schem", change.getSchema());
-        assertEquals("chng5Rollback", change.getChangeName());
+        assertEquals("schem", change.getObjectKey().getSchema());
+        assertEquals("chng5Rollback", change.getChangeKey().getChangeName());
         assertEquals("mychange\n", change.getContent());
         assertEquals("mychan", change.getContentHash());
         assertEquals("myrollbackcommand", change.getRollbackIfAlreadyDeployedContent());

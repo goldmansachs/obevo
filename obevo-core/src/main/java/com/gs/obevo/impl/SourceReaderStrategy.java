@@ -15,14 +15,14 @@
  */
 package com.gs.obevo.impl;
 
-import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeInput;
 import org.eclipse.collections.api.list.ImmutableList;
 
 /**
  * Strategy to determine how changes are read in and passed to the Obevo deployer.
  */
-interface SourceReaderStrategy {
-    ImmutableList<Change> getChanges();
+public interface SourceReaderStrategy {
+    ImmutableList<ChangeInput> getChanges();
 
-    ImmutableList<Change> getChanges(boolean useBaseline);
+    ImmutableList<ChangeInput> getChanges(boolean useBaseline);
 }

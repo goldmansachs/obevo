@@ -41,7 +41,7 @@ public class MongoDeployBehavior implements ChangeTypeBehavior {
     public void deploy(Change change, CommandExecutionContext cec) {
         MongoDatabase database = mongoClient.getDatabase(change.getPhysicalSchema(env).getPhysicalName());
         final BasicDBObject command = new BasicDBObject();
-        command.put("eval", change.getContent());
+        command.put("eval", change.getConvertedContent());
         Document result = database.runCommand(command);
         LOG.info("Result: {}", result);
     }

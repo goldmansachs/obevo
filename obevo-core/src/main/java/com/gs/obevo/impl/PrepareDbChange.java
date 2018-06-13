@@ -15,9 +15,9 @@
  */
 package com.gs.obevo.impl;
 
-import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeInput;
 import com.gs.obevo.api.appdata.Environment;
 
 public interface PrepareDbChange<E extends Environment> {
-    String prepare(String content, Change change, E env);
+    String prepare(String content, ChangeInput change, E env);
 }

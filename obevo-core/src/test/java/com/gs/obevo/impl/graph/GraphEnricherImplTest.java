@@ -15,6 +15,7 @@
  */
 package com.gs.obevo.impl.graph;
 
+import com.gs.obevo.api.appdata.ChangeKey;
 import com.gs.obevo.api.appdata.CodeDependency;
 import com.gs.obevo.api.appdata.CodeDependencyType;
 import com.gs.obevo.api.appdata.ObjectKey;
@@ -251,8 +252,8 @@ public class GraphEnricherImplTest {
         when(changeType.isRerunnable()).thenReturn(true);
 
         SortableDependency sort = mock(SortableDependency.class);
-        ObjectKey key = new ObjectKey(schema, changeType, objectName);
-        when(sort.getObjectKey()).thenReturn(key);
+        ObjectKey key = new ObjectKey(schema, objectName, changeType);
+        when(sort.getChangeKey()).thenReturn(new ChangeKey(key, changeName));
         if (dependencies != null) {
             when(sort.getCodeDependencies()).thenReturn(dependencies.collectWith(new Function2<String, CodeDependencyType, CodeDependency>() {
                 @Override
@@ -261,7 +262,6 @@ public class GraphEnricherImplTest {
                 }
             }, CodeDependencyType.EXPLICIT));
         }
-        when(sort.getChangeName()).thenReturn(changeName);
         when(sort.getOrderWithinObject()).thenReturn(orderWithinObject);
 
         // to print out a nice message for the mock; we do need the string variable on a separate line

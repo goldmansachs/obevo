@@ -37,6 +37,7 @@ import org.eclipse.collections.api.list.ListIterable;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.test.Verify;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -50,14 +51,25 @@ public class IncrementalChangeTypeCommandCalculatorTest {
 
     private final ImmutableList<Change> unusedChangesArg = Lists.immutable.with();
     private final AtomicInteger r = new AtomicInteger(0);
+    private ChangeType tableChangeType;
+    private ChangeType foreignKeyChangeType;
+
+    @Before
+    public void setup() {
+        tableChangeType = mock(ChangeType.class);
+        when(tableChangeType.getName()).thenReturn("table");
+
+        foreignKeyChangeType = mock(ChangeType.class);
+        when(foreignKeyChangeType.getName()).thenReturn("fk");
+    }
 
     @Test
     public void testNewTableAdd() {
-        Change tabA1Src = new ChangeIncremental(tableChangeType(), "schema", "tabA", "new", 0, "chng1", CONTENT);
+        Change tabA1Src = new ChangeIncremental(tableChangeType, "schema", "tabA", "new", 0, "chng1", CONTENT);
 
-        ListIterable<ChangeCommand> changeCommands = cmdCalc.calculateCommands(tableChangeType(), Lists.mutable.<ChangePair>of(
+        ListIterable<ChangeCommand> changeCommands = cmdCalc.calculateCommands(tableChangeType, Lists.mutable.<ChangePair>of(
                 new ChangePair(tabA1Src, null)
-        ), unusedChangesArg, false, false);
+        ), unusedChangesArg, false);
 
         assertEquals(1, changeCommands.size());
         Verify.assertAnySatisfy(changeCommands, assertValue(DeployChangeCommand.class, tabA1Src));
@@ -81,23 +93,23 @@ public class IncrementalChangeTypeCommandCalculatorTest {
     }
 
     private void testTableDrops(boolean forceDrop) {
-        Change tabC1Dep = new ChangeIncremental(tableChangeType(), "schema", "tabC", "chng1", 0, "tabCExistingToBeDropped", CONTENT);
-        Change tabC1Src = new ChangeIncremental(tableChangeType(), "schema", "tabC", tabC1Dep.getChangeName(), 0, "tabCExistingToBeDropped", CONTENT);
-        Change tabC2Src = new ChangeIncremental(tableChangeType(), "schema", "tabC", "chng2", 1, "tabCExistingToBeDropped", CONTENT);
-        Change tabC3Src = new ChangeIncremental(tableChangeType(), "schema", "tabC", "chng3", 2,
+        Change tabC1Dep = new ChangeIncremental(tableChangeType, "schema", "tabC", "chng1", 0, "tabCExistingToBeDropped", CONTENT);
+        Change tabC1Src = new ChangeIncremental(tableChangeType, "schema", "tabC", tabC1Dep.getChangeName(), 0, "tabCExistingToBeDropped", CONTENT);
+        Change tabC2Src = new ChangeIncremental(tableChangeType, "schema", "tabC", "chng2", 1, "tabCExistingToBeDropped", CONTENT);
+        Change tabC3Src = new ChangeIncremental(tableChangeType, "schema", "tabC", "chng3", 2,
                 "tabCExistingToBeDropped", CONTENT).withDrop(true).withKeepIncrementalOrder(true);
-        Change tabD1Src = new ChangeIncremental(tableChangeType(), "schema", "tabD", "cdrop1", 0, "tabDNewTableIsDropped", CONTENT);
-        ChangeIncremental tabD2Src = new ChangeIncremental(tableChangeType(), "schema", "tabD", "cdrop2", 1,
+        Change tabD1Src = new ChangeIncremental(tableChangeType, "schema", "tabD", "cdrop1", 0, "tabDNewTableIsDropped", CONTENT);
+        ChangeIncremental tabD2Src = new ChangeIncremental(tableChangeType, "schema", "tabD", "cdrop2", 1,
                 "tabDNewTableIsDropped", CONTENT).withDrop(true).withKeepIncrementalOrder(true);
         tabD2Src.setForceDropForEnvCleaning(forceDrop);
 
-        ListIterable<ChangeCommand> changeset = cmdCalc.calculateCommands(tableChangeType(), Lists.mutable.<ChangePair>of(
+        ListIterable<ChangeCommand> changeset = cmdCalc.calculateCommands(tableChangeType, Lists.mutable.<ChangePair>of(
                 new ChangePair(tabC1Src, tabC1Dep)
                 , new ChangePair(tabC2Src, null)
                 , new ChangePair(tabC3Src, null)
                 , new ChangePair(tabD1Src, null)
                 , new ChangePair(tabD2Src, null)
-        ), unusedChangesArg, false, false);
+        ), unusedChangesArg, false);
 
         assertEquals(4, changeset.size());
         Verify.assertAnySatisfy(changeset, assertValue(DeployChangeCommand.class, tabC2Src));
@@ -115,23 +127,23 @@ public class IncrementalChangeTypeCommandCalculatorTest {
 
     @Test
     public void testTableActivationsAndRollbacks() {
-        Change tabE0Dep = new ChangeIncremental(tableChangeType(), "schema", "tabE", "0", 0, "chng0", CONTENT);
-        Change tabE0Src = new ChangeIncremental(tableChangeType(), "schema", "tabE", "0", 0, "chng0", CONTENT);
-        Change tabE1Dep = new ChangeIncremental(tableChangeType(), "schema", "tabE", "1", 1, "chng1ToActivate", CONTENT, null, false);
-        Change tabE1Src = new ChangeIncremental(tableChangeType(), "schema", "tabE", "1", 1, "chng1ToActivate", CONTENT, null, true);
-        Change tabE2Dep = new ChangeIncremental(tableChangeType(), "schema", "tabE", "2", 2, "chng2ToDeactivate", CONTENT, null, true);
-        Change tabE2Src = new ChangeIncremental(tableChangeType(), "schema", "tabE", "2", 2, "chng2ToDeactivate", CONTENT, null, false);
-        Change tabE3Src = new ChangeIncremental(tableChangeType(), "schema", "tabE", "3", 3, "chng3alreadyDeprecated,DoNotDeploy", CONTENT, null, false);
-        Change tabE4Src = new ChangeIncremental(tableChangeType(), "schema", "tabE", "4", 4, "chng4ActualChange", CONTENT);
+        Change tabE0Dep = new ChangeIncremental(tableChangeType, "schema", "tabE", "0", 0, "chng0", CONTENT);
+        Change tabE0Src = new ChangeIncremental(tableChangeType, "schema", "tabE", "0", 0, "chng0", CONTENT);
+        Change tabE1Dep = new ChangeIncremental(tableChangeType, "schema", "tabE", "1", 1, "chng1ToActivate", CONTENT, null, false);
+        Change tabE1Src = new ChangeIncremental(tableChangeType, "schema", "tabE", "1", 1, "chng1ToActivate", CONTENT, null, true);
+        Change tabE2Dep = new ChangeIncremental(tableChangeType, "schema", "tabE", "2", 2, "chng2ToDeactivate", CONTENT, null, true);
+        Change tabE2Src = new ChangeIncremental(tableChangeType, "schema", "tabE", "2", 2, "chng2ToDeactivate", CONTENT, null, false);
+        Change tabE3Src = new ChangeIncremental(tableChangeType, "schema", "tabE", "3", 3, "chng3alreadyDeprecated,DoNotDeploy", CONTENT, null, false);
+        Change tabE4Src = new ChangeIncremental(tableChangeType, "schema", "tabE", "4", 4, "chng4ActualChange", CONTENT);
 
         // in this case, a change is rolled back but also deactivated. The result is that we just deactivate. We do not proceed w/ the rollback until the change is activated
-        Change tabE5Dep = new ChangeIncremental(tableChangeType(), "schema", "tabE", "5", 5, "chng5RollbackButInactive", CONTENT, null, true);
-        Change tabE5Src = new ChangeIncremental(tableChangeType(), "schema", "tabE", "5", 5, "chng5RollbackButInactive", CONTENT, "rollback", false);
+        Change tabE5Dep = new ChangeIncremental(tableChangeType, "schema", "tabE", "5", 5, "chng5RollbackButInactive", CONTENT, null, true);
+        Change tabE5Src = new ChangeIncremental(tableChangeType, "schema", "tabE", "5", 5, "chng5RollbackButInactive", CONTENT, "rollback", false);
         // once the change is activated, we will roll back
-        Change tabE6Dep = new ChangeIncremental(tableChangeType(), "schema", "tabE", "6", 6, "chng6ActivateAndThenRollback", CONTENT, null, false);
-        Change tabE6Src = new ChangeIncremental(tableChangeType(), "schema", "tabE", "6", 6, "chng6ActivateAndThenRollback", CONTENT, "rollback", true);
+        Change tabE6Dep = new ChangeIncremental(tableChangeType, "schema", "tabE", "6", 6, "chng6ActivateAndThenRollback", CONTENT, null, false);
+        Change tabE6Src = new ChangeIncremental(tableChangeType, "schema", "tabE", "6", 6, "chng6ActivateAndThenRollback", CONTENT, "rollback", true);
 
-        ListIterable<ChangeCommand> changeset = cmdCalc.calculateCommands(tableChangeType(), Lists.mutable.of(
+        ListIterable<ChangeCommand> changeset = cmdCalc.calculateCommands(tableChangeType, Lists.mutable.of(
                 new ChangePair(tabE0Src, tabE0Dep)
                 , new ChangePair(tabE1Src, tabE1Dep)
                 , new ChangePair(tabE2Src, tabE2Dep)
@@ -139,7 +151,7 @@ public class IncrementalChangeTypeCommandCalculatorTest {
                 , new ChangePair(tabE4Src, null)
                 , new ChangePair(tabE5Src, tabE5Dep)
                 , new ChangePair(tabE6Src, tabE6Dep)
-        ), unusedChangesArg, false, false);
+        ), unusedChangesArg, false);
 
         // Verify the activation statuses were changed accordingly
         assertEquals(true, tabE1Dep.isActive());
@@ -158,11 +170,11 @@ public class IncrementalChangeTypeCommandCalculatorTest {
 
     @Test
     public void testImproperlyDroppedSourceChange() {
-        Change tabE0Dep = new ChangeIncremental(tableChangeType(), "schema", "tabE", "0", 0, "chng0", CONTENT);
+        Change tabE0Dep = new ChangeIncremental(tableChangeType, "schema", "tabE", "0", 0, "chng0", CONTENT);
 
-        ListIterable<ChangeCommand> changeset = cmdCalc.calculateCommands(tableChangeType(), Lists.mutable.<ChangePair>of(
+        ListIterable<ChangeCommand> changeset = cmdCalc.calculateCommands(tableChangeType, Lists.mutable.<ChangePair>of(
                 new ChangePair(null, tabE0Dep)
-        ), unusedChangesArg, false, false);
+        ), unusedChangesArg, false);
 
         assertEquals(1, changeset.size());
         Verify.assertAnySatisfy(changeset, assertValue(ImproperlyRemovedWarning.class, tabE0Dep));
@@ -174,11 +186,12 @@ public class IncrementalChangeTypeCommandCalculatorTest {
      */
     @Test
     public void testDroppedSourceChangeWithRollback() {
-        Change tabE0Dep = new ChangeIncremental(tableChangeType(), "schema", "tabE", "0", 0, "chng0", CONTENT);
+        ChangeIncremental tabE0Dep = new ChangeIncremental(tableChangeType, "schema", "tabE", "0", 0, "chng0", CONTENT);
+        tabE0Dep.setRollbackActivated(true);
 
-        ListIterable<ChangeCommand> changeset = cmdCalc.calculateCommands(tableChangeType(), Lists.mutable.<ChangePair>of(
+        ListIterable<ChangeCommand> changeset = cmdCalc.calculateCommands(tableChangeType, Lists.mutable.<ChangePair>of(
                 new ChangePair(null, tabE0Dep)
-        ), unusedChangesArg, true, false);
+        ), unusedChangesArg, false);
 
         assertEquals(1, changeset.size());
         Verify.assertAnySatisfy(changeset, assertValue(UnrolledbackChangeWarning.class, tabE0Dep));
@@ -186,24 +199,24 @@ public class IncrementalChangeTypeCommandCalculatorTest {
 
     @Test
     public void testIncrementalTableChange() {
-        Change tabB0Dep = new ChangeIncremental(tableChangeType(), "schema", "tabB", "b0", 0, "chng1", CONTENT);
-        Change tabB0Src = new ChangeIncremental(tableChangeType(), "schema", "tabB", "b0", 0, "chng1", CONTENT);
-        Change tabB1FkSrc = new ChangeIncremental(foreignKeyChangeType(), "schema", "tabB", "b1", 1, "chng1.5fk", CONTENT);
-        Change tabB3Dep = new ChangeIncremental(tableChangeType(), "schema", "tabB", "b3", 3, "chng3ToBeRolledback1", CONTENT);
-        Change tabB3Src = new ChangeIncremental(tableChangeType(), "schema", "tabB", tabB3Dep.getChangeName(), 3, "chng3ToBeRolledback1", CONTENT, "rollback", true);
-        Change tabB4Src = new ChangeIncremental(tableChangeType(), "schema", "tabB", "b4", 4, "chng4Insertion", CONTENT);
-        Change tabB5Src = new ChangeIncremental(tableChangeType(), "schema", "tabB", "b5", 5, "chng5AlreadyRolledBack", CONTENT, "rollback", true);
-        Change tabB6Dep = new ChangeIncremental(tableChangeType(), "schema", "tabB", "b6", 6, "chng6ToBeRolledback2", CONTENT);
-        Change tabB6Src = new ChangeIncremental(tableChangeType(), "schema", "tabB", tabB6Dep.getChangeName(), 6, "chng6ToBeRolledback2", CONTENT, "rollback", true);
+        Change tabB0Dep = new ChangeIncremental(tableChangeType, "schema", "tabB", "b0", 0, "chng1", CONTENT);
+        Change tabB0Src = new ChangeIncremental(tableChangeType, "schema", "tabB", "b0", 0, "chng1", CONTENT);
+        Change tabB1FkSrc = new ChangeIncremental(foreignKeyChangeType, "schema", "tabB", "b1", 1, "chng1.5fk", CONTENT);
+        Change tabB3Dep = new ChangeIncremental(tableChangeType, "schema", "tabB", "b3", 3, "chng3ToBeRolledback1", CONTENT);
+        Change tabB3Src = new ChangeIncremental(tableChangeType, "schema", "tabB", tabB3Dep.getChangeName(), 3, "chng3ToBeRolledback1", CONTENT, "rollback", true);
+        Change tabB4Src = new ChangeIncremental(tableChangeType, "schema", "tabB", "b4", 4, "chng4Insertion", CONTENT);
+        Change tabB5Src = new ChangeIncremental(tableChangeType, "schema", "tabB", "b5", 5, "chng5AlreadyRolledBack", CONTENT, "rollback", true);
+        Change tabB6Dep = new ChangeIncremental(tableChangeType, "schema", "tabB", "b6", 6, "chng6ToBeRolledback2", CONTENT);
+        Change tabB6Src = new ChangeIncremental(tableChangeType, "schema", "tabB", tabB6Dep.getChangeName(), 6, "chng6ToBeRolledback2", CONTENT, "rollback", true);
 
-        ListIterable<ChangeCommand> changeset = cmdCalc.calculateCommands(tableChangeType(), Lists.mutable.of(
+        ListIterable<ChangeCommand> changeset = cmdCalc.calculateCommands(tableChangeType, Lists.mutable.of(
                 new ChangePair(tabB0Src, tabB0Dep)
                 , new ChangePair(tabB1FkSrc, null)
                 , new ChangePair(tabB3Src, tabB3Dep)
                 , new ChangePair(tabB4Src, null)
                 , new ChangePair(tabB5Src, null)
                 , new ChangePair(tabB6Src, tabB6Dep)
-        ), unusedChangesArg, false, false);
+        ), unusedChangesArg, false);
 
         assertEquals(4, changeset.size());
         Verify.assertAnySatisfy(changeset, assertValue(UndeployChangeCommand.class, tabB3Src));
@@ -214,20 +227,20 @@ public class IncrementalChangeTypeCommandCalculatorTest {
 
     @Test
     public void testBaseline() {
-        Change dep1 = new ChangeIncremental(tableChangeType(), "schema", "tabB", "ch1", 0, "chng1", CONTENT);
-        Change dep2 = new ChangeIncremental(tableChangeType(), "schema", "tabB", "ch2", 0, "chng1", CONTENT);
-        Change dep3 = new ChangeIncremental(tableChangeType(), "schema", "tabB", "ch3", 0, "chng1", CONTENT);
-        Change srcB = new ChangeIncremental(tableChangeType(), "schema", "tabB", "bas1", 0, "chng1", CONTENT)
+        Change dep1 = new ChangeIncremental(tableChangeType, "schema", "tabB", "ch1", 0, "chng1", CONTENT);
+        Change dep2 = new ChangeIncremental(tableChangeType, "schema", "tabB", "ch2", 0, "chng1", CONTENT);
+        Change dep3 = new ChangeIncremental(tableChangeType, "schema", "tabB", "ch3", 0, "chng1", CONTENT);
+        Change srcB = new ChangeIncremental(tableChangeType, "schema", "tabB", "bas1", 0, "chng1", CONTENT)
                 .withBaselines(Lists.mutable.with("ch1", "ch2", "ch3"));
-        Change src4 = new ChangeIncremental(tableChangeType(), "schema", "tabB", "ch4", 1, "chng1", CONTENT);
+        Change src4 = new ChangeIncremental(tableChangeType, "schema", "tabB", "ch4", 1, "chng1", CONTENT);
 
-        ListIterable<ChangeCommand> changeset = cmdCalc.calculateCommands(tableChangeType(), Lists.mutable.of(
+        ListIterable<ChangeCommand> changeset = cmdCalc.calculateCommands(tableChangeType, Lists.mutable.of(
                 new ChangePair(srcB, null)
                 , new ChangePair(src4, null)
                 , new ChangePair(null, dep1)
                 , new ChangePair(null, dep2)
                 , new ChangePair(null, dep3)
-        ), unusedChangesArg, false, false);
+        ), unusedChangesArg, false);
 
         assertEquals(2, changeset.size());
         Verify.assertAnySatisfy(changeset, assertValue(DeployChangeCommand.class, src4));
@@ -243,14 +256,14 @@ public class IncrementalChangeTypeCommandCalculatorTest {
     @Test
     public void testBaselineNewAddition() {
         // dep1, dep2, dep3 are not deployed - hence, we should deploy the baseline we find in the source
-        Change srcB = new ChangeIncremental(tableChangeType(), "schema", "tabB", "bas1", 0, "chng1", CONTENT)
+        Change srcB = new ChangeIncremental(tableChangeType, "schema", "tabB", "bas1", 0, "chng1", CONTENT)
                 .withBaselines(Lists.mutable.with("ch1", "ch2", "ch3"));
-        Change src4 = new ChangeIncremental(tableChangeType(), "schema", "tabB", "ch4", 1, "chng1", CONTENT);
+        Change src4 = new ChangeIncremental(tableChangeType, "schema", "tabB", "ch4", 1, "chng1", CONTENT);
 
-        ListIterable<ChangeCommand> changeset = cmdCalc.calculateCommands(tableChangeType(), Lists.mutable.of(
+        ListIterable<ChangeCommand> changeset = cmdCalc.calculateCommands(tableChangeType, Lists.mutable.of(
                 new ChangePair(srcB, null)
                 , new ChangePair(src4, null)
-        ), unusedChangesArg, false, false);
+        ), unusedChangesArg, false);
 
         assertEquals(2, changeset.size());
         Verify.assertAnySatisfy(changeset, assertValue(DeployChangeCommand.class, srcB));
@@ -261,20 +274,20 @@ public class IncrementalChangeTypeCommandCalculatorTest {
     public void testBaselineException() {
         // In this use case, srcB is the baseline change w/ ch1 ch2 ch3 marked. However, we only see ch1 and ch2 deployed, so we throw an exception
 
-        Change dep1 = new ChangeIncremental(tableChangeType(), "schema", "tabB", "ch1", 0, "chng1", CONTENT);
-        Change dep2 = new ChangeIncremental(tableChangeType(), "schema", "tabB", "ch2", 0, "chng1", CONTENT);
+        Change dep1 = new ChangeIncremental(tableChangeType, "schema", "tabB", "ch1", 0, "chng1", CONTENT);
+        Change dep2 = new ChangeIncremental(tableChangeType, "schema", "tabB", "ch2", 0, "chng1", CONTENT);
         // hiding dep3 as to show the exception use case
-        //Change dep3 = new ChangeIncremental(tableChangeType(), "schema", "tabB", "ch3", 0, "chng1", CONTENT);
-        Change srcB = new ChangeIncremental(tableChangeType(), "schema", "tabB", "bas1", 0, "chng1", CONTENT)
+        //Change dep3 = new ChangeIncremental(tableChangeType, "schema", "tabB", "ch3", 0, "chng1", CONTENT);
+        Change srcB = new ChangeIncremental(tableChangeType, "schema", "tabB", "bas1", 0, "chng1", CONTENT)
                 .withBaselines(Lists.mutable.with("ch1", "ch2", "ch3"));
-        Change src4 = new ChangeIncremental(tableChangeType(), "schema", "tabB", "ch4", 1, "chng1", CONTENT);
+        Change src4 = new ChangeIncremental(tableChangeType, "schema", "tabB", "ch4", 1, "chng1", CONTENT);
 
-        ListIterable<ChangeCommand> changeset = cmdCalc.calculateCommands(tableChangeType(), Lists.mutable.of(
+        ListIterable<ChangeCommand> changeset = cmdCalc.calculateCommands(tableChangeType, Lists.mutable.of(
                 new ChangePair(srcB, null)
                 , new ChangePair(src4, null)
                 , new ChangePair(null, dep1)
                 , new ChangePair(null, dep2)
-        ), unusedChangesArg, false, false);
+        ), unusedChangesArg, false);
 
         assertEquals(2, changeset.size());
         Verify.assertAnySatisfy(changeset, assertValue(DeployChangeCommand.class, src4));
@@ -282,18 +295,6 @@ public class IncrementalChangeTypeCommandCalculatorTest {
         Verify.assertAnySatisfy(changeset, baselineWarningPredicate);
         IncompleteBaselineWarning baselineWarning = (IncompleteBaselineWarning) changeset.detect(baselineWarningPredicate);
         assertEquals(Sets.mutable.with("ch3"), baselineWarning.getNonDeployedChanges());
-    }
-
-    private ChangeType tableChangeType() {
-        ChangeType changeType = mock(ChangeType.class);
-        when(changeType.getName()).thenReturn("table");
-        return changeType;
-    }
-
-    private ChangeType foreignKeyChangeType() {
-        ChangeType changeType = mock(ChangeType.class);
-        when(changeType.getName()).thenReturn("fk");
-        return changeType;
     }
 
     static Predicate<ChangeCommand> assertValue(final Class expectedClass, final Change expectedArtifact) {

@@ -57,7 +57,7 @@ public class RerunnableChangeTypeCommandCalculatorTest {
                 , new ChangePair(view2Src, view2Dep)
                 , new ChangePair(null, view3Dep)
                 , new ChangePair(view4Src, null)
-        ), allSourceChanges, false, false);
+        ), allSourceChanges, false);
 
         assertEquals(3, changeset.size());
         Verify.assertAnySatisfy(changeset, assertValue(DeployChangeCommand.class, view1Src));

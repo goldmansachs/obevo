@@ -18,7 +18,7 @@ package com.gs.obevo.db.unittest;
 import java.io.File;
 import java.util.Set;
 
-import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeKey;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.MainDeployerArgs;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
@@ -259,7 +259,7 @@ public class UnitTestDbBuilder {
         MainDeployerArgs args = new MainDeployerArgs();
 
         if (this.tables != null || this.views != null) {
-            MutableList<Predicate<? super Change>> predicates = Lists.mutable.empty();
+            MutableList<Predicate<? super ChangeKey>> predicates = Lists.mutable.empty();
             if (this.tables != null) {
                 predicates.add(ChangeKeyPredicateBuilder.newBuilder()
                         .setChangeTypes(ChangeType.TABLE_STR, ChangeType.FOREIGN_KEY_STR, ChangeType.TRIGGER_INCREMENTAL_OLD_STR, ChangeType.STATICDATA_STR)

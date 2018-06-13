@@ -17,8 +17,8 @@ package com.gs.obevo.db.impl.core.reader;
 
 import java.util.regex.Matcher;
 
-import com.gs.obevo.api.appdata.Change;
-import com.gs.obevo.api.appdata.ChangeIncremental;
+import com.gs.obevo.api.appdata.ChangeInput;
+import com.gs.obevo.api.appdata.ChangeKey;
 import com.gs.obevo.api.appdata.doc.TextMarkupDocumentSection;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.impl.core.util.RegexpPatterns;
@@ -47,16 +47,16 @@ public class BaselineTableChangeParser implements DbChangeFileParser {
     }
 
     @Override
-    public ImmutableList<Change> value(final ChangeType defaultChangeType, final FileObject file, String fileContent, final String objectName, final String schema, TextMarkupDocumentSection packageMetadata) {
+    public ImmutableList<ChangeInput> value(final ChangeType defaultChangeType, final FileObject file, String fileContent, final String objectName, final String schema, TextMarkupDocumentSection packageMetadata) {
         MutableList<String> sqls = MultiLineStringSplitter.createSplitterOnSpaceAndLine("GO").valueOf(fileContent);
         sqls = sqls.reject(Predicates.attributePredicate(StringFunctions.trim(), StringPredicates.empty()));
 
         MutableList<String> sortedSqls = this.sortSqls(sqls);
 
-        MutableList<Change> changes = sortedSqls.zipWithIndex().collect(
-                new Function<Pair<String, Integer>, Change>() {
+        MutableList<ChangeInput> changes = sortedSqls.zipWithIndex().collect(
+                new Function<Pair<String, Integer>, ChangeInput>() {
                     @Override
-                    public Change valueOf(Pair<String, Integer> object) {
+                    public ChangeInput valueOf(Pair<String, Integer> object) {
                         String content = object.getOne();
                         int index = object.getTwo();
 
@@ -67,9 +67,13 @@ public class BaselineTableChangeParser implements DbChangeFileParser {
                         String rollbackIfAlreadyDeployedCommand = null;
                         String rollbackContent = null;
 
-                        ChangeIncremental change = new ChangeIncremental(changeType, schema, objectName,
-                                changeName, index, contentHashStrategy.hashContent(content), content,
-                                rollbackIfAlreadyDeployedCommand, active);
+                        ChangeInput change = new ChangeInput(false);
+                        change.setChangeKey(new ChangeKey(schema, changeType, objectName, changeName));
+                        change.setOrder(index);
+                        change.setContentHash(contentHashStrategy.hashContent(content));
+                        change.setContent(content);
+                        change.setRollbackIfAlreadyDeployedContent(rollbackIfAlreadyDeployedCommand);
+                        change.setActive(active);
                         change.setRollbackContent(rollbackContent);
                         change.setFileLocation(file);
                         return change;

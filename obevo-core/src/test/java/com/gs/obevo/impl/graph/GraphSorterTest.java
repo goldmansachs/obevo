@@ -15,9 +15,10 @@
  */
 package com.gs.obevo.impl.graph;
 
-import java.util.Collections;
 import java.util.Set;
 
+import com.gs.obevo.api.appdata.ChangeKey;
+import com.gs.obevo.api.platform.ChangeType;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
@@ -27,6 +28,7 @@ import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.block.factory.Comparators;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Sets;
+import org.eclipse.collections.impl.list.fixed.ArrayAdapter;
 import org.eclipse.collections.impl.set.mutable.SetAdapter;
 import org.eclipse.collections.impl.test.Verify;
 import org.jgrapht.DirectedGraph;
@@ -103,7 +105,7 @@ public class GraphSorterTest {
         ListIterable<SortableDependency> sorted = sorter.sortChanges(graph, Comparators.fromFunctions(new Function<SortableDependency, String>() {
             @Override
             public String valueOf(SortableDependency sortableDependency) {
-                return sortableDependency.getChangeName();
+                return sortableDependency.getChangeKey().getChangeName();
             }
         }));
 
@@ -205,7 +207,7 @@ public class GraphSorterTest {
                 return SetAdapter.adapt(each).collect(new Function<SortableDependency, String>() {
                     @Override
                     public String valueOf(SortableDependency sortableDependency) {
-                        return sortableDependency.getChangeName();
+                        return sortableDependency.getChangeKey().getChangeName();
                     }
                 }).equals(cycleVertices);
             }
@@ -213,8 +215,9 @@ public class GraphSorterTest {
     }
 
     private static SortableDependency newVertex(String vertexName) {
+        ChangeType changeType = mock(ChangeType.class);
         SortableDependency vertex = mock(SortableDependency.class);
-        when(vertex.getChangeName()).thenReturn(vertexName);
+        when(vertex.getChangeKey()).thenReturn(new ChangeKey("sch1", changeType, "obj1", vertexName));
         when(vertex.toString()).thenReturn(vertexName);
         return vertex;
     }
@@ -223,8 +226,6 @@ public class GraphSorterTest {
      * We shuffle the list to test out the fact that we can guarantee a particular order of traversal.
      */
     private static <T> MutableList<T> shuffledList(T... inputs) {
-        MutableList<T> list = Lists.mutable.with(inputs);
-        Collections.shuffle(list);
-        return list;
+        return ArrayAdapter.adapt(inputs).shuffleThis();
     }
 }

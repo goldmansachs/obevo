@@ -18,7 +18,8 @@ package com.gs.obevo.impl.context;
 import java.io.File;
 import java.util.Collection;
 
-import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeInput;
+import com.gs.obevo.api.appdata.ChangeKey;
 import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeTypeSemantic;
@@ -54,12 +55,11 @@ import com.gs.obevo.impl.graph.GraphEnricherImpl;
 import com.gs.obevo.impl.reader.CachedDbChangeReader;
 import com.gs.obevo.impl.reader.DbChangeFileParser;
 import com.gs.obevo.impl.reader.DbDirectoryChangesetReader;
-import com.gs.obevo.impl.reader.TableChangeParser.GetChangeType;
+import com.gs.obevo.impl.reader.GetChangeType;
 import com.gs.obevo.impl.reader.TextMarkupDocumentReader;
 import com.gs.obevo.impl.text.TextDependencyExtractor;
 import com.gs.obevo.impl.text.TextDependencyExtractorImpl;
 import com.gs.obevo.util.inputreader.Credential;
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.function.Function0;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
@@ -158,12 +158,12 @@ public abstract class AbstractDeployerAppContext<E extends Environment, Self ext
     }
 
     @Override
-    public Self deploy(Collection<Change> changes) {
+    public Self deploy(Collection<ChangeInput> changes) {
         return this.deploy(changes, new MainDeployerArgs());
     }
 
     @Override
-    public Self deploy(Collection<Change> changes, MainDeployerArgs deployerArgs) {
+    public Self deploy(Collection<ChangeInput> changes, MainDeployerArgs deployerArgs) {
         getDeployer().execute(env, new InputSourceReaderStrategy(CollectionAdapter.wrapList(changes).toImmutable()), deployerArgs);
         return (Self) this;
     }
@@ -182,16 +182,7 @@ public abstract class AbstractDeployerAppContext<E extends Environment, Self ext
     }
 
     private ChangeCommandSorter changeCommandSorter() {
-        return new ChangeCommandSorterImpl(env.getPlatform(), getDefinitionFromEnvironmentFunction());
-    }
-
-    private Function<Change, String> getDefinitionFromEnvironmentFunction() {
-        return new Function<Change, String>() {
-            @Override
-            public String valueOf(Change object) {
-                return null;
-            }
-        };
+        return new ChangeCommandSorterImpl(env.getPlatform());
     }
 
     protected ChangesetCreator getChangesetCreator() {
@@ -243,6 +234,7 @@ public abstract class AbstractDeployerAppContext<E extends Environment, Self ext
                         , AbstractDeployerAppContext.this.getCredential()
                         , AbstractDeployerAppContext.this.getTextDependencyExtractor()
                         , AbstractDeployerAppContext.this.getDeployerPlugin()
+                        , AbstractDeployerAppContext.this.graphEnricher()
                 );
             }
         });
@@ -262,7 +254,7 @@ public abstract class AbstractDeployerAppContext<E extends Environment, Self ext
 
     protected abstract DeployExecutionDao getDeployExecutionDao();
 
-    protected Predicate<? super Change> getDbChangeFilter() {
+    protected Predicate<? super ChangeKey> getDbChangeFilter() {
         return Predicates.alwaysTrue();
     }
 
@@ -303,13 +295,13 @@ public abstract class AbstractDeployerAppContext<E extends Environment, Self ext
             int metadataLineReaderVersion = env.getMetadataLineReaderVersion();
             TextMarkupDocumentReader textMarkupDocumentReader = new TextMarkupDocumentReader(metadataLineReaderVersion < 3);  // legacy mode is 2 and below
 
-            FileSourceContext underlyingChangesetReader = new DbDirectoryChangesetReader(env.getPlatform().convertDbObjectName(), env, deployStatsTracker, true, textMarkupDocumentReader, baselineTableChangeParser, getChangeType);
+            FileSourceContext underlyingChangesetReader = new DbDirectoryChangesetReader(env.getPlatform().convertDbObjectName(), deployStatsTracker, true, textMarkupDocumentReader, baselineTableChangeParser, getChangeType);
 
             return new CachedDbChangeReader(underlyingChangesetReader);
         }
     }
 
-    protected ImmutableList<PrepareDbChange> getArtifactTranslators() {
+    protected ImmutableList<PrepareDbChange<? super E>> getArtifactTranslators() {
         return Lists.immutable.empty();
     }
 

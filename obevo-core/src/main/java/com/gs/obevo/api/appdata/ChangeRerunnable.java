@@ -22,11 +22,16 @@ public class ChangeRerunnable extends Change {
     }
 
     public ChangeRerunnable(ChangeType changeType, String schema, String objectName, String hash, String content) {
-        this.setChangeType(changeType);
-        this.setSchema(schema);
-        this.setObjectName(objectName);
+        this(new ChangeKey(new ObjectKey(schema, objectName, changeType), "n/a"), hash, content);
+    }
+
+    public ChangeRerunnable(ChangeType changeType, String schema, String objectName, String changeName, String hash, String content) {
+        this(new ChangeKey(new ObjectKey(schema, objectName, changeType), changeName), hash, content);
+    }
+
+    public ChangeRerunnable(ChangeKey changeKey, String hash, String content) {
+        this.setChangeKey(changeKey);
         this.setContentHash(hash);
         this.setContent(content);
-        this.setChangeName("n/a");
     }
 }

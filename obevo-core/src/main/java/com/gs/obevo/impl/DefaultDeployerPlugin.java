@@ -20,7 +20,7 @@ import com.gs.obevo.api.appdata.PhysicalSchema;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
 
-public class DefaultDeployerPlugin implements DeployerPlugin {
+public class DefaultDeployerPlugin implements DeployerPlugin<Environment<?>> {
     @Override
     public void validateSetup() {
     }

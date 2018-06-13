@@ -24,7 +24,7 @@ import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.impl.ChangeTypeBehaviorRegistry.ChangeTypeBehaviorRegistryBuilder;
 import com.gs.obevo.impl.PrepareDbChange;
 import com.gs.obevo.impl.context.AbstractDeployerAppContext;
-import com.gs.obevo.impl.reader.TableChangeParser.GetChangeType;
+import com.gs.obevo.impl.reader.TableChangeParser;
 import com.gs.obevo.mongodb.api.appdata.MongoDbEnvironment;
 import com.mongodb.MongoClient;
 import org.eclipse.collections.api.block.function.Function0;
@@ -41,7 +41,7 @@ public class MongoDbDeployerAppContext extends AbstractDeployerAppContext<MongoD
     @Override
     protected FileSourceContext getDefaultFileSourceContext() {
         ImmutableList<PrepareDbChange> translators = Lists.immutable.empty();  // need to add translator support
-        return new ReaderContext(env, deployStatsTracker(), GetChangeType.DEFAULT_IMPL, null).getDefaultFileSourceContext();
+        return new ReaderContext(env, deployStatsTracker(), TableChangeParser.DEFAULT_IMPL, null).getDefaultFileSourceContext();
     }
 
     @Override
