@@ -15,8 +15,8 @@
  */
 package com.gs.obevo.db.impl.platforms.sqltranslator;
 
-import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeInput;
 
 public interface PostParsedSqlTranslator {
-    String handleAnySqlPostTranslation(String string, Change change);
+    String handleAnySqlPostTranslation(String string, ChangeInput change);
 }

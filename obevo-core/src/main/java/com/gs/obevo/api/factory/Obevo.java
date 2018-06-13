@@ -30,6 +30,14 @@ public final class Obevo {
     private Obevo() {
     }
 
+    public static DeployerAppContext readEnvironmentAndBuildContext(String sourcePath, String... envNames) {
+        return buildContext(readEnvironment(sourcePath, envNames), null);
+    }
+
+    public static DeployerAppContext readEnvironmentAndBuildContext(String sourcePath, Credential credential, String... envNames) {
+        return buildContext(readEnvironment(sourcePath, envNames), credential);
+    }
+
     public static DeployerAppContext buildContext(Environment env, String username, String password) {
         return buildContext(env, new Credential(username, password));
     }

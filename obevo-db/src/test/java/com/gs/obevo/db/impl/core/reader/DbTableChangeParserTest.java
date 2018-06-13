@@ -18,12 +18,12 @@ package com.gs.obevo.db.impl.core.reader;
 import com.gs.obevo.api.appdata.ArtifactEnvironmentRestrictions;
 import com.gs.obevo.api.appdata.ArtifactPlatformRestrictions;
 import com.gs.obevo.api.appdata.ArtifactRestrictions;
-import com.gs.obevo.api.appdata.Change;
-import com.gs.obevo.api.appdata.ChangeIncremental;
+import com.gs.obevo.api.appdata.ChangeInput;
+import com.gs.obevo.api.appdata.ChangeKey;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.impl.core.DbDeployerAppContextImpl.DbGetChangeType;
+import com.gs.obevo.impl.reader.GetChangeType;
 import com.gs.obevo.impl.reader.TableChangeParser;
-import com.gs.obevo.impl.reader.TableChangeParser.GetChangeType;
 import com.gs.obevo.util.hash.DbChangeHashStrategy;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
@@ -32,8 +32,10 @@ import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.junit.Test;
 
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.equalToIgnoringWhiteSpace;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class DbTableChangeParserTest {
@@ -94,53 +96,46 @@ public class DbTableChangeParserTest {
                 "myotherrollbackcommand\n" +
                 "\n";
 
-        ImmutableList<Change> changes = parser.value(
+        ImmutableList<ChangeInput> changes = parser.value(
                 tableChangeType, null, fileContent, objectName, "schema", null);
 
-        ImmutableList<ChangeIncremental> expected = Lists.immutable.
+        ImmutableList<ChangeInput> expected = Lists.immutable.
                 with(
-                        new ChangeIncremental(tableChangeType, "schema", "MyObj", "chng1", 0, "create",
+                        create(tableChangeType, "schema", "MyObj", "chng1", 0, "create",
                                 "\nCREATE TABLE;")
                         ,
-                        new ChangeIncremental(fkChangeType, "schema", "MyObj", "chng2", 1, "add fk",
+                        create(fkChangeType, "schema", "MyObj", "chng2", 1, "add fk",
                                 "ADD FK1\r\n  only pick up this part if at start of line // // CHANGE whatever (disabling this check)")
-                        , new ChangeIncremental(fkChangeType, "schema", "MyObj", "chng3", 2,
+                        , create(fkChangeType, "schema", "MyObj", "chng3", 2,
                                 "\r\n\r\nad", "\r\n\r\nADD FK2")
-                        , new ChangeIncremental(tableChangeType, "schema", "MyObj", "blank1NoLine", 3, "", "")
-                        , new ChangeIncremental(tableChangeType, "schema", "MyObj", "blank2WithLine", 4,
+                        , create(tableChangeType, "schema", "MyObj", "blank1NoLine", 3, "", "")
+                        , create(tableChangeType, "schema", "MyObj", "blank2WithLine", 4,
                                 "\r\n", "\r\n")
-                        , new ChangeIncremental(triggerChangeType, "schema", "MyObj", "trigger1", 5, "create",
+                        , create(triggerChangeType, "schema", "MyObj", "trigger1", 5, "create",
                                 "CREATE TRIGGER ABC123")
-                        , new ChangeIncremental(tableChangeType, "schema", "MyObj", "chng4", 6, "  alte",
+                        , create(tableChangeType, "schema", "MyObj", "chng4", 6, "  alte",
                                 "  ALTER TABLE position ADD quantity DOUBLE")
-                        , new ChangeIncremental(tableChangeType, "schema", "MyObj", "chng5Rollback", 7,
-                                "mychan", "mychange", "myrollbackcommand", true)
-                                .withRestrictions(
-                                        Lists.immutable.of(
-                                                new ArtifactEnvironmentRestrictions(UnifiedSet.newSetWith("abc*"), UnifiedSet.<String>newSet()),
-                                                new ArtifactPlatformRestrictions(UnifiedSet.<String>newSet(), UnifiedSet.newSetWith("HSQL"))
-                                        )
-                                )
-                        , new ChangeIncremental(tableChangeType, "schema", "MyObj", "chng5Rollback", 8,
-                                "mychan", "mychange", "myrollbackcommand", true)
-                                .withRestrictions(
-                                        Lists.immutable.of(
-                                                new ArtifactEnvironmentRestrictions(UnifiedSet.<String>newSet(), UnifiedSet.newSetWith("abc*")),
-                                                new ArtifactPlatformRestrictions(UnifiedSet.newSetWith("DB2", "SYBASE_ASE", "HSQL"), UnifiedSet.<String>newSet())
-                                        )
-                                )
-                        , new ChangeIncremental(tableChangeType, "schema", "MyObj", "chng6Inactive", 9,
+                        , create3(tableChangeType, "schema", "MyObj", "chng5Rollback", 7,
+                                "mychan", "mychange", "myrollbackcommand", true, Lists.immutable.of(
+                                        new ArtifactEnvironmentRestrictions(UnifiedSet.newSetWith("abc*"), UnifiedSet.<String>newSet()),
+                                        new ArtifactPlatformRestrictions(UnifiedSet.<String>newSet(), UnifiedSet.newSetWith("HSQL"))
+                                ))
+                        , create3(tableChangeType, "schema", "MyObj", "chng5Rollback", 8,
+                                "mychan", "mychange", "myrollbackcommand", true, Lists.immutable.of(
+                                        new ArtifactEnvironmentRestrictions(UnifiedSet.<String>newSet(), UnifiedSet.newSetWith("abc*")),
+                                        new ArtifactPlatformRestrictions(UnifiedSet.newSetWith("DB2", "SYBASE_ASE", "HSQL"), UnifiedSet.<String>newSet())
+                                ))
+                        , create2(tableChangeType, "schema", "MyObj", "chng6Inactive", 9,
                                 " myina", "myinactive change", null, false)
-                        , new ChangeIncremental(tableChangeType, "schema", "MyObj",
+                        , create2(tableChangeType, "schema", "MyObj",
                                 "chng7InactiveWithRollback", 10, "inroll", "inroll change", "myotherrollbackcommand",
                                 false)
                 );
 
         assertEquals(expected.size(), changes.size());
         for (int i = 0; i < expected.size(); i++) {
-            assertTrue("Mismatch on row " + i + "; expected [" + expected.get(i) + "] but was [" + changes.get(i)
-                    + "]", expected.get(i).equalsOnContent(changes.get(i)));
-            assertEquals(expected.get(i).getChangeName(), changes.get(i).getChangeName());
+            assertThat("Mismatch on row " + i + " on changeKey", changes.get(i).getChangeKey(), equalTo(expected.get(i).getChangeKey()));
+            assertThat("Mismatch on row " + i + " on content", changes.get(i).getContent(), equalToIgnoringWhiteSpace(expected.get(i).getContent()));
             ImmutableList<ArtifactRestrictions> restrictions = expected.get(i).getRestrictions() == null ?
                     Lists.immutable.of(
                             new ArtifactEnvironmentRestrictions(UnifiedSet.newSetWith("q1"), UnifiedSet.<String>newSet()),
@@ -154,7 +149,40 @@ public class DbTableChangeParserTest {
         }
     }
 
-    private void assertRestrictions(Class<? extends ArtifactRestrictions> type, ImmutableList<ArtifactRestrictions> expected, Change actual) {
+    private ChangeInput create(ChangeType changeType, String schema, String objectName, String changeName,
+            int orderWithinObject, String hash, String content) {
+        ChangeInput changeInput = new ChangeInput(false);
+        changeInput.setChangeKey(new ChangeKey(schema, changeType, objectName, changeName));
+        changeInput.setOrderWithinObject(orderWithinObject);
+        changeInput.setContentHash(hash);
+        changeInput.setContent(content);
+        return changeInput;
+    }
+    private ChangeInput create2(ChangeType changeType, String schema, String objectName, String changeName,
+            int orderWithinObject, String hash, String content, String rollbackIfAlreadyDeployedContent, boolean active) {
+        ChangeInput changeInput = new ChangeInput(false);
+        changeInput.setChangeKey(new ChangeKey(schema, changeType, objectName, changeName));
+        changeInput.setOrderWithinObject(orderWithinObject);
+        changeInput.setContentHash(hash);
+        changeInput.setContent(content);
+        changeInput.setRollbackIfAlreadyDeployedContent(rollbackIfAlreadyDeployedContent);
+        changeInput.setActive(active);
+        return changeInput;
+    }
+    private ChangeInput create3(ChangeType changeType, String schema, String objectName, String changeName,
+            int orderWithinObject, String hash, String content, String rollbackIfAlreadyDeployedContent, boolean active, ImmutableList<ArtifactRestrictions> restrictions) {
+        ChangeInput changeInput = new ChangeInput(false);
+        changeInput.setChangeKey(new ChangeKey(schema, changeType, objectName, changeName));
+        changeInput.setOrderWithinObject(orderWithinObject);
+        changeInput.setContentHash(hash);
+        changeInput.setContent(content);
+        changeInput.setRollbackIfAlreadyDeployedContent(rollbackIfAlreadyDeployedContent);
+        changeInput.setActive(active);
+        changeInput.setRestrictions(restrictions);
+        return changeInput;
+    }
+
+    private void assertRestrictions(Class<? extends ArtifactRestrictions> type, ImmutableList<ArtifactRestrictions> expected, ChangeInput actual) {
         assertEquals(getRestrictionsByType(type, expected).getIncludes(), getRestrictionsByType(type, actual.getRestrictions()).getIncludes());
         assertEquals(getRestrictionsByType(type, expected).getExcludes(), getRestrictionsByType(type, actual.getRestrictions()).getExcludes());
     }

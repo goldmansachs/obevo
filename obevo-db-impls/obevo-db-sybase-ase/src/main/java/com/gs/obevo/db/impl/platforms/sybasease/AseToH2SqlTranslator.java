@@ -18,7 +18,7 @@ package com.gs.obevo.db.impl.platforms.sybasease;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeInput;
 import com.gs.obevo.db.impl.platforms.sqltranslator.PostColumnSqlTranslator;
 import com.gs.obevo.db.impl.platforms.sqltranslator.PostParsedSqlTranslator;
 import com.gs.obevo.db.sqlparser.syntaxparser.CreateTable;
@@ -35,7 +35,7 @@ public class AseToH2SqlTranslator implements PostColumnSqlTranslator, PostParsed
     }
 
     @Override
-    public String handleAnySqlPostTranslation(String string, Change change) {
+    public String handleAnySqlPostTranslation(String string, ChangeInput change) {
         /*
          To make "ALTER TABLE some_Table ALTER COLUMN abcCol NOT NULL"  into
                  "ALTER TABLE some_Table ALTER COLUMN abcCol SET NOT NULL"

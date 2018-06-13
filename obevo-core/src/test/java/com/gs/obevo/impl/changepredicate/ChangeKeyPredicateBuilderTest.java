@@ -15,7 +15,7 @@
  */
 package com.gs.obevo.impl.changepredicate;
 
-import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeKey;
 import com.gs.obevo.api.platform.ChangeType;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.MutableList;
@@ -28,20 +28,20 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ChangeKeyPredicateBuilderTest {
-    private final MutableList<Change> allChanges = Lists.mutable.empty();
-    private final Change tableSch1ObjAChng1 = change("sch1", "table", "objA", "chng1");
-    private final Change tableSch1ObjAChng2 = change("sch1", "table", "objA", "chng2");
-    private final Change tableSch1ObjAChng3 = change("sch1", "table", "objA", "chng3");
-    private final Change tableSch1ObjBChng1 = change("sch1", "table", "objB", "CCCChange1");
-    private final Change tableSch1ObjCChng1 = change("sch1", "table", "mytableC", "chng1");
-    private final Change viewSch1ObjD = change("sch1", "view", "objD", "");
-    private final Change viewSch1ObjE = change("sch1", "view", "viewE", "");
-    private final Change tableSch2ObjAChng1 = change("sch2", "table", "objA", "CCCChange1");
-    private final Change viewSch2ObjF = change("sch2", "view", "objF", "");
+    private final MutableList<ChangeKey> allChanges = Lists.mutable.empty();
+    private final ChangeKey tableSch1ObjAChng1 = change("sch1", "table", "objA", "chng1");
+    private final ChangeKey tableSch1ObjAChng2 = change("sch1", "table", "objA", "chng2");
+    private final ChangeKey tableSch1ObjAChng3 = change("sch1", "table", "objA", "chng3");
+    private final ChangeKey tableSch1ObjBChng1 = change("sch1", "table", "objB", "CCCChange1");
+    private final ChangeKey tableSch1ObjCChng1 = change("sch1", "table", "mytableC", "chng1");
+    private final ChangeKey viewSch1ObjD = change("sch1", "view", "objD", "");
+    private final ChangeKey viewSch1ObjE = change("sch1", "view", "viewE", "");
+    private final ChangeKey tableSch2ObjAChng1 = change("sch2", "table", "objA", "CCCChange1");
+    private final ChangeKey viewSch2ObjF = change("sch2", "view", "objF", "");
 
     @Test
     public void testFullWildcard() {
-        Predicate<? super Change> allPredicate =
+        Predicate<ChangeKey> allPredicate =
                 ChangeKeyPredicateBuilder.parseSinglePredicate("%");
 
         assertEquals(allChanges.toSet(),
@@ -50,18 +50,18 @@ public class ChangeKeyPredicateBuilderTest {
 
     @Test
     public void testSchema() {
-        Predicate<? super Change> allSchemaPredicate =
+        Predicate<ChangeKey> allSchemaPredicate =
                 ChangeKeyPredicateBuilder.parseSinglePredicate("sch%");
         assertEquals(allChanges.toSet(),
                 allChanges.select(allSchemaPredicate).toSet());
 
-        Predicate<? super Change> schema1Predicate =
+        Predicate<ChangeKey> schema1Predicate =
                 ChangeKeyPredicateBuilder.parseSinglePredicate("sch1%~%~%~%");
 
         assertEquals(Sets.mutable.with(tableSch1ObjAChng1, tableSch1ObjAChng2, tableSch1ObjAChng3, tableSch1ObjBChng1, tableSch1ObjCChng1, viewSch1ObjD, viewSch1ObjE),
                 allChanges.select(schema1Predicate).toSet());
 
-        Predicate<? super Change> schema2Predicate =
+        Predicate<ChangeKey> schema2Predicate =
                 ChangeKeyPredicateBuilder.parseSinglePredicate("%2~%~%~%");
 
         assertEquals(Sets.mutable.with(tableSch2ObjAChng1, viewSch2ObjF),
@@ -70,12 +70,12 @@ public class ChangeKeyPredicateBuilderTest {
 
     @Test
     public void testObjectType() {
-        Predicate<? super Change> tablePredicate =
+        Predicate<ChangeKey> tablePredicate =
                 ChangeKeyPredicateBuilder.parseSinglePredicate("%~table");
         assertEquals(Sets.mutable.with(tableSch1ObjAChng1, tableSch1ObjAChng2, tableSch1ObjAChng3, tableSch1ObjBChng1, tableSch1ObjCChng1, tableSch2ObjAChng1),
                 allChanges.select(tablePredicate).toSet());
 
-        Predicate<? super Change> viewPredicate =
+        Predicate<ChangeKey> viewPredicate =
                 ChangeKeyPredicateBuilder.parseSinglePredicate("%~view~%~%");
         assertEquals(Sets.mutable.with(viewSch1ObjD, viewSch1ObjE, viewSch2ObjF),
                 allChanges.select(viewPredicate).toSet());
@@ -83,12 +83,12 @@ public class ChangeKeyPredicateBuilderTest {
 
     @Test
     public void testObjName() {
-        Predicate<? super Change> allObjPredicate =
+        Predicate<ChangeKey> allObjPredicate =
                 ChangeKeyPredicateBuilder.parseSinglePredicate("%~%~obj%");
         assertEquals(Sets.mutable.with(tableSch1ObjAChng1, tableSch1ObjAChng2, tableSch1ObjAChng3, tableSch1ObjBChng1, viewSch1ObjD, tableSch2ObjAChng1, viewSch2ObjF),
                 allChanges.select(allObjPredicate).toSet());
 
-        Predicate<? super Change> objAviewEPredicate =
+        Predicate<ChangeKey> objAviewEPredicate =
                 ChangeKeyPredicateBuilder.parseSinglePredicate("%~%~objA,viewE~%");
         assertEquals(Sets.mutable.with(tableSch1ObjAChng1, tableSch1ObjAChng2, tableSch1ObjAChng3, viewSch1ObjE, tableSch2ObjAChng1),
                 allChanges.select(objAviewEPredicate).toSet());
@@ -96,7 +96,7 @@ public class ChangeKeyPredicateBuilderTest {
 
     @Test
     public void testChangeName() {
-        Predicate<? super Change> changeNamePredicate =
+        Predicate<ChangeKey> changeNamePredicate =
                 ChangeKeyPredicateBuilder.parseSinglePredicate("%~%~%~CCCC%");
         assertEquals(Sets.mutable.with(tableSch1ObjBChng1, tableSch2ObjAChng1),
                 allChanges.select(changeNamePredicate).toSet());
@@ -104,7 +104,7 @@ public class ChangeKeyPredicateBuilderTest {
 
     @Test
     public void testComboInSinglePredicate() {
-        Predicate<? super Change> comboPredicate =
+        Predicate<ChangeKey> comboPredicate =
                 ChangeKeyPredicateBuilder.parseSinglePredicate("sc%1~%~objA,mytableC~%");
         assertEquals(Sets.mutable.with(tableSch1ObjAChng1, tableSch1ObjAChng2, tableSch1ObjAChng3, tableSch1ObjCChng1),
                 allChanges.select(comboPredicate).toSet());
@@ -112,33 +112,28 @@ public class ChangeKeyPredicateBuilderTest {
 
     @Test
     public void testComboInFullPredicate() {
-        Predicate<? super Change> singleComboPredicate1 =
+        Predicate<ChangeKey> singleComboPredicate1 =
                 ChangeKeyPredicateBuilder.parseFullPredicate("sc%1~%~objA,mytableC~%");
         assertEquals(Sets.mutable.with(tableSch1ObjAChng1, tableSch1ObjAChng2, tableSch1ObjAChng3, tableSch1ObjCChng1),
                 allChanges.select(singleComboPredicate1).toSet());
 
-        Predicate<? super Change> pred2 =
+        Predicate<ChangeKey> pred2 =
                 ChangeKeyPredicateBuilder.parseFullPredicate("%~%~%~CCCC%");
         assertEquals(Sets.mutable.with(tableSch1ObjBChng1, tableSch2ObjAChng1),
                 allChanges.select(pred2).toSet());
 
-        Predicate<? super Change> fullComboPredicate =
+        Predicate<ChangeKey> fullComboPredicate =
                 ChangeKeyPredicateBuilder.parseFullPredicate("sc%1~%~objA,mytableC~%;%~%~%~CCCC%");
         assertEquals(Sets.mutable.with(tableSch1ObjAChng1, tableSch1ObjAChng2, tableSch1ObjAChng3, tableSch1ObjCChng1, tableSch1ObjBChng1, tableSch2ObjAChng1),
                 allChanges.select(fullComboPredicate).toSet());
     }
 
-    private Change change(String schema, String changeTypeName, String objectName, String changeName) {
+    private ChangeKey change(String schema, String changeTypeName, String objectName, String changeName) {
         ChangeType changeType = mock(ChangeType.class);
         when(changeType.getName()).thenReturn(changeTypeName);
 
-        Change change = mock(Change.class);
-        when(change.getSchema()).thenReturn(schema);
-        when(change.getChangeType()).thenReturn(changeType);
-        when(change.getObjectName()).thenReturn(objectName);
-        when(change.getChangeName()).thenReturn(changeName);
-
-        allChanges.add(change);
-        return change;
+        ChangeKey changeKey = new ChangeKey(schema, changeType, objectName, changeName);
+        allChanges.add(changeKey);
+        return changeKey;
     }
 }

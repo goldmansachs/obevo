@@ -16,7 +16,7 @@
 package com.gs.obevo.api.platform;
 
 import com.gs.obevo.api.ChangesetNamePredicate;
-import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeKey;
 import com.gs.obevo.api.appdata.DeployExecutionAttribute;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.set.ImmutableSet;
@@ -25,7 +25,7 @@ import org.eclipse.collections.impl.factory.Sets;
 
 public class MainDeployerArgs {
     public static final boolean DEFAULT_NOPROMPT_VALUE_FOR_API = true;
-    private Predicate<? super Change> changeInclusionPredicate = Predicates.alwaysTrue();
+    private Predicate<? super ChangeKey> changeInclusionPredicate = Predicates.alwaysTrue();
     private Predicate<? super ChangeCommand> changesetPredicate;
     private boolean rollback = false;
     private boolean preview = false;
@@ -38,11 +38,11 @@ public class MainDeployerArgs {
     private ImmutableSet<? extends DeployExecutionAttribute> deployExecutionAttributes = Sets.immutable.empty();
     private String deployRequesterId;
 
-    public Predicate<? super Change> getChangeInclusionPredicate() {
+    public Predicate<? super ChangeKey> getChangeInclusionPredicate() {
         return changeInclusionPredicate;
     }
 
-    public void setChangeInclusionPredicate(Predicate<? super Change> changeInclusionPredicate) {
+    public void setChangeInclusionPredicate(Predicate<? super ChangeKey> changeInclusionPredicate) {
         this.changeInclusionPredicate = changeInclusionPredicate;
     }
 
@@ -86,7 +86,7 @@ public class MainDeployerArgs {
         this.noPrompt = noPrompt;
     }
 
-    public MainDeployerArgs changeInclusionPredicate(final Predicate<? super Change> changeInclusionPredicate) {
+    public MainDeployerArgs changeInclusionPredicate(final Predicate<? super ChangeKey> changeInclusionPredicate) {
         this.changeInclusionPredicate = changeInclusionPredicate;
         return this;
     }

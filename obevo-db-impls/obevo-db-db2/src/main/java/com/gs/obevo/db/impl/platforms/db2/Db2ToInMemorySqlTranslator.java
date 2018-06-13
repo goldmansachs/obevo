@@ -18,7 +18,7 @@ package com.gs.obevo.db.impl.platforms.db2;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeInput;
 import com.gs.obevo.db.impl.platforms.sqltranslator.PostColumnSqlTranslator;
 import com.gs.obevo.db.impl.platforms.sqltranslator.PostParsedSqlTranslator;
 import com.gs.obevo.db.impl.platforms.sqltranslator.UnparsedSqlTranslator;
@@ -69,12 +69,12 @@ public class Db2ToInMemorySqlTranslator implements PostColumnSqlTranslator, Post
     }
 
     @Override
-    public String handleAnySqlPostTranslation(String string, Change change) {
+    public String handleAnySqlPostTranslation(String string, ChangeInput change) {
         return string.replaceAll("(?i)current\\s+timestamp", "current_timestamp");
     }
 
     @Override
-    public String handleRawFullSql(String string, Change change) {
+    public String handleRawFullSql(String string, ChangeInput change) {
         // filter out specific db2 system calls like reorg
         return string.replaceAll("(?i)CALL\\s+SYSPROC.*", "");
     }

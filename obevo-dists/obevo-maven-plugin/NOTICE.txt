@@ -52,6 +52,7 @@ This product depends on (links to) the following software:
   obevo-mongodb under The Apache License, Version 2.0
   opencsv under Apache 2
   org.jetbrains.kotlin:kotlin-stdlib under The Apache License, Version 2.0
+  org.jetbrains.kotlin:kotlin-stdlib-common under The Apache License, Version 2.0
   PostgreSQL JDBC Driver - JDBC 4.1 under The PostgreSQL License
   SchemaCrawler under Eclipse Public License - v 1.0
   SchemaCrawler for HyperSQL under Eclipse Public License - v 1.0

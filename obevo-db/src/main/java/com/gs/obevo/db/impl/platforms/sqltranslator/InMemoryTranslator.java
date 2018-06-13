@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeInput;
 import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.impl.core.changetypes.StaticDataChangeTypeBehavior;
@@ -74,8 +74,8 @@ public class InMemoryTranslator implements PrepareDbChange {
     }
 
     @Override
-    public final String prepare(String sql, final Change change, final Environment env) {
-        if (change != null && Objects.equals(change.getChangeType().getName(), ChangeType.STATICDATA_STR)
+    public final String prepare(String sql, final ChangeInput change, final Environment env) {
+        if (change != null && Objects.equals(change.getChangeKey().getChangeType().getName(), ChangeType.STATICDATA_STR)
                 && !StaticDataChangeTypeBehavior.isInsertModeStaticData(sql)) {
             return sql;
         }
@@ -93,7 +93,7 @@ public class InMemoryTranslator implements PrepareDbChange {
         return convertedSqls.makeString("\n\nGO\n\n");
     }
 
-    private String translateStatement(String sql, final Change change) {
+    private String translateStatement(String sql, final ChangeInput change) {
         sql = this.preParsedSqlTranslators.injectInto(sql, new Function2<String, PreParsedSqlTranslator, String>() {
             @Override
             public String value(String s, PreParsedSqlTranslator preParsedSqlTranslator) {
@@ -110,7 +110,7 @@ public class InMemoryTranslator implements PrepareDbChange {
         });
     }
 
-    private String renderTree(String sql, final Change change) {
+    private String renderTree(String sql, final ChangeInput change) {
         UnparseVisitor parsedValue = new SqlSyntaxParser().getParsedValue(sql);
 
         if (parsedValue == null) {

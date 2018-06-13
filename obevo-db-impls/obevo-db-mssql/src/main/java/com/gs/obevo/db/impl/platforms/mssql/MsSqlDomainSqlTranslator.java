@@ -17,7 +17,7 @@ package com.gs.obevo.db.impl.platforms.mssql;
 
 import java.util.Arrays;
 
-import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeInput;
 import com.gs.obevo.db.impl.platforms.sqltranslator.UnparsedSqlTranslator;
 import com.gs.obevo.db.sqlparser.tokenparser.SqlToken;
 import com.gs.obevo.db.sqlparser.tokenparser.SqlTokenParser;
@@ -28,7 +28,7 @@ import org.eclipse.collections.api.list.MutableList;
 
 public abstract class MsSqlDomainSqlTranslator implements UnparsedSqlTranslator {
     @Override
-    public String handleRawFullSql(String sql, Change change) {
+    public String handleRawFullSql(String sql, ChangeInput change) {
         sql = CommentRemover.removeComments(sql, "sybase sp_addtype conversion").trim();
         if (sql.startsWith("sp_addtype")) {
             // all the params are in string literals, e.g. 'param'. Let's extract it out

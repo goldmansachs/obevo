@@ -15,7 +15,7 @@
  */
 package com.gs.obevo.impl.reader;
 
-import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeInput;
 import com.gs.obevo.api.appdata.CodeDependency;
 import com.gs.obevo.api.appdata.CodeDependencyType;
 import com.gs.obevo.api.platform.ChangeType;
@@ -45,9 +45,9 @@ public class RerunnableChangeParserTest {
                 "mycontent" +
                 "";
 
-        ImmutableList<Change> changes = parser.value(mock(ChangeType.class), null, fileContent, objectName, "schema", null);
+        ImmutableList<ChangeInput> changes = parser.value(mock(ChangeType.class), null, fileContent, objectName, "schema", null);
         Verify.assertSize(1, changes);
-        Change change = changes.get(0);
+        ChangeInput change = changes.get(0);
 
         assertEquals(objectName, change.getObjectName());
         assertEquals("\nmycontent", change.getContent());
@@ -65,9 +65,9 @@ public class RerunnableChangeParserTest {
                 "mydrop" +
                 "";
 
-        ImmutableList<Change> changes = parser.value(mock(ChangeType.class), null, fileContent, objectName, "schema", null);
+        ImmutableList<ChangeInput> changes = parser.value(mock(ChangeType.class), null, fileContent, objectName, "schema", null);
         Verify.assertSize(1, changes);
-        Change change = changes.get(0);
+        ChangeInput change = changes.get(0);
 
         assertEquals(objectName, change.getObjectName());
         assertEquals("mycontent\nline2", change.getContent());
@@ -87,16 +87,16 @@ public class RerunnableChangeParserTest {
         ChangeType mainChangeType = mock(ChangeType.class);
         ChangeType bodyChangeType = mock(ChangeType.class);
         when(mainChangeType.getBodyChangeType()).thenReturn(bodyChangeType);
-        ImmutableList<Change> changes = parser.value(mainChangeType, null, fileContent, objectName, "schema", null);
+        ImmutableList<ChangeInput> changes = parser.value(mainChangeType, null, fileContent, objectName, "schema", null);
         Verify.assertSize(2, changes);
 
-        Change c1 = changes.get(0);
+        ChangeInput c1 = changes.get(0);
         assertEquals(objectName, c1.getObjectName());
         assertEquals("main", c1.getContent());
 
-        Change c2 = changes.get(1);
+        ChangeInput c2 = changes.get(1);
         assertEquals(objectName, c2.getObjectName());
-        assertEquals("body", c2.getChangeName());
+        assertEquals("body", c2.getChangeKey().getChangeName());
         assertEquals("body content", c2.getContent());
     }
 

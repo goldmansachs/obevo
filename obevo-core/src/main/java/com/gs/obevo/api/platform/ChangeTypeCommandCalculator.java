@@ -26,5 +26,5 @@ import org.eclipse.collections.api.list.ImmutableList;
  * interface is used to drill and determine how those changes should be trated.
  */
 public interface ChangeTypeCommandCalculator {
-    ImmutableList<ChangeCommand> calculateCommands(ChangeType changeType, RichIterable<ChangePair> changePairs, RichIterable<Change> sources, boolean rollback, boolean initAllowedOnHashExceptions);
+    ImmutableList<ChangeCommand> calculateCommands(ChangeType changeType, RichIterable<ChangePair> changePairs, RichIterable<Change> sources, boolean initAllowedOnHashExceptions);
 }

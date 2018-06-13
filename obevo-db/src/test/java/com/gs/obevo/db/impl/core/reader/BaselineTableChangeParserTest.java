@@ -15,7 +15,7 @@
  */
 package com.gs.obevo.db.impl.core.reader;
 
-import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeInput;
 import com.gs.obevo.api.platform.ChangeType;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.junit.Test;
@@ -33,7 +33,7 @@ public class BaselineTableChangeParserTest {
         ChangeType triggerChangeType = mock(ChangeType.class);
         BaselineTableChangeParser parser = new BaselineTableChangeParser(fkChangeType, triggerChangeType);
 
-        ImmutableList<Change> changes = parser.value(
+        ImmutableList<ChangeInput> changes = parser.value(
                 tableChangeType, null, "CREATE TABLE TABLE_A (\n" +
                         "\tA_ID    INT\tNOT NULL,\n" +
                         "\tCOL2 INT NULL,\n" +

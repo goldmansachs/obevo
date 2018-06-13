@@ -21,6 +21,7 @@ import java.util.Map;
 
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.ChangeIncremental;
+import com.gs.obevo.api.appdata.ChangeKey;
 import com.gs.obevo.api.appdata.ChangeRerunnable;
 import com.gs.obevo.api.appdata.DeployExecution;
 import com.gs.obevo.api.appdata.DeployExecutionAttribute;
@@ -334,21 +335,20 @@ public class SameSchemaChangeAuditDao implements ChangeAuditDao {
                                     throw new IllegalArgumentException("This type does not exist " + artfType);
                                 }
 
-                                artf.setChangeName((String) resultSet.get(convertDbObjectName.valueOf(resolveColumnName(changeNameColumn))));
-                                // these are repeated semi-often; hence the intern
-                                artf.setObjectName(InternMap.instance().intern((String) resultSet.get(
-                                        convertDbObjectName.valueOf(resolveColumnName("OBJECTNAME")))));
+                                String changeType = (String) resultSet.get(convertDbObjectName.valueOf(resolveColumnName("CHANGETYPE")));
+                                changeType = changeType.equals(OLD_STATICDATA_CHANGETYPE) ? ChangeType.STATICDATA_STR : changeType;
+                                artf.setChangeKey(new ChangeKey(
+                                        InternMap.instance().intern((String) resultSet.get(convertDbObjectName.valueOf(resolveColumnName("DBSCHEMA")))),
+                                        env.getPlatform().getChangeType(changeType),
+                                        InternMap.instance().intern((String) resultSet.get(convertDbObjectName.valueOf(resolveColumnName("OBJECTNAME")))),
+                                        (String) resultSet.get(convertDbObjectName.valueOf(resolveColumnName(changeNameColumn)))
+                                ));
 
                                 artf.setActive(env.getPlatform().getIntegerValue(resultSet.get(convertDbObjectName.valueOf(resolveColumnName("ACTIVE")))) == 1);
                                 // change METADATA to STATICDATA for backward compatability
-                                String changeType = (String) resultSet.get(convertDbObjectName.valueOf(resolveColumnName("CHANGETYPE")));
-                                changeType = changeType.equals(OLD_STATICDATA_CHANGETYPE) ? ChangeType.STATICDATA_STR : changeType;
-                                artf.setChangeType(env.getPlatform().getChangeType(changeType));
 
                                 artf.setContentHash((String) resultSet.get(convertDbObjectName.valueOf(resolveColumnName("CONTENTHASH"))));
                                 // these are repeated often
-                                artf.setSchema(InternMap.instance().intern((String) resultSet.get(
-                                        convertDbObjectName.valueOf(resolveColumnName("DBSCHEMA")))));
 
                                 artf.setTimeInserted(env.getPlatform().getTimestampValue(resultSet.get(convertDbObjectName.valueOf(resolveColumnName(timeInsertedColumn)))));
                                 artf.setTimeUpdated(env.getPlatform().getTimestampValue(resultSet.get(convertDbObjectName.valueOf(resolveColumnName(timeUpdatedColumn)))));

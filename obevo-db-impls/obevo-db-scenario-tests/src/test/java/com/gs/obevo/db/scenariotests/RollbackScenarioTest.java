@@ -15,8 +15,8 @@
  */
 package com.gs.obevo.db.scenariotests;
 
+import com.gs.obevo.api.factory.Obevo;
 import com.gs.obevo.api.platform.MainDeployerArgs;
-import com.gs.obevo.db.api.factory.DbEnvironmentFactory;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +27,7 @@ public class RollbackScenarioTest {
     @Test
     public void testRollbackScenario() {
         LOG.info("Step 1: Setting up the initial deployment version");
-        DbEnvironmentFactory.getInstance().readOneFromSourcePath("scenariotests/rollback-scenario/step1", "test")
-                .buildAppContext()
+        Obevo.readEnvironmentAndBuildContext("scenariotests/rollback-scenario/step1", "test")
                 .setupEnvInfra().cleanEnvironment()
                 .deploy();
 
@@ -43,11 +42,9 @@ public class RollbackScenarioTest {
                 "VIEW2 has a change\n" +
                 "VIEW3 is dropped\n" +
                 "VIEW4 is added\n");
-        DbEnvironmentFactory.getInstance().readOneFromSourcePath("scenariotests/rollback-scenario/step2a", "test")
-                .buildAppContext()
+        Obevo.readEnvironmentAndBuildContext("scenariotests/rollback-scenario/step2a", "test")
                 .deploy();
-        DbEnvironmentFactory.getInstance().readOneFromSourcePath("scenariotests/rollback-scenario/step2b", "test")
-                .buildAppContext()
+        Obevo.readEnvironmentAndBuildContext("scenariotests/rollback-scenario/step2b", "test")
                 .deploy();
 
         LOG.info("Step 3: Now executing the rolback:\n" +
@@ -58,8 +55,7 @@ public class RollbackScenarioTest {
                 "VIEW2 has a change rolled back\n" +
                 "VIEW3 is re-added\n" +
                 "VIEW4 is dropped\n");
-        DbEnvironmentFactory.getInstance().readOneFromSourcePath("scenariotests/rollback-scenario/step1", "test")
-                .buildAppContext()
+        Obevo.readEnvironmentAndBuildContext("scenariotests/rollback-scenario/step1", "test")
                 .deploy(new MainDeployerArgs().rollback(true));
 
         // TODO add some assertions

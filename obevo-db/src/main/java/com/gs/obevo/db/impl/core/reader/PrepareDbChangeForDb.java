@@ -15,7 +15,7 @@
  */
 package com.gs.obevo.db.impl.core.reader;
 
-import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeInput;
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.appdata.Schema;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
@@ -26,7 +26,7 @@ import org.eclipse.collections.impl.factory.Maps;
 
 public class PrepareDbChangeForDb implements PrepareDbChange<DbEnvironment> {
     @Override
-    public String prepare(String content, Change change, DbEnvironment env) {
+    public String prepare(String content, ChangeInput change, DbEnvironment env) {
         MutableMap<String, String> tokens = Maps.mutable.<String, String>empty()
                 .withKeyValue("dbSchemaSuffix", env.getDbSchemaSuffix())
                 .withKeyValue("dbSchemaPrefix", env.getDbSchemaPrefix());

@@ -15,29 +15,17 @@
  */
 package com.gs.obevo.impl.reader;
 
-import com.gs.obevo.api.appdata.ArtifactEnvironmentRestrictions;
-import com.gs.obevo.api.appdata.ArtifactRestrictions;
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.ChangeIncremental;
 import com.gs.obevo.api.appdata.ChangeRerunnable;
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.api.platform.FileSourceParams;
 import com.gs.obevo.util.vfs.FileObject;
-import com.gs.obevo.util.vfs.FileRetrievalMode;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileSelectInfo;
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
-import org.eclipse.collections.api.set.MutableSet;
-import org.eclipse.collections.impl.block.factory.Functions;
-import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.Lists;
-import org.eclipse.collections.impl.factory.Sets;
-import org.eclipse.collections.impl.set.mutable.UnifiedSet;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -52,6 +40,7 @@ public class DbDirectoryChangesetReaderTest {
     private final ChangeType tableChangeType = mock(ChangeType.class);
     private final ChangeType staticDataChangeType = mock(ChangeType.class);
 
+//    private final Change sp1ChangeA = new ChangeInput(viewChangeType, "schema1", "sp1", "hash", CONTENT);
     private final Change sp1Change = new ChangeRerunnable(viewChangeType, "schema1", "sp1", "hash", CONTENT);
     private final Change sp2Change = new ChangeRerunnable(viewChangeType, "schema1", "sp2", "hash", CONTENT);
     private final Change view1Change = new ChangeRerunnable(spChangeType, "schema1", "view1", "hash", CONTENT);
@@ -68,7 +57,7 @@ public class DbDirectoryChangesetReaderTest {
             "ch2", 1, "hash", CONTENT);
     //    Change deltab3Change = new ChangeIncremental(ChangeType.DROP_TABLE, "schema1", "deletedtable",
 //            "ch3", 2, "hash", CONTENT);
-    private final Change deltab3Change = new ChangeIncremental(null, "schema1", "deletedtable",
+    private final Change deltab3Change = new ChangeIncremental(tableChangeType, "schema1", "deletedtable",
             "ch3", 2, "hash", CONTENT);
     private final Change data1Change = new ChangeRerunnable(staticDataChangeType, "schema1", "table", "hash",
             CONTENT);
@@ -97,124 +86,124 @@ public class DbDirectoryChangesetReaderTest {
      * to show that this works - we should instead be verifying that changeParser is getting called
      * , not mocking its return values
      */
-    @Test
-    @Ignore("Reignoring for now")
-    public void testRead() throws Exception {
-        String excludeEnvName = "exclEnv";
-        String includeEnvName = "inclEnv";
-        this.sptestexclude.setRestrictions(
-                Lists.immutable.<ArtifactRestrictions>of(
-                        new ArtifactEnvironmentRestrictions(null, UnifiedSet.newSetWith(excludeEnvName))
-                ));
-        this.sptestinclude.setRestrictions(
-                Lists.immutable.<ArtifactRestrictions>of(
-                        new ArtifactEnvironmentRestrictions(UnifiedSet.newSetWith(includeEnvName), null)
-                ));
-
-        TableChangeParser changeParser = mock(TableChangeParser.class);
-
-        FileObject sourcePath1 = FileRetrievalMode.FILE_SYSTEM.resolveSingleFileObject("./src/test/resources/reader/DbDirectoryChangesetReader");
-        FileObject sourcePath2 = FileRetrievalMode.FILE_SYSTEM.resolveSingleFileObject("./src/test/resources/reader/DbDirectoryChangesetReader2");
-
-        MutableSet<Change> expectedSchema1Changes = UnifiedSet.newSetWith(this.sp1Change, this.sp2Change,
-                this.view1Change, this.view2Change, this.table1Change, this.table2Change, this.table3Change, this.deltab1Change, this.deltab2Change,
-                this.deltab3Change, this.data1Change, this.data2Change);
-        MutableSet<Change> expectedSchema2Changes = UnifiedSet.newSetWith(this.sch2sp3Change, this.sch2sp2Change,
-                this.sch2view1Change, this.sch2view3Change, this.sch2table1Change, this.sch2table3Change, this.sch2data1Change, this.sch2data3Change);
-
-        // test 1 - specify neither the include or exclude env; this will cause the sp w/ the include clause to get
-        // ignored
-        {
-            this.setupParser1(changeParser, sourcePath1);
-            this.setupParser2(changeParser, sourcePath2);
-            DbDirectoryChangesetReader reader = new DbDirectoryChangesetReader(Functions.getStringPassThru(), changeParser,
-                    changeParser, changeParser);
-            ImmutableList<Change> changes = reader.readChanges(FileSourceParams.newBuilder()
-                    .setFiles(Lists.mutable.with(sourcePath1, sourcePath2))
-                    .setSchemaNames(Sets.immutable.with("schema1", "schema2"))
-                    .setBaseline(false)
-                    .build()
-            );
-            assertEquals(expectedSchema1Changes.with(this.sptestexclude),
-                    changes.select(Predicates.attributeEqual(new Function<Change, Object>() {
-                        @Override
-                        public Object valueOf(Change change1) {
-                            return change1.getSchema();
-                        }
-                    }, "schema1")));
-            assertEquals(expectedSchema2Changes,
-                    changes.select(Predicates.attributeEqual(new Function<Change, Object>() {
-                        @Override
-                        public Object valueOf(Change change) {
-                            return change.getSchema();
-                        }
-                    }, "schema2")));
-        }
-
-        // test 2 - specify the include env; this will allow both artifacts w/ include and exclude in as both conditions
-        // pass
-        {
-//            Environment env = mock(Environment.class);
-            this.setupParser1(changeParser, sourcePath1);
-            this.setupParser2(changeParser, sourcePath2);
-//            when(env.getSourceDirs()).thenReturn(Lists.mutable.with(sourcePath1, sourcePath2));
-//            when(env.getName()).thenReturn(includeEnvName);
-//            when(env.getSchemaNames()).thenReturn(Sets.immutable.with("schema1", "schema2"));
-            DbDirectoryChangesetReader reader = new DbDirectoryChangesetReader(Functions.getStringPassThru(), changeParser,
-                    changeParser, changeParser);
-            ImmutableList<Change> changes = reader.readChanges(FileSourceParams.newBuilder()
-                    .setFiles(Lists.mutable.with(sourcePath1, sourcePath2))
-                    .setSchemaNames(Sets.immutable.with("schema1", "schema2"))
-                    .setBaseline(false)
-                    .build());
-            assertEquals(expectedSchema1Changes.with(this.sptestexclude).with(this.sptestinclude),
-                    changes.select(Predicates.attributeEqual(new Function<Change, Object>() {
-                        @Override
-                        public Object valueOf(Change change1) {
-                            return change1.getSchema();
-                        }
-                    }, "schema1")));
-            assertEquals(expectedSchema2Changes,
-                    changes.select(Predicates.attributeEqual(new Function<Change, Object>() {
-                        @Override
-                        public Object valueOf(Change change) {
-                            return change.getSchema();
-                        }
-                    }, "schema2")));
-        }
-
-        // test 3 - specify the exclude env; neither condition passes in this case
-//        Environment env = mock(Environment.class);
-        this.setupParser1(changeParser, sourcePath1);
-        this.setupParser2(changeParser, sourcePath2);
-//        when(env.getSourceDirs()).thenReturn(Lists.mutable.with(sourcePath1, sourcePath2));
-//        when(env.getName()).thenReturn(includeEnvName);
-//        when(env.getSchemaNames()).thenReturn(Sets.immutable.with("schema1", "schema2"));
-        DbDirectoryChangesetReader reader = new DbDirectoryChangesetReader(Functions.getStringPassThru(), changeParser,
-                changeParser, changeParser);
-        ImmutableList<Change> changes = reader.readChanges(FileSourceParams.newBuilder()
-                .setFiles(Lists.mutable.with(sourcePath1, sourcePath2))
-                .setSchemaNames(Sets.immutable.with("schema1", "schema2"))
-                .setBaseline(false)
-                .build());
-        assertEquals(expectedSchema1Changes,
-                changes.select(Predicates.attributeEqual(new Function<Change, Object>() {
-                    @Override
-                    public Object valueOf(Change change1) {
-                        return change1.getSchema();
-                    }
-                }, "schema1")));
-        assertEquals(expectedSchema2Changes,
-                changes.select(Predicates.attributeEqual(new Function<Change, Object>() {
-                    @Override
-                    public Object valueOf(Change change) {
-                        return change.getSchema();
-                    }
-                }, "schema2")));
-
-        // assertThat(changes.get("schema1"), hasItems(expectedSchema1Changes));
-        // assertThat(changes.get("schema2"), hasItems(expectedSchema2Changes));
-    }
+//    @Test
+//    @Ignore("Reignoring for now")
+//    public void testRead() throws Exception {
+//        String excludeEnvName = "exclEnv";
+//        String includeEnvName = "inclEnv";
+//        this.sptestexclude.setRestrictions(
+//                Lists.immutable.<ArtifactRestrictions>of(
+//                        new ArtifactEnvironmentRestrictions(null, UnifiedSet.newSetWith(excludeEnvName))
+//                ));
+//        this.sptestinclude.setRestrictions(
+//                Lists.immutable.<ArtifactRestrictions>of(
+//                        new ArtifactEnvironmentRestrictions(UnifiedSet.newSetWith(includeEnvName), null)
+//                ));
+//
+//        TableChangeParser changeParser = mock(TableChangeParser.class);
+//
+//        FileObject sourcePath1 = FileRetrievalMode.FILE_SYSTEM.resolveSingleFileObject("./src/test/resources/reader/DbDirectoryChangesetReader");
+//        FileObject sourcePath2 = FileRetrievalMode.FILE_SYSTEM.resolveSingleFileObject("./src/test/resources/reader/DbDirectoryChangesetReader2");
+//
+//        MutableSet<Change> expectedSchema1Changes = UnifiedSet.newSetWith(this.sp1Change, this.sp2Change,
+//                this.view1Change, this.view2Change, this.table1Change, this.table2Change, this.table3Change, this.deltab1Change, this.deltab2Change,
+//                this.deltab3Change, this.data1Change, this.data2Change);
+//        MutableSet<Change> expectedSchema2Changes = UnifiedSet.newSetWith(this.sch2sp3Change, this.sch2sp2Change,
+//                this.sch2view1Change, this.sch2view3Change, this.sch2table1Change, this.sch2table3Change, this.sch2data1Change, this.sch2data3Change);
+//
+//        // test 1 - specify neither the include or exclude env; this will cause the sp w/ the include clause to get
+//        // ignored
+//        {
+//            this.setupParser1(changeParser, sourcePath1);
+//            this.setupParser2(changeParser, sourcePath2);
+//            DbDirectoryChangesetReader reader = new DbDirectoryChangesetReader(Functions.getStringPassThru(), changeParser,
+//                    changeParser, changeParser);
+//            ImmutableList<Change> changes = reader.readChanges(FileSourceParams.newBuilder()
+//                    .setFiles(Lists.mutable.with(sourcePath1, sourcePath2))
+//                    .setSchemaNames(Sets.immutable.with("schema1", "schema2"))
+//                    .setBaseline(false)
+//                    .build()
+//            );
+//            assertEquals(expectedSchema1Changes.with(this.sptestexclude),
+//                    changes.select(Predicates.attributeEqual(new Function<Change, Object>() {
+//                        @Override
+//                        public Object valueOf(Change change1) {
+//                            return change1.getSchema();
+//                        }
+//                    }, "schema1")));
+//            assertEquals(expectedSchema2Changes,
+//                    changes.select(Predicates.attributeEqual(new Function<Change, Object>() {
+//                        @Override
+//                        public Object valueOf(Change change) {
+//                            return change.getSchema();
+//                        }
+//                    }, "schema2")));
+//        }
+//
+//        // test 2 - specify the include env; this will allow both artifacts w/ include and exclude in as both conditions
+//        // pass
+//        {
+////            Environment env = mock(Environment.class);
+//            this.setupParser1(changeParser, sourcePath1);
+//            this.setupParser2(changeParser, sourcePath2);
+////            when(env.getSourceDirs()).thenReturn(Lists.mutable.with(sourcePath1, sourcePath2));
+////            when(env.getName()).thenReturn(includeEnvName);
+////            when(env.getSchemaNames()).thenReturn(Sets.immutable.with("schema1", "schema2"));
+//            DbDirectoryChangesetReader reader = new DbDirectoryChangesetReader(Functions.getStringPassThru(), changeParser,
+//                    changeParser, changeParser);
+//            ImmutableList<ChangeInput> changes = reader.readChanges(FileSourceParams.newBuilder()
+//                    .setFiles(Lists.mutable.with(sourcePath1, sourcePath2))
+//                    .setSchemaNames(Sets.immutable.with("schema1", "schema2"))
+//                    .setBaseline(false)
+//                    .build());
+//            assertEquals(expectedSchema1Changes.with(this.sptestexclude).with(this.sptestinclude),
+//                    changes.select(Predicates.attributeEqual(new Function<Change, Object>() {
+//                        @Override
+//                        public Object valueOf(Change change1) {
+//                            return change1.getSchema();
+//                        }
+//                    }, "schema1")));
+//            assertEquals(expectedSchema2Changes,
+//                    changes.select(Predicates.attributeEqual(new Function<Change, Object>() {
+//                        @Override
+//                        public Object valueOf(Change change) {
+//                            return change.getSchema();
+//                        }
+//                    }, "schema2")));
+//        }
+//
+//        // test 3 - specify the exclude env; neither condition passes in this case
+////        Environment env = mock(Environment.class);
+//        this.setupParser1(changeParser, sourcePath1);
+//        this.setupParser2(changeParser, sourcePath2);
+////        when(env.getSourceDirs()).thenReturn(Lists.mutable.with(sourcePath1, sourcePath2));
+////        when(env.getName()).thenReturn(includeEnvName);
+////        when(env.getSchemaNames()).thenReturn(Sets.immutable.with("schema1", "schema2"));
+//        DbDirectoryChangesetReader reader = new DbDirectoryChangesetReader(Functions.getStringPassThru(), changeParser,
+//                changeParser, changeParser);
+//        ImmutableList<Change> changes = reader.readChanges(FileSourceParams.newBuilder()
+//                .setFiles(Lists.mutable.with(sourcePath1, sourcePath2))
+//                .setSchemaNames(Sets.immutable.with("schema1", "schema2"))
+//                .setBaseline(false)
+//                .build());
+//        assertEquals(expectedSchema1Changes,
+//                changes.select(Predicates.attributeEqual(new Function<Change, Object>() {
+//                    @Override
+//                    public Object valueOf(Change change1) {
+//                        return change1.getSchema();
+//                    }
+//                }, "schema1")));
+//        assertEquals(expectedSchema2Changes,
+//                changes.select(Predicates.attributeEqual(new Function<Change, Object>() {
+//                    @Override
+//                    public Object valueOf(Change change) {
+//                        return change.getSchema();
+//                    }
+//                }, "schema2")));
+//
+//        // assertThat(changes.get("schema1"), hasItems(expectedSchema1Changes));
+//        // assertThat(changes.get("schema2"), hasItems(expectedSchema2Changes));
+//    }
 
     private void setupParser1(TableChangeParser changeParser, FileObject sourcePath) {
         addFileToChangeParserMock(changeParser, sourcePath.resolveFile("schema1/sp/sp1.spc"), "schema1",
@@ -259,21 +248,22 @@ public class DbDirectoryChangesetReaderTest {
     }
 
     private void addFileToChangeParserMock(TableChangeParser changeParser, FileObject fileObject, String schema, ImmutableList<Change> changes) {
-        when(changeParser.value(tableChangeType, fileObject, fileObject.getStringContent(), fileObject.getName().getBaseName(), schema, null)).thenReturn(changes);
+        // commented out 2018-08-29; this whole test class is worth a rewrite
+//        when(changeParser.value(tableChangeType, fileObject, fileObject.getStringContent(), fileObject.getName().getBaseName(), schema, null)).thenReturn(changes);
     }
 
     @Test
     public void testWildcardOperator() {
-        assertFalse(DbDirectoryChangesetReader.CHANGES_WILDCARD_FILTER.accept(getFileSelectInfo("myfile")));
-        assertFalse(DbDirectoryChangesetReader.CHANGES_WILDCARD_FILTER.accept(getFileSelectInfo("changes")));
-        assertTrue(DbDirectoryChangesetReader.CHANGES_WILDCARD_FILTER.accept(getFileSelectInfo("mytable.changes.txt")));
-        assertTrue(DbDirectoryChangesetReader.CHANGES_WILDCARD_FILTER.accept(getFileSelectInfo("MYTABLE.cHAngES.txt")));
-        assertTrue(DbDirectoryChangesetReader.CHANGES_WILDCARD_FILTER.accept(getFileSelectInfo("abc.mytable.changes.txt")));
-        assertTrue(DbDirectoryChangesetReader.CHANGES_WILDCARD_FILTER.accept(getFileSelectInfo("mytable.changes.txt.txt")));
-        assertFalse(DbDirectoryChangesetReader.CHANGES_WILDCARD_FILTER.accept(getFileSelectInfo("changes.txt")));
-        assertFalse(DbDirectoryChangesetReader.CHANGES_WILDCARD_FILTER.accept(getFileSelectInfo("mytable.changes")));
-        assertFalse(DbDirectoryChangesetReader.CHANGES_WILDCARD_FILTER.accept(getFileSelectInfo("my_changes.txt")));
-        assertFalse(DbDirectoryChangesetReader.CHANGES_WILDCARD_FILTER.accept(getFileSelectInfo("mytable.changes_my")));
+        assertFalse(DbDirectoryChangesetReader.getCHANGES_WILDCARD_FILTER().accept(getFileSelectInfo("myfile")));
+        assertFalse(DbDirectoryChangesetReader.getCHANGES_WILDCARD_FILTER().accept(getFileSelectInfo("changes")));
+        assertTrue(DbDirectoryChangesetReader.getCHANGES_WILDCARD_FILTER().accept(getFileSelectInfo("mytable.changes.txt")));
+        assertTrue(DbDirectoryChangesetReader.getCHANGES_WILDCARD_FILTER().accept(getFileSelectInfo("MYTABLE.cHAngES.txt")));
+        assertTrue(DbDirectoryChangesetReader.getCHANGES_WILDCARD_FILTER().accept(getFileSelectInfo("abc.mytable.changes.txt")));
+        assertTrue(DbDirectoryChangesetReader.getCHANGES_WILDCARD_FILTER().accept(getFileSelectInfo("mytable.changes.txt.txt")));
+        assertFalse(DbDirectoryChangesetReader.getCHANGES_WILDCARD_FILTER().accept(getFileSelectInfo("changes.txt")));
+        assertFalse(DbDirectoryChangesetReader.getCHANGES_WILDCARD_FILTER().accept(getFileSelectInfo("mytable.changes")));
+        assertFalse(DbDirectoryChangesetReader.getCHANGES_WILDCARD_FILTER().accept(getFileSelectInfo("my_changes.txt")));
+        assertFalse(DbDirectoryChangesetReader.getCHANGES_WILDCARD_FILTER().accept(getFileSelectInfo("mytable.changes_my")));
     }
 
     private FileSelectInfo getFileSelectInfo(String fileBaseName) {

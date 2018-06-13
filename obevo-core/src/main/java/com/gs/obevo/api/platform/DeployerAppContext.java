@@ -18,7 +18,7 @@ package com.gs.obevo.api.platform;
 import java.io.File;
 import java.util.Collection;
 
-import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeInput;
 import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.util.inputreader.Credential;
 
@@ -43,9 +43,9 @@ public interface DeployerAppContext<E extends Environment, Self extends Deployer
 
     Self deploy(MainDeployerArgs deployerArgs);
 
-    Self deploy(Collection<Change> changes);
+    Self deploy(Collection<ChangeInput> changes);
 
-    Self deploy(Collection<Change> changes, MainDeployerArgs deployerArgs);
+    Self deploy(Collection<ChangeInput> changes, MainDeployerArgs deployerArgs);
 
     DeployMetrics getDeployMetrics();
 

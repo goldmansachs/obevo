@@ -15,7 +15,7 @@
  */
 package com.gs.obevo.db.impl.platforms.sybaseiq;
 
-import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeInput;
 import com.gs.obevo.db.impl.platforms.sqltranslator.PostParsedSqlTranslator;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.impl.factory.Lists;
@@ -30,7 +30,7 @@ public class IqToInMemorySqlTranslator implements PostParsedSqlTranslator {
     );
 
     @Override
-    public String handleAnySqlPostTranslation(String string, Change change) {
+    public String handleAnySqlPostTranslation(String string, ChangeInput change) {
         return string.replaceAll("(?i)getdate\\(\\)", "CURRENT_DATE");
     }
 }
