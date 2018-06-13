@@ -38,6 +38,7 @@ import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.factory.Lists;
+import org.eclipse.collections.impl.list.mutable.ListAdapter;
 import org.eclipse.collections.impl.set.mutable.SetAdapter;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.ConnectivityInspector;
@@ -45,14 +46,14 @@ import org.jgrapht.graph.DefaultEdge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GroupChangeTypeCommandCalculator implements ChangeTypeCommandCalculator {
+class GroupChangeTypeCommandCalculator implements ChangeTypeCommandCalculator {
     private static final Logger LOG = LoggerFactory.getLogger(GroupChangeTypeCommandCalculator.class);
 
     private final ChangeCommandFactory changeCommandFactory;
     private final GraphEnricher enricher;
     private final GraphSorter sorter = new GraphSorter();
 
-    public GroupChangeTypeCommandCalculator(ChangeCommandFactory changeCommandFactory, GraphEnricher enricher) {
+    GroupChangeTypeCommandCalculator(ChangeCommandFactory changeCommandFactory, GraphEnricher enricher) {
         this.changeCommandFactory = changeCommandFactory;
         this.enricher = enricher;
     }
@@ -115,22 +116,19 @@ public class GroupChangeTypeCommandCalculator implements ChangeTypeCommandCalcul
     }
 
     private MutableList<ExecuteChangeCommand> handleChanges(MutableCollection<Change> fromSourceList) {
-        final MutableList<ExecuteChangeCommand> commands = Lists.mutable.empty();
+        final DirectedGraph<Change, DefaultEdge> graph = enricher.createDependencyGraph(fromSourceList, false);
 
-        DirectedGraph<Change, DefaultEdge> graph = enricher.createDependencyGraph(fromSourceList, false);
+        ConnectivityInspector<Change, DefaultEdge> connectivityInspector = new ConnectivityInspector<Change, DefaultEdge>(graph);
 
-        if (graph != null) {
-            ConnectivityInspector<Change, DefaultEdge> connectivityInspector
-                    = new ConnectivityInspector<Change, DefaultEdge>(graph);
-            for (Set<Change> connectedSet : connectivityInspector.connectedSets()) {
+        return ListAdapter.adapt(connectivityInspector.connectedSets()).collect(new Function<Set<Change>, ExecuteChangeCommand>() {
+            @Override
+            public ExecuteChangeCommand valueOf(Set<Change> connectedSet) {
                 // once we have a connectedSet, sort within those changes to ensure that we still sort them in the
                 // right order (i.e. via topological sort)
                 ImmutableList<Change> fullChanges = sorter.sortChanges(graph, SetAdapter.adapt(connectedSet), SortableDependency.GRAPH_SORTER_COMPARATOR);
-                commands.add(changeCommandFactory.createDeployCommand(new GroupChange(fullChanges)));
+                return changeCommandFactory.createDeployCommand(new GroupChange(fullChanges));
             }
-        }
-
-        return commands;
+        }, Lists.mutable.<ExecuteChangeCommand>empty());
     }
 
     private static class RerunnableObjectInfo {

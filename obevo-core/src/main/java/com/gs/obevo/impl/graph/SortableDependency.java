@@ -17,8 +17,8 @@ package com.gs.obevo.impl.graph;
 
 import java.util.Comparator;
 
+import com.gs.obevo.api.appdata.ChangeKey;
 import com.gs.obevo.api.appdata.CodeDependency;
-import com.gs.obevo.api.appdata.ObjectKey;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.block.factory.Comparators;
@@ -33,12 +33,7 @@ public interface SortableDependency {
      */
     ImmutableSet<CodeDependency> getCodeDependencies();
 
-    ObjectKey getObjectKey();
-
-    /**
-     * Returns the change name for usage in the enricher index.
-     */
-    String getChangeName();
+    ChangeKey getChangeKey();
 
     /**
      * Returns the object order name for usage in the enricher index.
@@ -53,19 +48,19 @@ public interface SortableDependency {
             Comparators.fromFunctions(new Function<SortableDependency, Integer>() {
                 @Override
                 public Integer valueOf(SortableDependency sortableDependency) {
-                    return sortableDependency.getObjectKey().getChangeType().getDeployOrderPriority();
+                    return sortableDependency.getChangeKey().getObjectKey().getChangeType().getDeployOrderPriority();
                 }
             }),
             Comparators.fromFunctions(new Function<SortableDependency, String>() {
                 @Override
                 public String valueOf(SortableDependency sortableDependency) {
-                    return sortableDependency.getObjectKey().getSchema();
+                    return sortableDependency.getChangeKey().getObjectKey().getSchema();
                 }
             }),
             Comparators.fromFunctions(new Function<SortableDependency, String>() {
                 @Override
                 public String valueOf(SortableDependency sortableDependency) {
-                    return sortableDependency.getObjectKey().getObjectName();
+                    return sortableDependency.getChangeKey().getObjectKey().getObjectName();
                 }
             }),
             Comparators.fromFunctions(new Function<SortableDependency, Integer>() {

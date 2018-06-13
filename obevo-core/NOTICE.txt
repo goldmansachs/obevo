@@ -25,6 +25,7 @@ This product depends on (links to) the following software:
   JGraphT - Core under Eclipse Public License (EPL) 1.0
   juniversalchardet under Mozilla Public License 1.1 (MPL 1.1)
   org.jetbrains.kotlin:kotlin-stdlib under The Apache License, Version 2.0
+  org.jetbrains.kotlin:kotlin-stdlib-common under The Apache License, Version 2.0
   SLF4J API Module under MIT License
   SnakeYAML under Apache License, Version 2.0
 

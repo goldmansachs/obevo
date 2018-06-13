@@ -28,6 +28,7 @@ This product depends on (links to) the following software:
   MongoDB Java Driver under The Apache Software License, Version 2.0
   obevo-core under The Apache License, Version 2.0
   org.jetbrains.kotlin:kotlin-stdlib under The Apache License, Version 2.0
+  org.jetbrains.kotlin:kotlin-stdlib-common under The Apache License, Version 2.0
   SLF4J API Module under MIT License
   SnakeYAML under Apache License, Version 2.0
 

@@ -15,24 +15,22 @@
  */
 package com.gs.obevo.impl
 
-import com.gs.obevo.api.appdata.Change
+import com.gs.obevo.api.appdata.ChangeInput
 import com.gs.obevo.api.platform.DaConstants
 import com.gs.obevo.util.vfs.BasicFileSelector
 import com.gs.obevo.util.vfs.FileObject
-import org.apache.commons.vfs2.FileFilter
 import org.eclipse.collections.api.set.ImmutableSet
-import org.eclipse.collections.impl.list.fixed.ArrayAdapter
 
 /**
  * The strategy for when onboarding is disabled (i.e. the regular prod deployment mode). The main check here is to
  * ensure that teams did not leave leftover folders from onboarding and reverse-engineering here.
  */
 internal class DisabledOnboardingStrategy : OnboardingStrategy {
-    override fun handleSuccess(change: Change) {
+    override fun handleSuccess(change: ChangeInput) {
         // no need to do anything extra upon actual deployment time
     }
 
-    override fun handleException(change: Change, exc: Exception) {
+    override fun handleException(change: ChangeInput, exc: Exception) {
         // no need to do anything extra upon actual deployment time
     }
 

@@ -35,6 +35,7 @@ This product depends on (links to) the following software:
   obevo-internal-comparer under The Apache License, Version 2.0
   opencsv under Apache 2
   org.jetbrains.kotlin:kotlin-stdlib under The Apache License, Version 2.0
+  org.jetbrains.kotlin:kotlin-stdlib-common under The Apache License, Version 2.0
   SLF4J API Module under MIT License
   SnakeYAML under Apache License, Version 2.0
 

@@ -18,7 +18,7 @@ package com.gs.obevo.db.impl.platforms.mssql;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeInput;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.impl.platforms.sqltranslator.PostColumnSqlTranslator;
 import com.gs.obevo.db.impl.platforms.sqltranslator.PostParsedSqlTranslator;
@@ -30,10 +30,10 @@ public class MsSqlToHsqlSqlTranslator implements PostColumnSqlTranslator, PostPa
     private final Pattern varbinaryDefaultPattern = Pattern.compile("(?i)varbinary\\s*([^\\(])");
 
     @Override
-    public String handleAnySqlPostTranslation(String string, Change change) {
+    public String handleAnySqlPostTranslation(String string, ChangeInput change) {
         if (change != null && change.getMetadataSection() != null
                 && change.getMetadataSection().isTogglePresent(TextMarkupDocumentReader.TOGGLE_DISABLE_QUOTED_IDENTIFIERS)) {
-            if (!change.getChangeType().getName().equals(ChangeType.VIEW_STR)) {
+            if (!change.getChangeKey().getChangeType().getName().equals(ChangeType.VIEW_STR)) {
                 // only needed for HSQL seemingly for views only, seemingly not for H2
                 string = string.replace('"', '\'');
             }

@@ -22,43 +22,31 @@ import com.gs.obevo.api.appdata.doc.TextMarkupDocumentSection;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.impl.graph.SortableDependency;
 import com.gs.obevo.impl.graph.SortableDependencyGroup;
-import com.gs.obevo.impl.text.TextDependencyExtractable;
 import com.gs.obevo.util.hash.DbChangeHashStrategy;
 import com.gs.obevo.util.hash.ExactDbChangeHashStrategy;
 import com.gs.obevo.util.hash.OldWhitespaceAgnosticDbChangeHashStrategy;
-import com.gs.obevo.util.vfs.FileObject;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.eclipse.collections.api.block.function.Function;
-import org.eclipse.collections.api.block.function.Function2;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.set.MutableSet;
+import org.eclipse.collections.api.set.SetIterable;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Sets;
+import org.jetbrains.annotations.NotNull;
 
-public abstract class Change implements Restrictable, SortableDependency, SortableDependencyGroup, TextDependencyExtractable {
+public abstract class Change implements SortableDependency, SortableDependencyGroup {
     public static final int DEFAULT_CHANGE_ORDER = 500;  // only used to control relative order changes (e.g. within a given class of changes like stored procs)
 
     private static final Pattern CREATE_OR_REPLACE_PATTERN = Pattern.compile("(?i)create\\s+or\\s+replace");
 
-    private transient ObjectKey objectKey;
-    private transient ChangeKey changeKey;
-    private String changeName;
-    private String objectName;
+    private @NotNull ChangeKey changeKey;
 
     private String contentHash;
 
-    private transient FileObject fileLocation;
-
     private boolean active;
-
-    private String schema;
-
-    private ChangeType changeType;
-
-    private ImmutableList<ArtifactRestrictions> restrictions;
 
     private String content;
     private String convertedContent;
@@ -70,8 +58,6 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
     private transient TextMarkupDocumentSection metadataSection;
     private transient String dropContent;
     private transient ImmutableSet<CodeDependency> dependencies;
-    private transient ImmutableSet<String> includeDependencies = Sets.immutable.with();
-    private transient ImmutableSet<String> excludeDependencies = Sets.immutable.with();
     private transient Boolean applyGrants = null;
     private int orderWithinObject = 0;
     private Timestamp timeUpdated;
@@ -83,6 +69,25 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
      */
     private String contentForDependencyCalculation;
 
+    private ChangeInput changeInput;
+    private SetIterable<Change> dependentChanges;
+
+    /**
+     * @deprecated replace with {@link #getChangeInput()}
+     */
+    @Deprecated
+    public ChangeInput getSourceLocation() {
+        return changeInput;
+    }
+
+    public ChangeInput getChangeInput() {
+        return changeInput;
+    }
+
+    public void setChangeInput(ChangeInput changeInput) {
+        this.changeInput = changeInput;
+    }
+
     private final ImmutableList<DbChangeHashStrategy> contentHashStrategies = Lists.immutable.with(
             new OldWhitespaceAgnosticDbChangeHashStrategy(),
             new ExactDbChangeHashStrategy()
@@ -91,43 +96,29 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
     protected Change() {
     }
 
-    @Override
     public ObjectKey getObjectKey() {
-        if (this.objectKey == null) {
-            this.objectKey = new ObjectKey(schema, changeType, objectName);
-        }
-        return this.objectKey;
+        return this.changeKey.getObjectKey();
     }
 
+    @Override
     public ChangeKey getChangeKey() {
-        if (this.changeKey == null) {
-            this.changeKey = new ChangeKey(getObjectKey(), changeName);
-        }
         return this.changeKey;
     }
 
-    public String getSchema() {
-        return this.schema;
+    public void setChangeKey(ChangeKey changeKey) {
+        this.changeKey = changeKey;
     }
 
-    public void setSchema(String dbSchema) {
-        this.schema = dbSchema;
+    public String getSchema() {
+        return this.changeKey.getObjectKey().getSchema();
     }
 
     public String getObjectName() {
-        return this.objectName;
-    }
-
-    public void setObjectName(String objectName) {
-        this.objectName = objectName;
+        return this.changeKey.getObjectKey().getObjectName();
     }
 
     public String getChangeName() {
-        return this.changeName;
-    }
-
-    public void setChangeName(String changeName) {
-        this.changeName = changeName;
+        return this.changeKey.getChangeName();
     }
 
     public String getContentHash() {
@@ -139,7 +130,7 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
     }
 
     public PhysicalSchema getPhysicalSchema(Environment env) {
-        return env.getPhysicalSchema(this.schema);
+        return env.getPhysicalSchema(this.getSchema());
     }
 
     /**
@@ -151,29 +142,11 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
     }
 
     public ChangeType getChangeType() {
-        return this.changeType;
+        return this.changeKey.getObjectKey().getChangeType();
     }
 
     public String getChangeTypeName() {
-        return this.changeType.getName();
-    }
-
-    public void setChangeType(ChangeType changeType) {
-        this.changeType = changeType;
-    }
-
-    @Override
-    public ImmutableList<ArtifactRestrictions> getRestrictions() {
-        return this.restrictions;
-    }
-
-    public void setRestrictions(ImmutableList<ArtifactRestrictions> restrictions) {
-        this.restrictions = restrictions;
-    }
-
-    Change withRestrictions(ImmutableList<ArtifactRestrictions> restrictions) {
-        this.setRestrictions(restrictions);
-        return this;
+        return this.getChangeType().getName();
     }
 
     public String getContent() {
@@ -224,9 +197,6 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
                 , this.getChangeType().getName()
                 , this.getSchema()
         ));
-        if (this.fileLocation != null) {
-            sb.append("; File [" + this.fileLocation + "]");
-        }
 
         return sb.toString();
     }
@@ -289,7 +259,7 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
     }
 
     public String getPermissionScheme() {
-        return this.permissionScheme == null ? this.changeType.getName() : this.permissionScheme;
+        return this.permissionScheme == null ? this.getChangeType().getName() : this.permissionScheme;
     }
 
     public void setPermissionScheme(String permissionScheme) {
@@ -321,63 +291,8 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
         return dependencies;
     }
 
-    @Override
     public void setCodeDependencies(ImmutableSet<CodeDependency> dependencies) {
         this.dependencies = dependencies;
-    }
-
-    /**
-     * Gets the dependencies.
-     * @deprecated Use {@link #getCodeDependencies()}
-     */
-    @Override
-    @Deprecated
-    public ImmutableSet<String> getDependencies() {
-        return this.dependencies != null ? this.dependencies.collect(new Function<CodeDependency, String>() {
-            @Override
-            public String valueOf(CodeDependency codeDependency) {
-                return codeDependency.getTarget();
-            }
-        }) : null;
-    }
-
-    @Override
-    public void setDependencies(ImmutableSet<String> dependencies) {
-        this.dependencies = dependencies == null ? null : dependencies.collectWith(new Function2<String, CodeDependencyType, CodeDependency>() {
-            @Override
-            public CodeDependency value(String target, CodeDependencyType codeDependencyType) {
-                return new CodeDependency(target, codeDependencyType);
-            }
-        }, CodeDependencyType.EXPLICIT);
-    }
-
-    @Override
-    public ImmutableSet<String> getExcludeDependencies() {
-        return this.excludeDependencies;
-    }
-
-    public void setExcludeDependencies(ImmutableSet<String> excludeDependencies) {
-        this.excludeDependencies = excludeDependencies;
-    }
-
-    @Override
-    public ImmutableSet<String> getIncludeDependencies() {
-        return includeDependencies;
-    }
-
-    public void setIncludeDependencies(ImmutableSet<String> includeDependencies) {
-        this.includeDependencies = includeDependencies;
-    }
-
-    /**
-     * Only for log output purposes
-     */
-    public FileObject getFileLocation() {
-        return this.fileLocation;
-    }
-
-    public void setFileLocation(FileObject fileLocation) {
-        this.fileLocation = fileLocation;
     }
 
     public int getOrder() {
@@ -473,5 +388,13 @@ public abstract class Change implements Restrictable, SortableDependency, Sortab
             return false;
         }
         return CREATE_OR_REPLACE_PATTERN.matcher(content).find();
+    }
+
+    public void setDependentChanges(SetIterable<Change> dependentChanges) {
+        this.dependentChanges = dependentChanges;
+    }
+
+    public SetIterable<Change> getDependentChanges() {
+        return dependentChanges;
     }
 }

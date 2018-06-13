@@ -35,7 +35,7 @@ public class ChangePair {
     }
 
     public ObjectKey getObjectKey() {
-        return new ObjectKey(getSchema(), getChangeType(), getObjectName());
+        return new ObjectKey(getSchema(), getObjectName(), getChangeType());
     }
 
     private String getSchema() {
@@ -64,8 +64,8 @@ public class ChangePair {
                     String.format("sourceChange field could not be set again - something wrong w/ your keys:\n" +
                                     "Source Artifact 1 [%s] at location [%s]\n" +
                                     "Source Artifact 2 [%s] at location [%s]\n",
-                            sourceChange.getDisplayString(), sourceChange.getFileLocation(),
-                            this.sourceChange.getDisplayString(), this.sourceChange.getFileLocation()));
+                            sourceChange.getDisplayString(), sourceChange.getSourceLocation(),
+                            this.sourceChange.getDisplayString(), this.sourceChange.getSourceLocation()));
         }
         this.sourceChange = sourceChange;
     }

@@ -20,6 +20,7 @@ import java.util.Date;
 
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.ChangeIncremental;
+import com.gs.obevo.api.appdata.ChangeKey;
 import com.gs.obevo.api.appdata.ChangeRerunnable;
 import com.gs.obevo.api.appdata.DeployExecution;
 import com.gs.obevo.api.appdata.PhysicalSchema;
@@ -104,19 +105,15 @@ public class MongoDbChangeAuditDao implements ChangeAuditDao {
                             throw new IllegalArgumentException("This type does not exist " + artfType);
                         }
 
-                        artf.setChangeName(doc.getString(changeNameColumn));
-                        // these are repeated semi-often; hence the intern
-                        artf.setObjectName(InternMap.instance().intern(doc.getString("OBJECTNAME")));
+                        artf.setChangeKey(new ChangeKey(
+                                InternMap.instance().intern(doc.getString("DBSCHEMA")),
+                                platform.getChangeType(doc.getString("CHANGETYPE")),
+                                InternMap.instance().intern(doc.getString("OBJECTNAME")),
+                                doc.getString(changeNameColumn)
+                        ));
 
                         artf.setActive(doc.getInteger("ACTIVE") == 1);
-                        // change METADATA to STATICDATA for backward compatability
-                        String changeType = doc.getString("CHANGETYPE");
-                        artf.setChangeType(platform.getChangeType(changeType));
-
                         artf.setContentHash(doc.getString("CONTENTHASH"));
-                        // these are repeated often
-                        artf.setSchema(InternMap.instance().intern(doc.getString("DBSCHEMA")));
-
                         artf.setTimeInserted(new Timestamp(doc.getDate(timeInsertedColumn).getTime()));
                         artf.setTimeUpdated(new Timestamp(doc.getDate(timeUpdatedColumn).getTime()));
 

@@ -19,8 +19,8 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import com.gs.obevo.api.factory.Obevo;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
-import com.gs.obevo.db.api.factory.DbEnvironmentFactory;
 import com.gs.obevo.db.api.platform.DbDeployerAppContext;
 import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
 import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
@@ -41,7 +41,7 @@ public class HsqlDeployerTest {
 
     @Test
     public void testDeploy() throws Exception {
-        DbEnvironment env = DbEnvironmentFactory.getInstance().readOneFromSourcePath("./src/test/resources/platforms/hsql");
+        DbEnvironment env = Obevo.readEnvironment("./src/test/resources/platforms/hsql");
         DbDeployerAppContext context = env.buildAppContext("sa", "");
 
         context.setupEnvInfra();

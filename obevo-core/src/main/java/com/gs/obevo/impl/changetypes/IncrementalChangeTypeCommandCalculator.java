@@ -33,7 +33,6 @@ import com.gs.obevo.util.DAStringUtil;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.collections.api.RichIterable;
-import org.eclipse.collections.api.block.HashingStrategy;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.block.procedure.Procedure;
@@ -48,10 +47,9 @@ import org.eclipse.collections.api.partition.list.PartitionMutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.api.tuple.Pair;
-import org.eclipse.collections.impl.block.factory.HashingStrategies;
 import org.eclipse.collections.impl.block.factory.Predicates;
-import org.eclipse.collections.impl.factory.HashingStrategyMaps;
 import org.eclipse.collections.impl.factory.Lists;
+import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
@@ -276,29 +274,22 @@ public class IncrementalChangeTypeCommandCalculator implements ChangeTypeCommand
     }
 
     private ListIterable<ChangeCommand> handleBaselineChanges(MutableList<ChangeIncremental> newBaselines, MutableList<ChangeIncremental> baselinedDrops) {
-        HashingStrategy<Change> hashStrategyForBaseline = HashingStrategies.fromFunction(new Function<Change, ObjectKey>() {
-            @Override
-            public ObjectKey valueOf(Change change) {
-                return change.getObjectKey();
-            }
-        });
-
-        MutableMap<Change, MutableMap<String, Change>> baselineDeployedMap = HashingStrategyMaps.mutable.of(hashStrategyForBaseline);
+        MutableMap<ObjectKey, MutableMap<String, Change>> baselineDeployedMap = Maps.mutable.empty();
 
         for (Change deployed : baselinedDrops) {
-            MutableMap<String, Change> list = baselineDeployedMap.get(deployed);
-            if (list == null) {
-                list = UnifiedMap.newMap();
-                baselineDeployedMap.put(deployed, list);
+            MutableMap<String, Change> submap = baselineDeployedMap.get(deployed.getObjectKey());
+            if (submap == null) {
+                submap = UnifiedMap.newMap();
+                baselineDeployedMap.put(deployed.getObjectKey(), submap);
             }
-            list.put(deployed.getChangeName(), deployed);
+            submap.put(deployed.getChangeName(), deployed);
         }
 
         MutableList<ChangeCommand> changeset = Lists.mutable.empty();
 
         MutableSet<Change> successfulBaselinedChanges = UnifiedSet.newSet();
         for (ChangeIncremental baseline : newBaselines) {
-            MutableMap<String, Change> relatedChanges = baselineDeployedMap.get(baseline);
+            MutableMap<String, Change> relatedChanges = baselineDeployedMap.get(baseline.getObjectKey());
 
             BaselineStatus status = BaselineStatus.FULLY_DEPLOYED;
             MutableSet<String> nonDeployedChanges = UnifiedSet.newSet();

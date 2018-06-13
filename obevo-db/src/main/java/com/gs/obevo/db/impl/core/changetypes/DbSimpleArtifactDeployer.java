@@ -39,7 +39,7 @@ public class DbSimpleArtifactDeployer {
         this.sqlExecutor = sqlExecutor;
     }
 
-    public void deployArtifact(Connection conn, Change artifact) {
+    void deployArtifact(Connection conn, Change artifact) {
         MutableList<String> sqls = MultiLineStringSplitter.createSplitterOnSpaceAndLine("GO").valueOf(artifact.getConvertedContent());
         int index = 0;
         for (String sql : sqls) {
@@ -54,8 +54,7 @@ public class DbSimpleArtifactDeployer {
                     this.sqlExecutor.getJdbcTemplate().update(conn, sql);
                 } catch (DataAccessException e) {
                     throw new DeployerRuntimeException("Could not execute DDL:\nfor artifact [[["
-                            + artifact.getDisplayString() + "]]] from file [[[" + artifact.getFileLocation()
-                            + "]]] while executing SQL: [[[\n" + sql + "\n]]]", e);
+                            + artifact.getDisplayString() + "]]] while executing SQL: [[[\n" + sql + "\n]]]", e);
                 } finally {
                     dialect.doFinallyBlockForArtifact(conn, this.sqlExecutor, artifact);
                 }

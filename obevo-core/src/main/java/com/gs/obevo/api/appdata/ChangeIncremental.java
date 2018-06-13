@@ -16,10 +16,8 @@
 package com.gs.obevo.api.appdata;
 
 import com.gs.obevo.api.platform.ChangeType;
-import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.eclipse.collections.api.collection.MutableCollection;
-import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.impl.factory.Lists;
 
 public class ChangeIncremental extends Change {
@@ -68,17 +66,24 @@ public class ChangeIncremental extends Change {
 
     public ChangeIncremental(ChangeType changeType, String schema, String objectName, String changeName,
             int orderWithinObject, String hash, String content) {
-        this(changeType, schema, objectName, changeName, orderWithinObject, hash, content, null, true);
+        this(new ChangeKey(schema, changeType, objectName, changeName), orderWithinObject, hash, content, null, true);
+    }
+
+    public ChangeIncremental(ChangeKey changeKey,
+            int orderWithinObject, String hash, String content) {
+        this(changeKey, orderWithinObject, hash, content, null, true);
     }
 
     public ChangeIncremental(ChangeType changeType, String schema, String objectName, String changeName,
             int orderWithinObject, String hash, String content, String rollbackIfAlreadyDeployedContent, boolean active) {
-        this.setChangeType(changeType);
-        this.setSchema(schema);
-        this.setObjectName(objectName);
+        this(new ChangeKey(schema, changeType, objectName, changeName), orderWithinObject, hash, content, rollbackIfAlreadyDeployedContent, active);
+    }
+
+    public ChangeIncremental(ChangeKey changeKey,
+            int orderWithinObject, String hash, String content, String rollbackIfAlreadyDeployedContent, boolean active) {
+        this.setChangeKey(changeKey);
         this.setContentHash(hash);
         this.setContent(content);
-        this.setChangeName(Validate.notNull(changeName, "changeName cannot be null"));
         this.setOrderWithinObject(orderWithinObject);
         this.rollbackIfAlreadyDeployedContent = rollbackIfAlreadyDeployedContent;
         this.setActive(active);
@@ -121,11 +126,6 @@ public class ChangeIncremental extends Change {
         } else {
             return null;
         }
-    }
-
-    @Override
-    public ChangeIncremental withRestrictions(ImmutableList<ArtifactRestrictions> restrictions) {
-        return (ChangeIncremental) super.withRestrictions(restrictions);
     }
 
     public boolean isDrop() {

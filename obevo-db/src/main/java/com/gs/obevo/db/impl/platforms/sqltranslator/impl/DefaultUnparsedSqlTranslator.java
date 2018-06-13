@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeInput;
 import com.gs.obevo.db.impl.platforms.sqltranslator.UnparsedSqlTranslator;
 import org.eclipse.collections.impl.factory.Lists;
 import org.slf4j.Logger;
@@ -35,7 +35,7 @@ public class DefaultUnparsedSqlTranslator implements UnparsedSqlTranslator {
                     "\\s+DROP\\s+IDENTITY"));
 
     @Override
-    public String handleRawFullSql(String string, Change change) {
+    public String handleRawFullSql(String string, ChangeInput change) {
         string = this.applyUnsupportedCommandPatterns(string);
 
         // fix sequence as h2 doesn't allow the AS datatype. so a string like

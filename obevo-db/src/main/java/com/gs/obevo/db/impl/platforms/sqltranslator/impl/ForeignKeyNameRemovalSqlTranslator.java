@@ -17,13 +17,13 @@ package com.gs.obevo.db.impl.platforms.sqltranslator.impl;
 
 import java.util.regex.Matcher;
 
-import com.gs.obevo.api.appdata.Change;
+import com.gs.obevo.api.appdata.ChangeInput;
 import com.gs.obevo.db.impl.core.util.RegexpPatterns;
 import com.gs.obevo.db.impl.platforms.sqltranslator.PostParsedSqlTranslator;
 
 public class ForeignKeyNameRemovalSqlTranslator implements PostParsedSqlTranslator {
     @Override
-    public String handleAnySqlPostTranslation(String string, Change change) {
+    public String handleAnySqlPostTranslation(String string, ChangeInput change) {
 
         // FKs cannot have names in hsql or h2
         Matcher fkWithNameMatcher = RegexpPatterns.fkWithNamePattern.matcher(string);
