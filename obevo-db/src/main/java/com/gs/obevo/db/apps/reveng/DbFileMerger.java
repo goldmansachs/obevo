@@ -16,7 +16,6 @@
 package com.gs.obevo.db.apps.reveng;
 
 import java.io.File;
-import java.util.Collection;
 
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.DeployerRuntimeException;
@@ -27,19 +26,25 @@ import com.gs.obevo.util.DAStringUtil;
 import com.gs.obevo.util.FileUtilsCobra;
 import com.gs.obevo.util.vfs.FileObject;
 import com.gs.obevo.util.vfs.FileRetrievalMode;
-import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.convert.LegacyListDelimiterHandler;
 import org.apache.commons.vfs2.FileType;
 import org.eclipse.collections.api.RichIterable;
+import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.block.function.Function0;
 import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.api.map.MutableMap;
+import org.eclipse.collections.api.multimap.MutableMultimap;
 import org.eclipse.collections.api.set.MutableSet;
+import org.eclipse.collections.api.set.SetIterable;
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.block.factory.StringFunctions;
 import org.eclipse.collections.impl.factory.Lists;
+import org.eclipse.collections.impl.factory.Maps;
+import org.eclipse.collections.impl.factory.Multimaps;
 import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.tuple.Tuples;
 
@@ -51,7 +56,7 @@ public class DbFileMerger {
         private final MutableList<String> contentValues = Lists.mutable.empty();
         private final ChangeType changeType;
         private final MutableList<Pair<String, FileObject>> filePairs = Lists.mutable.empty();
-        private int count = 0;
+        private MutableMultimap<String, Pair<String, FileObject>> contentToEnvsMap = Multimaps.mutable.list.empty();
 
         FileComparison(String schemaName, ChangeType changeType, String name) {
             this.schemaName = schemaName;
@@ -83,12 +88,8 @@ public class DbFileMerger {
             this.contentValues.add(contentValues);
         }
 
-        int getCount() {
-            return this.count;
-        }
-
-        void incrementCount() {
-            this.count++;
+        MutableMultimap<String, Pair<String, FileObject>> getContentToEnvsMap() {
+            return contentToEnvsMap;
         }
 
         ChangeType getChangeType() {
@@ -101,6 +102,12 @@ public class DbFileMerger {
 
         void addFilePair(Pair<String, FileObject> filePair) {
             this.filePairs.add(filePair);
+            String fileContent = filePair.getTwo().getStringContent();
+            String normalizedContent = DAStringUtil.normalizeWhiteSpaceFromStringOld(fileContent);
+            contentToEnvsMap.put(normalizedContent, filePair);
+            // modify the content here if needed
+//            addContentValues(fileContent);
+//            addDistinctValue(normalizedContent);
         }
 
         @Override
@@ -136,7 +143,6 @@ public class DbFileMerger {
             return "FileComparison{" +
                     "changeType=" + this.changeType +
                     ", name='" + this.name + '\'' +
-                    ", count=" + this.count +
                     ", distinctValuesCount=" + this.distinctValues.size() +
                     '}';
         }
@@ -168,35 +174,29 @@ public class DbFileMerger {
 
     private void generateDiffs(DbPlatform dialect, RichIterable<DbMergeInfo> dbNameLocationPairs, File outputDir) {
         System.out.println("Generating diffs for " + dbNameLocationPairs);
-        MultiKeyMap objectMap = new MultiKeyMap();
+        MutableMap<Pair<ChangeType, String>, FileComparison> objectMap = Maps.mutable.empty();
         for (DbMergeInfo dbNameLocationPair : dbNameLocationPairs) {
             FileObject mainDir = FileRetrievalMode.FILE_SYSTEM.resolveSingleFileObject(dbNameLocationPair.getInputDir().getAbsolutePath());
-            for (FileObject schemaDir : mainDir.getChildren()) {
+            for (final FileObject schemaDir : mainDir.getChildren()) {
                 if (schemaDir.getType() != FileType.FOLDER) {
                     continue;
                 }
-                for (ChangeType changeType : dialect.getChangeTypes()) {
+                for (final ChangeType changeType : dialect.getChangeTypes()) {
                     FileObject changeTypeDir = schemaDir.getChild(changeType.getDirectoryName());
                     if (changeTypeDir != null && changeTypeDir.isReadable()
                             && changeTypeDir.getType() == FileType.FOLDER) {
                         FileObject[] childFiles = changeTypeDir.getChildren();
-                        for (FileObject objectFile : childFiles) {
+                        for (final FileObject objectFile : childFiles) {
                             if (objectFile.getType() == FileType.FILE) {
-                                FileComparison fileComparison = (FileComparison) objectMap.get(changeType, objectFile
-                                        .getName().getBaseName());
-                                if (fileComparison == null) {
-                                    fileComparison = new FileComparison(schemaDir.getName().getBaseName(),
-                                            changeType, objectFile.getName().getBaseName());
-                                    objectMap.put(changeType, objectFile.getName().getBaseName(), fileComparison);
-                                }
+                                FileComparison fileComparison = objectMap.getIfAbsentPut(Tuples.pair(changeType, objectFile.getName().getBaseName()), new Function0<FileComparison>() {
+                                    @Override
+                                    public FileComparison value() {
+                                        return new FileComparison(schemaDir.getName().getBaseName(),
+                                                changeType, objectFile.getName().getBaseName());
+                                    }
+                                });
 
                                 fileComparison.addFilePair(Tuples.pair(dbNameLocationPair.getName(), objectFile));
-                                String fileContent = objectFile.getStringContent();
-                                String normalizedContent = DAStringUtil.normalizeWhiteSpaceFromStringOld(fileContent);
-                                // modify the content here if needed
-                                fileComparison.addContentValues(fileContent);
-                                fileComparison.addDistinctValue(normalizedContent);
-                                fileComparison.incrementCount();
                             }
                         }
                     }
@@ -204,9 +204,59 @@ public class DbFileMerger {
             }
         }
 
-        for (FileComparison fileComparison : (Collection<FileComparison>) objectMap.values()) {
-            File fileComparisonFileRoot = new File(new File(outputDir, fileComparison.getSchemaName()), fileComparison
-                    .getChangeType().getDirectoryName());
+        for (Pair<Pair<ChangeType, String>, FileComparison> comparisonPair : objectMap.keyValuesView()) {
+            ChangeType changeType = comparisonPair.getOne().getOne();
+            final String objectName = comparisonPair.getOne().getTwo();
+            FileComparison fileComparison = comparisonPair.getTwo();
+            boolean onlyOneDistinctValue = fileComparison.getContentToEnvsMap().sizeDistinct() == 1;
+            boolean instancesMissing = fileComparison.getContentToEnvsMap().size() != dbNameLocationPairs.size();
+
+            String metadataMissingSuffix;
+            if (instancesMissing) {
+                MutableSet<String> allInstancse = comparisonPair.getTwo().contentToEnvsMap.valuesView().collect(Functions.<String>firstOfPair()).toSet();
+                SetIterable<String> instanceNames = dbNameLocationPairs.collect(new Function<DbMergeInfo, String>() {
+                    @Override
+                    public String valueOf(DbMergeInfo object) {
+                        return object.getName();
+                    }
+                }).toSet();
+                metadataMissingSuffix = " comment=\"missingInInstances_" + instanceNames.difference(allInstancse).toSortedList().makeString(",") + "\"";
+            } else {
+                metadataMissingSuffix = "";
+            }
+
+            File fileComparisonFileRoot = new File(new File(outputDir, fileComparison.getSchemaName()), changeType.getDirectoryName());
+            int index = 0;
+            for (RichIterable<Pair<String, FileObject>> fileComparisonPairs : fileComparison.getContentToEnvsMap().multiValuesView()) {
+                // one element per distinct file
+
+                Pair<String, FileObject> fileComparisonPair = fileComparisonPairs.getFirst();
+                String instanceName = fileComparisonPair.getOne();
+                String fileContent = fileComparisonPair.getTwo().getStringContent();
+
+                File outputFile;
+                if (onlyOneDistinctValue) {
+                    outputFile = new File(fileComparisonFileRoot, fileComparison.getName());
+                } else {
+                    outputFile = new File(fileComparisonFileRoot, objectName + "." + (index++) + "." + fileComparisonPair.getTwo().getName().getExtension());
+                }
+
+                String metadataPrefix;
+                if (!onlyOneDistinctValue || !metadataMissingSuffix.isEmpty()) {
+                    SetIterable<String> dbNames = fileComparisonPairs.collect(Functions.<String>firstOfPair()).toSet();
+                    metadataPrefix = "//// METADATA includeEnvs=\"" + dbNames.toSortedList().collect(StringFunctions.append("*")).makeString(",") + "\""
+                            + metadataMissingSuffix + "\n";
+                } else {
+                    metadataPrefix = "";
+                }
+
+                FileUtilsCobra.writeStringToFile(outputFile, metadataPrefix + fileContent);
+            }
+        }
+
+/*
+        for (FileComparison fileComparison : objectMap.values()) {
+
             if (fileComparison.getDistinctValues().size() == 1) {
                 File outputFile;
                 if (fileComparison.getCount() == dbNameLocationPairs.size()) {
@@ -236,5 +286,7 @@ public class DbFileMerger {
                 }
             }
         }
+*/
+
     }
 }
