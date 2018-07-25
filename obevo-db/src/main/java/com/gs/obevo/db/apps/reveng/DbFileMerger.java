@@ -30,6 +30,7 @@ import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.convert.LegacyListDelimiterHandler;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.vfs2.FileType;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.function.Function;
@@ -188,11 +189,12 @@ public class DbFileMerger {
                         FileObject[] childFiles = changeTypeDir.getChildren();
                         for (final FileObject objectFile : childFiles) {
                             if (objectFile.getType() == FileType.FILE) {
-                                FileComparison fileComparison = objectMap.getIfAbsentPut(Tuples.pair(changeType, objectFile.getName().getBaseName()), new Function0<FileComparison>() {
+                                final String objectName = FilenameUtils.removeExtension(objectFile.getName().getBaseName());
+                                FileComparison fileComparison = objectMap.getIfAbsentPut(Tuples.pair(changeType, objectName), new Function0<FileComparison>() {
                                     @Override
                                     public FileComparison value() {
                                         return new FileComparison(schemaDir.getName().getBaseName(),
-                                                changeType, objectFile.getName().getBaseName());
+                                                changeType, objectName);
                                     }
                                 });
 
@@ -236,7 +238,11 @@ public class DbFileMerger {
 
                 File outputFile;
                 if (onlyOneDistinctValue) {
-                    outputFile = new File(fileComparisonFileRoot, fileComparison.getName());
+                    if (instancesMissing) {
+                        outputFile = new File(fileComparisonFileRoot, objectName + ".instancesMissing." + fileComparisonPair.getTwo().getName().getExtension());
+                    } else {
+                        outputFile = new File(fileComparisonFileRoot, fileComparison.getName());
+                    }
                 } else {
                     outputFile = new File(fileComparisonFileRoot, objectName + "." + (index++) + "." + fileComparisonPair.getTwo().getName().getExtension());
                 }

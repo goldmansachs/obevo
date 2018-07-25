@@ -79,9 +79,9 @@ instance3.inputDir=h:\instance3dboutput
 ```
 
 ### Example
-To walk through an example: let's say that for our example app, we have 3 instances: cd, eq, fx. The resulting directories are as follows:
+To walk through an example: let's say that for our example app, we have 3 instances: db1, db2, db3. The resulting directories are as follows:
 
-![Merge Prev-View](images/merge-pre-view.png)
+<img src="images/merge-pre-view.png" alt="Pre-Merge View" width="200px"/>
 
 Let's assume all these folders are in H:\mydboutput
 
@@ -97,13 +97,15 @@ h:\mergeConfig.txt contents:
 
 ```
 dbType=ORACLE
-instances=cd,eq,fx
-cd.inputDir=h:\mydboutput\cd
-eq.inputDir=h:\mydboutput\eq
-fx.inputDir=h:\mydboutput\fx
+instances=db1,db2,db3
+db1.inputDir=h:\mydboutput\db1
+db2.inputDir=h:\mydboutput\db2
+db3.inputDir=h:\mydboutput\db3
 ```
 
-After running that command, the output is as follows. We expand only the &quot;view&quot; folder for this doc.
+After running that command, the output is as follows.
+
+<img src="images/merge-post-view.png" alt="Post-Merge View" width="300px"/>
 
 These fall into 3 flavors:
 
@@ -118,7 +120,6 @@ cd-dev, cd-uat1, cd-prod1, eq-dev, eq-qa, eq-prod, ... Fyi, this is done via the
 stored in each folder (the merge step will generate this for you); will add more on this file in the &quot;Advanced
 Use Cases&quot; section below
 
-![Merge Post-View](images/merge-post-view.png)
 
 
 # Merge Step 2 - Try to clean up the db by creating/executing SQLs for the merged view"
