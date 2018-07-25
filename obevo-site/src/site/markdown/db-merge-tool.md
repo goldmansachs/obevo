@@ -81,7 +81,7 @@ instance3.inputDir=h:\instance3dboutput
 ### Example
 To walk through an example: let's say that for our example app, we have 3 instances: db1, db2, db3. The resulting directories are as follows:
 
-<img src="images/merge-pre-view.png" alt="Pre-Merge View" width="200px"/>
+<img src="images/merge-pre-view.png" alt="Pre-Merge View" width="300px"/>
 
 Let's assume all these folders are in H:\mydboutput
 
@@ -109,10 +109,31 @@ After running that command, the output is as follows.
 
 These fall into 3 flavors:
 
-1. Objects that exist in all the instances that we had defined and are identical across those are stored directly under the &quot;view&quot; folder
-2. The folders marked as &quot;only-...&quot; are cases where the objects contained within are identical for those instances (but missing in the others)
- * For example, the objects in only-cd-eq are in the cd and eq instances, but not the FX instances
-3. The folders without &quot;only-&quot; are cases where the objects contained within are different across instances.
+1) Objects that are identical and exist in all instances
+
+* Named as &lt;objectName&gt;.ddl (same file name as before)
+* Example: SAME_IN_ALL.ddl
+
+2) Objects that are not present in all instances, but identical in those present
+
+* Named as &lt;objectName&gt;.instancesMissing.ddl
+* Example: SAME_IN_SOME.instancesMissing.ddl
+* Metadata Section: Specifies the instances that contain this object, and comments on which instances are missing
+
+```
+//// METADATA includeEnvs="db1*,db3*" comment="missingInInstances_db2"
+```
+
+3) Objects with differences in some instances
+
+* Named as &lt;objectName&gt;.&lt;number&gt;.ddl
+* Example: DIFF_IN_ONE.0.ddl, DIFF_IN_ONE.1.ddl
+* Metadata Section: Specifies the instances that contain this version of the object
+
+```
+//// METADATA includeEnvs="db2*"
+```
+
 
 From here, the assumption is that when you define your environment names (in the next step when you create
 system-config.xml), you should name the environment for that instance with that instance prefix. e.g.

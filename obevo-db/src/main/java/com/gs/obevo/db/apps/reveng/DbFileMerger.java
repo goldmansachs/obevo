@@ -241,7 +241,7 @@ public class DbFileMerger {
                     if (instancesMissing) {
                         outputFile = new File(fileComparisonFileRoot, objectName + ".instancesMissing." + fileComparisonPair.getTwo().getName().getExtension());
                     } else {
-                        outputFile = new File(fileComparisonFileRoot, fileComparison.getName());
+                        outputFile = new File(fileComparisonFileRoot, objectName + "." + fileComparisonPair.getTwo().getName().getExtension());
                     }
                 } else {
                     outputFile = new File(fileComparisonFileRoot, objectName + "." + (index++) + "." + fileComparisonPair.getTwo().getName().getExtension());
