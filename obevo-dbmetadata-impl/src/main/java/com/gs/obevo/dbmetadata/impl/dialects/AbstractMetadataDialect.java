@@ -20,6 +20,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.gs.obevo.api.appdata.PhysicalSchema;
+import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
 import com.gs.obevo.dbmetadata.api.DaDirectory;
 import com.gs.obevo.dbmetadata.api.DaPackage;
 import com.gs.obevo.dbmetadata.api.DaRoutine;
@@ -33,7 +34,6 @@ import com.gs.obevo.dbmetadata.impl.ExtraIndexInfo;
 import com.gs.obevo.dbmetadata.impl.ExtraRerunnableInfo;
 import com.gs.obevo.dbmetadata.impl.SchemaByNameStrategy;
 import com.gs.obevo.dbmetadata.impl.SchemaStrategy;
-import org.apache.commons.dbutils.QueryRunner;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.collection.mutable.CollectionAdapter;
@@ -46,7 +46,7 @@ import schemacrawler.tools.databaseconnector.DatabaseConnector;
 import schemacrawler.tools.databaseconnector.DatabaseConnectorRegistry;
 
 public abstract class AbstractMetadataDialect implements DbMetadataDialect {
-    protected final QueryRunner jdbc = new QueryRunner();
+    protected final JdbcHelper jdbc = new JdbcHelper();
 
     @Override
     public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema, boolean searchAllTables) {

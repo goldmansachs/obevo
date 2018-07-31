@@ -1,5 +1,16 @@
 # Change Log
 
+## 6.6.1
+
+### Functionality Improvements
+#187: DB Merge Tool Output Improvement - easier to see differences in files
+
+### Technical Improvements
+
+### Bug Fixes
+#188: Correcting the metadata retrieval for ASE and PostgreSQL
+
+
 ## 6.6.0
 
 ### Functionality Improvements
