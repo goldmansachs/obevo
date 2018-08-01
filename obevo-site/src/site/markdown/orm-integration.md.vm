@@ -71,7 +71,7 @@ Via Command Line:
 
 Arguments
 
-* dbType: (Required) The DBMS type that the DDLs were generated for; use one of the following values - DB2, SYBASE_ASE, SYBASE_IQ, POSTGRESQL, H2, HSQL
+* dbType: (Required) The DBMS type that the DDLs were generated for; use one of the acronym values from [Platform Listing](platform-listing.html)
 * inputDir: (Required) The directory that contains the Reladomo DDLs
 * outputDir: (Required) The directory to write the Obevo DDLs. The format would look like below.
 

@@ -9,6 +9,7 @@
 
 ### Bug Fixes
 #188: Correcting the metadata retrieval for ASE and PostgreSQL
+#184: Documentation cleanups
 
 
 ## 6.6.0

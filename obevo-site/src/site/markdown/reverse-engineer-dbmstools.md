@@ -94,5 +94,10 @@ https://www.postgresql.org/download/
 
 ### SQL Server
 
+Nothing special should be needed - the SQL scripting binaries should be included by default on Windows (tested on
+Windows 7 and 10). Please reach out to the Obevo team if you have issues.
 
 ### Oracle
+
+Nothing special should be needed - the reverse engineering is executed via native Java and Oracle SQL calls. Please
+reach out to the Obevo team if you have issues.

@@ -86,6 +86,7 @@
             <item name="Incremental Change Code Cleanup" href="incremental-change-code-cleanup.html" />
         </menu>
         <menu name="Platform-Specific Details">
+            <item name="Platform Listing" href="platform-listing.html" />
             <item name="DB2" href="db2-notes.html" />
             <item name="HSQLDB" href="general-db-notes.html" />
             <item name="H2" href="general-db-notes.html" />

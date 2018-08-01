@@ -69,7 +69,11 @@ Get a schema to facilitate your testing
 
 #### 2. Create a new module obevo-db-&lt;dbmsName&gt;
 
-You can use obevo-db-db2 or obevo-db-postgresql as examples
+You can use an existing DB implementation module as reference.
+
+See the [Platform Listing](platform-listing.html) for the full list of modules.
+
+We recommend obevo-db-db2 or obevo-db-postgresql as a default choice if you need a suggestion.
 
 #### 3. Implement the classes required to do a basic incremental deployment for simple objects like tables
 

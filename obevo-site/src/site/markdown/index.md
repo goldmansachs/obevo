@@ -76,7 +76,7 @@ Treat your DB code like you would treat your application code!
 
 ### DBMS-specific features
 
-Obevo currently supports DB2, MS SQL Server, Oracle, PostgreSQL, Sybase ASE, Sybase IQ, HSQLDB, and H2.
+Obevo currently supports DB2, MS SQL Server, Oracle, PostgreSQL, Amazon Redshift, Sybase ASE, Sybase IQ, HSQLDB, H2, and MongoDB.
 
 It includes DBMS-specific handling, such as DB2 reorgs and handling transaction log checks for Sybase ASE.
 

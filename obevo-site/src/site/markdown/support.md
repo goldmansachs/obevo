@@ -20,19 +20,7 @@
 
 Please raise an issue on the [project page](https://github.com/goldmansachs/obevo/issues) to reach out to the developers.
 
-Supported DBMS types are listed below:
-
-|Vendor|
-|------|
-|Sybase/SAP ASE|
-|DB2|
-|MS SQL Server|
-|Oracle|
-|PostgreSQL|
-|Sybase/SAP IQ|
-|H2|
-|HSQLDB|
-
+Supported DBMS types are listed here: [Platform Listing](platform-listing.html)
 
 Obevo runs its integration tests against live DBMS environments to ensure the correctness of its logic. We aim to make
 it easy for individual developers to test on their own and for clients to test in-house on their existing database estate.

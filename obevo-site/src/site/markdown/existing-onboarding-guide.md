@@ -83,7 +83,7 @@ starting point for your source code
 We have a couple methodologies available for you to use, depending on
 your DBMS:
 
-**<u>[[Option 1 (preferred): vendor-provided tools]{.underline}](reverse-engineer-dbmstools.html)</u>** (available for DB2, Oracle, PostgreSQL, SQL Server, Sybase ASE)
+**<u>[Option 1 (preferred): vendor-provided tools](reverse-engineer-dbmstools.html)</u>** (available for DB2, HSQLDB, Oracle, PostgreSQL, SQL Server, Sybase ASE)
 
 -   This option uses the tools provided by the vendors
 -   It is relatively new compared to option 2, but it is the way we are
@@ -91,7 +91,7 @@ your DBMS:
 -   Please reach out to the product team via Github if you have any
     questions in using this.
 
-**<u>[[Option 2 (legacy): Aqua Data Studio]{.underline}](reverse-engineer-aquadatastudio.html)</u>**
+**<u>[Option 2 (legacy): Aqua Data Studio](reverse-engineer-aquadatastudio.html)</u>**
 
 -   Aqua Data Studio is a tool previously used by the Obevo team in
     their regular DB-based work.

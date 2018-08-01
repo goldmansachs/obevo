@@ -44,7 +44,7 @@ Obevo codebase):
 |----------------------------------------------------------------|----------------|--------------------------------------------------------------------------------------------------------------|
 |obevo-core                                                      |core            |Core module for implementing the Obevo incremental-deployment algorithm|
 |obevo-db                                                        |db-impls        |The base implementation of the core DA algorithm for DBMS platforms|
-|obevo-db-\* (db2, h2, hsql, postgresql, sybase-ase, sybase-iq)  |db-impls        |The DBMS-specific implementations. These implement a few interfaces defined in obevo-db|
+|obevo-db-\* &lt;implType&gt;                                    |db-impls        |The DBMS-specific implementations (full list [here](platform-listing.html)). These implement a few interfaces defined in obevo-db|
 |obevo-dbmetadata-impl                                           |db-impls        |Wrapper code around the schemacrawler library (i.e. handling a couple tweaks around how to call the library)|
 |obevo-internal-comparer                                         |db-impls        |Copy of the CATO library; hoping to retire this once the main CATO library takes in some changes|
 |obevo-db-client-alldbs                                          |db-impls        |maven dependency grouping as a convenience to retrieve all DBMS implementations|
