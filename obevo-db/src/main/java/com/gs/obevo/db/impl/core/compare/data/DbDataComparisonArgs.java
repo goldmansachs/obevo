@@ -17,7 +17,7 @@ package com.gs.obevo.db.impl.core.compare.data;
 
 import com.sampullara.cli.Argument;
 
-class DbDataComparisonArgs {
+public class DbDataComparisonArgs {
     private String configFile;
     private String outputDir;
 
