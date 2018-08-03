@@ -477,7 +477,7 @@ create table ARTIFACTDEPLOYMENT (
 )
 lock allpages
  on 'default'
-go 
+go
 
 sp_placeobject 'default', 'dbo.ARTIFACTDEPLOYMENT.tARTIFACTDEPLOYMENT'
 go 
@@ -504,6 +504,23 @@ go
 
 setuser
 go 
+
+-----------------------------------------------------------------------------
+-- DDL for View 'dbdeploy01.dbo.TestDboView'
+-----------------------------------------------------------------------------
+
+print '<<<<< CREATING View - "dbdeploy01.dbo.TestDboView" >>>>>'
+go
+
+setuser 'dbo'
+go
+
+-- ensure that ? is not interpreted as a parameter
+create view dbo.TestDboView AS select idField "MyId", stringField "MyString", myBooleanCol "MyMyBooleanCol" from TestTable
+go
+
+setuser
+go
 
 -----------------------------------------------------------------------------
 -- DDL for Stored Procedure 'dbdeploy01.dbo.SpWithTemp'

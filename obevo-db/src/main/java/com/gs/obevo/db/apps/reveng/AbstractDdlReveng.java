@@ -715,7 +715,7 @@ public abstract class AbstractDdlReveng {
             return this;
         }
 
-        private String getme(Matcher matcher, Integer index) {
+        private String getMatcherGroup(Matcher matcher, Integer index) {
             if (index == null) {
                 return null;
             }
@@ -727,19 +727,32 @@ public abstract class AbstractDdlReveng {
 
             if (matcher.find()) {
                 String primaryName = matcher.group(namePatternType.getObjectIndex(primaryNameIndex));
-                String schema = getme(matcher, namePatternType.getSchemaIndex(primaryNameIndex));
-                String subSchema = getme(matcher, namePatternType.getSubSchemaIndex(primaryNameIndex));
+                String schema = getMatcherGroup(matcher, namePatternType.getSchemaIndex(primaryNameIndex));
+                String subSchema = getMatcherGroup(matcher, namePatternType.getSubSchemaIndex(primaryNameIndex));
+
+                // If we are looking for a subschema and only see one schema prefix, then assume it belongs to the subschema, not schema
+                if (namePatternType.getSubSchemaIndex(primaryNameIndex) != null && schema != null && subSchema == null) {
+                    subSchema = schema;
+                    schema = null;
+                }
 
                 String secondaryName = null;
                 if (secondaryNameIndex != null) {
                     secondaryName = matcher.group(namePatternType.getObjectIndex(secondaryNameIndex));
                     if (schema == null) {
-                        schema = getme(matcher, namePatternType.getSchemaIndex(secondaryNameIndex));
+                        schema = getMatcherGroup(matcher, namePatternType.getSchemaIndex(secondaryNameIndex));
                     }
                     if (subSchema == null) {
-                        subSchema = getme(matcher, namePatternType.getSubSchemaIndex(secondaryNameIndex));
+                        subSchema = getMatcherGroup(matcher, namePatternType.getSubSchemaIndex(secondaryNameIndex));
+                    }
+
+                    // Same check as above for subschema
+                    if (namePatternType.getSubSchemaIndex(secondaryNameIndex) != null && schema != null && subSchema == null) {
+                        subSchema = schema;
+                        schema = null;
                     }
                 }
+
                 return new RevengPatternOutput(this, primaryName, secondaryName, schema, subSchema, input);
             }
 
