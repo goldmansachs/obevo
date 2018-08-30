@@ -13,6 +13,6 @@ env:
 
 script:
   # We need to run this first to install the maven jars (otherwise, the regular build won't work that references those jars)
-  - mvn -f obevo-db-impls/obevo-db-db2 -Pinstall-jars-db2-install antrun:run@install-jars-db2
+  - mvn -f obevo-db-impls/obevo-db-db2 -Pinstall-jars-db2 antrun:run@install-jars-db2
   # Travis already runs maven test as part of its run script. We add the verify step to get integration tests: https://docs.travis-ci.com/user/languages/java/
   - mvn -Dtest=noUnitTestsInThisPhase -DfailIfNoTests=false -Ddocker.build.enabled=true verify
