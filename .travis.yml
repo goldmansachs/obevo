@@ -13,8 +13,16 @@ env:
 
 before_install:
   - docker pull ibmcom/db2express-c
+  # Start the container and store the container ID for reference
+  - CONTAINER_ID=$(docker run -d -i -t -p 50000:50000 -e DB2INST1_PASSWORD=db2inst1-pwd -e LICENSE=accept ibmcom/db2express-c:latest db2start)
+  # Create the database (may take a few seconds)
+  - docker exec -it $CONTAINER_ID bash -c "su - db2inst1 -c 'db2 create db dbdeploy'"
+  # Log into the database to subsequently run more actions
+  - docker exec -it $CONTAINER_ID bash -c "su - db2inst1"
+
 #  - docker run -d -p 127.0.0.1:80:4567 carlad/sinatra /bin/sh -c "cd /root/sinatra; bundle exec foreman start;"
 #  - docker ps -a
 #  - docker run carlad/sinatra /bin/sh -c "cd /root/sinatra; bundle exec rake test"
 
-script: mvn verify
+# Note: Travis already runs maven test as part of its run script. We add the verify step to get integration tests: https://docs.travis-ci.com/user/languages/java/
+script: mvn -Dtest=noUnitTestsInThisPhase -DfailIfNoTests=false verify
