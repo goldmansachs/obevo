@@ -69,6 +69,34 @@
 
     <profiles>
         <profile>
+            <id>install-jars-db2</id>
+            <!-- We have to run the setup script to extract the jar and install it to the maven repo. The same setup
+            script works fine. -->
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>install-jars-db2</id>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <phase>pre-integration-test</phase>
+                                <configuration>
+                                    <target>
+                                        <exec executable="${basedir}/db2-setup.sh">
+                                            <arg value="${db2.version}" />
+                                        </exec>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>amazon-build</id>
             <activation>
                 <property>
@@ -108,7 +136,6 @@
                                 <phase>pre-integration-test</phase>
                                 <configuration>
                                     <target>
-                                        <echo message="*** Kata Setup ***" />
                                         <exec executable="${basedir}/db2-setup.sh">
                                             <arg value="${db2.version}" />
                                         </exec>
