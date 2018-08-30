@@ -6,18 +6,14 @@ jdk: openjdk8
 services:
 - docker
 
+env:
+- JAVA7_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+- MAVEN_OPTS="-Dmaven.repo.local=$HOME/.m2/repository -Xmx2fdsafdfg -Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss:SSS -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
+
 before_install:
-  - export MAVEN_OPTS="-Dmaven.repo.local=$HOME/.m2/repository -Xmx2g"
   - docker pull ibmcom/db2express-c
 #  - docker run -d -p 127.0.0.1:80:4567 carlad/sinatra /bin/sh -c "cd /root/sinatra; bundle exec foreman start;"
 #  - docker ps -a
 #  - docker run carlad/sinatra /bin/sh -c "cd /root/sinatra; bundle exec rake test"
 
-install:
-  -
-
-env:
-  - JAVA7_HOME=/usr/lib/jvm/java-7-openjdk-amd64
-
-#script: mvn -T 1C -Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss:SSS -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn clean install
-script: mvn -B -Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss:SSS -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn clean install
+script: mvn verify
