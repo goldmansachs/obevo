@@ -208,6 +208,10 @@
                     <artifactId>maven-notice-plugin</artifactId>
                     <version>1.1.0</version>
                 </plugin>
+                <plugin>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>1.8</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -390,7 +394,7 @@
                                     <version>1.7.0</version>
                                 </requireJavaVersion>
                                 <requireMavenVersion>
-                                    <version>3.2.5</version>
+                                    <version>3.3.1</version>
                                 </requireMavenVersion>
                             </rules>
                             <fail>true</fail>
