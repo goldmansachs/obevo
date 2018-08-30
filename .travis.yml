@@ -24,13 +24,13 @@ before_install:
   - DB2_GROUP=com.ibm.db2
   - DB2_ARTIFACTS="db2jcc db2jcc4 db2jcc_license_cu"
   - DB2_JAVA_BINARY_HOME=/home/db2inst1/sqllib/java
-  - |
-    for ARTIFACT in $DB2_ARTIFACTS; do \
-      echo "Working on artifact $ARTIFACT" \
-#    docker cp $CONTAINER_ID:$DB2_JAVA_BINARY_HOME/$ARTIFACT.jar $TMPDIR/$ARTIFACT.jar
-#    mvn install:install-file -DgroupId=$DB2_GROUP -DartifactId=$ARTIFACT -Dversion=$DB2_VERSION -Dfile=$TMPDIR/$ARTIFACT.jar -Dpackaging=jar -DgeneratePom=true
-#    rm -f $TMPDIR/$ARTIFACT.jar
-    done
+#  - |
+#    for ARTIFACT in $DB2_ARTIFACTS; do \
+#      echo "Working on artifact $ARTIFACT" \
+##    docker cp $CONTAINER_ID:$DB2_JAVA_BINARY_HOME/$ARTIFACT.jar $TMPDIR/$ARTIFACT.jar
+##    mvn install:install-file -DgroupId=$DB2_GROUP -DartifactId=$ARTIFACT -Dversion=$DB2_VERSION -Dfile=$TMPDIR/$ARTIFACT.jar -Dpackaging=jar -DgeneratePom=true
+##    rm -f $TMPDIR/$ARTIFACT.jar
+#    done
 
 
 #  - docker run -d -p 127.0.0.1:80:4567 carlad/sinatra /bin/sh -c "cd /root/sinatra; bundle exec foreman start;"
