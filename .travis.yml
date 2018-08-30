@@ -37,4 +37,4 @@ before_install:
 #  - docker run carlad/sinatra /bin/sh -c "cd /root/sinatra; bundle exec rake test"
 
 # Note: Travis already runs maven test as part of its run script. We add the verify step to get integration tests: https://docs.travis-ci.com/user/languages/java/
-script: mvn -Dtest=noUnitTestsInThisPhase -DfailIfNoTests=false verify
+script: mvn -Dtest=noUnitTestsInThisPhase -DfailIfNoTests=false -Ddocker.build.enabled=true verify

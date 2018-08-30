@@ -66,6 +66,12 @@
     <profiles>
         <profile>
             <id>amazon-build</id>
+            <activation>
+                <property>
+                    <name>docker.build.enabled</name>
+                    <value>true</value>
+                </property>
+            </activation>
             <properties>
                 <dbCredsFile>local-db2-creds.yaml</dbCredsFile>
             </properties>
