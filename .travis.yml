@@ -24,6 +24,7 @@ before_install:
   - export DB2_GROUP=com.ibm.db2
   - export DB2_ARTIFACTS="db2jcc db2jcc4 db2jcc_license_cu"
   - export DB2_JAVA_BINARY_HOME=/home/db2inst1/sqllib/java
+  - export TMPDIR=/tmp
   - for ARTIFACT in $DB2_ARTIFACTS; do echo "Working on artifact $ARTIFACT"; docker cp $CONTAINER_ID:$DB2_JAVA_BINARY_HOME/$ARTIFACT.jar $TMPDIR/$ARTIFACT.jar; mvn install:install-file -DgroupId=$DB2_GROUP -DartifactId=$ARTIFACT -Dversion=$DB2_VERSION -Dfile=$TMPDIR/$ARTIFACT.jar -Dpackaging=jar -DgeneratePom=true; rm -f $TMPDIR/$ARTIFACT.jar; done
 
 
