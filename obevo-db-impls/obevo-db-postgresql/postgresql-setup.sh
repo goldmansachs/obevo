@@ -15,4 +15,14 @@
 # under the License.
 #
 
-docker run --name some-postgres -e POSTGRES_PASSWORD=mysecretpassword -d -p 5432:5432 postgres
+CONTAINER_NAME=obevo-postgresql-instance
+
+OLD_CONTAINER_ID=$(docker ps -aqf "name=$CONTAINER_NAME")
+if [ ! -z "$OLD_CONTAINER_ID" ]
+then
+    echo "Shutting down old container"
+    docker stop $OLD_CONTAINER_ID
+    docker rm $OLD_CONTAINER_ID
+fi
+
+docker run --name $CONTAINER_NAME -e POSTGRES_PASSWORD=mysecretpassword -d -p 5432:5432 postgres
