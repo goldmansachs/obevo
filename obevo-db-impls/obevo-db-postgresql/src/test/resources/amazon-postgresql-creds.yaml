@@ -15,7 +15,7 @@
 #
 environments:
   environment:
-  - name: default
+  - name: testdefault
     type: POSTGRESQL
     metaschema: dbdeploy03
     sourcePath: platforms/postgresql/example1/step${stepNumber}
