@@ -20,8 +20,8 @@ DB2_VERSION=$1
 
 # These props are also defined in local-db2-creds.yaml. Copy this from there
 INSTANCE_PORT=50000
-INSTANCE_DBNAME="DBDEPLOY"
-INSTANCE_SCHEMAS="DBDEPLOY01 DBDEPLOY02 DBDEPLOY03"
+INSTANCE_DBNAME="dbdeploy"
+INSTANCE_SCHEMAS="dbdeploy01 dbdeploy02 dbdeploy03"
 INSTANCE_USERID="db2inst1"  # note - this user ID is hardcoded by the container
 INSTANCE_PASSWORD="db2inst1-pwd"
 DB2_GROUP=com.ibm.db2
