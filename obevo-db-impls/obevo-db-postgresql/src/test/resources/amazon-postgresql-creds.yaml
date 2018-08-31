@@ -35,6 +35,9 @@ environments:
     driverClass: org.postgresql.Driver
     cleanBuildAllowed: true
     forceEnvInfraSetup: true
-    jdbcUrl: jdbc:postgresql://dbdeploy-postgres-9-6.cck7fvo3o8pf.us-east-1.rds.amazonaws.com:5432/DBDEPLOY
-    defaultUserId: deploybuilddbo
-    defaultPassword: deploybuilddb0
+    jdbcUrl: jdbc:postgresql://localhost:5432/postgres
+    defaultUserId: postgres
+    defaultPassword: mysecretpassword
+#    jdbcUrl: jdbc:postgresql://dbdeploy-postgres-9-6.cck7fvo3o8pf.us-east-1.rds.amazonaws.com:5432/DBDEPLOY
+#    defaultUserId: deploybuilddbo
+#    defaultPassword: deploybuilddb0
