@@ -98,12 +98,15 @@
         </profile>
         <profile>
             <id>integration-build</id>
+<!--
+Remote builds aren't working; avoiding this step for now
             <activation>
                 <property>
                     <name>docker.build.enabled</name>
                     <value>true</value>
                 </property>
             </activation>
+-->
             <properties>
                 <dbCredsFile>docker-db2-creds.yaml</dbCredsFile>
             </properties>
