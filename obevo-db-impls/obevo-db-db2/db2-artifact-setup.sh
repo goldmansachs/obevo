@@ -18,13 +18,30 @@
 ## Variable Setup
 DB2_VERSION=$1
 
+if [ -z "$DB2_VERSION" ]
+then
+    echo "DB2_VERSION variable is not set; exiting"
+    exit -1
+fi
+
+echo "Starting DB2 container out of which we fetch the jars"
+SCRIPTDIR=`dirname "$0"`
+source $SCRIPTDIR/db2-setup.sh
+
+if [ -z "$CONTAINER_ID" ]
+then
+    echo "CONTAINER_ID variable is not set"
+    exit -1
+fi
+
 # These props are also defined in docker-db2-creds.yaml. Copy this from there
 DB2_GROUP=com.ibm.db2
-
-echo "Setting up DB2 Jars in your Maven environment"
 DB2_ARTIFACTS="db2jcc db2jcc4 db2jcc_license_cu"
 DB2_JAVA_BINARY_HOME=/home/$INSTANCE_USERID/sqllib/java
 TMPDIR=/tmp
+
+echo "Setting up DB2 Jars in your Maven environment"
+
 for ARTIFACT in $DB2_ARTIFACTS; do
     echo "Working on artifact $ARTIFACT"
     docker cp $CONTAINER_ID:$DB2_JAVA_BINARY_HOME/$ARTIFACT.jar $TMPDIR/$ARTIFACT.jar
