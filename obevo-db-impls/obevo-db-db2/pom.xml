@@ -85,7 +85,7 @@
                                 <phase>pre-integration-test</phase>
                                 <configuration>
                                     <target>
-                                        <exec executable="${basedir}/db2-setup.sh">
+                                        <exec executable="${basedir}/db2-artifact-setup.sh">
                                             <arg value="${db2.version}" />
                                         </exec>
                                     </target>
@@ -105,7 +105,7 @@
                 </property>
             </activation>
             <properties>
-                <dbCredsFile>local-db2-creds.yaml</dbCredsFile>
+                <dbCredsFile>docker-db2-creds.yaml</dbCredsFile>
             </properties>
 
             <dependencies>

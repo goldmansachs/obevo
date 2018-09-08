@@ -79,6 +79,28 @@
             <properties>
                 <dbCredsFile>docker-mssql-creds.yaml</dbCredsFile>
             </properties>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>setup-mssql</id>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <phase>pre-integration-test</phase>
+                                <configuration>
+                                    <target>
+                                        <exec executable="${basedir}/mssql-setup.sh" />
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>

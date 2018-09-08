@@ -18,7 +18,7 @@
 ## Variable Setup
 DB2_VERSION=$1
 
-# These props are also defined in local-db2-creds.yaml. Copy this from there
+# These props are also defined in docker-db2-creds.yaml. Copy this from there
 DB2_GROUP=com.ibm.db2
 
 echo "Setting up DB2 Jars in your Maven environment"

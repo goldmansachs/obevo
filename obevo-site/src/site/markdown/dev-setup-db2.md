@@ -37,4 +37,4 @@ Note: for Windows, try the Windows 10 Bash integration (though we haven't tested
 can follow along the db2-setup.sh script and replicate the steps in Windows.
 
 
-3) In your IDE, enable the "amazon-build" profile so that you can activate integration tests against the DB2 server
+3) In your IDE, enable the "integration-build" profile so that you can activate integration tests against the DB2 server

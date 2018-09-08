@@ -18,7 +18,7 @@
 ## Variable Setup
 DB2_VERSION=$1
 
-# These props are also defined in local-db2-creds.yaml. Copy this from there
+# These props are also defined in docker-db2-creds.yaml. Copy this from there
 INSTANCE_PORT=50000
 INSTANCE_DBNAME="dbdeploy"
 INSTANCE_SCHEMAS="dbdeploy01 dbdeploy02 dbdeploy03"
