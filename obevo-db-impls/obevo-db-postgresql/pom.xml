@@ -54,7 +54,7 @@
 
     <profiles>
         <profile>
-            <id>amazon-build</id>
+            <id>integration-build</id>
             <activation>
                 <property>
                     <name>docker.build.enabled</name>
@@ -62,7 +62,7 @@
                 </property>
             </activation>
             <properties>
-                <dbCredsFile>amazon-postgresql-creds.yaml</dbCredsFile>
+                <dbCredsFile>docker-postgresql-creds.yaml</dbCredsFile>
             </properties>
             <build>
                 <plugins>

@@ -50,8 +50,8 @@ public class MsSqlDeployerMainIT {
     public void testAseDeploy() throws Exception {
         DbDeployerAppContext step1Context = getAppContext.valueOf(1);
         step1Context
-                .cleanEnvironment()
                 .setupEnvInfra()
+                .cleanEnvironment()
                 .deploy();
 
         String physicalSchemaStr = step1Context.getEnvironment().getPlatform().getSchemaPrefix(step1Context.getEnvironment().getPhysicalSchema("oats"));

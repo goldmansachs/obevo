@@ -69,9 +69,15 @@
 
     <profiles>
         <profile>
-            <id>amazon-build</id>
+            <id>integration-build</id>
+            <activation>
+                <property>
+                    <name>docker.build.enabled</name>
+                    <value>true</value>
+                </property>
+            </activation>
             <properties>
-                <dbCredsFile>amazon-mssql-creds.yaml</dbCredsFile>
+                <dbCredsFile>docker-mssql-creds.yaml</dbCredsFile>
             </properties>
         </profile>
     </profiles>
