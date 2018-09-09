@@ -49,5 +49,5 @@ can follow along the db2-setup.sh script and replicate the steps in Windows.
 
 3) In your IDE, enable the "integration-build" profile so that you can activate integration tests against your local Docker instance
 
-(Note - DB2 is having an issue at times, showing the [following exception](https://www-01.ibm.com/support/docview.wss?uid=swg21682878).
-We are still looking into it. The code is checked in for now.)
+(Note - DB2 does not enable the integration-build by default in the build as a couple integration tests like Db2PostDeployActionIT
+are failing. Db2DeployerMainIT is fine, however. You can use that for testing.)
