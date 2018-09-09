@@ -52,7 +52,7 @@ for SCHEMA in $INSTANCE_SCHEMAS; do
        -Q "CREATE DATABASE $SCHEMA"
 
 #    for SUBSCHEMA in $INSTANCE_SUBSCHEMAS; do
-#        docker exec -it $CONTAINER_NAME /opt/mssql-tools/bin/sqlcmd \
+#        docker exec $CONTAINER_NAME /opt/mssql-tools/bin/sqlcmd \
 #           -S localhost -U $INSTANCE_USERID -P "$INSTANCE_PASSWORD" \
 #           -Q "CREATE SCHEMA $SUBSCHEMA AUTHORIZATION $SCHEMA"
 #    done

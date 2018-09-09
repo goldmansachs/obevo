@@ -44,11 +44,11 @@ docker run --name $CONTAINER_NAME -d -i -t -p $INSTANCE_PORT:$INSTANCE_PORT -e D
 export CONTAINER_ID=$(docker ps -aqf "name=$CONTAINER_NAME")
 
 echo "Creating the database (may take a few seconds)"
-docker exec -it $CONTAINER_ID bash -c "su - $INSTANCE_USERID -c 'db2 create db $INSTANCE_DBNAME'"
+docker exec $CONTAINER_ID bash -c "su - $INSTANCE_USERID -c 'db2 create db $INSTANCE_DBNAME'"
 
 for SCHEMA in $INSTANCE_SCHEMAS; do
     SCHEMAS_CREATE_COMMAND="$SCHEMAS_CREATE_COMMAND   db2 create schema $SCHEMA;"
 done
 
 echo "Logging into the database to create the schema"
-docker exec -it $CONTAINER_ID bash -c "su - $INSTANCE_USERID -c 'db2 connect to $INSTANCE_DBNAME; $SCHEMAS_CREATE_COMMAND'"
+docker exec $CONTAINER_ID bash -c "su - $INSTANCE_USERID -c 'db2 connect to $INSTANCE_DBNAME; $SCHEMAS_CREATE_COMMAND'"
