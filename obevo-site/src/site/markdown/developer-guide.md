@@ -52,10 +52,10 @@ See the table below for how to setup these dates.
 |Vendor|Test Locale|
 |------|-----------|
 |Sybase/SAP ASE|[ASE Express Setup](dev-setup-sybase-ase.html)|
-|DB2|[DB2 Express Setup](dev-setup-db2.html)|
-|MS SQL Server|[Amazon RDS Setup](dev-setup-amazon.html)|
-|Oracle|[Amazon RDS Setup](dev-setup-amazon.html)|
-|PostgreSQL|[Amazon RDS Setup](dev-setup-amazon.html)|
+|DB2|[Docker setup for DB2 Express](dev-setup-docker.html)|
+|MS SQL Server|[Docker setup for SQL Server](dev-setup-docker.html) or [Amazon RDS](dev-setup-amazon.html)|
+|Oracle|[Amazon RDS](dev-setup-amazon.html)|
+|PostgreSQL|[Docker setup for PostgreSQL](dev-setup-docker.html) or [Amazon RDS](dev-setup-amazon.html)|
 |Sybase/SAP IQ|No instructions available yet|
 |H2|No setup needed (in-memory DB)|
 |HSQLDB|No setup needed (in-memory DB)|

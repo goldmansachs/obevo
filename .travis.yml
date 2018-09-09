@@ -1,14 +1,18 @@
+sudo: required  # required for docker usage in the build
+
 language: java
 jdk: openjdk8
 
-before_install:
-  - export MAVEN_OPTS="-Dmaven.repo.local=$HOME/.m2/repository -Xmx2g"
-
-install:
-  -
+services:
+  - docker
 
 env:
-  - JAVA7_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+  global:
+    - JAVA7_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+    - MAVEN_OPTS="-Dmaven.repo.local=$HOME/.m2/repository -Xmx2g -Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss:SSS -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
 
-#script: mvn -T 1C -Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss:SSS -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn clean install
-script: mvn -B -Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss:SSS -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn clean install
+script:
+  # We need to run this first to install the maven jars (otherwise, the regular build won't work that references those jars)
+  - mvn -f obevo-db-impls/obevo-db-db2 -Pinstall-jars-db2 antrun:run@install-jars-db2
+  # Travis already runs maven test as part of its run script. We add the verify step to get integration tests: https://docs.travis-ci.com/user/languages/java/
+  - mvn -Dtest=noUnitTestsInThisPhase -DfailIfNoTests=false -Ddocker.build.enabled=true verify

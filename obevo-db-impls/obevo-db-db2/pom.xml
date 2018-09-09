@@ -27,6 +27,10 @@
 
     <artifactId>obevo-db-db2</artifactId>
 
+    <properties>
+        <db2.version>10.5.0.5</db2.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.goldmansachs.obevo</groupId>
@@ -65,25 +69,86 @@
 
     <profiles>
         <profile>
-            <id>amazon-build</id>
+            <id>install-jars-db2</id>
+            <!-- We have to run the setup script to extract the jar and install it to the maven repo. The same setup
+            script works fine. -->
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>install-jars-db2</id>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <phase>pre-integration-test</phase>
+                                <configuration>
+                                    <target>
+                                        <exec executable="${basedir}/db2-artifact-setup.sh">
+                                            <arg value="${db2.version}" />
+                                        </exec>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>integration-build</id>
+<!--
+A couple integrations tests for DB2 are failing in the Docker environment. Disabling for now
+            <activation>
+                <property>
+                    <name>docker.build.enabled</name>
+                    <value>true</value>
+                </property>
+            </activation>
+-->
             <properties>
-                <dbCredsFile>local-db2-creds.yaml</dbCredsFile>
+                <dbCredsFile>docker-db2-creds.yaml</dbCredsFile>
             </properties>
 
             <dependencies>
                 <dependency>
                     <groupId>com.ibm.db2</groupId>
                     <artifactId>db2jcc_license_cu</artifactId>
-                    <version>10.5.0.5</version>
+                    <version>${db2.version}</version>
                     <scope>test</scope>
                 </dependency>
                 <dependency>
                     <groupId>com.ibm.db2</groupId>
                     <artifactId>db2jcc4</artifactId>
-                    <version>10.5.0.5</version>
+                    <version>${db2.version}</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>setup-db2</id>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <phase>pre-integration-test</phase>
+                                <configuration>
+                                    <target>
+                                        <exec executable="${basedir}/db2-setup.sh">
+                                            <arg value="${db2.version}" />
+                                        </exec>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>

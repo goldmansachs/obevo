@@ -29,23 +29,23 @@ environments:
     driverClass: com.microsoft.sqlserver.jdbc.SQLServerDriver
     cleanBuildAllowed: true
     forceEnvInfraSetup: true
-    jdbcUrl: jdbc:sqlserver://dbdeploy-sqlserver-13-0.cck7fvo3o8pf.us-east-1.rds.amazonaws.com:1433
-    defaultUserId: deploybuilddbo
-    defaultPassword: deploybuilddb0
-  - name: v13_schema
-    type: MSSQL
-    metaschema: dbdeploy03.schema3
-    sourcePath: platforms/mssql/step${stepNumber}
-    schemas:
-      schema:
-      - name: oats
-    schemaOverrides:
-      schemaOverride:
-      - schema: oats
-        overrideValue: dbdeploy01.schema1
-    driverClass: com.microsoft.sqlserver.jdbc.SQLServerDriver
-    cleanBuildAllowed: true
-    forceEnvInfraSetup: true
-    jdbcUrl: jdbc:sqlserver://dbdeploy-sqlserver-13-0.cck7fvo3o8pf.us-east-1.rds.amazonaws.com:1433
-    defaultUserId: deploybuilddbo
-    defaultPassword: deploybuilddb0
+    jdbcUrl: jdbc:sqlserver://localhost:1433
+    defaultUserId: sa
+    defaultPassword: Deploybuilddb0!
+#  - name: v13_schema
+#    type: MSSQL
+#    metaschema: dbdeploy03.schema3
+#    sourcePath: platforms/mssql/step${stepNumber}
+#    schemas:
+#      schema:
+#      - name: oats
+#    schemaOverrides:
+#      schemaOverride:
+#      - schema: oats
+#        overrideValue: dbdeploy01.schema1
+#    driverClass: com.microsoft.sqlserver.jdbc.SQLServerDriver
+#    cleanBuildAllowed: true
+#    forceEnvInfraSetup: true
+#    jdbcUrl: jdbc:sqlserver://localhost:1433
+#    defaultUserId: sa
+#    defaultPassword: Deploybuilddb0

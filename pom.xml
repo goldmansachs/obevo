@@ -208,6 +208,10 @@
                     <artifactId>maven-notice-plugin</artifactId>
                     <version>1.1.0</version>
                 </plugin>
+                <plugin>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>1.8</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -275,6 +279,9 @@
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>-DdbCredsFile=${dbCredsFile}</argLine>
+                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
@@ -390,7 +397,7 @@
                                     <version>1.7.0</version>
                                 </requireJavaVersion>
                                 <requireMavenVersion>
-                                    <version>3.2.5</version>
+                                    <version>3.3.1</version>
                                 </requireMavenVersion>
                             </rules>
                             <fail>true</fail>
@@ -668,19 +675,6 @@
     </reporting>
 
     <profiles>
-        <profile>
-            <id>amazon-build</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <argLine>-DdbCredsFile=${dbCredsFile}</argLine>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
         <profile>
             <id>release</id>
             <properties>
