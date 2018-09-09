@@ -20,7 +20,7 @@ set -x
 
 INSTANCE_PORT=1433
 INSTANCE_DBNAME="dbdeploy"
-INSTANCE_SCHEMAS="dbdeploy01 dbdeploy02 dbdeploy03"
+INSTANCE_SCHEMAS="dbdeploy03 dbdeploy01 dbdeploy02"
 INSTANCE_SUBSCHEMAS="schema1 schema2 schema3"
 INSTANCE_USERID="sa"  # note - this user ID is hardcoded by the container
 INSTANCE_PASSWORD="<YourStrong!Passw0rd>"
@@ -47,7 +47,7 @@ docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=$INSTANCE_PASSWORD" \
 echo "Container created"
 
 for SCHEMA in $INSTANCE_SCHEMAS; do
-    docker exec -it $CONTAINER_NAME /opt/mssql-tools/bin/sqlcmd \
+    docker exec $CONTAINER_NAME /opt/mssql-tools/bin/sqlcmd \
        -S localhost -U $INSTANCE_USERID -P "$INSTANCE_PASSWORD" \
        -Q "CREATE DATABASE $SCHEMA"
 
