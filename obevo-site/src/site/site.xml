@@ -108,8 +108,8 @@
         </menu>
         <menu name="Developer Information">
             <item name="Developer Guide" href="developer-guide.html">
+                <item name="Docker-based Test DB Setup" href="dev-setup-docker.html" />
                 <item name="Amazon RDS DB Setup" href="dev-setup-amazon.html" />
-                <item name="DB2 Test DB Setup" href="dev-setup-db2.html" />
                 <item name="Sybase ASE Test DB Setup" href="dev-setup-sybase-ase.html" />
             </item>
             <item name="Design Walkthrough" href="design-walkthrough.html" />
