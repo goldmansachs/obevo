@@ -1,27 +1,97 @@
 # Contributing to Obevo
 
 This file contains information about reporting issues as well as contributing code. Make sure
-you read our [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md) before you
-start participating.
+you read our [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md) before you start participating.
 
-For code contributions, read the [BUILD.md](BUILD.md) instructions. If you're considering a larger piece of
-work, start with an enhancement request and make sure committers are supportive of the work. Reading the
-Obevo framework philosophy would be helpful. 
 
-## Reporting Issues
-Please use GitHub Issues for issue submission. We strongly prefer issues that have reproducible test cases.
+# Development and Build Environment
+
+Obevo's development environment relies on the following:
+
+### 1) Java 8 for build, and Java 7 for runtime / usage
+
+To obtain for:
+* MacOS: use the Homebrew package manager
+* Any OS: you can also try the Oracle links
+** [Oracle JDK Download](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+** [OpenJDK Download](http://openjdk.java.net/install/)
+
+Note:
+* Language: Java 7 syntax and Kotlin (compiling Kotlin to Java 6 bytecode).
+* The Obevo binary byte code is in Java 7, so Java 7 users can still leverage Obevo.
+* We do still need Java 8 for build-time as the Kotlin libraries need Java 8 to run.
+* To enforce Java 7 compatibility, we use:
+** [Animal Sniffer plugin](https://www.mojohaus.org/animal-sniffer/) to ensure that we do not refer to any JDK 8 APIs
+** Tests against the Java 7 binary in Travis CI
+
+### 2) Maven 3.3.1 or higher
+
+[Download](https://maven.apache.org/download.cgi)
+
+### 3) IDE
+
+The main developers use [IntelliJ](https://www.jetbrains.com/idea/download/). Hence, the IDE files for IntelliJ (*.iml, .idea) have been checked in - this particularly
+helps with enforcing the code formatting standards.
+
+If you use another IDE and would like to commit the IDE files, please raise an issue and discuss with the Obevo team.
+
+### 4) (Optional) Docker
+
+We use [Docker](https://www.docker.com/get-started) for integrating testing some of the DBMS environments. More
+instructions are available in the developer guide.
+
+
+# Developer Guide
+
+Please visit the [Developer Guide](https://goldmansachs.github.io/obevo/developer-guide.html) for notes on
+developing with Obevo.
+
+The guide includes:
+
+* Navigating the code, unit tests, and integration tests
+* How to setup your own test databases for each supported DBMS type
+* Guidance on adding new DBMS implementations
+
+
+# Issues
+Search the [issue tracker](https://github.com/goldmansachs/obevo/issues) for a relevant issue or create a new one.
+
+For good candidates to try out, use the "good first issue", "help wanted - small", or "help wanted - medium" labels.
+
 To contribute a test case follow the same process as contributing a feature.
 
-## Contributing Code
-Code contributions are accepted via the normal GitHub pull request mechanism. Code must pass existing tests,
-have its own set of tests, be formatted correctly and be consistent with the overall Obevo vision.
-It must follow the pull request procedure outlined below.
 
-### Coding Style
+# Making changes
+Fork the repository in GitHub and make changes in your fork.
+
+Please add a description of your changes to the [Change Log](CHANGELOG.md).
+
+Before you submit your first pull request, please first submit a DCO, per the instructions in the last seciton on this page.
+
+Finally, submit a pull request. In your pull requests:
+* Make sure you [rebase your fork](https://github.com/edx/edx-platform/wiki/How-to-Rebase-a-Pull-Request) so that pull requests can be fast-forward merges.
+* We generally prefer squashed commits, unless multi-commits add clarity or are required for mixed copyright commits.
+* Your commit message for your code must contain a `covered by: <dco>` line. See above.
+* Every file you modify should contain a single line with copyright information after the Apache header:
+```
+//Portions copyright <copyright holder>. Licensed under Apache 2.0 license
+```
+* New files must contain the standard Apache 2.0 header with appropriate copyright holder.
+* If you're going to contribute code from other open source projects, commit that code first with `covered by: <license>`
+where `<license>` is license of the code being committed. Ensure the file retains its original copyright notice and add an appropriate line to
+NOTICE.txt in the same commit. You can then modify that code in subsequent commits with a reference to your DCO and copyright.
+
+
+# Coding Style
+Obevo follows a coding style that is similar to [Google's Style Guide for Java](https://google.github.io/styleguide/javaguide.html).
+Many aspects of the style guide are enforced by CheckStyle and the IntelliJ code formatter, but not all, so please take care.
+
+Simple notes on the style:
 * Use 4 spaces for indentation. No tabs.
 * Use the [https://en.wikipedia.org/wiki/Indent_style#Variant:_1TBS_.28OTBS.29](egyptian style braces coding) for braces.
 
-### Before your first code pull request
+
+# Appendix: Contribution Prerequisite: Submitting a DCO
 
 If you have never contributed to Obevo, or your copyright ownership has changed, you must first create a pull request that has
 a developer certificate of origin (DCO) in it. To create this file, follow these steps:
@@ -68,17 +138,3 @@ This certification is effective for all code contributed from <date submitted> t
 `<your name>` must reference your real name; we will not accept aliases, pseudonyms or anonymous contributions.
 Issue a pull request with the appropriate DCO and a change to NOTICE.txt with
 one line `This product contains code copyright <copyright holder name>, licensed under Apache 2.0 license`.
-
-### Pull requests
-When you create a code pull request, please follow these guidelines:
-* Make sure you rebase your fork so that pull requests can be fast-forward merges.
-* We generally prefer squashed commits, unless multi-commits add clarity or are required for mixed copyright commits.
-* Your commit message for your code must contain a `covered by: <dco>` line. See above.
-* Every file you modify should contain a single line with copyright information after the Apache header: 
-```
-//Portions copyright <copyright holder>. Licensed under Apache 2.0 license
-```
-* New files must contain the standard Apache 2.0 header with appropriate copyright holder.
-* If you're going to contribute code from other open source projects, commit that code first with `covered by: <license>`
-where `<license>` is license of the code being committed. Ensure the file retains its original copyright notice and add an appropriate line to 
-NOTICE.txt in the same commit. You can then modify that code in subsequent commits with a reference to your DCO and copyright.

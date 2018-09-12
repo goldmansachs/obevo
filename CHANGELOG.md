@@ -7,6 +7,7 @@
 ### Technical Improvements
 Moving more of the code over to Kotlin
 #153: Refactor of dependency implementation
+#193: Docker onboarding for testing
 
 ### Bug Fixes
 

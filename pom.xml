@@ -499,7 +499,6 @@
                         <!-- Standard project files to exclude -->
                         <exclude>**/.idea/**</exclude>
                         <exclude>**/.travis.yml</exclude>
-                        <exclude>**/BUILD.md</exclude>
                         <exclude>**/CHANGELOG.md</exclude>
                         <exclude>**/CONTRIBUTING.md</exclude>
                         <exclude>**/CODE_OF_CONDUCT.md</exclude>
@@ -509,6 +508,7 @@
                         <exclude>**/NOTICE.txt</exclude>
                         <exclude>**/NOTICE.template.txt</exclude>
                         <exclude>**/README.md</exclude>
+                        <exclude>**/SDLC_NOTES.md</exclude>
 
                         <!-- Excluding the reverse-engineering files  -->
                         <exclude>**/test/resources/**/reveng/**</exclude>

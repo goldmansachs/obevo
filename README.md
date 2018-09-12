@@ -38,6 +38,11 @@ Feel free to reach out to us if you'd like to apply our core algorithm onto a ne
 |[Command Line API](https://goldmansachs.github.io/obevo/command-line-api.html)|[Gradle](https://goldmansachs.github.io/obevo/gradle-api.html)|
 
 
+## How to Contribute?
+
+Please see the [Contribution Guide](CONTRIBUTING.md).
+
+
 ## Why Use Obevo?
 
 ### Organized maintenance of all your DB object files to handle all use cases
