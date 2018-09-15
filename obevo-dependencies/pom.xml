@@ -58,6 +58,11 @@
             </dependency>
             <dependency>
                 <groupId>us.fatehi</groupId>
+                <artifactId>schemacrawler-mysql</artifactId>
+                <version>${schemacrawler.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>us.fatehi</groupId>
                 <artifactId>schemacrawler-sybaseiq</artifactId>
                 <version>${schemacrawler-iq.version}</version>
             </dependency>
@@ -300,6 +305,11 @@
                         <artifactId>azure-keyvault</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>8.0.12</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

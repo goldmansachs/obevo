@@ -1,0 +1,41 @@
+#
+# Copyright 2017 Goldman Sachs.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+environments:
+  environment:
+  - name: testdefault
+    type: MYSQL
+    metaschema: dbdeploy03
+    sourcePath: platforms/mysql/example1/step${stepNumber}
+    # NOTE - all these files are in PostgreSQL dialect; these files were just copied over. Please correct and edit
+    schemas:
+      schema:
+      - name: schema1
+      - name: schema2
+      - name: schema3
+    schemaOverrides:
+      schemaOverride:
+      - schema: schema1
+        overrideValue: dbdeploy01
+      - schema: schema2
+        overrideValue: dbdeploy02
+      - schema: schema3
+        overrideValue: dbdeploy03
+    driverClass: com.mysql.cj.jdbc.Driver
+    cleanBuildAllowed: true
+    forceEnvInfraSetup: true
+    jdbcUrl: jdbc:mysql://localhost:3306?allowPublicKeyRetrieval=true&useSSL=false
+    defaultUserId: root
+    defaultPassword: "Deploybuilddb0!"  # password is set in mysql-setup.sh

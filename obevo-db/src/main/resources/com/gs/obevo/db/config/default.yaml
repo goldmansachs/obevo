@@ -42,6 +42,10 @@ db:
       class: com.gs.obevo.db.impl.platforms.mssql.MsSqlDbPlatform
       dbMetadataManager:
         class: com.gs.obevo.dbmetadata.impl.dialects.MsSqlDbMetadataManager
+    MYSQL:
+      class: com.gs.obevo.db.impl.platforms.mysql.MySqlDbPlatform
+      dbMetadataManager:
+        class: com.gs.obevo.dbmetadata.impl.dialects.MySqlDbMetadataManager
     SYBASE_ASE:
       class: com.gs.obevo.db.impl.platforms.sybasease.AseDbPlatform
       dbMetadataManager:

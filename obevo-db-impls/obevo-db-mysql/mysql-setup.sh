@@ -18,14 +18,13 @@ set -x
 # under the License.
 #
 
-INSTANCE_PORT=1433
+INSTANCE_PORT=3306
 INSTANCE_DBNAME="dbdeploy"
 INSTANCE_SCHEMAS="dbdeploy03 dbdeploy01 dbdeploy02"
-INSTANCE_SUBSCHEMAS="schema1 schema2 schema3"
-INSTANCE_USERID="sa"  # note - this user ID is hardcoded by the container
+INSTANCE_USERID="root"  # note - this user ID is hardcoded by the container
 INSTANCE_PASSWORD="Deploybuilddb0!"
 
-CONTAINER_IMAGE="microsoft/mssql-server-linux:2017-latest"
+CONTAINER_IMAGE="mysql:latest"
 CONTAINER_NAME=obevo-mssql-instance
 
 OLD_CONTAINER_ID=$(docker ps -aqf "name=$CONTAINER_NAME")
@@ -39,20 +38,17 @@ fi
 echo "Setting password $INSTANCE_PASSWORD"
 
 docker pull $CONTAINER_IMAGE
-docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=$INSTANCE_PASSWORD" \
+docker run -e "MYSQL_ROOT_PASSWORD=$INSTANCE_PASSWORD" \
    -p $INSTANCE_PORT:$INSTANCE_PORT --name $CONTAINER_NAME \
    -d $CONTAINER_IMAGE
 
 echo "Container created"
 
-for SCHEMA in $INSTANCE_SCHEMAS; do
-    docker exec $CONTAINER_NAME /opt/mssql-tools/bin/sqlcmd \
-       -S localhost -U $INSTANCE_USERID -P "$INSTANCE_PASSWORD" \
-       -Q "CREATE DATABASE $SCHEMA"
+#for SCHEMA in $INSTANCE_SCHEMAS; do
+#    docker run -it --link $CONTAINER_NAME --rm mysql sh -c 'exec mysql -h"localhost" -P"$INSTANCE_PORT" -uroot -p"$INSTANCE_PASSWORD"'
+#    docker run -it --link $CONTAINER_NAME --rm mysql sh -c 'exec mysql -h"$MYSQL_PORT_3306_TCP_ADDR" -P"$MYSQL_PORT_3306_TCP_PORT" -uroot -p"$MYSQL_ENV_MYSQL_ROOT_PASSWORD"'
 
-#    for SUBSCHEMA in $INSTANCE_SUBSCHEMAS; do
-#        docker exec $CONTAINER_NAME /opt/mssql-tools/bin/sqlcmd \
-#           -S localhost -U $INSTANCE_USERID -P "$INSTANCE_PASSWORD" \
-#           -Q "CREATE SCHEMA $SUBSCHEMA AUTHORIZATION $SCHEMA"
-#    done
-done
+#    docker exec $CONTAINER_NAME /opt/mssql-tools/bin/sqlcmd \
+#       -S localhost -U $INSTANCE_USERID -P "$INSTANCE_PASSWORD" \
+#       -Q "CREATE DATABASE $SCHEMA"
+#done

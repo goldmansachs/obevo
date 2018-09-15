@@ -65,6 +65,11 @@
         </dependency>
         <dependency>
             <groupId>com.goldmansachs.obevo</groupId>
+            <artifactId>obevo-db-mysql</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.goldmansachs.obevo</groupId>
             <artifactId>obevo-db-oracle</artifactId>
             <version>${project.version}</version>
         </dependency>

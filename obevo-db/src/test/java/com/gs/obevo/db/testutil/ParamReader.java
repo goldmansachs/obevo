@@ -35,6 +35,7 @@ import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.ImmutableHierarchicalConfiguration;
 import org.apache.commons.configuration2.tree.ImmutableNode;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.function.primitive.IntToObjectFunction;
 import org.eclipse.collections.api.list.MutableList;
@@ -144,6 +145,7 @@ public class ParamReader {
     private static DbEnvironment replaceStepNumber(String input, int stepNumber, ImmutableHierarchicalConfiguration config) {
         String stepPath = input.replace("${stepNumber}", String.valueOf(stepNumber));
         FileObject sourcePath = FileRetrievalMode.CLASSPATH.resolveSingleFileObject(stepPath);
+        Validate.notNull(sourcePath, "Could not find directory path " + stepPath);
 
         DbEnvironmentXmlEnricher enricher = new DbEnvironmentXmlEnricher();
         return enricher.readEnvironment(config, sourcePath);
