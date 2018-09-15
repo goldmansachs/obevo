@@ -14,6 +14,7 @@
     <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-hsql" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-internal-test-helper" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-mssql" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-mysql" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-oracle" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-postgresql" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-scenario-tests" charset="UTF-8" />

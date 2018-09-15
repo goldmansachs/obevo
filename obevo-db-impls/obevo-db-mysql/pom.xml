@@ -84,6 +84,7 @@ under the License.
                                 </goals>
                                 <phase>pre-integration-test</phase>
                                 <configuration>
+                                    <skip>${skipTests}</skip>
                                     <target>
                                         <exec executable="${basedir}/mysql-setup.sh" />
                                     </target>

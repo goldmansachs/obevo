@@ -92,6 +92,7 @@
                                 </goals>
                                 <phase>pre-integration-test</phase>
                                 <configuration>
+                                    <skip>${skipTests}</skip>
                                     <target>
                                         <exec executable="${basedir}/mssql-setup.sh" />
                                     </target>

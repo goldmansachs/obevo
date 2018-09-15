@@ -138,6 +138,7 @@ A couple integrations tests for DB2 are failing in the Docker environment. Disab
                                 </goals>
                                 <phase>pre-integration-test</phase>
                                 <configuration>
+                                    <skip>${skipTests}</skip>
                                     <target>
                                         <exec executable="${basedir}/db2-setup.sh">
                                             <arg value="${db2.version}" />
