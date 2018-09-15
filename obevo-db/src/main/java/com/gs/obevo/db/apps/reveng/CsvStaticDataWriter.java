@@ -33,7 +33,7 @@ import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.platform.DbDeployerAppContext;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.db.api.platform.SqlExecutor;
-import com.gs.obevo.db.impl.core.changetypes.CsvReaderDataSource;
+import com.gs.obevo.db.impl.core.changetypes.CsvStaticDataReader;
 import com.gs.obevo.dbmetadata.api.DaNamedObject;
 import com.gs.obevo.dbmetadata.api.DaSchemaInfoLevel;
 import com.gs.obevo.dbmetadata.api.DaTable;
@@ -97,7 +97,7 @@ class CsvStaticDataWriter {
         for (String table : dataTables) {
             System.out.println("Working on table " + table + " at " + new Date());
 
-            CSVFormat csvFormat = CsvReaderDataSource.getCsvFormat(env.getDataDelimiter(), env.getNullToken()).withQuoteMode(QuoteMode.NON_NUMERIC);
+            CSVFormat csvFormat = CsvStaticDataReader.getCsvFormat(env.getDataDelimiter(), env.getNullToken()).withQuoteMode(QuoteMode.NON_NUMERIC);
             mw.writeTable(env.getPlatform(), physicalSchema, table.trim(),
                     new File(args.getOutputPath(), env.getPlatform().getChangeType(ChangeType.STATICDATA_STR).getDirectoryName()),
                     args.getUpdateTimeColumns(), csvFormat);
