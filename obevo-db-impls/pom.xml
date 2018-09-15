@@ -36,6 +36,7 @@
         <module>obevo-db-sybase-iq</module>
         <module>obevo-db-db2</module>
         <module>obevo-db-mssql</module>
+        <module>obevo-db-mysql</module>
         <module>obevo-db-postgresql</module>
         <module>obevo-db-oracle</module>
         <module>obevo-db-internal-test-helper</module>
