@@ -15,6 +15,7 @@
         <module name="obevo-db-hsql" />
         <module name="obevo-db-internal-test-helper" />
         <module name="obevo-db-mssql" />
+        <module name="obevo-db-mysql" />
         <module name="obevo-db-oracle" />
         <module name="obevo-db-postgresql" />
         <module name="obevo-db-scenario-tests" />
@@ -44,6 +45,7 @@
       <module name="obevo-db-impls" target="1.7" />
       <module name="obevo-db-internal-test-helper" target="1.7" />
       <module name="obevo-db-mssql" target="1.7" />
+      <module name="obevo-db-mysql" target="1.7" />
       <module name="obevo-db-oracle" target="1.7" />
       <module name="obevo-db-postgresql" target="1.7" />
       <module name="obevo-db-scenario-tests" target="1.7" />

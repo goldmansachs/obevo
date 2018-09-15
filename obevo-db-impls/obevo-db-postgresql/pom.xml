@@ -76,6 +76,7 @@
                                 </goals>
                                 <phase>pre-integration-test</phase>
                                 <configuration>
+                                    <skip>${skipTests}</skip>
                                     <target>
                                         <exec executable="${basedir}/postgresql-setup.sh" />
                                     </target>

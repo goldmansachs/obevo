@@ -34,12 +34,14 @@ This product depends on (links to) the following software:
   juniversalchardet under Mozilla Public License 1.1 (MPL 1.1)
   Microsoft JDBC Driver for SQL Server under MIT License
   MongoDB Java Driver under The Apache Software License, Version 2.0
+  MySQL Connector/J under The GNU General Public License, v2 with FOSS exception
   obevo-core under The Apache License, Version 2.0
   obevo-db under The Apache License, Version 2.0
   obevo-db-db2 under The Apache License, Version 2.0
   obevo-db-h2 under The Apache License, Version 2.0
   obevo-db-hsql under The Apache License, Version 2.0
   obevo-db-mssql under The Apache License, Version 2.0
+  obevo-db-mysql under The Apache License, Version 2.0
   obevo-db-oracle under The Apache License, Version 2.0
   obevo-db-postgresql under The Apache License, Version 2.0
   obevo-db-sybase-ase under The Apache License, Version 2.0
@@ -51,10 +53,12 @@ This product depends on (links to) the following software:
   org.jetbrains.kotlin:kotlin-stdlib under The Apache License, Version 2.0
   org.jetbrains.kotlin:kotlin-stdlib-common under The Apache License, Version 2.0
   PostgreSQL JDBC Driver - JDBC 4.1 under The PostgreSQL License
+  Protocol Buffer Java API under New BSD license
   SchemaCrawler under Eclipse Public License - v 1.0
   SchemaCrawler for HyperSQL under Eclipse Public License - v 1.0
   SchemaCrawler for IBM DB2 under Eclipse Public License - v 1.0
   SchemaCrawler for Microsoft SQL Server under Eclipse Public License - v 1.0
+  SchemaCrawler for MySQL under Eclipse Public License - v 1.0
   SchemaCrawler for Oracle under Eclipse Public License - v 1.0
   SchemaCrawler for PostgreSQL under Eclipse Public License - v 1.0
   SchemaCrawler for Sybase IQ under Eclipse Public License - v 1.0
