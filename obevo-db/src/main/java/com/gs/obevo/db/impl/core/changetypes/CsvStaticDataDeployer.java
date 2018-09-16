@@ -67,7 +67,7 @@ import org.slf4j.LoggerFactory;
  * Deployer class for loading CSV data into the target table.
  *
  * The deployArtifact method in this class will read in the data from the CSV file and then delegate to the abstract
- * parseReconChanges method (implemented in the different subclasses) to do the actual loading. This is separated as
+ * executeInserts method (implemented in the different subclasses) to do the actual loading. This is separated as
  * there may be different ways to load data to the DB (e.g. incremental sqls vs. bulk loads,
  * and bulk load logic may differ across different DBMSs)
  *
@@ -79,6 +79,8 @@ import org.slf4j.LoggerFactory;
  */
 public class CsvStaticDataDeployer {
     private static final Logger LOG = LoggerFactory.getLogger(CsvStaticDataDeployer.class);
+
+    private static final int INSERT_BATCH_SIZE = 25;
 
     private final DbEnvironment env;
     private final DbMetadataManager metadataManager;
@@ -270,8 +272,7 @@ public class CsvStaticDataDeployer {
                         if (!fileColumnNames.contains(fieldToCompare)) {
                             continue;
                         }
-                        Object value = dataBreak.getDataObject().getValue(field);
-                        params.put(field, value);
+                        params.put(field, dataBreak.getDataObject().getValue(field));
                     }
 
                     if (updateTimeColumn != null) {
@@ -330,14 +331,12 @@ public class CsvStaticDataDeployer {
                 " VALUES " + insertValues.makeString("(", ", ", ")");
         LOG.info("Executing the insert " + sql);
 
-        // TODO parameterize this chunk value - sybase sometimes cannot take a large chunk
-        for (RichIterable<StaticDataInsertRow> chunkInsertRows : changeRows.getInsertRows().chunk(25)) {
+        for (RichIterable<StaticDataInsertRow> chunkInsertRows : changeRows.getInsertRows().chunk(INSERT_BATCH_SIZE)) {
             final Object[][] paramArrays = new Object[chunkInsertRows.size()][];
             chunkInsertRows.forEachWithIndex(new ObjectIntProcedure<StaticDataInsertRow>() {
                 @Override
                 public void value(StaticDataInsertRow insert, int i) {
-                    MutableList<Object> paramVals = insert.getParamVals();
-                    paramArrays[i] = paramVals.toArray(new Object[0]);
+                    paramArrays[i] = insert.getParamVals().toArray(new Object[0]);
                 }
             });
 

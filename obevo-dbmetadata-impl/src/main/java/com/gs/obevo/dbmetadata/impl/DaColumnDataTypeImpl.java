@@ -24,7 +24,7 @@ import schemacrawler.schema.ColumnDataType;
 public class DaColumnDataTypeImpl implements DaColumnDataType {
     private final ColumnDataType columnDataType;
 
-    public DaColumnDataTypeImpl(ColumnDataType columnDataType) {
+    DaColumnDataTypeImpl(ColumnDataType columnDataType) {
         this.columnDataType = Validate.notNull(columnDataType);
     }
 

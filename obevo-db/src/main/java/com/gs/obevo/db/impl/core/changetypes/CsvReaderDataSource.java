@@ -63,7 +63,7 @@ public class CsvReaderDataSource extends AbstractCatoDataSource {
             try {
                 MutableList<String> fields;
                 if (csvVersion == CsvStaticDataReader.CSV_V2) {
-                    CSVFormat csvFormat = getCsvFormat(delim, nullToken);
+                    CSVFormat csvFormat = CsvStaticDataReader.getCsvFormat(delim, nullToken);
                     this.csvreaderV2 = new CSVParser(reader, csvFormat);
                     this.iteratorV2 = csvreaderV2.iterator();
                     fields = ListAdapter.adapt(IteratorUtils.toList(iteratorV2.next().iterator()));
@@ -78,13 +78,6 @@ public class CsvReaderDataSource extends AbstractCatoDataSource {
             }
             this.initialized = true;
         }
-    }
-
-    /**
-     * Returns the standard CSV format used by Obevo by both readers (for deploy) and writers (for reverse-engineering) of CSV.
-     */
-    public static CSVFormat getCsvFormat(char delim, String nullToken) {
-        return CSVFormat.newFormat(delim).withRecordSeparator("\r\n").withIgnoreSurroundingSpaces(true).withQuote('"').withEscape('\\').withNullString(nullToken);
     }
 
     @Override

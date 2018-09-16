@@ -16,6 +16,7 @@
 package com.gs.obevo.db.impl.core.changetypes;
 
 import java.io.StringReader;
+import java.util.UUID;
 
 import com.gs.obevo.api.platform.DeployerRuntimeException;
 import com.gs.obevo.dbmetadata.api.DaColumn;
@@ -23,13 +24,21 @@ import com.gs.obevo.dbmetadata.api.DaTable;
 import com.gs.obevocomparer.data.CatoDataObject;
 import com.gs.obevocomparer.input.CatoDerivedField;
 import org.apache.commons.beanutils.ConvertUtilsBean;
+import org.apache.commons.csv.CSVFormat;
 import org.eclipse.collections.api.block.function.Function;
 
 public class CsvStaticDataReader {
     private static final int CSV_V1 = 1;  // 1 is the original
     public static final int CSV_V2 = 2;  // 2 is latest that fixes a number of CSV issues
 
-    public CsvReaderDataSource getFileDataSource(int csvVersion, DaTable table, String content, char dataDelimiter, String nullToken, Function<String, String> convertDbObjectName) {
+    /**
+     * Returns the standard CSV format used by Obevo by both readers (for deploy) and writers (for reverse-engineering) of CSV.
+     */
+    public static CSVFormat getCsvFormat(char delim, String nullToken) {
+        return CSVFormat.newFormat(delim).withRecordSeparator("\r\n").withIgnoreSurroundingSpaces(true).withQuote('"').withEscape('\\').withNullString(nullToken);
+    }
+
+    CsvReaderDataSource getFileDataSource(int csvVersion, DaTable table, String content, char dataDelimiter, String nullToken, Function<String, String> convertDbObjectName) {
         CsvReaderDataSource fileSource = new CsvReaderDataSource(csvVersion, "fileSource", new StringReader(content),
                 dataDelimiter, convertDbObjectName, nullToken);
         ConvertUtilsBean cub = new ConvertUtilsBean();
@@ -43,9 +52,12 @@ public class CsvStaticDataReader {
                 columnName = columnName.substring(1, columnName.length() - 1);
             }
             try {
-                // this is to handle "tinyint"
                 if (col.getColumnDataType().getTypeClassName().equalsIgnoreCase("byte")) {
+                    // this is to handle "tinyint"
                     targetClassName = Integer.class;
+                } else if (col.getColumnDataType().getName().equalsIgnoreCase("uuid")) {
+                    // handling UUID (first seen in Postgres)
+                    targetClassName = UUID.class;
                 } else {
                     targetClassName = Class.forName(col.getColumnDataType().getTypeClassName());
                 }
@@ -99,6 +111,8 @@ public class CsvStaticDataReader {
                 return null;
             } else if (!this.targetClass.equals(String.class) && value.equals("")) {
                 return null;
+            } else if (this.targetClass.equals(UUID.class) && value instanceof String) {
+                return UUID.fromString((String) value);
             } else if (csvVersion == CSV_V1 && this.nullToken != null && value.equals(this.nullToken)) {
                 // regardless of the output type, if the input was the null token string, we return null here
                 return null;
