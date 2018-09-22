@@ -20,6 +20,7 @@ import java.sql.SQLException;
 
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.dbmetadata.api.DaDirectory;
+import com.gs.obevo.dbmetadata.api.DaExtension;
 import com.gs.obevo.dbmetadata.api.DaPackage;
 import com.gs.obevo.dbmetadata.api.DaRoutine;
 import com.gs.obevo.dbmetadata.api.DaRoutineType;
@@ -100,4 +101,10 @@ public interface DbMetadataDialect {
      * @since 6.6.0
      */
     ImmutableSet<DaDirectory> getDirectoriesOptional(Connection conn) throws SQLException;
+
+    /**
+     * Retrieves the extension objects setup at the database level; pertinent for PostgreSQL only.
+     * @since 7.0.0
+     */
+    ImmutableSet<DaExtension> getExtensionsOptional(Connection conn) throws SQLException;
 }

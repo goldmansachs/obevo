@@ -51,6 +51,7 @@ public class PostgreSqlDeployerIT {
     public void testDeploy() throws Exception {
         getAppContext.valueOf(1)
                 .setupEnvInfra()
+                .setupEnvInfra()
                 .cleanEnvironment()
                 .deploy();
 

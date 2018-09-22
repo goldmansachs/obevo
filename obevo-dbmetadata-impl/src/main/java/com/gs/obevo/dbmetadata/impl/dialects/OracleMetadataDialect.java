@@ -93,7 +93,7 @@ public class OracleMetadataDialect extends AbstractMetadataDialect {
         return maps.collect(new Function<Map<String, Object>, DaDirectory>() {
             @Override
             public DaDirectory valueOf(Map<String, Object> map) {
-                return (DaDirectory) new DaDirectoryImpl((String) map.get("DIRECTORY_NAME"), (String) map.get("DIRECTORY_PATH"));
+                return new DaDirectoryImpl((String) map.get("DIRECTORY_NAME"), (String) map.get("DIRECTORY_PATH"));
             }
         }).toSet().toImmutable();
     }

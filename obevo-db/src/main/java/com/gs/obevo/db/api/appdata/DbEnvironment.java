@@ -66,6 +66,7 @@ public class DbEnvironment extends Environment<DbPlatform> {
     private int csvVersion = DbPlatformConfiguration.getInstance().getFeatureToggleVersion("csvVersion");
     private ImmutableMap<String, String> extraEnvAttrs;
     private ImmutableList<ServerDirectory> serverDirectories;
+    private ImmutableList<Extension> extensions;
 
     public DbEnvironment() {
     }
@@ -480,5 +481,13 @@ public class DbEnvironment extends Environment<DbPlatform> {
 
     public void setServerDirectories(ImmutableList<ServerDirectory> serverDirectories) {
         this.serverDirectories = serverDirectories;
+    }
+
+    public ImmutableList<Extension> getExtensions() {
+        return extensions == null ? Lists.immutable.<Extension>empty() : extensions;
+    }
+
+    public void setExtensions(ImmutableList<Extension> extensions) {
+        this.extensions = extensions;
     }
 }

@@ -38,6 +38,14 @@ environments:
     jdbcUrl: jdbc:postgresql://localhost:5432/postgres
     defaultUserId: postgres
     defaultPassword: mysecretpassword
+    groups:
+      group:
+      - name: grp1
+      - name: grp2
+    extensions:
+      extension:
+      - name: uuid-ossp
+
 #    jdbcUrl: jdbc:postgresql://dbdeploy-postgres-9-6.cck7fvo3o8pf.us-east-1.rds.amazonaws.com:5432/DBDEPLOY
 #    defaultUserId: deploybuilddbo
 #    defaultPassword: deploybuilddb0

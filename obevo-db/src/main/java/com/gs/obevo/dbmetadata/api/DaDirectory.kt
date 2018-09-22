@@ -13,14 +13,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.gs.obevo.dbmetadata.api;
+package com.gs.obevo.dbmetadata.api
 
 /**
- * Represents a Directory object, particularly used in Oracle; see <a href="https://docs.oracle.com/cd/B19306_01/server.102/b14200/statements_5007.htm">Oracle doc</a>.
+ * Represents a Directory object, particularly used in Oracle; see [Oracle doc](https://docs.oracle.com/cd/B19306_01/server.102/b14200/statements_5007.htm).
  *
- * Note that a directory is an object for the server, not just a schema. Hence, this does not extend {@link DaDatabaseObject}
+ * Note that a directory is an object for the server, not just a schema. Hence, this does not extend [DaDatabaseObject]
  * like many other DB object types.
  */
-public interface DaDirectory extends DaNamedObject {
-    String getDirectoryPath();
+interface DaDirectory : DaNamedObject {
+    val directoryPath: String
 }

@@ -17,6 +17,7 @@ package com.gs.obevo.db.api.factory;
 
 import com.gs.obevo.api.platform.Platform;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
+import com.gs.obevo.db.api.appdata.Extension;
 import com.gs.obevo.db.api.appdata.Grant;
 import com.gs.obevo.db.api.appdata.GrantTargetType;
 import com.gs.obevo.db.api.appdata.Group;
@@ -77,6 +78,12 @@ public class DbEnvironmentXmlEnricher extends AbstractEnvironmentEnricher<DbEnvi
             @Override
             public ServerDirectory value(ImmutableHierarchicalConfiguration cfg1, Tokenizer tokenizer2) {
                 return convertCfgToServerDirectory(cfg1, tokenizer2);
+            }
+        }, tokenizer));
+        dbEnv.setExtensions(iterConfig(envCfg, "extensions.extension").collectWith(new Function2<ImmutableHierarchicalConfiguration, Tokenizer, Extension>() {
+            @Override
+            public Extension value(ImmutableHierarchicalConfiguration cfg1, Tokenizer tokenizer2) {
+                return convertCfgToExtension(cfg1, tokenizer2);
             }
         }, tokenizer));
 
@@ -156,6 +163,12 @@ public class DbEnvironmentXmlEnricher extends AbstractEnvironmentEnricher<DbEnvi
         return new ServerDirectory(
                 tokenizer.tokenizeString(cfg.getString("name")),
                 tokenizer.tokenizeString(cfg.getString("directoryPath"))
+        );
+    }
+
+    private static Extension convertCfgToExtension(ImmutableHierarchicalConfiguration cfg, Tokenizer tokenizer) {
+        return new Extension(
+                tokenizer.tokenizeString(cfg.getString("name"))
         );
     }
 

@@ -16,15 +16,31 @@
 package com.gs.obevo.dbmetadata.impl.dialects;
 
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Map;
 
 import com.gs.obevo.api.appdata.PhysicalSchema;
+import com.gs.obevo.dbmetadata.api.DaExtension;
+import com.gs.obevo.dbmetadata.api.DaExtensionImpl;
 import com.gs.obevo.dbmetadata.api.DaRoutineType;
+import org.apache.commons.dbutils.handlers.ColumnListHandler;
+import org.apache.commons.dbutils.handlers.MapListHandler;
+import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.list.ImmutableList;
+import org.eclipse.collections.api.set.ImmutableSet;
+import org.eclipse.collections.impl.block.factory.StringFunctions;
 import org.eclipse.collections.impl.factory.Lists;
+import org.eclipse.collections.impl.factory.Sets;
+import org.eclipse.collections.impl.list.mutable.ListAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import schemacrawler.schema.RoutineType;
 import schemacrawler.schemacrawler.DatabaseSpecificOverrideOptionsBuilder;
 import schemacrawler.schemacrawler.SchemaCrawlerOptions;
 
 public class PostgresqlMetadataDialect extends AbstractMetadataDialect {
+    private static final Logger LOG = LoggerFactory.getLogger(OracleMetadataDialect.class);
+
     @Override
     public void customEdits(SchemaCrawlerOptions options, Connection conn) {
         // postgresql only supports FUNCTIONs in its syntax, not PROCEDUREs. However, the metadata still comes
@@ -79,5 +95,34 @@ public class PostgresqlMetadataDialect extends AbstractMetadataDialect {
     @Override
     public DaRoutineType getRoutineOverrideValue() {
         return DaRoutineType.function;
+    }
+
+    @Override
+    public ImmutableSet<DaExtension> getExtensionsOptional(Connection conn) throws SQLException {
+        final String sql = "SELECT DISTINCT EXTNAME FROM PG_EXTENSION";
+        LOG.debug("Executing extension metadata query SQL: {}", sql);
+
+        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(jdbc.query(conn, sql, new MapListHandler())).toImmutable();
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Results:");
+            for (Map<String, Object> map : maps) {
+                LOG.debug("ROW: {}", map.toString());
+            }
+        }
+
+        return maps.collect(new Function<Map<String, Object>, DaExtension>() {
+            @Override
+            public DaExtension valueOf(Map<String, Object> map) {
+                return new DaExtensionImpl((String) map.get("EXTNAME"));
+            }
+        }).toSet().toImmutable();
+    }
+
+    @Override
+    public ImmutableSet<String> getGroupNamesOptional(Connection conn, PhysicalSchema physicalSchema) throws SQLException {
+        return Sets.immutable
+                .withAll(jdbc.query(conn, "select rolname from pg_roles", new ColumnListHandler<String>()))
+                .collect(StringFunctions.trim());
     }
 }
