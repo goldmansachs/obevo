@@ -13,24 +13,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.gs.obevo.dbmetadata.api;
+package com.gs.obevo.dbmetadata.api
 
-public class DaDirectoryImpl implements DaDirectory {
-    private final String name;
-    private final String directoryPath;
+class DaExtensionImpl(private val name: String) : DaExtension {
 
-    public DaDirectoryImpl(String name, String directoryPath) {
-        this.name = name;
-        this.directoryPath = directoryPath;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public String getDirectoryPath() {
-        return directoryPath;
+    override fun getName(): String {
+        return name
     }
 }

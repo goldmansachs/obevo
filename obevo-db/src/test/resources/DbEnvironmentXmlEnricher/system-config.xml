@@ -82,6 +82,10 @@
         <serverDirectory name="dir1" directoryPath="path1" />
         <serverDirectory name="dir2" directoryPath="path2" />
     </serverDirectories>
+    <extensions>
+        <extension name="ext1" />
+        <extension name="ext2" />
+    </extensions>
     <environments>
         <dbEnvironment name="test1" type="DEV" cleanBuildAllowed="true" dbHost="host" dbPort="123" dbServer="dbServ"
             dbDataSourceName="dbSrc" dbSchemaPrefix="pref" dbSchemaSuffix="suff" defaultUserId="defId"
@@ -125,6 +129,10 @@
                 <serverDirectory name="dir2" directoryPath="path2_forTest2" />
                 <serverDirectory name="dir3" directoryPath="path3" />
             </serverDirectories>
+            <extensions>
+                <extension name="ext2" />
+                <extension name="ext3" />
+            </extensions>
         </dbEnvironment>
         <dbEnvironment name="test3" type="DEV" cleanBuildAllowed="true" dbHost="myhost1.me.com"
             dbPort="1234"

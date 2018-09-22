@@ -73,10 +73,14 @@ schemas:
 sourceDirs: DbEnvironmentXmlEnricher/extradir1,./src/test/resources/DbEnvironmentXmlEnricher/extradir2
 serverDirectories:
   serverDirectory:
-  - directoryPath: path1
-    name: dir1
-  - directoryPath: path2
-    name: dir2
+  - name: dir1
+    directoryPath: path1
+  - name: dir2
+    directoryPath: path2
+extensions:
+  extension:
+  - name: ext1
+  - name: ext2
 environments:
   dbEnvironment:
   - name: test1
@@ -135,6 +139,10 @@ environments:
         directoryPath: path2_forTest2
       - name: dir3
         directoryPath: path3
+    extensions:
+      extension:
+      - name: ext2
+      - name: ext3
   - name: test3
     autoReorgEnabled: 'true'
     dbPort: '1234'

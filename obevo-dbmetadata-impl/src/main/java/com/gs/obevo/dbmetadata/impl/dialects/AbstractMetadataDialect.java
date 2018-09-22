@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
 import com.gs.obevo.dbmetadata.api.DaDirectory;
+import com.gs.obevo.dbmetadata.api.DaExtension;
 import com.gs.obevo.dbmetadata.api.DaPackage;
 import com.gs.obevo.dbmetadata.api.DaRoutine;
 import com.gs.obevo.dbmetadata.api.DaRoutineType;
@@ -153,6 +154,11 @@ public abstract class AbstractMetadataDialect implements DbMetadataDialect {
 
     @Override
     public ImmutableSet<DaDirectory> getDirectoriesOptional(Connection conn) throws SQLException {
+        return null;  // by default, we will not support these operations
+    }
+
+    @Override
+    public ImmutableSet<DaExtension> getExtensionsOptional(Connection conn) throws SQLException {
         return null;  // by default, we will not support these operations
     }
 }

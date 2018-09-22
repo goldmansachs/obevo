@@ -3,6 +3,7 @@
 ## 7.0.0
 
 ### Functionality Improvements
+#199: Adding support for PostgreSQL roles and extensions in the environment setup step
 
 ### Technical Improvements
 Moving more of the code over to Kotlin

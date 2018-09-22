@@ -20,12 +20,12 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.appdata.Schema;
 import com.gs.obevo.api.factory.XmlFileConfigReader;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
+import com.gs.obevo.db.api.appdata.Extension;
 import com.gs.obevo.db.api.appdata.GrantTargetType;
 import com.gs.obevo.db.api.appdata.Group;
 import com.gs.obevo.db.api.appdata.Permission;
@@ -171,6 +171,20 @@ public class DbEnvironmentXmlEnricherTest {
         assertThat(env2.getServerDirectories(), containsInAnyOrder(
                 new ServerDirectory("dir2", "path2_forTest2"),
                 new ServerDirectory("dir3", "path3")
+        ));
+
+        // serverDirectories is defined as a parent attribute, so this should match across all envs ...
+        assertThat(env1.getExtensions(), containsInAnyOrder(
+                new Extension("ext1"),
+                new Extension("ext2")
+        ));
+        assertEquals(env3.getExtensions(), env1.getExtensions());
+        assertEquals(env4.getExtensions(), env1.getExtensions());
+
+        // ... but we override the value for env2
+        assertThat(env2.getExtensions(), containsInAnyOrder(
+                new Extension("ext2"),
+                new Extension("ext3")
         ));
 
         assertEquals(DbEnvironmentXmlEnricherTest1DbPlatform.class, env1.getPlatform().getClass());

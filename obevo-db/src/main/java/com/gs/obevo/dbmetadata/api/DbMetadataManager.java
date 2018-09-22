@@ -149,4 +149,10 @@ public interface DbMetadataManager {
      * @since 6.6.0
      */
     ImmutableSet<DaDirectory> getDirectoriesOptional();
+
+    /**
+     * Retrieves the extensions objects setup at the database level; pertinent for PostgreSQL only.
+     * @since 7.0.0
+     */
+    ImmutableSet<DaExtension> getExtensionsOptional();
 }
