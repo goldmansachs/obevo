@@ -10,6 +10,7 @@ Moving more of the code over to Kotlin
 #193: Docker onboarding for testing
 
 ### Bug Fixes
+#198: Static data loads for tables with self-referencing foreign keys are now able to work.
 
 
 ## 6.6.1

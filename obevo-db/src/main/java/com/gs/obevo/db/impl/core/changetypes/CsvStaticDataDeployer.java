@@ -107,7 +107,7 @@ public class CsvStaticDataDeployer {
      * The table list should be in proper insertion order via FK (i.e. if TABLE_B has an FK pointing to TABLE_A,
      * then TABLE_A should come first in the sorted list here)
      */
-    public final void deployArtifact(ListIterable<Change> staticDatas) {
+    final void deployArtifact(ListIterable<Change> staticDatas) {
         ListIterable<StaticDataChangeRows> staticDataChanges = staticDatas.collect(new Function<Change,
                 StaticDataChangeRows>() {
             @Override
@@ -279,7 +279,9 @@ public class CsvStaticDataDeployer {
                         params.put(updateTimeColumn, updateTime);
                     }
 
-                    inserts.add(new StaticDataInsertRow(params.toImmutable()));
+                    int rowNumber = (int) dataBreak.getDataObject().getValue(CsvReaderDataSource.ROW_NUMBER_FIELD);
+
+                    inserts.add(new StaticDataInsertRow(rowNumber, params.toImmutable()));
                     break;
                 case RIGHT: // db source should be a delete
                     LOG.debug("Found as delete {}", dataBreak);
@@ -301,6 +303,14 @@ public class CsvStaticDataDeployer {
                                 + reconBreak);
             }
         }
+
+        // sort this by the row number to assure that the insertion row from the CSV file remains preserved
+        inserts.sortThisBy(new Function<StaticDataInsertRow, Comparable>() {
+            @Override
+            public Comparable valueOf(StaticDataInsertRow object) {
+                return object.getRowNumber();
+            }
+        });
 
         return new StaticDataChangeRows(artifact.getPhysicalSchema(env), table, inserts.toImmutable(), updates.toImmutable(), deletes.toImmutable());
     }
@@ -336,7 +346,7 @@ public class CsvStaticDataDeployer {
             chunkInsertRows.forEachWithIndex(new ObjectIntProcedure<StaticDataInsertRow>() {
                 @Override
                 public void value(StaticDataInsertRow insert, int i) {
-                    paramArrays[i] = insert.getParamVals().toArray(new Object[0]);
+                    paramArrays[i] = insert.getParams().valuesView().toList().toArray(new Object[0]);
                 }
             });
 

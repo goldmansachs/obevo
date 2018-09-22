@@ -90,10 +90,6 @@ public class CsvStaticDataDeployerTest {
      */
     @Test
     public void testPrimaryKey() {
-        this.testPrimaryKeyOverride();
-    }
-
-    private void testPrimaryKeyOverride() {
         this.jdbc.execute(conn, "CREATE TABLE " + schema + "." + table + " (\n" +
                 "AID    INT NOT NULL,\n" +
                 "BID    INT NOT NULL,\n" +
@@ -138,6 +134,74 @@ public class CsvStaticDataDeployerTest {
         this.verifyRow(results.get(3), 3, 4, "ABC", null, 9, preDeployTime, true);
         this.verifyRow(results.get(4), 3, 4, "ABC", null, 9, preDeployTime, true);
         this.verifyRow(results.get(5), 4, 4, "0006", null, 9, preDeployTime, true);
+    }
+
+    /**
+     * See Javadoc for {@link #testRowInsertionOrderIsPreserved(boolean)}.
+     */
+    @Test
+    public void testRowInsertionOrderIsPreservedWithIntPk() {
+        testRowInsertionOrderIsPreserved(true);
+    }
+
+    /**
+     * See Javadoc for {@link #testRowInsertionOrderIsPreserved(boolean)}.
+     */
+    @Test
+    public void testRowInsertionOrderIsPreservedWithStringPk() {
+        testRowInsertionOrderIsPreserved(false);
+    }
+
+    /**
+     * Solving for use case where a table has a self-referencing primary key. In case the rows of the file are written
+     * in a different order from the natural sort order, then the insertions may fail if the difference calculation
+     * doesn't maintain the original row order. This test is here to verify that the order is preserved so that the
+     * inserts succeed (assuming that rows with foreign key references are added _after_ the rows where those primary
+     * keys are created).
+     */
+    private void testRowInsertionOrderIsPreserved(boolean intDataType) {
+        String keyType = intDataType ? "INT" : "VARCHAR(32)";
+
+        this.jdbc.execute(conn, "CREATE TABLE " + schema + "." + table + " (\n" +
+                "MYID    " + keyType + " NOT NULL,\n" +
+                "PARENTID    " + keyType + " NULL,\n" +
+                "PRIMARY KEY (MYID)\n" +
+                ")\n");
+        this.jdbc.execute(conn, "ALTER TABLE " + schema + "." + table + " ADD FOREIGN KEY (PARENTID) REFERENCES " + schema + "." + table + "(MYID)");
+
+        DbEnvironment env = new DbEnvironment();
+        env.setPlatform(PLATFORM);
+
+        Change artifact = mock(Change.class);
+        when(artifact.getPhysicalSchema(env)).thenReturn(new PhysicalSchema(schema));
+        when(artifact.getObjectName()).thenReturn(table);
+
+        String columnHeaders = "MYID,PARENTID";
+        when(artifact.getConvertedContent()).thenReturn(
+                columnHeaders + "\n" +
+                        "2,null\n" +
+                        "1,2\n" +
+                        "3,2\n" +
+                        "4,2\n" +
+                        "5,1\n" +
+                        "6,1\n" +
+                        ""
+        );
+
+        LocalDateTime preDeployTime = new LocalDateTime();
+
+        CsvStaticDataDeployer csvStaticDataDeployer = new CsvStaticDataDeployer(env, getSqlExecutor(), this.ds, metadataManager, new H2DbPlatform());
+        csvStaticDataDeployer.deployArtifact(artifact);
+        List<Map<String, Object>> results = this.jdbc.query(conn, "select * from " + schema + "." + table + " order by MYID",
+                new MapListHandler());
+        assertEquals(6, results.size());
+
+        this.verifyFkRow(results.get(0), intDataType, 1, 2);
+        this.verifyFkRow(results.get(1), intDataType, 2, null);
+        this.verifyFkRow(results.get(2), intDataType, 3, 2);
+        this.verifyFkRow(results.get(3), intDataType, 4, 2);
+        this.verifyFkRow(results.get(4), intDataType, 5, 1);
+        this.verifyFkRow(results.get(5), intDataType, 6, 1);
     }
 
     @Test
@@ -225,17 +289,20 @@ public class CsvStaticDataDeployerTest {
         this.verifyRow(results.get(3), 5, 5, "ABCD", null, 9, preDeployTime, true);
     }
 
+    private void verifyFkRow(Map<String, Object> stringObjectMap, boolean intDataType, int myId, Integer parentId) {
+        assertEquals(intDataType ? myId : String.valueOf(myId), stringObjectMap.get("MYID"));
+        assertEquals(intDataType || parentId == null ? parentId : String.valueOf(parentId), stringObjectMap.get("PARENTID"));
+    }
+
     private void verifyRow(Map<String, Object> stringObjectMap, Integer aId, Integer bId, String stringField,
             LocalDateTime timestampField, Integer cId, LocalDateTime startTime, boolean greater) {
         assertEquals(aId, stringObjectMap.get("AID"));
         assertEquals(bId, stringObjectMap.get("BID"));
         assertEquals(stringField, stringObjectMap.get("STRINGFIELD"));
-        LocalDateTime timestampFieldDbValue = stringObjectMap.get("TIMESTAMPFIELD") == null ? null : new LocalDateTime(
-                (java.sql.Timestamp) stringObjectMap.get("TIMESTAMPFIELD"));
+        LocalDateTime timestampFieldDbValue = stringObjectMap.get("TIMESTAMPFIELD") == null ? null : new LocalDateTime(stringObjectMap.get("TIMESTAMPFIELD"));
         assertEquals(timestampField, timestampFieldDbValue);
         assertEquals(cId, stringObjectMap.get("CID"));
-        LocalDateTime updateTimeFieldDbValue = stringObjectMap.get("UPDATETIMEFIELD") == null ? null : new LocalDateTime(
-                (java.sql.Timestamp) stringObjectMap.get("UPDATETIMEFIELD"));
+        LocalDateTime updateTimeFieldDbValue = stringObjectMap.get("UPDATETIMEFIELD") == null ? null : new LocalDateTime(stringObjectMap.get("UPDATETIMEFIELD"));
         if (greater) {
             assertThat(updateTimeFieldDbValue, greaterThan(startTime));
         } else {
