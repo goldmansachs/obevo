@@ -46,7 +46,7 @@ CREATE TABLE TABLE_SHARDED_1 (
 GO
 
 //// CHANGE name="reorg" parallelGroup="reorgGroup"
-call sysproc.admin_cmd ('reorg table ${MYSCHEMA_physicalName}.TABLE_SHARDED_1')
+call sysproc.admin_cmd ('reorg table ${MYSCHEMA_schemaSuffixed}TABLE_SHARDED_1')
 GO
 ```
 
@@ -54,13 +54,13 @@ TABLE_SHARDED_2.sql
 
 ```
 //// CHANGE name="init"
-CREATE TABLE TABLE_SHARDED_1 (
+CREATE TABLE TABLE_SHARDED_2 (
     FIELD1 INT NULL
 ) IN ${defaultTablespace}
 GO
 
 //// CHANGE name="reorg" parallelGroup="reorgGroup"
-call sysproc.admin_cmd ('reorg table ${MYSCHEMA_physicalName}.TABLE_SHARDED_1')
+call sysproc.admin_cmd ('reorg table ${MYSCHEMA_schemaSuffixed}TABLE_SHARDED_2')
 GO
 ```
 
@@ -68,13 +68,13 @@ TABLE_SHARDED_3.sql
 
 ```
 //// CHANGE name="init"
-CREATE TABLE TABLE_SHARDED_1 (
+CREATE TABLE TABLE_SHARDED_3 (
     FIELD1 INT NULL
 ) IN ${defaultTablespace}
 GO
 
 //// CHANGE name="reorg" parallelGroup="reorgGroup"
-call sysproc.admin_cmd ('reorg table ${MYSCHEMA_physicalName}.TABLE_SHARDED_1')
+call sysproc.admin_cmd ('reorg table ${MYSCHEMA_schemaSuffixed}TABLE_SHARDED_3')
 GO
 ```
 

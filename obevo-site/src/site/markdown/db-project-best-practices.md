@@ -84,10 +84,11 @@ Per the point above, we'd like to have flexibility in the schema to deploy to.
 You can define tokens yourself (see the [tokenization doc](environment-management.html)), or you can use the built-in
 tokens for the physical schema name. For example, assuming you've defined the logical schema name as THATSCHEMA in your
 system-config.xml that maps to the OTHERSCHEMA1 physical schema, use the token as below
-(\<logicalSchema\>\_physicalSchema)
+(\<logicalSchema\>_schemaSuffixed). Note that this token includes the dot separators (i.e. to handle DBMS types that
+sometimes require multiple dots as separators).
 
 ```
-CREATE VIEW MYVIEW1 AS SELECT * FROM ${THATSCHEMA_physicalName}.OTHER_TABLE
+CREATE VIEW MYVIEW1 AS SELECT * FROM ${THATSCHEMA_schemaSuffixed}OTHER_TABLE
 ```
 
 

@@ -189,6 +189,16 @@ logical schemas that you will maintain in this module.
 For each schema, you will then define the table, sp, view, data, ...
 folders
 
+
+## Separating Schema Packaging from Config
+
+In some use cases, you may want to separate the directories in which your config and your schema folders reside.
+
+It is worth going through the rest of this page first to understand the basics. But if you do want to explore
+separating your config and schemas, please see the [schema-and-config-packaging](schema-and-config-packaging.html) page
+for more details.
+
+
 ## File Structure (for all object types)
 
 ### Structure
@@ -564,6 +574,8 @@ code of the object or CHANGE, except:
 -   migration: No automatic inference is done. Users will have to define
     dependencies explicitly
 
+Note: cross-schema object dependencies cannot yet be inferred. Please use the explicit dependency specification for
+those use cases, described next.
 
 ### Explicit dependency definition by users to override/supplement the inferred dependency
 
@@ -598,6 +610,8 @@ String format for each dependency is one of the following:
 -   \[objectName\].\[changeName\]
 -   \[logicalSchemaName\].\[objectName\]
 -   \[logicalSchemaName\].\[objectName\].\[changeName\]
+
+(Reminder: use the logicalSchemaName here - not the physical schema name)
 
 Examples:
 

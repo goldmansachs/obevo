@@ -78,6 +78,7 @@
             <item name="DB Project Best Practices" href="db-project-best-practices.html" />
             <item name="Rollback" href="rollback.html" />
             <item name="Multiple Schema Management" href="multiple-schema-management.html" />
+            <item name="Separate Schema and Config Packaging" href="schema-and-config-packaging.html" />
             <item name="In-memory DB Testing" href="in-memory-db-testing.html" />
             <item name="Parallel Deploy Execution" href="parallel-deploy-execution.html" />
             <item name="ORM Integration" href="orm-integration.html" />
