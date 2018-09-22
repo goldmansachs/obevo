@@ -16,6 +16,7 @@
 package com.gs.obevo.db.impl.core.changetypes;
 
 import java.io.Reader;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -35,6 +36,8 @@ import org.eclipse.collections.impl.list.fixed.ArrayAdapter;
 import org.eclipse.collections.impl.list.mutable.ListAdapter;
 
 public class CsvReaderDataSource extends AbstractCatoDataSource {
+    static final String ROW_NUMBER_FIELD = "___ROW_NUMBER";
+
     private final Reader reader;
     private final char delim;
     private final Function<String, String> convertDbObjectName;
@@ -45,6 +48,7 @@ public class CsvReaderDataSource extends AbstractCatoDataSource {
     private au.com.bytecode.opencsv.CSVReader csvreaderV1;
     private MutableList<String> fields;
     private boolean initialized = false;
+    private int rowNumber = 0;
 
     public CsvReaderDataSource(int csvVersion, String name, Reader reader, char delim, Function<String, String> convertDbObjectName, String nullToken) {
         super(name, new NoOpTypeConverter());
@@ -97,43 +101,32 @@ public class CsvReaderDataSource extends AbstractCatoDataSource {
 
     @Override
     protected CatoDataObject nextDataObject() throws Exception {
+        final List<String> data;
         if (csvVersion == CsvStaticDataReader.CSV_V2) {
             if (!this.iteratorV2.hasNext()) {
                 return null;
             }
-            List<String> data = IteratorUtils.toList(iteratorV2.next().iterator());
-
-            if (data == null || data.size() == 0 || (data.size() == 1 && data.get(0).isEmpty())) {
-                return null;
-            } else if (data.size() != this.fields.size()) {
-                throw new IllegalArgumentException("This row does not have the right # of columns: expecting "
-                        + this.fields.size() + " columns, but the row was: " + Lists.mutable.with(data));
-            }
-
-            CatoDataObject dataObject = this.createDataObject();
-            for (int i = 0; i < data.size(); i++) {
-                dataObject.setValue(this.fields.get(i), data.get(i));
-            }
-
-            return dataObject;
+            data = IteratorUtils.toList(iteratorV2.next().iterator());
         } else {
-
-            String[] data = this.csvreaderV1.readNext();
-
-            if (data == null || data.length == 0 || (data.length == 1 && data[0].isEmpty())) {
-                return null;
-            } else if (data.length != this.fields.size()) {
-                throw new IllegalArgumentException("This row does not have the right # of columns: expecting "
-                        + this.fields.size() + " columns, but the row was: " + Lists.mutable.with(data));
-            }
-
-            CatoDataObject dataObject = this.createDataObject();
-            for (int i = 0; i < data.length; i++) {
-                dataObject.setValue(this.fields.get(i), data[i]);
-            }
-
-            return dataObject;
+            data = Arrays.asList(this.csvreaderV1.readNext());
         }
+
+        if (data == null || data.size() == 0 || (data.size() == 1 && data.get(0).isEmpty())) {
+            return null;
+        } else if (data.size() != this.fields.size()) {
+            throw new IllegalArgumentException("This row does not have the right # of columns: expecting "
+                    + this.fields.size() + " columns, but the row was: " + Lists.mutable.with(data));
+        }
+
+        CatoDataObject dataObject = this.createDataObject();
+        for (int i = 0; i < data.size(); i++) {
+            dataObject.setValue(this.fields.get(i), data.get(i));
+        }
+
+        // needed to preserve the order of rows in the difference calculation
+        dataObject.setValue(ROW_NUMBER_FIELD, rowNumber++);
+
+        return dataObject;
     }
 
     private static class NoOpTypeConverter implements CatoTypeConverter {

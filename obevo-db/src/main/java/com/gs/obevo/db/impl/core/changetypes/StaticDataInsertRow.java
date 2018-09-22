@@ -21,18 +21,20 @@ import org.eclipse.collections.api.map.sorted.ImmutableSortedMap;
 import org.eclipse.collections.impl.map.sorted.mutable.TreeSortedMap;
 
 public class StaticDataInsertRow {
+    private final int rowNumber;
     private final ImmutableSortedMap<String, Object> params;
 
-    StaticDataInsertRow(ImmutableMap<String, Object> params) {
+    StaticDataInsertRow(int rowNumber, ImmutableMap<String, Object> params) {
+        this.rowNumber = rowNumber;
         this.params = new TreeSortedMap(params.toMap()).toImmutable();
+    }
+
+    int getRowNumber() {
+        return rowNumber;
     }
 
     public MutableList<String> getInsertColumns() {
         return this.params.keysView().toList();
-    }
-
-    public MutableList<Object> getParamVals() {
-        return this.params.valuesView().toList();
     }
 
     public ImmutableSortedMap<String, Object> getParams() {
