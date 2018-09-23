@@ -108,6 +108,22 @@
             <version>0.9.1</version>
         </dependency>
         <dependency>
+            <groupId>org.jgrapht</groupId>
+            <artifactId>jgrapht-ext</artifactId>
+            <version>0.9.1</version>
+            <exclusions>
+                <!-- excluding these unused dependencies -->
+                <exclusion>
+                    <groupId>org.tinyjee.jgraphx</groupId>
+                    <artifactId>jgraphx</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>jgraph</groupId>
+                    <artifactId>jgraph</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>

@@ -30,6 +30,7 @@ This product depends on (links to) the following software:
   IntelliJ IDEA Annotations under The Apache Software License, Version 2.0
   JCL 1.1.1 implemented over SLF4J under MIT License
   JGraphT - Core under Eclipse Public License (EPL) 1.0
+  JGraphT - Ext under GNU Lesser General Public License Version 2.1, February 1999 or Eclipse Public License (EPL) 1.0
   Joda time under Apache 2
   juniversalchardet under Mozilla Public License 1.1 (MPL 1.1)
   Logback Classic Module under Eclipse Public License - v 1.0 or GNU Lesser General Public License

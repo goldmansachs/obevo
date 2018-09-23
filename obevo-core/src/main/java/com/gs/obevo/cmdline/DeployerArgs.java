@@ -18,6 +18,7 @@ package com.gs.obevo.cmdline;
 import java.io.File;
 import java.util.Arrays;
 
+import com.gs.obevo.api.platform.GraphExportFormat;
 import com.gs.obevo.util.inputreader.Credential;
 import com.sampullara.cli.Argument;
 import org.eclipse.collections.api.list.primitive.ImmutableBooleanList;
@@ -58,6 +59,8 @@ public class DeployerArgs {
     private boolean lenientSetupEnvInfra = false;
     private boolean strictSetupEnvInfra = false;
     private Boolean forceEnvSetup;
+    private File sourceGraphExportFile;
+    private String sourceGraphExportFormatStr;  // to be converted to enum in the getter
 
     @Argument(value = "env", required = false)
     public void setEnvNames(String[] envNames) {
@@ -382,5 +385,23 @@ public class DeployerArgs {
     @Argument(value = "forceEnvSetup", description = "Whether to create schema objects prior to object deployment; default is to go w/ the platform-specific behavior")
     public void setForceEnvSetup(Boolean forceEnvSetup) {
         this.forceEnvSetup = forceEnvSetup;
+    }
+
+    public File getSourceGraphExportFile() {
+        return sourceGraphExportFile;
+    }
+
+    @Argument(value = "sourceGraphExportFile", required = false, description = "file to write the graph represent of the input for")
+    public void setSourceGraphExportFile(File sourceGraphExportFile) {
+        this.sourceGraphExportFile = sourceGraphExportFile;
+    }
+
+    public GraphExportFormat getSourceGraphExportFormat() {
+        return GraphExportFormat.valueOf(sourceGraphExportFormatStr);
+    }
+
+    @Argument(value = "sourceGraphExportFormat", required = false, description = "output to write to, based on JGraphT implementation. Only used if sourceGraphExportFile is specified. Can be DOT, GML, GRAPHML, MATRIX. Default == DOT")
+    public void setSourceGraphExportFormatStr(String sourceGraphExportFormat) {
+        this.sourceGraphExportFormatStr = sourceGraphExportFormat;
     }
 }
