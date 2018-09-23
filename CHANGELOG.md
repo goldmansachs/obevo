@@ -4,6 +4,7 @@
 
 ### Functionality Improvements
 #199: Adding support for PostgreSQL roles and extensions in the environment setup step
+#202: Add option to export graph representation to a file
 
 ### Technical Improvements
 Moving more of the code over to Kotlin

@@ -15,6 +15,8 @@
  */
 package com.gs.obevo.api.platform;
 
+import java.io.File;
+
 import com.gs.obevo.api.ChangesetNamePredicate;
 import com.gs.obevo.api.appdata.ChangeKey;
 import com.gs.obevo.api.appdata.DeployExecutionAttribute;
@@ -37,6 +39,8 @@ public class MainDeployerArgs {
     private String reason;
     private ImmutableSet<? extends DeployExecutionAttribute> deployExecutionAttributes = Sets.immutable.empty();
     private String deployRequesterId;
+    private File sourceGraphExportFile;
+    private GraphExportFormat sourceGraphExportFormat;
 
     public Predicate<? super ChangeKey> getChangeInclusionPredicate() {
         return changeInclusionPredicate;
@@ -217,5 +221,21 @@ public class MainDeployerArgs {
     public MainDeployerArgs allChangesets(boolean allChangesets) {
         this.setAllChangesets(allChangesets);
         return this;
+    }
+
+    public File getSourceGraphExportFile() {
+        return sourceGraphExportFile;
+    }
+
+    public void setSourceGraphExportFile(File sourceGraphExportFile) {
+        this.sourceGraphExportFile = sourceGraphExportFile;
+    }
+
+    public GraphExportFormat getSourceGraphExportFormat() {
+        return sourceGraphExportFormat;
+    }
+
+    public void setSourceGraphExportFormat(GraphExportFormat sourceGraphExportFormat) {
+        this.sourceGraphExportFormat = sourceGraphExportFormat;
     }
 }

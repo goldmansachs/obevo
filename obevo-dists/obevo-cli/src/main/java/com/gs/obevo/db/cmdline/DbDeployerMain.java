@@ -73,6 +73,8 @@ public class DbDeployerMain extends AbstractMain<Environment> {
             if (args.getChangeCriteria() != null) {
                 dbArgs.setChangeInclusionPredicate(ChangeKeyPredicateBuilder.parseFullPredicate(args.getChangeCriteria()));
             }
+            dbArgs.setSourceGraphExportFile(args.getSourceGraphExportFile());
+            dbArgs.setSourceGraphExportFormat(args.getSourceGraphExportFormat());
 
             ctxt.deploy(dbArgs);
         }

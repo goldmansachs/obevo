@@ -15,6 +15,9 @@
  */
 package com.gs.obevo.cmdline;
 
+import java.io.File;
+
+import com.gs.obevo.api.platform.GraphExportFormat;
 import com.gs.obevo.util.ArgsParser;
 import org.junit.Test;
 
@@ -46,6 +49,14 @@ public class DeployerArgsTest {
         assertEquals("abc", args.getSourcePath());
         assertArrayEquals(new String[] { "c1", "c2", "c3" }, args.getChangesets());
         assertEquals(true, args.getForceEnvSetup());
+    }
+
+    @Test
+    public void testGraphArgs() {
+        DeployerArgs args = parseArgs("-sourcePath abc -sourceGraphExportFile /home/myfile.txt -sourceGraphExportFormat GML");
+        assertEquals("abc", args.getSourcePath());
+        assertEquals(new File("/home/myfile.txt"), args.getSourceGraphExportFile());
+        assertEquals(GraphExportFormat.GML, args.getSourceGraphExportFormat());
     }
 
     private DeployerArgs parseArgs(String argsStr) {

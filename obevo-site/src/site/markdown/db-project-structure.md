@@ -626,8 +626,7 @@ Examples:
 ### Tie-break logic for consistent order
 
 After the dependencies are declared, the changes are deployed respecting
-that order using[Topological
-Sort](https://en.wikipedia.org/wiki/Topological_sorting).
+that order using [Topological Sort](https://en.wikipedia.org/wiki/Topological_sorting).
 Apart from those mandated dependency orders, the sort order will break
 ties based on the following change types:
 
@@ -638,6 +637,15 @@ ties based on the following change types:
 5.  Stored Procedures
 6.  Migrations
 7.  Static Data
+
+
+### Graph Representation of Schema Objects
+
+Given that the basis of Obevo is to handle a graph representation of the schema, it would make sense to be able to
+represent the schema objects in a graph format.
+
+To enable this, use the -sourceGraphExportFile and -sourceGraphExportFormat arguments into the main deploy.sh client.
+The available formats are DOT (the default), GML, GRAPHML, and MATRIX.
 
 
 ## Managing Static Data / Code Tables

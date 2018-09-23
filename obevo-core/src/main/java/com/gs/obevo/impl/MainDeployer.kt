@@ -34,7 +34,12 @@ import org.eclipse.collections.impl.block.factory.Predicates
 import org.eclipse.collections.impl.block.factory.StringFunctions
 import org.eclipse.collections.impl.factory.Lists
 import org.eclipse.collections.impl.factory.Sets
+import org.jgrapht.DirectedGraph
+import org.jgrapht.ext.*
+import org.jgrapht.graph.DefaultEdge
 import org.slf4j.LoggerFactory
+import java.io.FileWriter
+import java.io.Writer
 import java.sql.Timestamp
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -205,6 +210,12 @@ class MainDeployer<P : Platform, E : Environment<P>>(
 
         val dependencyGraph = graphEnricher.createDependencyGraph(sourceChanges, deployerArgs.isRollback)
 
+        deployerArgs.sourceGraphExportFile?.let { sourceGraphOutputFile ->
+            val exporterFormat = deployerArgs.sourceGraphExportFormat ?: GraphExportFormat.DOT
+            val exporterFunc = getExporterFunc(exporterFormat)
+            FileWriter(sourceGraphOutputFile).use { exporterFunc(it, dependencyGraph) }
+        }
+
         sourceChanges.each { it.dependentChanges = GraphUtil.getDependencyNodes(dependencyGraph, it) }
 
         val artifactsToProcess = changesetCreator.determineChangeset(changePairs, sourceChanges, deployStrategy.isInitAllowedOnHashExceptions)
@@ -294,6 +305,28 @@ class MainDeployer<P : Platform, E : Environment<P>>(
 
                 LOG.info("Deploy complete!")
             }
+        }
+    }
+
+    private fun getExporterFunc(exporterFormat: Enum<GraphExportFormat>): (Writer, DirectedGraph<Change, DefaultEdge>) -> Unit {
+        val vertexNameProvider : VertexNameProvider<Change> = VertexNameProvider {
+            change : Change -> change.objectName + "." + change.changeName
+        }
+
+        when (exporterFormat) {
+            GraphExportFormat.DOT -> return { writer: Writer, graph: DirectedGraph<Change, DefaultEdge> ->
+                DOTExporter<Change, DefaultEdge>(IntegerNameProvider<Change>(), vertexNameProvider, null).export(writer, graph)
+            }
+            GraphExportFormat.GML -> return { writer: Writer, graph: DirectedGraph<Change, DefaultEdge> ->
+                GmlExporter<Change, DefaultEdge>(IntegerNameProvider<Change>(), vertexNameProvider, IntegerEdgeNameProvider<DefaultEdge>(), null).export(writer, graph)
+            }
+            GraphExportFormat.GRAPHML -> return { writer: Writer, graph: DirectedGraph<Change, DefaultEdge> ->
+                GraphMLExporter<Change, DefaultEdge>(IntegerNameProvider<Change>(), vertexNameProvider, IntegerEdgeNameProvider<DefaultEdge>(), null).export(writer, graph)
+            }
+            GraphExportFormat.MATRIX -> return { writer: Writer, graph: DirectedGraph<Change, DefaultEdge> ->
+                MatrixExporter<Change, DefaultEdge>().exportAdjacencyMatrix(writer, graph)
+            }
+            else -> throw IllegalArgumentException("Export Format $exporterFormat is not supported here")
         }
     }
 
