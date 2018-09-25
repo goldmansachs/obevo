@@ -35,7 +35,6 @@
     <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-oracle:14.16.01-java7" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-sqlserver:14.16.01-java7" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-db2:14.16.01-java7" level="project" />
-    <orderEntry type="library" name="Maven: org.jgrapht:jgrapht-ext:0.9.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.maven.plugin-tools:maven-plugin-annotations:3.5" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.maven:maven-artifact:3.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.codehaus.plexus:plexus-utils:2.0.4" level="project" />

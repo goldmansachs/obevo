@@ -29,7 +29,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.jgrapht:jgrapht-ext:0.9.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.amazonaws:aws-java-sdk-rds:1.11.271" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.amazonaws:aws-java-sdk-core:1.11.271" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.apache.httpcomponents:httpclient:4.5.2" level="project" />

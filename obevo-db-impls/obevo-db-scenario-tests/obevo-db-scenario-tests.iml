@@ -35,7 +35,6 @@
     <orderEntry type="library" scope="TEST" name="Maven: us.fatehi:schemacrawler-oracle:14.16.01-java7" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: us.fatehi:schemacrawler-sqlserver:14.16.01-java7" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: us.fatehi:schemacrawler-db2:14.16.01-java7" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: org.jgrapht:jgrapht-ext:0.9.1" level="project" />
     <orderEntry type="module" module-name="obevo-db-h2" scope="TEST" />
     <orderEntry type="module" module-name="obevo-db" scope="TEST" />
     <orderEntry type="library" scope="TEST" name="Maven: commons-dbutils:commons-dbutils:1.6" level="project" />

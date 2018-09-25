@@ -5,6 +5,8 @@
 ### Functionality Improvements
 #199: Adding support for PostgreSQL roles and extensions in the environment setup step
 #202: Add option to export graph representation to a file
+#196: Adding UUID support for CSV data loads for PostgreSQL
+Initial MySQL support (still in Alpha)
 
 ### Technical Improvements
 Moving more of the code over to Kotlin

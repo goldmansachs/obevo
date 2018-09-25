@@ -190,7 +190,7 @@ open class AbstractEnvironmentInfraSetup(
         if (failOnSetupException) {
             throw IllegalArgumentException(errorMessage, e)
         } else {
-            LOG.warn("$errorMessage: {}", e!!.message)
+            LOG.warn("$errorMessage: {}", e?.message)
             LOG.warn("Will proceed with deployment as you have configured this to just be a warning")
             deployMetricsCollector.addMetric(DeployMetrics.WARNINGS_PREFIX + ".envSetup." + metricsMessage, errorMessage)
         }
