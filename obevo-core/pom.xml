@@ -20,7 +20,7 @@
     <parent>
         <groupId>com.goldmansachs.obevo</groupId>
         <artifactId>obevo-dependencies</artifactId>
-        <version>6.6.2-SNAPSHOT</version>
+        <version>7.0.0</version>
         <relativePath>../obevo-dependencies</relativePath>
     </parent>
     <artifactId>obevo-core</artifactId>
