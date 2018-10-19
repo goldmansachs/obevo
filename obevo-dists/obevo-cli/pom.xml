@@ -36,7 +36,6 @@
                         </goals>
                         <id>make-app-assembly</id>
                         <configuration>
-                            <attach>false</attach>  <!-- we will not deploy this to Maven central -->
                             <descriptors>
                                 <descriptor>src/main/assembly/dist.xml</descriptor>
                             </descriptors>

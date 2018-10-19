@@ -397,7 +397,7 @@ public class DeployerArgs {
     }
 
     public GraphExportFormat getSourceGraphExportFormat() {
-        return GraphExportFormat.valueOf(sourceGraphExportFormatStr);
+        return sourceGraphExportFormatStr != null ? GraphExportFormat.valueOf(sourceGraphExportFormatStr) : null;
     }
 
     @Argument(value = "sourceGraphExportFormat", required = false, description = "output to write to, based on JGraphT implementation. Only used if sourceGraphExportFile is specified. Can be DOT, GML, GRAPHML, MATRIX. Default == DOT")
