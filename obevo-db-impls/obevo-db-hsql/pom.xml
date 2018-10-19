@@ -22,7 +22,7 @@
     <parent>
         <groupId>com.goldmansachs.obevo</groupId>
         <artifactId>obevo-db-impls</artifactId>
-        <version>7.0.0</version>
+        <version>7.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>obevo-db-hsql</artifactId>
