@@ -18,7 +18,6 @@ package com.gs.obevo.impl.text;
 import com.gs.obevo.db.sqlparser.tokenparser.SqlToken;
 import com.gs.obevo.db.sqlparser.tokenparser.SqlTokenParser;
 import com.gs.obevo.db.sqlparser.tokenparser.SqlTokenType;
-import com.gs.obevo.db.sqlparser.tokenparser.TokenMgrError;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.MutableList;
@@ -52,10 +51,6 @@ public class CommentRemover {
                     return sqlToken.getText();
                 }
             }).makeString(" ");
-        } catch (TokenMgrError e) {
-            // javacc will throw parsing exceptions as a java.lang.Error (!). We will catch this regardless
-            LOG.warn("Error in removing comments from [{}] due to a parsing error (possibly in quote parsing or invalid characters); will default to returning the original string", logMessage, e);
-            return content;
         } catch (Exception e) {
             // Let's have a catchall for all exceptions to return the original string if comment parsing fails anyway.
             LOG.warn("Error in removing comments from [{}] due to a parsing error (possibly in quote parsing or invalid characters); will default to returning the original string", logMessage, e);
