@@ -69,8 +69,8 @@ class ParamReader(
         private val LOG = LoggerFactory.getLogger(ParamReader::class.java)
 
         @JvmStatic
-        fun fromPath(configPath: String, defaultPath: String): ParamReader {
-            return fromPath(if (StringUtils.isNotBlank(configPath)) configPath else defaultPath)
+        fun fromPath(configPath: String?, defaultPath: String): ParamReader {
+            return fromPath(if (!configPath.isNullOrBlank()) configPath!! else defaultPath)
         }
 
         @JvmStatic
