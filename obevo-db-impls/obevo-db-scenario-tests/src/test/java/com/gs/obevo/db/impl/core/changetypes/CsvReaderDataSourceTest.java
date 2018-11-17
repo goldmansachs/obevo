@@ -16,6 +16,8 @@
 package com.gs.obevo.db.impl.core.changetypes;
 
 import java.io.StringReader;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 
 import com.gs.obevocomparer.compare.simple.SimpleCatoProperties;
@@ -28,12 +30,37 @@ import org.eclipse.collections.impl.block.factory.StringFunctions;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.utility.internal.IteratorIterate;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeTrue;
 
+@RunWith(Parameterized.class)
 public class CsvReaderDataSourceTest {
+    private final int csvVersion;
+
+    @Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][] {
+                { CsvStaticDataReader.CSV_V1 },
+                { CsvStaticDataReader.CSV_V2 }
+        });
+    }
+
+    public CsvReaderDataSourceTest(int csvVersion) {
+        this.csvVersion = csvVersion;
+    }
+
+    /**
+     * Adding this flag to facilitate tests for backwards-compatibility with V1.
+     */
+    private boolean isV2() {
+        return csvVersion == CsvStaticDataReader.CSV_V2;
+    }
+
     @Test
     public void testCsvDataSource() throws Exception {
         verifyCsv("field1,field2,field3\n" +
@@ -51,8 +78,8 @@ public class CsvReaderDataSourceTest {
                         "a1,a2,a3\n" +
                         "b1,b2,b3",
                 Lists.mutable.<String>of("field1"),
-                Maps.mutable.of("field1", "a1", "field2", "a2", "field3", "a3"),
-                Maps.mutable.of("field1", "b1", "field2", "b2", "field3", "b3")
+                Maps.mutable.of("field1", "a1", isV2() ? "field2" : "   field2", "a2", isV2() ? "field3" : "    field3", "a3"),
+                Maps.mutable.of("field1", "b1", isV2() ? "field2" : "   field2", "b2", isV2() ? "field3" : "    field3", "b3")
         );
     }
 
@@ -63,7 +90,7 @@ public class CsvReaderDataSourceTest {
                         "b1,   2,   \"  b3 \"",
                 Lists.mutable.<String>of("field1"),
                 Maps.mutable.of("field1", "  a1 ", "field2", "a2", "field3   ", "a3"),
-                Maps.mutable.of("field1", "b1", "field2", "2", "field3   ", "  b3 ")
+                Maps.mutable.of("field1", "b1", "field2", isV2() ? "2" : "   2", "field3   ", "  b3 ")
         );
     }
 
@@ -73,8 +100,8 @@ public class CsvReaderDataSourceTest {
                         "a1,    null  ,\"null\"\n" +
                         "null,b2,\" null \"",
                 Lists.mutable.<String>of("field1"),
-                Maps.mutable.of("field1", "a1", "field2", null, "field3", null),
-                Maps.mutable.of("field1", null, "field2", "b2", "field3", " null ")
+                Maps.mutable.of("field1", "a1", "field2", isV2() ? null : "    null  ", "field3", isV2() ? null : "null"),
+                Maps.mutable.of("field1", isV2() ? null : "null", "field2", "b2", "field3", " null ")
         );
     }
 
@@ -85,12 +112,13 @@ public class CsvReaderDataSourceTest {
                         "b1,   b2,   \"  b3 \"",
                 Lists.mutable.<String>of("field1"),
                 Maps.mutable.of("field1", "  a1 ", "field2", "a\n2", "field3   ", "a3"),
-                Maps.mutable.of("field1", "b1", "field2", "b2", "field3   ", "  b3 ")
+                Maps.mutable.of("field1", "b1", "field2", isV2() ? "b2" : "   b2", "field3   ", "  b3 ")
         );
     }
 
     @Test
-    public void testCsvDataSourceWithEscapeChars() throws Exception {
+    public void testCsvDataSourceWithEscapeCharsV2() throws Exception {
+        assumeTrue(csvVersion == CsvStaticDataReader.CSV_V2);
         verifyCsv("field1,field2,field3\n" +
                         "a\\\\1,a\"2,\"a\\\"3\"\n" +
                         "b\\1,\"b\\2\",\"b\\3\"\n" +
@@ -103,18 +131,8 @@ public class CsvReaderDataSourceTest {
         );
     }
 
-    @Test
-    @Ignore("expected failure")
-    public void testCsvDataSourceWithEscapeChars2() throws Exception {
-        verifyCsv("field1,field2,field3\n" +
-                        "b1,\"b\\\",b3",
-                Lists.mutable.<String>of("field1"),
-                Maps.mutable.of("field1", "b1", "field2", "b\\2", "field3", "b3")
-        );
-    }
-
     private void verifyCsv(String input, MutableList<String> keyFields, MutableMap<String, String>... rows) throws Exception {
-        CsvReaderDataSource ds = new CsvReaderDataSource(CsvStaticDataReader.CSV_V2, "test", new StringReader(input), ',', StringFunctions.toLowerCase(), "null");
+        CsvReaderDataSource ds = new CsvReaderDataSource(csvVersion, "test", new StringReader(input), ',', StringFunctions.toLowerCase(), "null");
         ds.setCatoConfiguration(new CatoSimpleJavaConfiguration(new SimpleCatoProperties(keyFields)));
         ds.init();
         ds.open();
@@ -134,7 +152,7 @@ public class CsvReaderDataSourceTest {
 
         assertEquals(rows.length, dataRows.size());
         for (int i = 0; i < dataRows.size(); i++) {
-            assertEquals(rows[i], dataRows.get(i));
+            assertEquals("Error on row " + i, rows[i], dataRows.get(i));
         }
     }
 }

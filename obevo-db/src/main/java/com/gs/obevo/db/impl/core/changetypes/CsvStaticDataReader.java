@@ -28,7 +28,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.eclipse.collections.api.block.function.Function;
 
 public class CsvStaticDataReader {
-    private static final int CSV_V1 = 1;  // 1 is the original
+    static final int CSV_V1 = 1;  // 1 is the original
     public static final int CSV_V2 = 2;  // 2 is latest that fixes a number of CSV issues
 
     /**

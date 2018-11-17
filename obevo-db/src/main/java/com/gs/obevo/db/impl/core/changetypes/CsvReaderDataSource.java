@@ -108,7 +108,8 @@ public class CsvReaderDataSource extends AbstractCatoDataSource {
             }
             data = IteratorUtils.toList(iteratorV2.next().iterator());
         } else {
-            data = Arrays.asList(this.csvreaderV1.readNext());
+            String[] csvRow = this.csvreaderV1.readNext();
+            data = csvRow != null ? Arrays.asList(csvRow) : Lists.mutable.<String>empty();
         }
 
         if (data == null || data.size() == 0 || (data.size() == 1 && data.get(0).isEmpty())) {
