@@ -21,7 +21,7 @@
     <parent>
         <groupId>com.goldmansachs.obevo</groupId>
         <artifactId>obevo-dependencies</artifactId>
-        <version>7.1.0-SNAPSHOT</version>
+        <version>${revision}</version>
         <relativePath>../obevo-dependencies</relativePath>
     </parent>
 

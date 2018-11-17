@@ -20,7 +20,7 @@
     <parent>
         <groupId>com.goldmansachs.obevo</groupId>
         <artifactId>obevo-dists</artifactId>
-        <version>7.1.0-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
     <artifactId>obevo-cli</artifactId>
 
@@ -42,6 +42,35 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>0.10.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>buildTar</goal>
+                            <goal>dockerBuild</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+<!--
+                    <from>
+                        <image>openjdk:7-jre</image>
+                    </from>
+-->
+                    <to>
+                        <!--<image>shantstepanian/obevo</image>-->
+                        <image>shantstepanian/obevo:${project.version}</image>
+                    </to>
+                    <container>
+                        <mainClass>com.gs.obevo.dist.Main</mainClass>
+                        <format>Docker</format>
+                    </container>
+                </configuration>
             </plugin>
         </plugins>
     </build>

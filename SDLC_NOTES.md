@@ -48,3 +48,15 @@ Finally, do a pull reqeust in Github.
 git pull --rebase upstream master
 git push -f
 ```
+
+
+# Deploying to remote repos:
+
+To Sonatype via Github - used code here: https://jakob.soy/blog/2016/maven-central-and-travis/
+For Docker - https://docs.travis-ci.com/user/docker/
+
+# GPG setup
+
+Shants-MacBook-Pro:obevo shantstepanian$ gpg --export --armor shant.p.stepanian@gmail.com > codesigning.asc
+Shants-MacBook-Pro:obevo shantstepanian$ gpg --export-secret-keys --armor shant.p.stepanian@gmail.com >> codesigning.asc
+Shants-MacBook-Pro:obevo shantstepanian$ travis encrypt-file codesigning.asc

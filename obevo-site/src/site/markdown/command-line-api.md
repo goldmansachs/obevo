@@ -23,6 +23,12 @@ The command line format is generally as follows:
 $OBEVO_PATH/bin/deploy.sh <COMMAND> -arg1 arg -arg2 arg etc
 ```
 
+or if run via Docker:
+
+```
+docker run shantstepanian/obevo <COMMAND> -arg1 arg -arg2 arg etc
+```
+
 where &lt;COMMAND&gt; is one of the following:
 
 <!-- MACRO{toc|fromDepth=0|toDepth=1} -->

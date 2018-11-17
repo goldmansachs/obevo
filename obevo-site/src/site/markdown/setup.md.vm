@@ -23,7 +23,13 @@ Instead, use the alternate syntax (===== for h1, dashes for h2, and the xml tags
 Setup Obevo
 ===========
 
-You can download the binary from the [releases page](https://github.com/goldmansachs/obevo/releases)
+You can access via [Docker](https://hub.docker.com/r/shantstepanian/obevo/tags/) and invoke the API via command line:
+
+```
+docker pull shantstepanian/obevo
+```
+
+Alternatively, you can download the binary from the [releases page](https://github.com/goldmansachs/obevo/releases)
 
 * [Latest Release - ${project.version}](https://github.com/goldmansachs/obevo/releases/download/${project.version}/obevo-cli-${project.version}-dist.zip)
 
@@ -49,6 +55,11 @@ As of this writing, this applies to the following DBMS types:
 
 To use Obevo with these databases, you will need to acquire the JDBC drivers yourself and include them in the distribution
 as follows:
+
+<h3>Docker distribution</h3>
+
+Documentation TBA
+
 
 <h3>Zip binary distribution</h3>
 
