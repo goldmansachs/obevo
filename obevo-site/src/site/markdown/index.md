@@ -64,8 +64,8 @@ over the years? Obevo has been vetted against many such cases from applications 
 
 Obevo can be invoked via:
 
+* [Command Line API](command-line-api.html) (accessible via Docker or binary archive download)
 * [Java API](java-api.html)
-* [Command Line API](command-line-api.html)
 * [Maven](maven-api.html)
 * [Gradle](gradle-api.html)
 

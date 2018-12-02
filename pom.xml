@@ -21,7 +21,7 @@
 
     <groupId>com.goldmansachs.obevo</groupId>
     <artifactId>obevo-parent</artifactId>
-    <version>7.1.0-SNAPSHOT</version>
+    <version>${revision}</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -105,6 +105,10 @@
     </pluginRepositories>
 
     <properties>
+        <gpg.executable>gpg</gpg.executable>
+        <gpg.keyname>17B8A5123F97C00861BD797C2D0889D147841187F</gpg.keyname>
+        <gpg.passphrase>${env.SONATYPE_GPG_PASSPHRASE}</gpg.passphrase>
+        <revision>local-SNAPSHOT</revision>
         <kotlin.version>1.2.61</kotlin.version>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
 
@@ -221,15 +225,29 @@
 
         <plugins>
             <plugin>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.3</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.0.0</version>
                 <configuration>
-                    <autoVersionSubmodules>true</autoVersionSubmodules>
-                    <useReleaseProfile>false</useReleaseProfile>
-                    <releaseProfiles>release</releaseProfiles>
-                    <tagNameFormat>@{project.version}</tagNameFormat>
-                    <goals>deploy</goals>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenMode>bom</flattenMode>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <artifactId>kotlin-maven-plugin</artifactId>
@@ -280,19 +298,6 @@
                     <source>1.7</source>
                     <target>1.7</target>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.jetbrains.dokka</groupId>
-                <artifactId>dokka-maven-plugin</artifactId>
-                <version>0.9.17</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>javadocJar</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -414,7 +419,7 @@
                                     <version>1.7.0</version>
                                 </requireJavaVersion>
                                 <requireMavenVersion>
-                                    <version>3.3.1</version>
+                                    <version>3.5.0</version>
                                 </requireMavenVersion>
                             </rules>
                             <fail>true</fail>
@@ -526,6 +531,7 @@
                         <exclude>**/NOTICE.template.txt</exclude>
                         <exclude>**/README.md</exclude>
                         <exclude>**/SDLC_NOTES.md</exclude>
+                        <exclude>**/codesigning.asc*</exclude>
 
                         <!-- Excluding the reverse-engineering files  -->
                         <exclude>**/test/resources/**/reveng/**</exclude>
@@ -695,10 +701,23 @@
         <profile>
             <id>release</id>
             <properties>
-                <skipTests>true</skipTests>
+                <!--<skipTests>true</skipTests>-->
             </properties>
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>org.jetbrains.dokka</groupId>
+                        <artifactId>dokka-maven-plugin</artifactId>
+                        <version>0.9.17</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>javadocJar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
@@ -720,6 +739,10 @@
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
+                                <configuration>
+                                    <keyname>${env.SONATYPE_GPG_KEY_NAME}</keyname>
+                                    <passphrase>${env.SONATYPE_GPG_PASSPHRASE}</passphrase>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>

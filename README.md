@@ -37,6 +37,7 @@ Feel free to reach out to us if you'd like to apply our core algorithm onto a ne
 |[Java API](https://goldmansachs.github.io/obevo/java-api.html)|[Maven](https://goldmansachs.github.io/obevo/maven-api.html)|
 |[Command Line API](https://goldmansachs.github.io/obevo/command-line-api.html)|[Gradle](https://goldmansachs.github.io/obevo/gradle-api.html)|
 
+Docker image is available at Docker Hub: [shantstepanian/obevo](https://hub.docker.com/r/shantstepanian/obevo/tags/)
 
 ## How to Contribute?
 

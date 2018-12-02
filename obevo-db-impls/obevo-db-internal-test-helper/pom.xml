@@ -20,7 +20,7 @@
     <parent>
         <artifactId>obevo-db-impls</artifactId>
         <groupId>com.goldmansachs.obevo</groupId>
-        <version>7.1.0-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
