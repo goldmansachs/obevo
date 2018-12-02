@@ -27,6 +27,10 @@
 
     <artifactId>obevo-db-sybase-iq</artifactId>
 
+    <properties>
+        <jacoco.minCoverage>0.01</jacoco.minCoverage>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.goldmansachs.obevo</groupId>

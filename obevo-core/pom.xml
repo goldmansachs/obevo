@@ -25,6 +25,10 @@
     </parent>
     <artifactId>obevo-core</artifactId>
 
+    <properties>
+        <jacoco.minCoverage>0.40</jacoco.minCoverage>
+    </properties>
+
     <build>
         <resources>
             <resource>

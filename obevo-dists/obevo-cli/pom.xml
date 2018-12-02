@@ -57,14 +57,11 @@
                     </execution>
                 </executions>
                 <configuration>
-<!--
-                    <from>
-                        <image>openjdk:7-jre</image>
-                    </from>
--->
                     <to>
-                        <!--<image>shantstepanian/obevo</image>-->
-                        <image>shantstepanian/obevo:${project.version}</image>
+                        <image>shantstepanian/obevo</image>
+                        <tags>
+                            <tag>${project.version}</tag>
+                        </tags>
                     </to>
                     <container>
                         <mainClass>com.gs.obevo.dist.Main</mainClass>

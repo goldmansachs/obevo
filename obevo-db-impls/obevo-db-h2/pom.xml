@@ -27,6 +27,10 @@
 
     <artifactId>obevo-db-h2</artifactId>
 
+    <properties>
+        <jacoco.minCoverage>0.75</jacoco.minCoverage>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.goldmansachs.obevo</groupId>

@@ -30,6 +30,8 @@
 
     <properties>
         <net.sourceforge.collections.collections-generic.version>4.01</net.sourceforge.collections.collections-generic.version>
+
+        <jacoco.minCoverage>0.75</jacoco.minCoverage>
     </properties>
 
     <build>

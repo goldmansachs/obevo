@@ -22,10 +22,13 @@ environments:
     schemas:
       schema:
       - name: DEPLOY_TRACKER
+      - name: SCHEMA_ONLY_FOR_SETUP
     schemaOverrides:
       schemaOverride:
       - schema: DEPLOY_TRACKER
         overrideValue: DBDEPLOY01
+      - schema: SCHEMA_ONLY_FOR_SETUP   # setting this up so that we can have the metaschema setup as well. ParamReader class needs improvement to avoid this hack
+        overrideValue: DBDEPLOY03
     driverClass: com.ibm.db2.jcc.DB2Driver
     cleanBuildAllowed: true
     # Add progressiveStreaming variable to avoid issues against LOB data types. Doesn't happen against all environments: https://pdn.pega.com/support-articles/pega-718-installation-db2-fails-lob-closed-error
