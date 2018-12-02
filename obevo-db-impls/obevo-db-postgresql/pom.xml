@@ -27,6 +27,10 @@
 
     <artifactId>obevo-db-postgresql</artifactId>
 
+    <properties>
+        <jacoco.minCoverage>0.75</jacoco.minCoverage>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.goldmansachs.obevo</groupId>

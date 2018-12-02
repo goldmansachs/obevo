@@ -28,6 +28,10 @@
 
     <artifactId>obevo-dbmetadata-impl</artifactId>
 
+    <properties>
+        <jacoco.minCoverage>0.15</jacoco.minCoverage>
+    </properties>
+
     <build>
         <plugins>
             <plugin>

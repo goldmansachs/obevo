@@ -105,9 +105,6 @@
     </pluginRepositories>
 
     <properties>
-        <gpg.executable>gpg</gpg.executable>
-        <gpg.keyname>17B8A5123F97C00861BD797C2D0889D147841187F</gpg.keyname>
-        <gpg.passphrase>${env.SONATYPE_GPG_PASSPHRASE}</gpg.passphrase>
         <revision>local-SNAPSHOT</revision>
         <kotlin.version>1.2.61</kotlin.version>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
@@ -126,6 +123,8 @@
 
         <sonar.exclusions>file:**/generated-sources/**/*</sonar.exclusions>
         <dbCredsFile />  <!-- empty by default -->
+
+        <jacoco.minCoverage>0.25</jacoco.minCoverage>
     </properties>
 
     <build>
@@ -302,7 +301,7 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <argLine>-DdbCredsFile=${dbCredsFile}</argLine>
+                    <argLine>-DdbCredsFile=${dbCredsFile} @{jacoco.agent.arg}</argLine>
                 </configuration>
             </plugin>
             <plugin>
@@ -322,7 +321,7 @@
                             ASE tests executing before IQ tests as the JDBC4 driver should get loaded first
                             before JDBC 3 for both those tests to work -->
                             <runOrder>alphabetical</runOrder>
-                            <argLine>-Xmx1024m -XX:MaxPermSize=256m ${jacoco.agent.it.arg}</argLine>
+                            <argLine>-Xmx1024m -XX:MaxPermSize=256m @{jacoco.agent.it.arg}</argLine>
                         </configuration>
                     </execution>
                 </executions>
@@ -332,13 +331,22 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>pre-integration-test</id>
-                        <phase>pre-integration-test</phase>
+                        <id>prepare-agent</id>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
                         <configuration>
-                            <destFile>${sonar.jacoco.itReportPath}</destFile>
+                            <propertyName>jacoco.agent.arg</propertyName>
+                            <append>true</append>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>prepare-agent-integration</id>
+                        <goals>
+                            <goal>prepare-agent-integration</goal>
+                        </goals>
+                        <configuration>
+                            <destFile>${project.build.directory}/jacoco.exec</destFile>
                             <propertyName>jacoco.agent.it.arg</propertyName>
                             <append>true</append>
                         </configuration>
@@ -349,7 +357,6 @@
                             <goal>report</goal>
                         </goals>
                     </execution>
-<!-- will wait on activating this until better integration testing in travis-ci environment comes along
                     <execution>
                         <id>default-check</id>
                         <goals>
@@ -361,16 +368,15 @@
                                     <element>BUNDLE</element>
                                     <limits>
                                         <limit>
-                                            <counter>COMPLEXITY</counter>
+                                            <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.25</minimum>
+                                            <minimum>${jacoco.minCoverage}</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
                             </rules>
                         </configuration>
                     </execution>
--->
                 </executions>
             </plugin>
 

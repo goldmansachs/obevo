@@ -8,43 +8,48 @@ services:
 
 env:
   global:
+    - DEPLOY_ENABLED=`if [[ (! -z "$TRAVIS_TAG") || ("$TRAVIS_BRANCH" == "master") ]]; then echo true; else echo false; fi`
+    - VERSION=`if [[ -z "$TRAVIS_TAG" ]]; then echo $TRAVIS_BRANCH-SNAPSHOT; else echo $TRAVIS_TAG; fi`
     - JAVA7_HOME=/usr/lib/jvm/java-7-openjdk-amd64
-    - MAVEN_OPTS="-DskipTests -Dmaven.repo.local=$HOME/.m2/repository -Xmx2g -Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss:SSS -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
-      # sonatype user
+    - MAVEN_OPTS="-Drevision=$VERSION -Dmaven.repo.local=$HOME/.m2/repository -Xmx2g -Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss:SSS -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
+      # SONATYPE_USERNAME
     - secure: "Rp3iGAP4E9jzUKJnIswrRvMJnx/69W7LMqidDsUA12+aQQwMl9Ukm9SPKW6l67Z2Yt9bsDltnkISqJ4Zgxp2DLH+g8Oqq0vz7E5vs9JEXJUGEzyVp2jsDskrAjT2V7HVpnxB6iDG6NNxDGV12UkmV2aCbBLWNiLNZDd1W/wS84G/I9Qx8FVoYl4glFCHbfw4JBcUtSb66tdZ2UjqSzyAIPJYZHO8FJyiygj+/rY1fvqH1Pbw8tY0g5gshmGNdrXqETukpx+fxpL8KCEpUy7XWKS6h1b/AH8AEepmG3WYY0O5mqPV/y/OKrtnJSoWOW6sp+o9eiCx/Kmt04Qvv4Uc4b/3YMQs9oaPyhNnu2g1IgJXhYbYZMzZbhEfXsMGoBKV139n+mT70scXVkmvQy/5nqD2RtNTSV9Y0NWy0am11vFWbGMnlvmsrtgt/6VBQ4xMEr+NiSo1IiqiEpT1regFKuI9wUbMDbmJD6oO8rvhwBKUKjPZ46OO5skdpBNlgWoJYUgs0BvwqRjTXS6m9y4pxrLgcLxmnJ5Vu184zLroO6fjN1NB3BttfN42VHXPv8aKN3R6wXArnm520ZLfX7BfzolJzmYW+tFD7XirGSYu7lFwV2HOptceTmnicVSwHZrmV5/cpxadakSuhxCeys12IwYXhHjInhy2D+LrMEKvTXA="
-      # sonatype password
+      # SONATYPE_PASSWORD
     - secure: "XPgn7whcluc0CORzkyxsjLwRsOyMGJbJ9FakpB+E6zzvc1mXc0HyAl7ZXrLJwL4drPvIQFHh5OIqNpbveSlHi/9M6MAu37oPv5PiYSswqUPUZnv4zicnu11RJR+uV1t1Hex7CTOBvCRa9IO2TbMbn8oypfr2Ynvf1+OvnVYiTbQSvHXikMqFRlb9a7hUjRhtknZIx/nAswfl5DgA6QBUm6uWJW2PXvmFUKgZjS8z/arNH3/jdRGNdKFGkG5opwZxml+Y2l+frLhYeEm5Jjt8Vtli4ztWeyh6/WdW3cQcn2EoIFpG7ijOGcX5Qdej+vfkBFv4qb9Ix0GKbfcANaJrrjuHbc3KaVwz7+0uAOwZCAthUJ6yvtHf5Kdtyq53bQ46z3+MLoLiaDk/odalJFPbna3TEQNMPc3bJyVydmBVmgDY5hLRCoLDkPItUjEDecPlbiNpmoM5OGSdBQ7P9pvYxMV6sGCXt19AZdBGxwI2091IdDSZUVpBntoiTk03g2P8Y3P5/gHgzdwcQGec4YPISvh/WuLGKWqrWarvJyWTrADErRzPlx7bddf/ZslYwRn2zvdxT9mbanxnnFr+oe+HVrZ89wWThNmH9nibzk/cVBz66me3+bEmDx9tgYkhk5J6aX6uOUaMGwZEHaksgdPDvymJDxQFRXH1HhOn5VXEv20="
-      # sonatype gpg key name
+      # SONATYPE_GPG_KEY_NAME
     - secure: "ic8o85xk9bquXc+UjyP3lMIg3P95WxgpE03SvVU4G5eoAFGSKUIQMIHQbX6b5HD2YwD7OUJBXB29U0jIshVJWXHTBpQZnvPcjR/mpZAhcri2+ykNNCipSfnM9qMwfxzEvVe3hfBPF+TZX1qTzBSrm2oSAEn0I0ODqExNlZwQ9w4JSOlLnipfkdpuZ8cgX678mnq3vxEs+fw4s7kW8nQxcpWEguycftkrCEwiJXwrZWejTMkl40gwchhwJl67vvq8Q+4Ejj+U0vx4yspSROKQ7bQoV1VhQQj8h/ZJz8BcThWqMP97Dl74yCVVCFNKcNOOJ/kXhlO4EljQ92euEfHStfnv587zIF+NF4GfGqYeXZgcepUShjtbQApgxQq4lUjKoZ2UFIYQs8nqgWwTHU9F7YLEcRnDHy951TDZV9pbVa3DIO/3Zc6PyWs9IjS/JBOlDXePWFKs89veBrGZfmUSeKHgi9dUK27rZoSQB7zJ2z6ilva1QQWPsKXKn0X1wTUNmwi5f1xQuS7EK9ZsloA8BSdwko8kAdnIdOFLevQAqNlQBOJPQTlUUMIsAFnPiJU5U5XlCvc+ee6pYkMB3fK7mNrMsvQM71p/pTnMmN9sCdw2Um2DdtjJU5O0domvphAzv2WUbsLyZHGLJjY3kQavE3hxHAcqJsRunw8z6YxE/c0="
-      # sonatype gpg passphrase
+      # SONATYPE_GPG_PASSPHRASE
     - secure: "DQv13K0u47VszRGvxlyRea2UE9aacNWvPuft55eXYMOdQh00kb6MW74WqU+UQBJpmDJ4gmZVwrXqzbPit/s/yFqagxLf4fuF3geYqApST/FRRgLLnQhQ/kFYtRfDKM6gsKAV4nsLxGDJkvHNRb1vZdAvsI8GMxLw6MSVnKclOMTmiJcqOwwFKXU7dqbXnPay3D+YqA3PoN2xQn+278+fZiK0PeMTuvFNEVesITXInS2mnQ9JgLzKfO4Bmx5sjo5o+ZpTHlcQDpDJkObLiynlTkjo1OUB4Kh6yRTeSc83CgURWLo8ZPodJncAERjSJOn3TKCDqcrw6Ij3IwZAsQiAMk/Wemfcdw44lgjAKbzkOGmKj26r+ZcRAFtzHlGYN6qjnH1PvwQup5JyTYARFjk0BiA3lWlr7w5kd1x2AR05w/2aIGZxOkhnIMxrFXzr1NmSujQgFEtejSipZYB+mazEWTKR/MiwNtff3507rFY9Yjp118IhzsIFu4x7i/GpeRP/yJhYMAps9w1ILkVAK/IorypGZqgfZCGHtENUHOQnd+owaS0eV2FRDCoUOdOZ62cEcez3CAP7X5J2VlBq1sADSb5tki6ZzOBUyYP0bpG3Gr4ayTg5YFrbQ+bYsgR8bXZuDj4sBDfVSho0l1vKAdMrGaeKDvbJOBGRV6keSybKHPo="
 
 
 script:
   # We need to run this first to install the maven jars (otherwise, the regular build won't work that references those jars)
-#  - mvn -f obevo-db-impls/obevo-db-db2 -Pinstall-jars-db2 antrun:run@install-jars-db2
-  # Travis already runs maven test as part of its run script. We add the verify step to get integration tests: https://docs.travis-ci.com/user/languages/java/
-#  - mvn -Dtest=noUnitTestsInThisPhase -DfailIfNoTests=false -Ddocker.build.enabled=true verify
-#  - ./.travis-deploy.sh 7.0.2-SNAPSHOT
+  - mvn -B -f obevo-db-impls/obevo-db-db2 -Pinstall-jars-db2 antrun:run@install-jars-db2
+  # Then we run the full build (unit tests + integration tests)
+  - mvn -B -Ddocker.build.enabled=true verify
 
 # see this - https://docs.travis-ci.com/user/deployment/
+# possibly an open issue around master + tags
 deploy:
   - provider: script
-    script: ./.travis-deploy.sh $TRAVIS_TAG
+    script: ./.travis-deploy.sh
     skip_cleanup: true
     on:
-      tags: true
-  - provider: script
-    script: ./.travis-deploy.sh master-SNAPSHOT
+      all_branches: true
+      condition: $DEPLOY_ENABLED == true
+  - provider: pages
     skip_cleanup: true
+    github-token: $GH_TOKEN
+    local-dir: obevo-site/target/site
     on:
-      branch: master
-  - provider: script
-    script: ./.travis-deploy.sh 7.0.2-SNAPSHOT
+      all_branches: true
+      condition: $DEPLOY_ENABLED == true
+  - provider: releases
     skip_cleanup: true
+    api_key: $GH_TOKEN
+    draft: true
+    file_glob: true
+    file: obevo-dists/obevo-cli/target/obevo-cli-*-dist.zip
     on:
-      branch: dockerAndSdlcRelease
-
-#before_install:
-#- openssl aes-256-cbc -K $encrypted_7343a0e3b48e_key -iv $encrypted_7343a0e3b48e_iv
-#  -in signingkey.asc.enc -out signingkey.asc -d
+      all_branches: true
+      condition: $DEPLOY_ENABLED == true

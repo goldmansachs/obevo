@@ -23,12 +23,15 @@ environments:
       schema:
       - name: schema1
       - name: schema2
+      - name: schema3
     schemaOverrides:
       schemaOverride:
       - schema: schema1
         overrideValue: DBDEPLOY01
       - schema: schema2
         overrideValue: DBDEPLOY02
+      - schema: schema3
+        overrideValue: DBDEPLOY03
     driverClass: oracle.jdbc.OracleDriver
     cleanBuildAllowed: true
     jdbcUrl: jdbc:oracle:thin:@dbdeploy-oracle-12-1.cck7fvo3o8pf.us-east-1.rds.amazonaws.com:1521:DBDEPLOY

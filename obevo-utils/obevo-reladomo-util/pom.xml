@@ -27,6 +27,10 @@
 
     <artifactId>obevo-reladomo-util</artifactId>
 
+    <properties>
+        <jacoco.minCoverage>0.70</jacoco.minCoverage>
+    </properties>
+
     <dependencies>
         <dependency>
             <!-- This is only needed to get the reverse engineering classes out -->

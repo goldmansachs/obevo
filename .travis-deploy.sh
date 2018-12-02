@@ -14,11 +14,19 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-VERSION=$1
+set -e
+echo "Deploying to Maven Central Repo"
 openssl aes-256-cbc -K $encrypted_a2f0f379c735_key -iv $encrypted_a2f0f379c735_iv -in codesigning.asc.enc -out codesigning.asc -d
 gpg --fast-import codesigning.asc
-cp .travis.maven.settings.xml $HOME/.m2/settings.xml && mvn -Drevision=7.0.2-SNAPSHOT -DskipTests -P release deploy
+cp .travis.maven.settings.xml $HOME/.m2/settings.xml && mvn -DskipTests -P release deploy
+
+
+echo "Deploying to Docker Hub"
 echo "$SONATYPE_PASSWORD" | docker login -u "$SONATYPE_USERNAME" --password-stdin
-#docker push shantstepanian/obevo:$VERSION
-#docker tag shantstepanian/obevo:$VERSION shantstepanian/obevo:latest
-#docker push shantstepanian/obevo:latest
+
+if [[ "$VERSION" != "*-SNAPSHOT" ]];
+then
+    echo "Applying latest tag to fixed release version $VERSION"
+    docker tag shantstepanian/obevo:$VERSION shantstepanian/obevo:latest
+fi
+docker push shantstepanian/obevo
