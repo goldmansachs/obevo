@@ -165,19 +165,34 @@ public class JdbcHelper {
     }
 
     public <T> T query(Connection conn, String sql, ResultSetHandler<T> resultSetHandler) {
+        try (ResultSet resultSet = query(conn, sql)) {
+            return resultSetHandler.handle(resultSet);
+        } catch (SQLException e) {
+            throw new DataAccessException(e);
+        }
+    }
+
+    public ResultSet query(Connection conn, String sql) {
+        return queryInternal(conn, 0, sql);
+    }
+
+    private ResultSet queryInternal(Connection conn, int retryCount, String sql) {
         Statement statement = null;
-        ResultSet resultSet = null;
         try {
             statement = conn.createStatement();
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Executing query on {}: {}", displayConnection(conn), sql);
             }
-            resultSet = statement.executeQuery(sql);
-            return resultSetHandler.handle(resultSet);
+            return statement.executeQuery(sql);
         } catch (SQLException e) {
-            throw new DataAccessException(e);
+            DataAccessException dataAccessException = new DataAccessException(e);
+            boolean retry = this.jdbcHandler.handleException(this, conn, retryCount, dataAccessException);
+            if (retry) {
+                return this.queryInternal(conn, retryCount + 1, sql);
+            } else {
+                throw dataAccessException;
+            }
         } finally {
-            DbUtils.closeQuietly(resultSet);
             DbUtils.closeQuietly(statement);
         }
     }

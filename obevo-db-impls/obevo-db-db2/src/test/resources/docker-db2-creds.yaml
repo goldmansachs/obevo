@@ -31,10 +31,10 @@ environments:
         overrideValue: DBDEPLOY03
     driverClass: com.ibm.db2.jcc.DB2Driver
     cleanBuildAllowed: true
+    forceEnvInfraSetup: true
     # Add progressiveStreaming variable to avoid issues against LOB data types. Doesn't happen against all environments: https://pdn.pega.com/support-articles/pega-718-installation-db2-fails-lob-closed-error
     jdbcUrl: jdbc:db2://localhost:50000/dbdeploy:progressiveStreaming=false;
     #jdbcUrl: jdbc:db2://localhost:50000/dbdeploy
-    dbServer: BLAH
     defaultUserId: db2inst1
     defaultPassword: db2inst1-pwd
     autoReorgEnabled: true

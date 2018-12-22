@@ -27,10 +27,9 @@ import com.gs.obevocomparer.input.AbstractCatoDataSource;
 
 public class QueryDataSource extends AbstractCatoDataSource {
 
-    private final String query;
     private final Connection connection;
+    private final QueryExecutor queryExecutor;
 
-    private Statement stmt;
     private ResultSet rset;
     private ResultSetMetaData rsetmd;
 
@@ -39,9 +38,13 @@ public class QueryDataSource extends AbstractCatoDataSource {
     }
 
     public QueryDataSource(String name, Connection connection, String query) {
+        this(name, connection, new SimpleQueryExecutor(query));
+    }
+
+    public QueryDataSource(String name, Connection connection, QueryExecutor queryExecutor) {
         super(name, null);
         this.connection = connection;
-        this.query = query;
+        this.queryExecutor = queryExecutor;
     }
 
     protected CatoDataObject nextDataObject() throws Exception {
@@ -60,17 +63,50 @@ public class QueryDataSource extends AbstractCatoDataSource {
 
     protected void closeSource() throws Exception {
         this.rset.close();
-        this.stmt.close();
+        this.queryExecutor.close();
         this.connection.close();
     }
 
     protected void openSource() throws Exception {
-        this.stmt = this.connection.createStatement();
-        this.rset = this.stmt.executeQuery(this.query);
+        this.rset = this.queryExecutor.getResultSet(this.connection);
         this.rsetmd = this.rset.getMetaData();
     }
 
     public Connection getConnection() {
         return this.connection;
+    }
+
+    /**
+     * Functional interface for executing a query. Different clients of QueryDataSource may have more advanced logic
+     * for query execution.
+     */
+    public interface QueryExecutor {
+        ResultSet getResultSet(Connection connection) throws Exception;
+        void close() throws Exception;
+    }
+
+    /**
+     * Default implementation using simple JDBC.
+     */
+    private static class SimpleQueryExecutor implements QueryExecutor {
+        private final String query;
+        private Statement stmt;
+
+        private SimpleQueryExecutor(String query) {
+            this.query = query;
+        }
+
+        @Override
+        public ResultSet getResultSet(Connection connection) throws Exception {
+            this.stmt = connection.createStatement();
+            return this.stmt.executeQuery(query);
+        }
+
+        @Override
+        public void close() throws Exception {
+            if (stmt != null) {
+                this.stmt.close();
+            }
+        }
     }
 }
