@@ -14,6 +14,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+set -e
 
 ## Variable Setup
 DB2_VERSION=$1
@@ -21,7 +22,6 @@ DB2_VERSION=$1
 # These props are also defined in docker-db2-creds.yaml. Copy this from there
 INSTANCE_PORT=50000
 INSTANCE_DBNAME="dbdeploy"
-INSTANCE_SCHEMAS="dbdeploy01 dbdeploy02 dbdeploy03"
 INSTANCE_USERID="db2inst1"  # note - this user ID is hardcoded by the container
 INSTANCE_PASSWORD="db2inst1-pwd"
 CONTAINER_NAME=obevo-db2-instance
@@ -45,10 +45,3 @@ export CONTAINER_ID=$(docker ps -aqf "name=$CONTAINER_NAME")
 
 echo "Creating the database (may take a few seconds)"
 docker exec $CONTAINER_ID bash -c "su - $INSTANCE_USERID -c 'db2 create db $INSTANCE_DBNAME'"
-
-for SCHEMA in $INSTANCE_SCHEMAS; do
-    SCHEMAS_CREATE_COMMAND="$SCHEMAS_CREATE_COMMAND   db2 create schema $SCHEMA;"
-done
-
-echo "Logging into the database to create the schema"
-docker exec $CONTAINER_ID bash -c "su - $INSTANCE_USERID -c 'db2 connect to $INSTANCE_DBNAME; $SCHEMAS_CREATE_COMMAND'"
