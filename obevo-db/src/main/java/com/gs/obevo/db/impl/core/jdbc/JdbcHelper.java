@@ -28,8 +28,10 @@ import org.apache.commons.dbutils.handlers.MapHandler;
 import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.MutableMap;
+import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.list.mutable.ListAdapter;
 import org.eclipse.collections.impl.map.mutable.MapAdapter;
+import org.eclipse.collections.impl.tuple.Tuples;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -165,34 +167,42 @@ public class JdbcHelper {
     }
 
     public <T> T query(Connection conn, String sql, ResultSetHandler<T> resultSetHandler) {
-        ResultSet resultSet = null;
-        Statement stmt = null;
+        Pair<Statement, ResultSet> stmtRsPair = null;
         try {
-            resultSet = queryAndLeaveStatementOpen(conn, sql);
-            stmt = resultSet.getStatement();
-            return resultSetHandler.handle(resultSet);
+            stmtRsPair = queryAndLeaveStatementOpen(conn, sql);
+            return resultSetHandler.handle(stmtRsPair.getTwo());
         } catch (SQLException e) {
             throw new DataAccessException(e);
         } finally {
-            DbUtils.closeQuietly(stmt);
-            DbUtils.closeQuietly(resultSet);
+            if (stmtRsPair != null) {
+                DbUtils.closeQuietly(stmtRsPair.getOne());
+                DbUtils.closeQuietly(stmtRsPair.getTwo());
+            }
         }
     }
 
-    public ResultSet queryAndLeaveStatementOpen(Connection conn, String sql) {
+    /**
+     * Executes the SQL and returns the Statement and ResultSet (both open) to the client.
+     * This is a bit kludgy, but we need this as a public API for the integration w/ the comparer codebase - see
+     * QueryDataSource. In that case, the opening of the ResultSet is separate from the internal processing, and so
+     * we need to expose this method like this.
+     * If we retire the comparer codebase and move to some other comparison toolkit (e.g. Tablasco), then hopefully
+     * we can refactor this and not need this public API.
+     */
+    public Pair<Statement, ResultSet> queryAndLeaveStatementOpen(Connection conn, String sql) {
         return queryAndLeaveStatementOpenInternal(conn, 0, sql);
     }
 
-    private ResultSet queryAndLeaveStatementOpenInternal(Connection conn, int retryCount, String sql) {
+    private Pair<Statement, ResultSet> queryAndLeaveStatementOpenInternal(Connection conn, int retryCount, String sql) {
         Statement statement = null;
         try {
             statement = conn.createStatement();
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Executing query on {}: {}", displayConnection(conn), sql);
             }
-            return statement.executeQuery(sql);
+            return Tuples.pair(statement, statement.executeQuery(sql));
         } catch (SQLException e) {
-            DbUtils.closeQuietly(statement);
+            DbUtils.closeQuietly(statement);  // on an exception, close the existing statement (on success, we'd leave it open)
             DataAccessException dataAccessException = new DataAccessException(e);
             boolean retry = this.jdbcHandler.handleException(this, conn, retryCount, dataAccessException);
             if (retry) {

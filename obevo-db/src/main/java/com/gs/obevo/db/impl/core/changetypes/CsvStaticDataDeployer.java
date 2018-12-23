@@ -425,9 +425,9 @@ public class CsvStaticDataDeployer {
                 private Statement stmt;
                 @Override
                 public ResultSet getResultSet(Connection connection) throws Exception {
-                    ResultSet rs = jdbcTemplate.queryAndLeaveStatementOpen(conn, query);
-                    this.stmt = rs.getStatement();
-                    return rs;
+                    Pair<Statement, ResultSet> stmtRsPair = jdbcTemplate.queryAndLeaveStatementOpen(conn, query);
+                    this.stmt = stmtRsPair.getOne();
+                    return stmtRsPair.getTwo();
                 }
 
                 @Override
