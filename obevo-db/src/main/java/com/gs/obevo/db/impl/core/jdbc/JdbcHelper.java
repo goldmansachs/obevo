@@ -165,18 +165,25 @@ public class JdbcHelper {
     }
 
     public <T> T query(Connection conn, String sql, ResultSetHandler<T> resultSetHandler) {
-        try (ResultSet resultSet = query(conn, sql)) {
+        ResultSet resultSet = null;
+        Statement stmt = null;
+        try {
+            resultSet = queryAndLeaveStatementOpen(conn, sql);
+            stmt = resultSet.getStatement();
             return resultSetHandler.handle(resultSet);
         } catch (SQLException e) {
             throw new DataAccessException(e);
+        } finally {
+            DbUtils.closeQuietly(stmt);
+            DbUtils.closeQuietly(resultSet);
         }
     }
 
-    public ResultSet query(Connection conn, String sql) {
-        return queryInternal(conn, 0, sql);
+    public ResultSet queryAndLeaveStatementOpen(Connection conn, String sql) {
+        return queryAndLeaveStatementOpenInternal(conn, 0, sql);
     }
 
-    private ResultSet queryInternal(Connection conn, int retryCount, String sql) {
+    private ResultSet queryAndLeaveStatementOpenInternal(Connection conn, int retryCount, String sql) {
         Statement statement = null;
         try {
             statement = conn.createStatement();
@@ -185,15 +192,14 @@ public class JdbcHelper {
             }
             return statement.executeQuery(sql);
         } catch (SQLException e) {
+            DbUtils.closeQuietly(statement);
             DataAccessException dataAccessException = new DataAccessException(e);
             boolean retry = this.jdbcHandler.handleException(this, conn, retryCount, dataAccessException);
             if (retry) {
-                return this.queryInternal(conn, retryCount + 1, sql);
+                return this.queryAndLeaveStatementOpenInternal(conn, retryCount + 1, sql);
             } else {
                 throw dataAccessException;
             }
-        } finally {
-            DbUtils.closeQuietly(statement);
         }
     }
 

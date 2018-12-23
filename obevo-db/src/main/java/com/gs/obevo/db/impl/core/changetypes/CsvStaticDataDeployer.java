@@ -18,6 +18,7 @@ package com.gs.obevo.db.impl.core.changetypes;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Date;
@@ -102,7 +103,7 @@ public class CsvStaticDataDeployer {
         this.dbPlatform = dbPlatform;
     }
 
-    public final void deployArtifact(Change staticData) {
+    final void deployArtifact(Change staticData) {
         this.deployArtifact(Lists.mutable.with(staticData));
     }
 
@@ -421,13 +422,17 @@ public class CsvStaticDataDeployer {
 
             // Here, we need to execute the query using jdbcTemplate so that we can retry exceptions where applicable (e.g. DB2 reorgs)
             return new QueryDataSource("dbSource", conn, new QueryExecutor() {
+                private Statement stmt;
                 @Override
-                public ResultSet getResultSet(Connection connection) {
-                    return jdbcTemplate.query(conn, query);
+                public ResultSet getResultSet(Connection connection) throws Exception {
+                    ResultSet rs = jdbcTemplate.queryAndLeaveStatementOpen(conn, query);
+                    this.stmt = rs.getStatement();
+                    return rs;
                 }
 
                 @Override
-                public void close() {
+                public void close() throws Exception {
+                    this.stmt.close();
                 }
             });
         } catch (SQLException e) {
