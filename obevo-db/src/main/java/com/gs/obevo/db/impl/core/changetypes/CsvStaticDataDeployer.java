@@ -427,7 +427,8 @@ public class CsvStaticDataDeployer {
                 }
 
                 @Override
-                public void close() {}
+                public void close() {
+                }
             });
         } catch (SQLException e) {
             throw new DeployerRuntimeException(e);
