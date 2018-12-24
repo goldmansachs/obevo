@@ -67,8 +67,8 @@ public class Db2DeployerMainIT {
             System.out.println("Running step 0");
             dbDeployerAppContext = getAppContext.valueOf(1);
             dbDeployerAppContext
-                    .cleanEnvironment()
                     .setupEnvInfra()
+                    .cleanEnvironment()
                     .deploy(new MainDeployerArgs().reason("try1").deployExecutionAttributes(Sets.immutable.with(
                             new DeployExecutionAttributeImpl("A", "aval"),
                             new DeployExecutionAttributeImpl("B", "bval")

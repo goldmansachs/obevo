@@ -21,6 +21,29 @@ DB Type acronym for configurations: DB2
 
 <!-- MACRO{toc|fromDepth=0|toDepth=1} -->
 
+## Specifying tablespace for user tables and Obevo audit tables
+
+Note the following if you follow the convention of explicitly defining the tablespace for tables in your SQL commands, e.g.
+
+```
+CREATE TABLE mytable ( ... ) IN mytablespace
+```
+
+
+* To specify the tablespace for user tables, simply define it in your SQL. You can parameterize that value across
+environments as needed using the [tokenization feature](environment-management.html)
+ * Note that Obevo can automatically remove such clauses for translations to unit test databases; for more information,
+ see [here](in-memory-db-testing.html)
+* To specify the tablespapce for the Obevo-managed tables (e.g. ARTIFACTDEPLOYMENT), specify the defaultTablespace attribute
+in your environment configs, e.g.
+```
+<dbEnvironment name="dev1" defaultTablespace="mydevtablespace" ...>
+```
+ * A token ${defaultTablespace} will be available to use if you leverage this attribute, e.g.
+```
+CREATE TABLE mytable ( ... ) IN ${defaultTablespace}
+```
+
 ## DB2 Reorg Detection and Support
 
 Obevo supports the handling of reorgs in 2 places:

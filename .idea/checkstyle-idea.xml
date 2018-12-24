@@ -7,7 +7,7 @@
         <entry key="copy-libs" value="false" />
         <entry key="location-0" value="BUNDLED:(bundled):Sun Checks" />
         <entry key="location-1" value="BUNDLED:(bundled):Google Checks" />
-        <entry key="location-2" value="PROJECT_RELATIVE:$PRJ_DIR$/src/main/build-resources/checkstyle.xml:project" />
+        <entry key="location-2" value="PROJECT_RELATIVE:$PROJECT_DIR$/src/main/build-resources/checkstyle.xml:project" />
         <entry key="property-2.import-control.directory" value="src/main/build-resources" />
         <entry key="scan-before-checkin" value="false" />
         <entry key="scanscope" value="JavaOnly" />

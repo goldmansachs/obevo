@@ -16,7 +16,9 @@
 package com.gs.obevo.db.impl.core.changetypes;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Date;
@@ -44,6 +46,8 @@ import com.gs.obevocomparer.compare.breaks.DataObjectBreak;
 import com.gs.obevocomparer.compare.breaks.FieldBreak;
 import com.gs.obevocomparer.compare.simple.SimpleCatoProperties;
 import com.gs.obevocomparer.input.CatoDataSource;
+import com.gs.obevocomparer.input.db.QueryDataSource;
+import com.gs.obevocomparer.input.db.QueryDataSource.QueryExecutor;
 import com.gs.obevocomparer.util.CatoBaseUtil;
 import org.apache.commons.lang3.Validate;
 import org.eclipse.collections.api.RichIterable;
@@ -99,7 +103,7 @@ public class CsvStaticDataDeployer {
         this.dbPlatform = dbPlatform;
     }
 
-    public final void deployArtifact(Change staticData) {
+    final void deployArtifact(Change staticData) {
         this.deployArtifact(Lists.mutable.with(staticData));
     }
 
@@ -411,11 +415,26 @@ public class CsvStaticDataDeployer {
     private CatoDataSource getQueryDataSource(PhysicalSchema physicalSchema, DaTable table) {
         ImmutableList<DaColumn> cols = table.getColumns();
         String colNameStr = cols.collect(DaNamedObject.TO_NAME).collect(this.dbPlatform.convertDbObjectName()).makeString(", ");
-        String query = "select " + colNameStr + " from " + this.dbPlatform.getSchemaPrefix(physicalSchema) + table.getName();
+        final String query = "select " + colNameStr + " from " + this.dbPlatform.getSchemaPrefix(physicalSchema) + table.getName();
 
         try {
-            Connection conn = this.dataSource.getConnection();
-            return CatoBaseUtil.createQueryDataSource("dbSource", conn, query);
+            final Connection conn = this.dataSource.getConnection();
+
+            // Here, we need to execute the query using jdbcTemplate so that we can retry exceptions where applicable (e.g. DB2 reorgs)
+            return new QueryDataSource("dbSource", conn, new QueryExecutor() {
+                private Statement stmt;
+                @Override
+                public ResultSet getResultSet(Connection connection) throws Exception {
+                    Pair<Statement, ResultSet> stmtRsPair = jdbcTemplate.queryAndLeaveStatementOpen(conn, query);
+                    this.stmt = stmtRsPair.getOne();
+                    return stmtRsPair.getTwo();
+                }
+
+                @Override
+                public void close() throws Exception {
+                    this.stmt.close();
+                }
+            });
         } catch (SQLException e) {
             throw new DeployerRuntimeException(e);
         }

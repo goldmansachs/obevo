@@ -97,6 +97,34 @@ public class Db2MetadataDialect extends AbstractMetadataDialect {
             dbSpecificOptionsBuilder.withTableColumnRetrievalStrategy(MetadataRetrievalStrategy.metadata);
         }
 
+        // the SQL in SchemaCrawler does not define the VALID column, so we add it here
+        String sql = "SELECT " +
+                "  NULLIF(1, 1) " +
+                "    AS TABLE_CATALOG, " +
+                "  STRIP(SYSCAT.VIEWS.VIEWSCHEMA) " +
+                "    AS TABLE_SCHEMA, " +
+                "  STRIP(SYSCAT.VIEWS.VIEWNAME) " +
+                "    AS TABLE_NAME, " +
+                "  SYSCAT.VIEWS.TEXT " +
+                "    AS VIEW_DEFINITION, " +
+                "  CASE WHEN STRIP(SYSCAT.VIEWS.VIEWCHECK) = 'N' THEN 'NONE' ELSE 'CASCADED' END " +
+                "    AS CHECK_OPTION, " +
+                "  CASE WHEN STRIP(SYSCAT.VIEWS.READONLY) = 'Y' THEN 'NO' ELSE 'YES' END " +
+                "    AS IS_UPDATABLE " +
+                        ", " +
+                        "  VALID   " +
+                "FROM " +
+                "  SYSCAT.VIEWS " +
+                "WHERE VIEWSCHEMA = '" + physicalSchema.getPhysicalName() + "' " +
+                "ORDER BY " +
+                "  SYSCAT.VIEWS.VIEWSCHEMA, " +
+                "  SYSCAT.VIEWS.VIEWNAME, " +
+                "  SYSCAT.VIEWS.SEQNO " +
+                "WITH UR   ";
+        dbSpecificOptionsBuilder.withInformationSchemaViews().withViewsSql(
+                sql
+        );
+
         // SEQTYPE <> 'I' is for identity columns; we don't want that when pulling user defined sequences
         dbSpecificOptionsBuilder.withInformationSchemaViews().withSequencesSql(
                 "SELECT\n" +

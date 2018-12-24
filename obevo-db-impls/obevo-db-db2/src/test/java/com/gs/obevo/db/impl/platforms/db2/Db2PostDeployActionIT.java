@@ -38,6 +38,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.mockito.Matchers;
 import org.mockito.exceptions.verification.WantedButNotInvoked;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.hamcrest.Matchers.hasItems;
 import static org.junit.Assert.assertThat;
@@ -49,9 +51,10 @@ import static org.mockito.Mockito.verify;
 public class Db2PostDeployActionIT {
     @Parameterized.Parameters
     public static Iterable<Object[]> params() {
-        return Db2ParamReader.getParamReader().getJdbcDsAndSchemaParams();
+        return Db2ParamReader.getParamReader().getJdbcDsAndSchemaParams(2);
     }
 
+    private static final Logger LOG = LoggerFactory.getLogger(Db2PostDeployActionIT.class);
     private final DataSource dataSource;
     private final PhysicalSchema physicalSchema;
     private Db2SqlExecutor sqlExecutor;
@@ -104,7 +107,8 @@ public class Db2PostDeployActionIT {
                 db2PostDeployAction.checkForInvalidObjects(conn, env.getPhysicalSchemas());
 
                 // With this DB2 version, verify that we did try to execute the recompile and that if it fails (which we expect to in this case) that we log a warning
-                // (It is hard to simulate a case where a recopmile will fix things, compared to DB2's auto-recompile)
+                // Verify that we did find an invalid object and tried to execute a recompile
+                // (Note that it is difficult to reproduce this use case in some DB2 versions; hence, this check is optional)
                 try {
                     verify(metricsCollector, times(1)).addMetric(Matchers.eq(Db2PostDeployAction.POST_DEPLOY_WARNINGS), Matchers.<Serializable>any());
                 } catch (WantedButNotInvoked e) {

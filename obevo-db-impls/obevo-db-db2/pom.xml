@@ -98,15 +98,12 @@
         </profile>
         <profile>
             <id>integration-build</id>
-<!--
-A couple integrations tests for DB2 are failing in the Docker environment. Disabling for now
             <activation>
                 <property>
                     <name>docker.build.enabled</name>
                     <value>true</value>
                 </property>
             </activation>
--->
             <properties>
                 <dbCredsFile>docker-db2-creds.yaml</dbCredsFile>
             </properties>
