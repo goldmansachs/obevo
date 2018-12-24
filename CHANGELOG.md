@@ -15,7 +15,7 @@ Moving more of the code over to Kotlin
 
 ### Bug Fixes
 #198: Static data loads for tables with self-referencing foreign keys are now able to work.
-Fixed inability to handle DB2 reorg exceptions during static data queries. Previously, reorg detection only worked on update statements
+#212: Fixing inability to handle DB2 reorg exceptions during static data queries. Previously, reorg detection only worked on update statements
 
 ## 6.6.1
 
