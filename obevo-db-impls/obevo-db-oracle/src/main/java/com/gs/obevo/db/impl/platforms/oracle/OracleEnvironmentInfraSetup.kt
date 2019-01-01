@@ -17,6 +17,7 @@ package com.gs.obevo.db.impl.platforms.oracle
 
 import com.gs.obevo.api.appdata.PhysicalSchema
 import com.gs.obevo.db.api.appdata.DbEnvironment
+import com.gs.obevo.db.api.appdata.Group
 import com.gs.obevo.db.api.appdata.ServerDirectory
 import com.gs.obevo.db.impl.core.envinfrasetup.AbstractEnvironmentInfraSetup
 import com.gs.obevo.dbmetadata.api.DbMetadataManager
@@ -30,6 +31,11 @@ internal class OracleEnvironmentInfraSetup(env: DbEnvironment, ds: DataSource, d
     override fun createSchema(conn: Connection, schema: PhysicalSchema) {
         jdbc.update(conn, "CREATE USER " + schema.physicalName + " IDENTIFIED BY schemaPassw0rd QUOTA UNLIMITED ON USERS")
         jdbc.update(conn, "ALTER USER " + schema.physicalName + " QUOTA UNLIMITED ON USERS")
+        jdbc.update(conn, "GRANT CREATE TABLE TO " + schema.physicalName)
+    }
+
+    override fun createGroup(conn: Connection, group: Group, physicalSchema: PhysicalSchema?) {
+        jdbc.update(conn, "CREATE ROLE " + group.name)
     }
 
     override fun createDirectory(conn: Connection, directory: ServerDirectory, physicalSchema: PhysicalSchema?) {

@@ -126,11 +126,16 @@ class OracleReveng extends AbstractDdlReveng {
             // Note - can't remap schema name, object name, tablespace name within JDBC calls; we will leave that to the existing code in AbstractDdlReveng
             jdbc.update(conn, "{ CALL DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM,'STORAGE',false) }");
 
+            // we exclude:
+            // PACKAGE BODY as those are generated via package anyway
+            // DATABASE LINK as the get_ddl function doesn't work with it. We may support this later on
             MutableList<Map<String, Object>> maps = jdbc.queryForList(conn,
                     "SELECT CASE WHEN OBJECT_TYPE = 'TABLE' THEN 1 WHEN OBJECT_TYPE = 'INDEX' THEN 2 ELSE 3 END SORT_ORDER,\n" +
                             "    OBJECT_TYPE,\n" +
                             "    dbms_metadata.get_ddl(REPLACE(object_type,' ','_'), object_name, owner) || ';' AS object_ddl\n" +
-                            "FROM DBA_OBJECTS WHERE OWNER = '" + args.getDbSchema() + "' AND OBJECT_TYPE NOT IN ('PACKAGE BODY', 'LOB','MATERIALIZED VIEW', 'TABLE PARTITION')\n" +
+                            "FROM DBA_OBJECTS WHERE OWNER = '" + args.getDbSchema() + "' AND OBJECT_TYPE NOT IN ('PACKAGE BODY', 'LOB', 'TABLE PARTITION', 'DATABASE LINK')\n" +
+                            "      AND OBJECT_NAME NOT LIKE 'MLOG$%' AND OBJECT_NAME NOT LIKE 'RUPD$%'" +  // exclude the helper tables for materialized views
+                            "      AND OBJECT_NAME NOT LIKE 'SYS_%' " +  // exclude other system tables
                             "ORDER BY 1");
 
             for (Map<String, Object> map : maps) {
