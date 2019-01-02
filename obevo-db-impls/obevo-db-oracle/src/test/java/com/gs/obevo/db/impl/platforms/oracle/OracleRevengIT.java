@@ -32,9 +32,9 @@ public class OracleRevengIT {
         args.setDbSchema("DBDEPLOY01");
         //args.setInputPath(new File("./src/test/resources/reveng/db2look/input/db2input.txt"));
         args.setGenerateBaseline(false);
-        args.setJdbcUrl("jdbc:oracle:thin:@dbdeploy-oracle-12-1.c87tzbeo5ssa.us-west-2.rds.amazonaws.com:1521:DBDEPLOY");
-        args.setUsername("deploybuilddbo");
-        args.setPassword("deploybuilddb0");
+        args.setJdbcUrl("jdbc:oracle:thin:@localhost:1521/ORCLPDB1.localdomain");
+        args.setUsername("deploydba");
+        args.setPassword("MyPassword");
 
         File outputDir = new File("./target/outputReveng");
         FileUtils.deleteDirectory(outputDir);
@@ -44,6 +44,7 @@ public class OracleRevengIT {
     }
 
     @Test
+    @Ignore("Ignoring re-deploy in the flow")
     public void testRedeploy() {
         File outputDir = new File("./target/outputReveng/final");
         DbEnvironment prod = DbEnvironmentFactory.getInstance().readOneFromSourcePath(outputDir.getPath(), "prod");

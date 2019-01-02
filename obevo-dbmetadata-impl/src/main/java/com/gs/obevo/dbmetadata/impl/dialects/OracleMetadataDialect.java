@@ -25,11 +25,14 @@ import com.gs.obevo.dbmetadata.api.DaDirectoryImpl;
 import com.gs.obevo.dbmetadata.api.DaPackage;
 import com.gs.obevo.dbmetadata.api.DaSchema;
 import com.gs.obevo.dbmetadata.impl.DaPackagePojoImpl;
+import org.apache.commons.dbutils.handlers.ColumnListHandler;
 import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
+import org.eclipse.collections.impl.block.factory.StringFunctions;
+import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.list.mutable.ListAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +48,13 @@ public class OracleMetadataDialect extends AbstractMetadataDialect {
     @Override
     public String getSchemaExpression(PhysicalSchema physicalSchema) {
         return physicalSchema.getPhysicalName();
+    }
+
+    @Override
+    public ImmutableSet<String> getGroupNamesOptional(Connection conn, PhysicalSchema physicalSchema) throws SQLException {
+        return Sets.immutable
+                .withAll(jdbc.query(conn, "select ROLE from DBA_ROLES", new ColumnListHandler<String>()))
+                .collect(StringFunctions.trim());
     }
 
     @Override

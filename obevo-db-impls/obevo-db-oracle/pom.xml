@@ -67,5 +67,21 @@
                 </dependency>
             </dependencies>
         </profile>
+        <profile>
+            <!-- not yet activating in the build as the Oracle container setup isn't fully automated yet -->
+            <id>integration-build</id>
+            <properties>
+                <dbCredsFile>docker-oracle-creds.yaml</dbCredsFile>
+            </properties>
+
+            <dependencies>
+                <dependency>
+                    <groupId>com.oracle</groupId>
+                    <artifactId>ojdbc7</artifactId>
+                    <version>12.1.0.2</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
     </profiles>
 </project>
