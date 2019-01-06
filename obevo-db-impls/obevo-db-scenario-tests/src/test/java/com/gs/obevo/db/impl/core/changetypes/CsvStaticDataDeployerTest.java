@@ -88,7 +88,7 @@ public class CsvStaticDataDeployerTest {
      * Used to test for overriding primary key requirement with //// METADATA primaryKeys = col1,col2,col3
      */
     @Test
-    public void testPrimaryKey() {
+    public void testCustomPrimaryKey() {
         this.jdbc.execute(conn, "CREATE TABLE " + schema + "." + table + " (\n" +
                 "AID    INT NOT NULL,\n" +
                 "BID    INT NOT NULL,\n" +
@@ -315,12 +315,46 @@ public class CsvStaticDataDeployerTest {
     @Test
     public void testMissingPrimaryKeys() {
         expectedEx.expect(IllegalStateException.class);
-        expectedEx.expectMessage("Require a primary key or unique index on table " + table.toUpperCase()
-                + " to support CSV-based static data support");
+        expectedEx.expectMessage("CSV-based static data loads require primary key or unique index on table " + table.toUpperCase() + ", but none found");
         this.jdbc.execute(conn, "CREATE TABLE " + schema + "." + table + " (\n" +
                 "AID    INT NOT NULL,\n" +
                 "BID    INT NOT NULL,\n" +
                 ")\n");
+        DbEnvironment env = new DbEnvironment();
+        env.setPlatform(PLATFORM);
+
+        Change artifact = mock(Change.class);
+        when(artifact.getPhysicalSchema(env)).thenReturn(new PhysicalSchema(schema));
+        when(artifact.getObjectName()).thenReturn(table);
+        when(artifact.getConvertedContent()).thenReturn(
+                "AID,BID\n" +
+                        "1,2\n" +
+                        "2,3\n" +
+                        "3,4\n" +
+                        "4,4\n"
+        );
+
+        CsvStaticDataDeployer csvStaticDataDeployer = new CsvStaticDataDeployer(env, getSqlExecutor(), this.ds, metadataManager, new H2DbPlatform());
+        csvStaticDataDeployer.deployArtifact(artifact);
+    }
+
+
+    /**
+     * Testing use case where the table does have a primary key or unique index, but the CSV hasn't defined all such
+     * columns in the file.
+     */
+    @Test
+    public void testNoValidPrimaryKeySpecified() {
+        expectedEx.expect(IllegalStateException.class);
+        expectedEx.expectMessage("CSV-based static data loads require primary key or unique index on table " + table.toUpperCase() + ", but existing 3 indices did not have all columns defined in CSV: " +
+                "ABC-[GENID (missing), AID]; CONSTRAINT_8-[GENID (missing)]; PRIMARY_KEY_8-[GENID (missing)]");
+        this.jdbc.execute(conn, "CREATE TABLE " + schema + "." + table + " (\n" +
+                "GENID  BIGINT AUTO_INCREMENT,\n" +
+                "AID    INT NOT NULL,\n" +
+                "BID    INT NOT NULL,\n" +
+                "PRIMARY KEY (GENID)\n" +
+                ")\n");
+        this.jdbc.execute(conn, "CREATE UNIQUE INDEX abc ON " + schema + "." + table + " (GENID,AID) ");
         DbEnvironment env = new DbEnvironment();
         env.setPlatform(PLATFORM);
         env.setNullToken("(null)");
@@ -340,6 +374,54 @@ public class CsvStaticDataDeployerTest {
         CsvStaticDataDeployer csvStaticDataDeployer = new CsvStaticDataDeployer(env, getSqlExecutor(), this.ds, metadataManager, new H2DbPlatform());
         csvStaticDataDeployer.deployArtifact(artifact);
     }
+
+    /**
+     * Verify that we can still handle deploys for tables with identity columns, even if those columns aren't specified
+     * in the CSV. This is the "positive result" set corresponding to the use case in {@link #testNoValidPrimaryKeySpecified}.
+     */
+    @Test
+    public void testWithIdentityColumn() {
+        this.jdbc.execute(conn, "CREATE TABLE " + schema + "." + table + " (\n" +
+                "GENID  BIGINT AUTO_INCREMENT,\n" +
+                "AID    INT NOT NULL,\n" +
+                "BID    INT NOT NULL,\n" +
+                "PRIMARY KEY (GENID)\n" +
+                ")\n");
+        this.jdbc.execute(conn, "CREATE UNIQUE INDEX abc ON " + schema + "." + table + " (AID, BID) ");  // the desired index is AID + BID
+
+        DbEnvironment env = new DbEnvironment();
+        env.setPlatform(PLATFORM);
+
+        Change artifact = mock(Change.class);
+        when(artifact.getPhysicalSchema(env)).thenReturn(new PhysicalSchema(schema));
+        when(artifact.getObjectName()).thenReturn(table);
+        when(artifact.getConvertedContent()).thenReturn(
+                "AID,BID\n" +
+                        "1,2\n" +
+                        "2,3\n" +
+                        "3,3\n"
+        );
+
+        CsvStaticDataDeployer csvStaticDataDeployer = new CsvStaticDataDeployer(env, getSqlExecutor(), this.ds, metadataManager, new H2DbPlatform());
+        csvStaticDataDeployer.deployArtifact(artifact);
+        // deploy it twice to ensure that the primary key is respected. Before the fix to auto-detect unique indices,
+        // the subsequent update deploy would fail
+        csvStaticDataDeployer.deployArtifact(artifact);
+
+        List<Map<String, Object>> results = this.jdbc.query(conn, "select * from " + schema + "." + table + " order by AID, BID",
+                new MapListHandler());
+        assertEquals(3, results.size());
+        assertEquals(1L, results.get(0).get("GENID"));
+        assertEquals(1, results.get(0).get("AID"));
+        assertEquals(2, results.get(0).get("BID"));
+        assertEquals(2L, results.get(1).get("GENID"));
+        assertEquals(2, results.get(1).get("AID"));
+        assertEquals(3, results.get(1).get("BID"));
+        assertEquals(3L, results.get(2).get("GENID"));
+        assertEquals(3, results.get(2).get("AID"));
+        assertEquals(3, results.get(2).get("BID"));
+    }
+
 
     /**
      * test the case where table created with a primary key but user specifies override tag as well

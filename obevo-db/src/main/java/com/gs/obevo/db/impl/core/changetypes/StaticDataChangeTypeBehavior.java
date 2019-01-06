@@ -85,7 +85,7 @@ public class StaticDataChangeTypeBehavior implements ChangeTypeBehavior {
 
         if (hasCsvPattern) {
             LOG.info("Executing load of csv file/s");
-            csvStaticDataDeployer.deployArtifact(staticDatas);
+            csvStaticDataDeployer.deployArtifact(staticDatas.toList());
         } else {
             // note - we do not yet support the "multiple csv file group" w/ the "insert into" files; only for CSVs
             // handle this as a regular case

@@ -15,7 +15,6 @@
  */
 package com.gs.obevo.db.impl.platforms.db2;
 
-import java.io.Serializable;
 import java.sql.Connection;
 
 import javax.sql.DataSource;
@@ -26,6 +25,7 @@ import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.impl.core.jdbc.DataAccessException;
 import com.gs.obevo.db.impl.platforms.db2.Db2PostDeployAction.SchemaObjectRow;
 import com.gs.obevo.impl.DeployMetricsCollector;
+import com.gs.obevo.impl.DeployMetricsCollectorImpl;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.set.MutableSet;
@@ -36,16 +36,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.mockito.Matchers;
-import org.mockito.exceptions.verification.WantedButNotInvoked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.hamcrest.Matchers.hasItems;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 @RunWith(Parameterized.class)
 public class Db2PostDeployActionIT {
@@ -74,7 +70,7 @@ public class Db2PostDeployActionIT {
 
         this.sqlExecutor = new Db2SqlExecutor(dataSource, env);
 
-        this.metricsCollector = mock(DeployMetricsCollector.class);
+        this.metricsCollector = new DeployMetricsCollectorImpl();
         this.db2PostDeployAction = new Db2PostDeployAction(sqlExecutor, metricsCollector);
     }
 
@@ -110,8 +106,8 @@ public class Db2PostDeployActionIT {
                 // Verify that we did find an invalid object and tried to execute a recompile
                 // (Note that it is difficult to reproduce this use case in some DB2 versions; hence, this check is optional)
                 try {
-                    verify(metricsCollector, times(1)).addMetric(Matchers.eq(Db2PostDeployAction.POST_DEPLOY_WARNINGS), Matchers.<Serializable>any());
-                } catch (WantedButNotInvoked e) {
+                    assertEquals(true, metricsCollector.getMetrics().toSerializedForm().get(Db2PostDeployAction.POST_DEPLOY_WARNINGS));
+                } catch (AssertionError e) {
                     Assume.assumeNoException("Expecting view to be invalid, but was not in this case", e);
                 }
             }
