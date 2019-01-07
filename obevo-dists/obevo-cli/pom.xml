@@ -43,32 +43,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>com.google.cloud.tools</groupId>
-                <artifactId>jib-maven-plugin</artifactId>
-                <version>0.10.0</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>buildTar</goal>
-                            <goal>dockerBuild</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <to>
-                        <image>shantstepanian/obevo</image>
-                        <tags>
-                            <tag>${project.version}</tag>
-                        </tags>
-                    </to>
-                    <container>
-                        <mainClass>com.gs.obevo.dist.Main</mainClass>
-                        <format>Docker</format>
-                    </container>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
     <dependencies>
@@ -93,4 +67,40 @@
             <artifactId>jcl-over-slf4j</artifactId>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.google.cloud.tools</groupId>
+                        <artifactId>jib-maven-plugin</artifactId>
+                        <version>0.10.0</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>buildTar</goal>
+                                    <goal>dockerBuild</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <to>
+                                <image>shantstepanian/obevo</image>
+                                <tags>
+                                    <tag>${project.version}</tag>
+                                </tags>
+                            </to>
+                            <container>
+                                <mainClass>com.gs.obevo.dist.Main</mainClass>
+                                <format>Docker</format>
+                            </container>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
