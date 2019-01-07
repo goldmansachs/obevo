@@ -9,6 +9,7 @@ services:
 env:
   global:
     - DEPLOY_ENABLED=`if [[ (! -z "$TRAVIS_TAG") || ("$TRAVIS_BRANCH" == "master") ]]; then echo true; else echo false; fi`
+    - RELEASE_ENABLED=`if [[ (! -z "$TRAVIS_TAG")]]; then echo true; else echo false; fi`
     - VERSION=`if [[ -z "$TRAVIS_TAG" ]]; then echo $TRAVIS_BRANCH-SNAPSHOT; else echo $TRAVIS_TAG; fi`
     - JAVA7_HOME=/usr/lib/jvm/java-7-openjdk-amd64
     - MAVEN_OPTS="-Drevision=$VERSION -Dmaven.repo.local=$HOME/.m2/repository -Xmx2g -Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss:SSS -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
@@ -43,7 +44,7 @@ deploy:
     local-dir: obevo-site/target/site
     on:
       all_branches: true
-      condition: $DEPLOY_ENABLED == true
+      condition: $RELEASE_ENABLED == true
   - provider: releases
     skip_cleanup: true
     api_key: $GH_TOKEN
@@ -52,4 +53,4 @@ deploy:
     file: obevo-dists/obevo-cli/target/obevo-cli-*-dist.zip
     on:
       all_branches: true
-      condition: $DEPLOY_ENABLED == true
+      condition: $RELEASE_ENABLED == true

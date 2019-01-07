@@ -733,15 +733,15 @@ change (it will compare the full dataset in the db table vs. the file
 and apply the appropriate insert/update/delete)
 
 Note that there is reverse-engineering available to make this easy to
-onboard for existing projects (see below)
+onboard for existing projects (see the [existing-onboarding-guide](Onboarding Guide) for more details).
 
-A specific requirement - the table must have a primary key or unique
-index defined, whether physically on the table, or configured in code.
-Specifically:
 
--   Define a primary key or unique index if one doesn't exist already
-    (it would be bad practice not to have it)
--   Or define a metadata attribute as follows:
+#### Note: Primary Key requirement
+To manage a table as static data in Obevo, a unique key must be defined, whether physically on the table, or configured in code.
+
+Specifically, either as:
+- (Preferred) An explicit primary key or unique index if one doesn't exist already (this is a good practice to do anyway)
+- Or defining a metadata attribute as follows, in case you cannot physically define the constraint
 
 ```
 //// METADATA primaryKeys="field1,field2"
@@ -750,11 +750,34 @@ a,b,11
 c,d,22
 ```
 
--   If you can't do either, then just use the delete/insert
-    representation
+Note that the PK or unique index is only considered if all of its columns are defined in the CSV (otherwise, Obevo would
+not be able to correctly compare results between the CSV and the actual database).
+
+* This use case typically comes up for tables with auto-generated identity columns. In such cases, the identity column
+should not be defined in the CSV, but you can define a separate unique index or metadata attribute to define the columns
+that should serve as the key for the CSV load.
+
+Note that if you do have a valid physical primary key or unique index on the table, then you are not allowed to define
+the metadata attribute as an override.
+
+#### Note: updateTimeColumn feature
+
+You can define certain columns as an "updateTimeColumn" if you'd like its value to be updated to the current timestamp
+when its row is either inserted or updated, per the example below.
+
+```
+//// METADATA updateTimeColumn="col1" ...
+field1,field2,value
+a,b,11
+```
+
+This column would not be specified in your CSV file.
+
+Implementation note: the time value is set in Java and passed to the database via JDBC, and not as a "current timestamp"
+keyword in the DB implementation.
 
 
-### Note on this methodology with respect to tables related by foreign key (CSV mode is required)
+### Note on the static data methodology with respect to tables related by foreign key (CSV mode is required)
 
 If you have tables that depend on each other via foreign key,
 <u>_you must use the CSV format_</u> (which is the preference anyway).
@@ -785,15 +808,12 @@ Lucky for you, Obevo takes care of this!
 ### Methodology 2) File-per-staticDataGroup (i.e. common static data across a set of tables)
 
 Some use cases lend themselves towards representing static data not per
-table, but for a set of tables involving a particular context
+table, but for a set of tables involving a particular context. For example, a set of tables that together represent
+metadata for some application, but the metadata definitions make more sense grouped from the user context and not the
+table context.
 
-An example is the DIAT tool from the Reg Ops IT team - adding DIAT views
-spans across multiple tables with those rows being linked to each other;
-but the rows per DIAT view do not interact with other rows in those
-tables. Hence, it is preferable to keep these separate.
-
-Hence, your files may make sense to represent like this (taking the same
-content above, but represent it in the staticDataGroup mode)
+In those cases, your files may make sense to represent like this (taking the same content above, but represent it in
+the staticDataGroup mode)
 
 ```
 ### position-view.sql ###
