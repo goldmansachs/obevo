@@ -26,6 +26,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>obevo-utils</artifactId>
+    <name>${project.artifactId}</name>
     <packaging>pom</packaging>
 
     <description>

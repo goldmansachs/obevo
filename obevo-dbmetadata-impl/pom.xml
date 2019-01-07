@@ -27,6 +27,7 @@
     </parent>
 
     <artifactId>obevo-dbmetadata-impl</artifactId>
+    <name>${project.artifactId}</name>
 
     <properties>
         <jacoco.minCoverage>0.15</jacoco.minCoverage>

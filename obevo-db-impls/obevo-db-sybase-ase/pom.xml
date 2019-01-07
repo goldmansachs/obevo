@@ -26,6 +26,7 @@
     </parent>
 
     <artifactId>obevo-db-sybase-ase</artifactId>
+    <name>${project.artifactId}</name>
 
     <build>
         <plugins>

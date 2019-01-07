@@ -23,6 +23,7 @@
         <version>${revision}</version>
     </parent>
     <artifactId>obevo-cli</artifactId>
+    <name>${project.artifactId}</name>
 
     <build>
         <plugins>

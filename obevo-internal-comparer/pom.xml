@@ -27,6 +27,7 @@
     </parent>
 
     <artifactId>obevo-internal-comparer</artifactId>
+    <name>${project.artifactId}</name>
 
     <properties>
         <net.sourceforge.collections.collections-generic.version>4.01</net.sourceforge.collections.collections-generic.version>

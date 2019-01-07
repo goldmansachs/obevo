@@ -26,6 +26,7 @@
     </parent>
 
     <artifactId>obevo-bom</artifactId>
+    <name>${project.artifactId}</name>
     <packaging>pom</packaging>
 
     <description>
@@ -243,6 +244,15 @@
     </dependencyManagement>
 
     <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <configuration>
+                    <flattenMode>bom</flattenMode>
+                </configuration>
+            </plugin>
+        </plugins>
         <pluginManagement>
             <plugins>
                 <plugin>

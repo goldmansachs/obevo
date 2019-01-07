@@ -25,6 +25,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>obevo-dependencies</artifactId>
+    <name>${project.artifactId}</name>
     <packaging>pom</packaging>
 
     <description>
@@ -37,6 +38,18 @@
         <schemacrawler.version>14.16.04-java7</schemacrawler.version>
         <schemacrawler-iq.version>14.16.03-java7</schemacrawler-iq.version>  <!-- IQ is maintained as a separate product; hence the separate version -->
     </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <configuration>
+                    <flattenMode>bom</flattenMode>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencyManagement>
         <dependencies>

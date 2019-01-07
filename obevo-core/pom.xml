@@ -24,6 +24,9 @@
         <relativePath>../obevo-dependencies</relativePath>
     </parent>
     <artifactId>obevo-core</artifactId>
+    <!-- name attribute is explicitly required in all modules uploading to Maven central due to issue w/ flatten plugin
+    https://github.com/mojohaus/flatten-maven-plugin/issues/76 -->
+    <name>${project.artifactId}</name>
 
     <properties>
         <jacoco.minCoverage>0.40</jacoco.minCoverage>

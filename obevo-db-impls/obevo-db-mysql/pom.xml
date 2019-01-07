@@ -27,6 +27,7 @@ under the License.
     </parent>
 
     <artifactId>obevo-db-mysql</artifactId>
+    <name>${project.artifactId}</name>
 
     <properties>
         <skipTests>true</skipTests>  <!-- module still in development; tests should be skipped -->

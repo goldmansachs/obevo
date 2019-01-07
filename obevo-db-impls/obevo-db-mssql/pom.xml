@@ -26,6 +26,7 @@
     </parent>
 
     <artifactId>obevo-db-mssql</artifactId>
+    <name>${project.artifactId}</name>
 
     <properties>
         <jacoco.minCoverage>0.15</jacoco.minCoverage>

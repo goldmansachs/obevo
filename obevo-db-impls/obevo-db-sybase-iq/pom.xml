@@ -26,6 +26,7 @@
     </parent>
 
     <artifactId>obevo-db-sybase-iq</artifactId>
+    <name>${project.artifactId}</name>
 
     <properties>
         <jacoco.minCoverage>0.01</jacoco.minCoverage>

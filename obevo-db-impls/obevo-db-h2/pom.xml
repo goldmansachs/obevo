@@ -26,6 +26,7 @@
     </parent>
 
     <artifactId>obevo-db-h2</artifactId>
+    <name>${project.artifactId}</name>
 
     <properties>
         <jacoco.minCoverage>0.75</jacoco.minCoverage>

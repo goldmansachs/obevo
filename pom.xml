@@ -41,7 +41,8 @@
         <module>obevo-mongodb</module>
     </modules>
 
-    <name>Obevo Parent POM</name>
+    <!--<name>Obevo Parent POM</name>-->
+    <name>${project.artifactId}</name>
     <description>Obevo is a utility to facilitate deployments on stateful and stateless environment types, notably databases.</description>
     <url>https://github.com/goldmansachs/obevo/</url>
     <inceptionYear>2017</inceptionYear>
@@ -106,6 +107,8 @@
 
     <properties>
         <revision>local-SNAPSHOT</revision>
+        <flattenMode>bom</flattenMode>
+
         <kotlin.version>1.2.61</kotlin.version>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
 
@@ -219,6 +222,11 @@
                     <artifactId>maven-antrun-plugin</artifactId>
                     <version>1.8</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>flatten-maven-plugin</artifactId>
+                    <version>1.1.0</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -226,10 +234,9 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
-                <version>1.0.0</version>
                 <configuration>
                     <updatePomFile>true</updatePomFile>
-                    <flattenMode>bom</flattenMode>
+                    <flattenMode>${flattenMode}</flattenMode>
                 </configuration>
                 <executions>
                     <execution>
