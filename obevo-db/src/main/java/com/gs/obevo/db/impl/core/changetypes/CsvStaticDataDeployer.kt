@@ -134,7 +134,7 @@ open class CsvStaticDataDeployer(
     }
 
     private fun getUniqueIndexColumnNames(artifact: Change, table: DaTable, fileColumnNames: Set<String>): List<String> {
-        val doesIndexColumnExistInCsv = { column: DaColumn -> fileColumnNames.contains(column.name)}
+        val doesIndexColumnExistInCsv = { column: DaColumn -> fileColumnNames.contains(dbPlatform.convertDbObjectName().valueOf(column.name)) }
 
         val artifactCandidate = getArtifactColumns(artifact)
         val eligibleUniqueIndexes = getEligibleUniqueIndexes(table)
