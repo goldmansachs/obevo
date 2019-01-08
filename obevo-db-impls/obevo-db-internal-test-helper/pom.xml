@@ -25,6 +25,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>obevo-db-internal-test-helper</artifactId>
+    <name>${project.artifactId}</name>
 
     <dependencies>
         <dependency>
