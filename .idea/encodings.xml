@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="Encoding">
+  <component name="Encoding" addBOMForNewFiles="with NO BOM">
     <file url="file://$PROJECT_DIR$" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-bom" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-core" charset="UTF-8" />
@@ -34,6 +34,10 @@
     <file url="file://$PROJECT_DIR$/obevo-site" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-utils" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-utils/obevo-db-unittest-util" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-utils/obevo-hibernate-util" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-utils/obevo-hibernate3-util" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-utils/obevo-hibernate4-util" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/obevo-utils/obevo-hibernate5-util" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-utils/obevo-reladomo-util" charset="UTF-8" />
   </component>
 </project>

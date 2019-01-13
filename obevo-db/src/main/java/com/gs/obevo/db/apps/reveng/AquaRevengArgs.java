@@ -46,6 +46,7 @@ public class AquaRevengArgs {
     private String nameCombinePattern;
     private boolean preprocessSchemaTokens = true;
     private String excludeObjects;
+    private boolean explicitSchemaRequired;
 
     /**
      * @deprecated Use {@link #getInputPath()}
@@ -259,6 +260,14 @@ public class AquaRevengArgs {
     @Argument(value = "excludeObjects", required = false, description = "Object patterns to exclude from reverse-engineering, e.g. TABLE~tab1,tab2;VIEW~view1,view2")
     public void setExcludeObjects(String excludeObjects) {
         this.excludeObjects = excludeObjects;
+    }
+
+    public boolean isExplicitSchemaRequired() {
+        return explicitSchemaRequired;
+    }
+
+    public void setExplicitSchemaRequired(boolean explicitSchemaRequired) {
+        this.explicitSchemaRequired = explicitSchemaRequired;
     }
 
     @Override

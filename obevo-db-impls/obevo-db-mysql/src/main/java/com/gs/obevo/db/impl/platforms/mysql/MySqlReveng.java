@@ -73,7 +73,7 @@ class MySqlReveng extends AbstractDdlReveng {
     }
 
     @Override
-    protected File printInstructions(PrintStream out, AquaRevengArgs args) {
+    protected boolean doRevengOrInstructions(PrintStream out, AquaRevengArgs args, File interimDir) {
 //        out.println("1) Run the following command to generate the DDL file:");
 //        out.println(getCommandWithDefaults(args, "<username>", "<password>", "<dbHost>", "<dbPortNumber>", "<dbName>", "<dbSchema>", "<outputFile>"));
 //        out.println("");
@@ -82,7 +82,7 @@ class MySqlReveng extends AbstractDdlReveng {
 //        out.println("");
 //        out.println("The pg_dump command will ");
 
-        return null;
+        return false;
     }
 
 //    private String getCommandWithDefaults(AquaRevengArgs args, String username, String password, String dbHost, String dbPort, String dbName, String dbSchema, String outputDirectory) {

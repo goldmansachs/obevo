@@ -171,8 +171,6 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.22.0</version>
                     <configuration>
-                        <!--<jvm>/Library/Java/JavaVirtualMachines/jdk1.7.0_80.jdk/Contents/Home/bin/java</jvm>-->
-                        <!--<jvm>/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Home/bin/java</jvm>-->
                         <jvm>${env.JAVA7_HOME}/bin/java</jvm>
                     </configuration>
                 </plugin>
@@ -236,6 +234,7 @@
                 <artifactId>flatten-maven-plugin</artifactId>
                 <configuration>
                     <updatePomFile>true</updatePomFile>
+                    <outputDirectory>${project.build.directory}</outputDirectory>
                     <flattenMode>${flattenMode}</flattenMode>
                 </configuration>
                 <executions>

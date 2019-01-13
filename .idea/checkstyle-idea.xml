@@ -3,6 +3,7 @@
   <component name="CheckStyle-IDEA">
     <option name="configuration">
       <map>
+        <entry key="active-configuration" value="PROJECT_RELATIVE:$PROJECT_DIR$/src/main/build-resources/checkstyle.xml:project" />
         <entry key="checkstyle-version" value="8.7" />
         <entry key="copy-libs" value="false" />
         <entry key="location-0" value="BUNDLED:(bundled):Sun Checks" />

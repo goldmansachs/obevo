@@ -32,7 +32,6 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.predicate.Predicate;
@@ -55,7 +54,7 @@ import org.eclipse.collections.impl.factory.Sets;
 public class RevengWriter {
     private final Configuration templateConfig;
 
-    public static Predicate2<File, RevEngDestination> defaultShouldOverwritePredicate() {
+    static Predicate2<File, RevEngDestination> defaultShouldOverwritePredicate() {
         return new Predicate2<File, RevEngDestination>() {
             @Override
             public boolean accept(File mainFile, RevEngDestination dbFileRep) {
@@ -87,7 +86,7 @@ public class RevengWriter {
 
     @SuppressWarnings("WeakerAccess")
     public RevengWriter() {
-        this.templateConfig = new Configuration();
+        this.templateConfig = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
 
         // Where load the templates from:
         templateConfig.setClassForTemplateLoading(RevengWriter.class, "/");
@@ -241,10 +240,8 @@ public class RevengWriter {
             }
         }, Sets.mutable.<String>empty());
 
-        Writer fileWriter = null;
-        try {
+        try (Writer fileWriter = new FileWriter(new File(outputDir, "system-config.xml"));) {
             Template template = templateConfig.getTemplate("deployer/reveng/system-config-template.xml.ftl");
-            fileWriter = new FileWriter(new File(outputDir, "system-config.xml"));
 
             MutableMap<String, Object> params = Maps.mutable.empty();
             params.put("platform", platform.getName());
@@ -258,8 +255,6 @@ public class RevengWriter {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(fileWriter);
         }
     }
 }

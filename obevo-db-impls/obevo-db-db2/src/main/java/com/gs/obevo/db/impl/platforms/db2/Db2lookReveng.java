@@ -29,7 +29,7 @@ import org.eclipse.collections.impl.block.factory.StringPredicates;
 import org.eclipse.collections.impl.factory.Lists;
 
 public class Db2lookReveng extends AbstractDdlReveng {
-    public Db2lookReveng() {
+    Db2lookReveng() {
         super(
                 new Db2DbPlatform(),
                 new MultiLineStringSplitter("~", false),
@@ -68,7 +68,7 @@ public class Db2lookReveng extends AbstractDdlReveng {
     }
 
     @Override
-    protected File printInstructions(PrintStream out, AquaRevengArgs args) {
+    protected boolean doRevengOrInstructions(PrintStream out, AquaRevengArgs args, File interimDir) {
         out.println("1) Login to your DB2 command line environment by running the following command (assuming you have the DB2 command line client installed):");
         out.println("    db2cmd");
         out.println("");
@@ -85,7 +85,7 @@ public class Db2lookReveng extends AbstractDdlReveng {
         out.println("If you get an exception that you do not have the BIND privilege, e.g. 'SQL0552N  \"yourId\" does not have the privilege to perform operation \"BIND\".  SQLSTATE=42502");
         out.println("then run the BIND command");
 
-        return null;
+        return false;
     }
 
     private String getCommandWithDefaults(AquaRevengArgs args, String username, String password, String dbServer, String dbSchema, String outputFile) {

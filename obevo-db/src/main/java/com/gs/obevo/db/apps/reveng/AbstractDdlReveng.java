@@ -51,6 +51,7 @@ import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.multimap.set.MutableSetMultimap;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.api.tuple.Pair;
+import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.block.factory.StringPredicates;
 import org.eclipse.collections.impl.factory.Lists;
@@ -127,13 +128,12 @@ public abstract class AbstractDdlReveng {
         Procedure2<ChangeEntry, String> noOpProcedure = new Procedure2<ChangeEntry, String>() {
             @Override
             public void value(ChangeEntry changeEntry, String s) {
-
             }
         };
         this.postProcessChange = ObjectUtils.firstNonNull(postProcessChange, noOpProcedure);
     }
 
-    static String getCatalogSchemaObjectPattern(String startQuoteStr, String endQuoteStr) {
+    protected static String getCatalogSchemaObjectPattern(String startQuoteStr, String endQuoteStr) {
         return "(?:" + namePattern(startQuoteStr, endQuoteStr) + "\\.)?"
                 + "(?:" + namePattern(startQuoteStr, endQuoteStr) + "\\.)?" + namePattern(startQuoteStr, endQuoteStr);
     }
@@ -160,17 +160,18 @@ public abstract class AbstractDdlReveng {
 
     public void reveng(AquaRevengArgs args) {
         if (args.getInputPath() == null) {
-            File file = printInstructions(System.out, args);
+            File interimDir = new File(args.getOutputPath(), "interim");
+            boolean proceedWithReveng = doRevengOrInstructions(System.out, args, interimDir);
             System.out.println("");
             System.out.println("");
-            if (file != null) {
+            if (proceedWithReveng) {
                 System.out.println("Interim reverse-engineering from the vendor tool is complete.");
-                System.out.println("Content was written to: " + file);
-                System.out.println("Proceeding with full reverse-engineering: " + file);
+                System.out.println("Content was written to: " + interimDir);
+                System.out.println("Proceeding with full reverse-engineering: " + interimDir);
                 System.out.println("");
                 System.out.println("*** In case the interim content had issues when reverse-engineering to the final output, you can update the interim files and restart from there (without going back to the DB) by specifying the following argument:");
                 System.out.println("    -inputPath " + ObjectUtils.defaultIfNull(args.getOutputPath(), "<outputFile>"));
-                revengMain(file, args);
+                revengMain(interimDir, args);
             } else {
                 System.out.println("***********");
                 System.out.println("");
@@ -209,13 +210,14 @@ public abstract class AbstractDdlReveng {
      * or print out instructions for the user on how to generate it.
      *
      * @param out The printstream to use in the implementing function to give output to the user.
-     * @param args The db args to reverse engineer
+     * @param args The db args to reverse engineer.
+     * @param interimDir The suggested directory to write to for interim content, if needed.
      * @return The file or directory that has the reverse-engineered content, or null if the user should instead invoke the reverse-engineering command separately
      */
-    protected abstract File printInstructions(PrintStream out, AquaRevengArgs args);
+    protected abstract boolean doRevengOrInstructions(PrintStream out, AquaRevengArgs args, File interimDir);
 
     private void revengMain(File inputPath, final AquaRevengArgs args) {
-
+        // First, collect all files in the directory together. We will consider this as one set of objects to go through.
         final MutableList<File> files;
         if (inputPath.isFile()) {
             files = Lists.mutable.of(inputPath);
@@ -237,6 +239,7 @@ public abstract class AbstractDdlReveng {
             }
         }
 
+        // next - extract all the objects that we've matched based on the reverse engineering inputs and the schema
         MutableList<FileProcessingContext> fileProcessingContexts = files.collect(new Function<File, FileProcessingContext>() {
             @Override
             public FileProcessingContext valueOf(File file) {
@@ -248,13 +251,18 @@ public abstract class AbstractDdlReveng {
                             @Override
                             public boolean accept(Pair<String, RevengPatternOutput> each) {
                                 RevengPatternOutput patternMatch = each.getTwo();
-                                return !skipSchemaValidation && patternMatch != null && patternMatch.getSchema() != null && patternMatch.getSubSchema() == null && !patternMatch.getSchema().equalsIgnoreCase(args.getDbSchema());
+                                return !skipSchemaValidation
+                                        && patternMatch != null
+                                        && (args.isExplicitSchemaRequired() || patternMatch.getSchema() != null)
+                                        && patternMatch.getSubSchema() == null
+                                        && !args.getDbSchema().equalsIgnoreCase(patternMatch.getSchema());
                             }
                         });
                 return new FileProcessingContext(file, snippetPatternMatchPairs);
             }
         });
 
+        // add those pattern matches to the schema object replacer. This is there to replace all references of the schema in other objects
         final SchemaObjectReplacer schemaObjectReplacer = new SchemaObjectReplacer();
         for (FileProcessingContext fileProcessingContext : fileProcessingContexts) {
             for (Pair<String, RevengPatternOutput> snippetPatternMatchPair : fileProcessingContext.getSnippetPatternMatchPairs()) {
@@ -317,7 +325,14 @@ public abstract class AbstractDdlReveng {
                 RevengPatternOutput patternMatch = snippetPatternMatchPair.getTwo();
                 if (patternMatch != null) {
                     chosenRevengPattern = patternMatch.getRevengPattern();
+
+                    if (chosenRevengPattern.isShouldBeIgnored()) {
+                        continue;
+                    }
+
                     candidateObject = patternMatch.getPrimaryName();
+                    candidateObject = chosenRevengPattern.remapObjectName(candidateObject);
+
                     if (patternMatch.getSecondaryName() != null) {
                         secondaryName = patternMatch.getSecondaryName();
                     }
@@ -436,9 +451,7 @@ public abstract class AbstractDdlReveng {
             for (boolean useQuotes : Lists.fixedSize.of(true, false)) {
                 String sQuote = useQuotes ? startQuote : "";
                 String eQuote = useQuotes ? endQuote : "";
-                sqlSnippet = sqlSnippet.replaceAll(sQuote + inputSchema + "\\s*" + eQuote + "\\." + sQuote + objectName + eQuote,
-                        replaceSchemaObject(inputSchema, objectName, sQuote, eQuote)
-                );
+                sqlSnippet = sqlSnippet.replaceAll(sQuote + inputSchema + "\\s*" + eQuote + "\\." + sQuote + objectName + eQuote, objectName);
             }
 
             return sqlSnippet;
@@ -448,24 +461,11 @@ public abstract class AbstractDdlReveng {
             for (boolean useQuotes : Lists.fixedSize.of(true, false)) {
                 String sQuote = useQuotes ? startQuote : "";
                 String eQuote = useQuotes ? endQuote : "";
-                sqlSnippet = sqlSnippet.replaceAll(sQuote + inputSchema + "\\s*" + eQuote + "\\." + sQuote + inputSubschema + "\\s*" + eQuote + "\\." + sQuote + objectName + eQuote,
-                        replaceSchemaSubschemaObject(inputSchema, inputSubschema, objectName, sQuote, eQuote)
-                        //objectName
-                );
+                sqlSnippet = sqlSnippet.replaceAll(sQuote + inputSchema + "\\s*" + eQuote + "\\." + sQuote + inputSubschema + "\\s*" + eQuote + "\\." + sQuote + objectName + eQuote, objectName);
             }
 
             return sqlSnippet;
         }
-    }
-
-    protected String replaceSchemaObject(String inputSchema, String objectName, String sQuote, String eQuote) {
-        return objectName;
-//            return sQuote + inputSchema + eQuote + "." + sQuote + objectName + eQuote;
-    }
-
-    private String replaceSchemaSubschemaObject(String inputSchema, String inputSubschema, String objectName, String sQuote, String eQuote) {
-        return objectName;
-//            return sQuote + inputSchema + eQuote + "." + sQuote + inputSubschema + eQuote + "." + sQuote + objectName + eQuote;
     }
 
     private MutableList<String> getSqlSnippets(File file) {
@@ -640,6 +640,7 @@ public abstract class AbstractDdlReveng {
         private final String annotation;
         private final MutableList<Function<String, LineParseOutput>> postProcessSqls = Lists.mutable.empty();
         private Integer suggestedOrder;
+        private boolean shouldBeIgnored;
 
         public static final Function<RevengPattern, String> TO_CHANGE_TYPE = new Function<RevengPattern, String>() {
             @Override
@@ -647,6 +648,7 @@ public abstract class AbstractDdlReveng {
                 return revengPattern.getChangeType();
             }
         };
+        private Function<String, String> remapObjectName = Functions.getStringPassThru();
 
         public RevengPattern(String changeType, NamePatternType namePatternType, String pattern) {
             this(changeType, namePatternType, pattern, 1);
@@ -712,6 +714,32 @@ public abstract class AbstractDdlReveng {
          */
         public RevengPattern withSuggestedOrder(Integer suggestedOrder) {
             this.suggestedOrder = suggestedOrder;
+            return this;
+        }
+
+        boolean isShouldBeIgnored() {
+            return shouldBeIgnored;
+        }
+
+        public void setShouldBeIgnored(boolean shouldBeIgnored) {
+            this.shouldBeIgnored = shouldBeIgnored;
+        }
+
+        public RevengPattern withShouldBeIgnored(boolean shouldBeIgnored) {
+            this.shouldBeIgnored = shouldBeIgnored;
+            return this;
+        }
+
+        /**
+         * Remaps the object name in case users want to group objects into files together. By default, this is a passthrough
+         * function, but users can override the behavior.
+         */
+        public String remapObjectName(String candidateObject) {
+            return remapObjectName.valueOf(candidateObject);
+        }
+
+        public RevengPattern withRemapObjectName(Function<String, String> remapObjectName) {
+            this.remapObjectName = remapObjectName != null ? remapObjectName : Functions.getStringPassThru();
             return this;
         }
 

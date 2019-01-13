@@ -84,7 +84,7 @@ public class MsSqlReveng extends AbstractDdlReveng {
     }
 
     @Override
-    protected File printInstructions(PrintStream out, AquaRevengArgs args) {
+    protected boolean doRevengOrInstructions(PrintStream out, AquaRevengArgs args, File interimDir) {
         out.println("1) Download the powershell script from: https://github.com/goldmansachs/obevo/tree/master/obevo-db-impls/obevo-db-mssql/src/main/resources/SqlServerDdlReveng.ps1");
         out.println("");
         out.println("2) Open a powershell prompt (assuming you have one installed):");
@@ -103,7 +103,7 @@ public class MsSqlReveng extends AbstractDdlReveng {
         out.println("NOTE - This script is still in beta and subject to signature changes.");
         out.println("Please give it a try and provide us feedback, or contribute changes as needed.");
 
-        return null;
+        return false;
     }
 
     @Override
