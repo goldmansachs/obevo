@@ -44,7 +44,7 @@ class Changeset(
 
         if (!fatalWarnings.isEmpty()) {
             // check for serious exceptions
-            throw IllegalArgumentException("Found exceptions:\n" + fatalWarnings.map { it.commandDescription }.joinToString { "\n" })
+            throw IllegalArgumentException("Found exceptions:\n" + fatalWarnings.map { it.commandDescription }.joinToString("\n"))
         }
     }
 

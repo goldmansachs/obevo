@@ -16,16 +16,15 @@
 
 -->
 
-Maven API
-==========
+# Maven API
 
 In terms of the maven plugin - it basically looks like the following.
 
 ```
 <plugin>
-    <groupId>${project.parent.groupId}</groupId>
+    <groupId>com.goldmansachs.obevo</groupId>
     <artifactId>obevo-maven-plugin</artifactId>
-    <version>${project.version}</version>
+    <version>${obevo.version}</version>
     <executions>
         <execution>
             <id>deploy-db-module</id>
@@ -71,8 +70,7 @@ one other than the build uses, so that you can guarantee that the
 scripts are fine
 
 
-Configuring Custom Logging for Obevo in Maven
----------------------------------------------
+## Configuring Custom Logging for Obevo in Maven
 
 Obevo uses the [SLF4J API](https://www.slf4j.org), and
 the main jars do not include any logging implementations as third-party
