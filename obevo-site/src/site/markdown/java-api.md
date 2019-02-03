@@ -16,13 +16,11 @@
 
 -->
 
-Java API
-========
+# Java API
 
 <!-- MACRO{toc|fromDepth=0|toDepth=1} -->
 
-Module Overview
----------------
+## Module Overview
 
 Before diving into the Java code, first let's describe the modules in
 Obevo.
@@ -57,8 +55,7 @@ Obevo codebase):
 |obevo-site                                                      |Documentation   |The documentation bundle|
 
 
-Modules relevant for Java API Users
------------------------------------
+## Modules relevant for Java API Users
 
 As an API client, you'll only need to depend on the following:
 
@@ -72,8 +69,7 @@ As an API client, you'll only need to depend on the following:
 -   You should not access the other modules via Java
 
 
-Java Package Overview
----------------------
+## Java Package Overview
 
 com.gs.obevo is the main package under which all is kept - this is in
 the obevo-core module that has the code focusing on the change
@@ -92,8 +88,7 @@ platform, which will have the same pattern of child packages, i.e. api,
 impl, apps
 
 
-Key classes
------------
+## Key classes
 
 |Class                                             |Description|
 |--------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -102,8 +97,7 @@ Key classes
 |com.gs.obevo.db.api.DbDeployerAppContext          |Context class to use to invoke deployments and that has references to the components that the Deployer uses and that you can access. e.g. methods for reading changes from source or the audit table|
 
 
-Retrieving dependencies from your artifact repository
------------------------------------------------------
+## Retrieving dependencies from your artifact repository
 
 Define the dependencies in your project prior to using them in your
 project
@@ -114,12 +108,12 @@ Maven Example 1 - Conventional way
 <dependency>
     <groupId>com.goldmansachs.obevo</groupId>
     <artifactId>obevo-db</artifactId>
-    <version>${project.version}</version>
+    <version>${obevo.version}</version>
 </dependency>
 <dependency>
     <groupId>com.goldmansachs.obevo</groupId>
     <artifactId>obevo-db-hsql</artifactId>  <!-- replace db-hsql w/ whatever platform you are trying to deploy to -->
-    <version>${project.version}</version>
+    <version>${obevo.version}</version>
 </dependency>
 ```
 
@@ -137,7 +131,7 @@ for more information)
             <artifactId>obevo-bom</artifactId>
             <type>pom</type>
             <scope>import</scope>
-            <version>${project.version}</version>
+            <version>${obevo.version}</version>
         </dependency>
     </dependencies>
 </dependencyManagement>
@@ -156,8 +150,7 @@ for more information)
 ```
 
 
-Example API Usage - com.gs.obevo.api.factory.Obevo
---------------------------------------------------
+## Example API Usage - com.gs.obevo.api.factory.Obevo
 
 com.gs.obevo.api.factory.Obevo is the main API entrypoint to read in
 your project configurations from the config file. Explore the API and
@@ -177,8 +170,7 @@ context.deploy();
 ```
 
 
-Example API Usage - Direct Creation of DbEnvironment
-----------------------------------------------------
+## Example API Usage - Direct Creation of DbEnvironment
 
 Or if you don't want to use the configuration file, you can create the
 DbEnvironment object directly, and then create the DbDeployerAppContext
@@ -205,8 +197,7 @@ context.deploy();
 ```
 
 
-Configuring Custom Logging for Obevo in Java
---------------------------------------------
+## Configuring Custom Logging for Obevo in Java
 
 Obevo uses the [SLF4J API](https://www.slf4j.org), and
 the main jars do not include any logging implementations as third-party

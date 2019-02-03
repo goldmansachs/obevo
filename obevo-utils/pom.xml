@@ -36,6 +36,10 @@
     <modules>
         <module>obevo-db-unittest-util</module>
         <module>obevo-reladomo-util</module>
+        <module>obevo-hibernate-util</module>
+        <module>obevo-hibernate3-util</module>
+        <module>obevo-hibernate4-util</module>
+        <module>obevo-hibernate5-util</module>
     </modules>
 
 </project>

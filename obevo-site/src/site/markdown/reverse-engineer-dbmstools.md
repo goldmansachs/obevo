@@ -62,9 +62,11 @@ Step 2: execute the commands that are prompted for you in the instructions from 
 Step 3: execute your step 1 command again, but add the -inputPath &lt;yourFilePath&gt; argument to do the conversion to the obevo format
 
 Regarding the output:
+
 * This will generate the reverse-engineered output under &lt;outputDir&gt;/final
 
 Once you have these files, do the final touches on them as you see fit (e.g. delete junk tables), and proceed to the next step
+
 * <font color="Red">Note the warning in your output - if you see any directories with a name containing
     "-pleaseAnalyze" in the result of the DBREVENG script</font>, then the tool could not figure out what to do w/ those
     sql snippets. Either manually figure out where to put them and do so, or if you find too many

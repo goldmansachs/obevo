@@ -23,6 +23,10 @@
       <module fileurl="file://$PROJECT_DIR$/obevo-dbmetadata-impl/obevo-dbmetadata-impl.iml" filepath="$PROJECT_DIR$/obevo-dbmetadata-impl/obevo-dbmetadata-impl.iml" />
       <module fileurl="file://$PROJECT_DIR$/obevo-dependencies/obevo-dependencies.iml" filepath="$PROJECT_DIR$/obevo-dependencies/obevo-dependencies.iml" />
       <module fileurl="file://$PROJECT_DIR$/obevo-dists/obevo-dists.iml" filepath="$PROJECT_DIR$/obevo-dists/obevo-dists.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-utils/obevo-hibernate-util/obevo-hibernate-util.iml" filepath="$PROJECT_DIR$/obevo-utils/obevo-hibernate-util/obevo-hibernate-util.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-utils/obevo-hibernate3-util/obevo-hibernate3-util.iml" filepath="$PROJECT_DIR$/obevo-utils/obevo-hibernate3-util/obevo-hibernate3-util.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-utils/obevo-hibernate4-util/obevo-hibernate4-util.iml" filepath="$PROJECT_DIR$/obevo-utils/obevo-hibernate4-util/obevo-hibernate4-util.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-utils/obevo-hibernate5-util/obevo-hibernate5-util.iml" filepath="$PROJECT_DIR$/obevo-utils/obevo-hibernate5-util/obevo-hibernate5-util.iml" />
       <module fileurl="file://$PROJECT_DIR$/obevo-internal-comparer/obevo-internal-comparer.iml" filepath="$PROJECT_DIR$/obevo-internal-comparer/obevo-internal-comparer.iml" />
       <module fileurl="file://$PROJECT_DIR$/obevo-internal-test-client-01/obevo-internal-test-client-01.iml" filepath="$PROJECT_DIR$/obevo-internal-test-client-01/obevo-internal-test-client-01.iml" />
       <module fileurl="file://$PROJECT_DIR$/obevo-internal-test-client-02/obevo-internal-test-client-02.iml" filepath="$PROJECT_DIR$/obevo-internal-test-client-02/obevo-internal-test-client-02.iml" />

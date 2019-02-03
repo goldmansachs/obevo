@@ -23,7 +23,6 @@ import java.io.PrintStream;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -111,17 +110,15 @@ class OracleReveng extends AbstractDdlReveng {
     }
 
     @Override
-    protected File printInstructions(PrintStream out, AquaRevengArgs args) {
+    protected boolean doRevengOrInstructions(PrintStream out, AquaRevengArgs args, File interimDir) {
         DbEnvironment env = getDbEnvironment(args);
 
         JdbcDataSourceFactory jdbcFactory = new OracleJdbcDataSourceFactory();
         DataSource ds = jdbcFactory.createDataSource(env, new Credential(args.getUsername(), args.getPassword()), 1);
         JdbcHelper jdbc = new JdbcHelper(null, false);
 
-        Path interim = new File(args.getOutputPath(), "interim").toPath();
-        interim.toFile().mkdirs();
         try (Connection conn = ds.getConnection();
-             BufferedWriter fileWriter = Files.newBufferedWriter(interim.resolve("output.sql"), Charset.defaultCharset())) {
+             BufferedWriter fileWriter = Files.newBufferedWriter(interimDir.toPath().resolve("output.sql"), Charset.defaultCharset())) {
             // https://docs.oracle.com/database/121/ARPLS/d_metada.htm#BGBJBFGE
             // Note - can't remap schema name, object name, tablespace name within JDBC calls; we will leave that to the existing code in AbstractDdlReveng
             jdbc.update(conn, "{ CALL DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM,'STORAGE',false) }");
@@ -160,6 +157,6 @@ class OracleReveng extends AbstractDdlReveng {
             throw new RuntimeException(e);
         }
 
-        return interim.toFile();
+        return true;
     }
 }

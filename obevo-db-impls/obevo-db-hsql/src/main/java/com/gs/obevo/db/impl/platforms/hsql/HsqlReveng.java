@@ -18,7 +18,6 @@ package com.gs.obevo.db.impl.platforms.hsql;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -86,25 +85,24 @@ public class HsqlReveng extends AbstractDdlReveng {
     }
 
     @Override
-    protected File printInstructions(PrintStream out, AquaRevengArgs args) {
+    protected boolean doRevengOrInstructions(PrintStream out, AquaRevengArgs args, File interimDir) {
         DbEnvironment env = getDbEnvironment(args);
 
         JdbcDataSourceFactory jdbcFactory = new HsqlJdbcDataSourceFactory();
         DataSource ds = jdbcFactory.createDataSource(env, new Credential(args.getUsername(), args.getPassword()), 1);
         JdbcHelper jdbc = new JdbcHelper(null, false);
 
-        Path interim = new File(args.getOutputPath(), "interim").toPath();
-        interim.toFile().mkdirs();
+        interimDir.mkdirs();
         try (Connection conn = ds.getConnection()) {
             // https://docs.oracle.com/database/121/ARPLS/d_metada.htm#BGBJBFGE
             // Note - can't remap schema name, object name, tablespace name within JDBC calls; we will leave that to the existing code in AbstractDdlReveng
-            File outputFile = interim.resolve("output.sql").toFile();
+            File outputFile = new File(interimDir, "output.sql");
             outputFile.delete();  // clean before creating
             jdbc.update(conn, "SCRIPT '" + outputFile.getCanonicalPath() + "'");
         } catch (SQLException | IOException e) {
             throw new RuntimeException(e);
         }
 
-        return interim.toFile();
+        return true;
     }
 }

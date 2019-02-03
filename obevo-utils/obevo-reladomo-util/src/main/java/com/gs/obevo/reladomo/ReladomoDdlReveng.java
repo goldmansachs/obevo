@@ -68,7 +68,7 @@ public class ReladomoDdlReveng extends AbstractDdlReveng {
     }
 
     @Override
-    protected File printInstructions(PrintStream out, AquaRevengArgs args) {
+    protected boolean doRevengOrInstructions(PrintStream out, AquaRevengArgs args, File interimDir) {
         throw new IllegalArgumentException("Argument -inputPath must be specified");
     }
 }

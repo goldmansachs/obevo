@@ -29,7 +29,7 @@ import org.eclipse.collections.impl.block.factory.StringPredicates;
 import org.eclipse.collections.impl.factory.Lists;
 
 public class PostgreSqlPgDumpReveng extends AbstractDdlReveng {
-    public PostgreSqlPgDumpReveng() {
+    PostgreSqlPgDumpReveng() {
         super(
                 new PostgreSqlDbPlatform(),
                 new MultiLineStringSplitter("GO", true),
@@ -74,7 +74,7 @@ public class PostgreSqlPgDumpReveng extends AbstractDdlReveng {
     }
 
     @Override
-    protected File printInstructions(PrintStream out, AquaRevengArgs args) {
+    protected boolean doRevengOrInstructions(PrintStream out, AquaRevengArgs args, File interimDir) {
         out.println("1) Run the following command to generate the DDL file:");
         out.println(getCommandWithDefaults(args, "<username>", "<password>", "<dbHost>", "<dbPortNumber>", "<dbName>", "<dbSchema>", "<outputFile>"));
         out.println("");
@@ -83,7 +83,7 @@ public class PostgreSqlPgDumpReveng extends AbstractDdlReveng {
         out.println("");
         out.println("The pg_dump command will ");
 
-        return null;
+        return false;
     }
 
     private String getCommandWithDefaults(AquaRevengArgs args, String username, String password, String dbHost, String dbPort, String dbName, String dbSchema, String outputDirectory) {

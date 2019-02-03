@@ -23,6 +23,10 @@
         <module name="obevo-db-sybase-iq" />
         <module name="obevo-db-unittest-util" />
         <module name="obevo-dbmetadata-impl" />
+        <module name="obevo-hibernate-util" />
+        <module name="obevo-hibernate3-util" />
+        <module name="obevo-hibernate4-util" />
+        <module name="obevo-hibernate5-util" />
         <module name="obevo-internal-comparer" />
         <module name="obevo-internal-test-client-01" />
         <module name="obevo-internal-test-client-02" />
@@ -55,6 +59,10 @@
       <module name="obevo-dbmetadata-impl" target="1.7" />
       <module name="obevo-dependencies" target="1.7" />
       <module name="obevo-dists" target="1.7" />
+      <module name="obevo-hibernate-util" target="1.7" />
+      <module name="obevo-hibernate3-util" target="1.7" />
+      <module name="obevo-hibernate4-util" target="1.7" />
+      <module name="obevo-hibernate5-util" target="1.7" />
       <module name="obevo-internal-comparer" target="1.7" />
       <module name="obevo-internal-test-client-01" target="1.7" />
       <module name="obevo-internal-test-client-02" target="1.7" />

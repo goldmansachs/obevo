@@ -1,13 +1,34 @@
 # Change Log
 
-## 7.0.0
+## 7.1.0
+
+### Functionality Improvements
+#182: Adding Hibernate reverse-engineering API. See [ORM Integration docs](https://goldmansachs.github.io/obevo/orm-integration.html) for more details.
+
+### Technical Improvements
+
+### Bug Fixes
+
+
+## 7.0.2
+
+### Functionality Improvements
+#106: CSV data loads will ignore indices that have columns not in the CSV file. This will allow users to use the CSV functionality on tables with identity columns but with separate unique indices.
+
+### Technical Improvements
+
+### Bug Fixes
+#212: Fixing inability to handle DB2 reorg exceptions during static data queries. Previously, reorg detection only worked on update statements
+#210 #213: Oracle - ignoring DATABASE LINKs during reverse-engineering, instead of erroring out. Separate ticket #186 is there for DATABASE LINK and materialized view support
+
+
+## 7.0.0 and 7.0.1 (same release; had to redo it due to Maven SDLC issues)
 
 ### Functionality Improvements
 #199: Adding support for PostgreSQL roles and extensions in the environment setup step
 #202: Add option to export graph representation to a file
 #196: Adding UUID support for CSV data loads for PostgreSQL
 Initial MySQL support (still in Alpha)
-#106: CSV data loads will ignore indices that have columns not in the CSV file. This will allow users to use the CSV functionality on tables with identity columns but with separate unique indices.
 
 ### Technical Improvements
 Moving more of the code over to Kotlin
@@ -16,8 +37,6 @@ Moving more of the code over to Kotlin
 
 ### Bug Fixes
 #198: Static data loads for tables with self-referencing foreign keys are now able to work.
-#212: Fixing inability to handle DB2 reorg exceptions during static data queries. Previously, reorg detection only worked on update statements
-#210 #213: Oracle - ignoring DATABASE LINKs during reverse-engineering, instead of erroring out. Separate ticket #186 is there for DATABASE LINK and materialized view support
 
 
 ## 6.6.1

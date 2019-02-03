@@ -16,32 +16,30 @@
 
 -->
 
-Gradle API
-==========
+# Gradle API
 
 Modify your build.gradle as follows to call this out, in case you use
 gradle directly w/out maven:
 
 1. Add java plugin:
-
-```
-apply plugin: 'java'
-```
+    ```
+    apply plugin: 'java'
+    ```
 
 2. Add dependency on obevo-dist:
 
-```
-dependencies { ... testCompile '${project.parent.groupId}:obevo-dist:${project.version}' }
-```
+    ```
+    dependencies { ... testCompile 'com.goldmansachs.obevo:obevo-cli:${obevo.version}' }
+    ```
 
 3. Create a new task:
 
-```
-task(testDatabaseDeploy, dependsOn:'classes', type:JavaExec, description:'Test database deployment') {
-    main = "com.gs.obevo.dist.Main"
-    classpath = sourceSets.test.runtimeClasspath
-    args 'DEPLOY', '-sourcePath', 'src/main/database', '-env', 'test', '-noPrompt'
+    ```
+    task(testDatabaseDeploy, dependsOn:'classes', type:JavaExec, description:'Test database deployment') {
+        main = "com.gs.obevo.dist.Main"
+        classpath = sourceSets.test.runtimeClasspath
+        args 'DEPLOY', '-sourcePath', 'src/main/database', '-env', 'test', '-noPrompt'
 
-    // Use the '-cleanFirst' argument to wipe the db first!
-}
-```
+        // Use the '-cleanFirst' argument to wipe the db first!
+    }
+    ```

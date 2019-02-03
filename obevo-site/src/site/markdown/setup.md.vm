@@ -76,9 +76,9 @@ Add the JDBC drivers to your Maven repository and declare them as dependencies i
 
 ```xml
 <plugin>
-    <groupId>${project.parent.groupId}</groupId>
+    <groupId>com.goldmansachs.obevo</groupId>
     <artifactId>obevo-maven-plugin</artifactId>
-    <version>${project.version}</version>
+    <version>${obevo.version}</version>
     <executions>
         <execution>
             <id>deploy-db-module</id>
