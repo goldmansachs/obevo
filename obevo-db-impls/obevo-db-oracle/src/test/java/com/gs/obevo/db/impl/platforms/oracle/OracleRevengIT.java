@@ -16,41 +16,81 @@
 package com.gs.obevo.db.impl.platforms.oracle;
 
 import java.io.File;
+import java.util.Set;
 
+import javax.sql.DataSource;
+
+import com.gs.obevo.api.factory.Obevo;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
-import com.gs.obevo.db.api.factory.DbEnvironmentFactory;
+import com.gs.obevo.db.api.platform.DbDeployerAppContext;
 import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
 import org.apache.commons.io.FileUtils;
-import org.junit.Ignore;
+import org.eclipse.collections.api.block.function.primitive.IntToObjectFunction;
+import org.eclipse.collections.impl.factory.Sets;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Ignore("Not supporting reverse-engineering tests at this point, and Oracle tests can't run in build due to proprietary driver")
+@RunWith(Parameterized.class)
 public class OracleRevengIT {
-    @Test
-    public void testReveng() throws Exception {
-        AquaRevengArgs args = new AquaRevengArgs();
-        args.setDbSchema("DBDEPLOY01");
-        //args.setInputPath(new File("./src/test/resources/reveng/db2look/input/db2input.txt"));
-        args.setGenerateBaseline(false);
-        args.setJdbcUrl("jdbc:oracle:thin:@localhost:1521/ORCLPDB1.localdomain");
-        args.setUsername("deploydba");
-        args.setPassword("MyPassword");
+    private static final Logger LOG = LoggerFactory.getLogger(OracleRevengIT.class);
+    private final Set<Integer> runSteps = Sets.mutable.of(2);
 
-        File outputDir = new File("./target/outputReveng");
-        FileUtils.deleteDirectory(outputDir);
-        args.setOutputPath(outputDir);
+    @Parameterized.Parameters
+    public static Iterable<Object[]> params() {
+        return OracleParamReader.getParamReader().getAppContextAndJdbcDsParams();
+    }
 
-        new OracleReveng().reveng(args);
+    private final IntToObjectFunction<DbDeployerAppContext> getAppContext;
+    private final DataSource ds;
+
+    public OracleRevengIT(IntToObjectFunction<DbDeployerAppContext> getAppContext, DataSource ds) {
+        this.getAppContext = getAppContext;
+        this.ds = ds;
     }
 
     @Test
-    @Ignore("Ignoring re-deploy in the flow")
-    public void testRedeploy() {
-        File outputDir = new File("./target/outputReveng/final");
-        DbEnvironment prod = DbEnvironmentFactory.getInstance().readOneFromSourcePath(outputDir.getPath(), "prod");
-        prod.setCleanBuildAllowed(true);
-        prod.buildAppContext("deploybuilddbo", "deploybuilddb0")
-                .cleanEnvironment()
-                .deploy();
+    public void testReveng() throws Exception {
+        DbDeployerAppContext dbDeployerAppContext = getAppContext.valueOf(2);
+
+        if (runSteps.contains(1)) {
+            LOG.info("Stage 1 - do a deploy to setup the reverse-engineering input; use the latest step in the example directory");
+            dbDeployerAppContext
+                    .setupEnvInfra()
+                    .cleanEnvironment()
+                    .deploy()
+            ;
+        }
+
+        DbEnvironment env = dbDeployerAppContext.getEnvironment();
+        File outputDir = new File("./target/outputReveng");
+
+        if (runSteps.contains(2)) {
+            LOG.info("Stage 2 - perform the reverse-engineering and verify the output");
+            FileUtils.deleteDirectory(outputDir);
+
+            AquaRevengArgs args = new AquaRevengArgs();
+            args.setOutputPath(outputDir);
+            args.setDbSchema(env.getPhysicalSchema("schema1").getPhysicalName());
+            args.setGenerateBaseline(false);
+            args.setJdbcUrl(env.getJdbcUrl());
+            args.setUsername(env.getDefaultUserId());
+            args.setPassword(env.getDefaultPassword());
+
+            new OracleReveng().reveng(args);
+
+            OracleRevengTest.compareOutput(new File(outputDir, "final"));
+        }
+
+        if (runSteps.contains(3)) {
+            LOG.info("Stage 3 - redeploy the reverse-engineered output to verify that we have a valid schema");
+            DbEnvironment prod = Obevo.readEnvironment(new File(outputDir, "final").getPath(), "prod");
+            prod.setCleanBuildAllowed(true);  // override this value programmatically as the reverse-engineered output sets this to false
+            prod.buildAppContext(env.getDefaultUserId(), env.getDefaultPassword())
+                    .cleanEnvironment()
+                    .deploy();
+        }
     }
 }

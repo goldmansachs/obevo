@@ -23,14 +23,19 @@ import com.gs.obevo.db.testutil.DirectoryAssert;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
+/**
+ * Test for Oracle reverse-engineering based, assuming that the content from DB is already provided.
+ * We have this unit test so that we can verify this test for all builds, as we don't have the Oracle DB setup for
+ * integration testing yet.
+ */
 public class OracleRevengTest extends AbstractDdlRevengTest {
     @Test
     @Override
     public void testReverseEngineeringFromFile() throws Exception {
         AquaRevengArgs args = new AquaRevengArgs();
-        args.setDbSchema("MYSCHEMA01");
+        args.setDbSchema("DBDEPLOY01");
         args.setGenerateBaseline(false);
-        args.setJdbcUrl("jdbc:oracle:thin:@myhost.me.com:1234:MYSERVER");
+        args.setJdbcUrl("jdbc:oracle:thin:@localhost:1521/ORCLPDB1");
         args.setUsername("myuser");
         args.setPassword("mypass");
 
@@ -42,6 +47,14 @@ public class OracleRevengTest extends AbstractDdlRevengTest {
 
         new OracleDbPlatform().getDdlReveng().reveng(args);
 
-        DirectoryAssert.assertDirectoriesEqual(new File("./src/test/resources/reveng/oracle/expected"), new File(outputDir, "final"));
+        compareOutput(new File(outputDir, "final"));
+    }
+
+    /**
+     * Compares the reverse-engineering output. Set as package-private so that the reverse-engineering integration test
+     * can also access this.
+     */
+    static void compareOutput(File outputDir) {
+        DirectoryAssert.assertDirectoriesEqual(new File("./src/test/resources/reveng/oracle/expected"), outputDir);
     }
 }

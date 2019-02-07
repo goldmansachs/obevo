@@ -1,0 +1,58 @@
+#
+# Copyright 2017 Goldman Sachs.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+environments:
+  environment:
+  - name: test_v12_1
+    type: ORACLE
+    metaschema: DBDEPLOY03
+    sourcePath: platforms/oracle/example1/step${stepNumber}
+    schemas:
+      schema:
+      - name: schema1
+      - name: schema2
+      - name: schema3
+    schemaOverrides:
+      schemaOverride:
+      - schema: schema1
+        overrideValue: DBDEPLOY01
+      - schema: schema2
+        overrideValue: DBDEPLOY02
+      - schema: schema3
+        overrideValue: DBDEPLOY03
+    driverClass: oracle.jdbc.OracleDriver
+    cleanBuildAllowed: true
+    forceEnvInfraSetup: true
+    # We connect using the PDB service name, not the default container
+#    jdbcUrl: jdbc:oracle:thin:@localhost:1521/ORCLPDB1.localdomain  # only for Docker setup, which isn't working yet
+    jdbcUrl: jdbc:oracle:thin:@localhost:1521/ORCLPDB1
+    defaultUserId: deploydba
+    defaultPassword: MyPassword
+    serverDirectories:
+      serverDirectory:
+      - name: dir6
+        directoryPath: /
+      - name: dir2
+        directoryPath: /
+    permissions:
+      permission:
+      - scheme: DIRECTORY
+        grant:
+        - privileges: READ, WRITE
+          groups: GROUP1
+      - scheme: TABLE
+        grant:
+          privileges: SELECT, INSERT, UPDATE, DELETE
+          groups: GROUP1

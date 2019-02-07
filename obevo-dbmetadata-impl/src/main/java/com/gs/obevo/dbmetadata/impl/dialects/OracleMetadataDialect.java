@@ -24,6 +24,8 @@ import com.gs.obevo.dbmetadata.api.DaDirectory;
 import com.gs.obevo.dbmetadata.api.DaDirectoryImpl;
 import com.gs.obevo.dbmetadata.api.DaPackage;
 import com.gs.obevo.dbmetadata.api.DaSchema;
+import com.gs.obevo.dbmetadata.api.DaUserType;
+import com.gs.obevo.dbmetadata.api.DaUserTypeImpl;
 import com.gs.obevo.dbmetadata.impl.DaPackagePojoImpl;
 import org.apache.commons.dbutils.handlers.ColumnListHandler;
 import org.apache.commons.dbutils.handlers.MapListHandler;
@@ -106,6 +108,21 @@ public class OracleMetadataDialect extends AbstractMetadataDialect {
                 return new DaDirectoryImpl((String) map.get("DIRECTORY_NAME"), (String) map.get("DIRECTORY_PATH"));
             }
         }).toSet().toImmutable();
+    }
+
+    @Override
+    public ImmutableCollection<DaUserType> searchUserTypes(final DaSchema schema, Connection conn) {
+        String sql = "SELECT TYPE_NAME " +
+                "FROM ALL_TYPES " +
+                "WHERE OWNER = '" + schema.getName() + "'";
+        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(jdbc.query(conn, sql, new MapListHandler())).toImmutable();
+
+        return maps.collect(new Function<Map<String, Object>, DaUserType>() {
+            @Override
+            public DaUserType valueOf(Map<String, Object> map) {
+                return new DaUserTypeImpl((String) map.get("TYPE_NAME"), schema);
+            }
+        });
     }
 
     @Override

@@ -54,10 +54,12 @@ public class OracleDbPlatform extends AbstractDbPlatform {
         DbChangeType synonymType = DbChangeTypeImpl.newDbChangeType(ChangeType.SYNONYM_STR, true, 11, "SYNONYM").build();
         DbChangeType packageBodyType = DbChangeTypeImpl.newDbChangeType(ChangeType.PACKAGE_BODY, true, 60, "PACKAGE BODY").setDirectoryName("routinepackagebody").build();
         DbChangeType packageType = DbChangeTypeImpl.newDbChangeType(ChangeType.PACKAGE_STR, true, 11, "PACKAGE").setDirectoryName("routinepackage").setBodyChangeType(packageBodyType).build();
+        DbChangeType typeType = DbChangeTypeImpl.newDbChangeType(ChangeType.USERTYPE_STR, true, 1, "TYPE").build();
         return super.initializeChangeTypes().toList()
                 .with(synonymType)
                 .with(packageType)
                 .with(packageBodyType)
+                .with(typeType)
                 .with(directoryType)
                 .toImmutable();
     }
