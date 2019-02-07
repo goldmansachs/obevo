@@ -33,3 +33,6 @@ docker run --name $CONTAINER_NAME -d -it -p 1521:1521 -p 5500:5500 -e DB_SID=ORC
 #docker exec -it $CONTAINER_NAME bash
 #/u01/app/oracle/product/12.2.0/dbhome_1/bin/sqlplus sys/Oradoc_db1 as sysdba
 # run the commands in oracle-setup-manual.sql
+
+# TODO Docker is having issues; go w/ Vagrant and VirtualBox setup
+#https://github.com/oracle/vagrant-boxes/tree/master/OracleDatabase/12.2.0.1

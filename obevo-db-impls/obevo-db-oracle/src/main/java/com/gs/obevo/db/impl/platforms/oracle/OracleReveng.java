@@ -18,8 +18,8 @@ package com.gs.obevo.db.impl.platforms.oracle;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
+import java.io.Reader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -117,6 +117,7 @@ class OracleReveng extends AbstractDdlReveng {
         DataSource ds = jdbcFactory.createDataSource(env, new Credential(args.getUsername(), args.getPassword()), 1);
         JdbcHelper jdbc = new JdbcHelper(null, false);
 
+        interimDir.mkdirs();
         try (Connection conn = ds.getConnection();
              BufferedWriter fileWriter = Files.newBufferedWriter(interimDir.toPath().resolve("output.sql"), Charset.defaultCharset())) {
             // https://docs.oracle.com/database/121/ARPLS/d_metada.htm#BGBJBFGE
@@ -137,14 +138,7 @@ class OracleReveng extends AbstractDdlReveng {
 
             for (Map<String, Object> map : maps) {
                 Clob clobObject = (Clob) map.get("OBJECT_DDL");
-                InputStream in = clobObject.getAsciiStream();
-                StringWriter w = new StringWriter();
-                try {
-                    IOUtils.copy(in, w);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                String clobAsString = w.toString();
+                String clobAsString = clobToString(clobObject);
                 clobAsString = clobAsString.replaceAll(";.*$", "");
 
                 LOG.debug("Content for {}: ", map.get("OBJECT_TYPE"), clobAsString);
@@ -158,5 +152,15 @@ class OracleReveng extends AbstractDdlReveng {
         }
 
         return true;
+    }
+
+    private String clobToString(Clob clobObject) {
+        try (Reader in = clobObject.getCharacterStream()) {
+            StringWriter w = new StringWriter();
+            IOUtils.copy(in, w);
+            return w.toString();
+        } catch (SQLException | IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
