@@ -65,6 +65,11 @@ public class OracleDbMetadataManagerIT extends AbstractDbMetadataManagerIT {
         return OverLoadSupport.COMBINED_OBJECT;
     }
 
+    @Override
+    boolean isUserTypeSupported() {
+        return true;
+    }
+
     // TODO fix this support once we properly implement PACKAGE BODY
     @Override
     protected boolean isFunctionSupported() {

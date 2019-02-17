@@ -547,6 +547,7 @@
                         <exclude>**/codesigning.asc*</exclude>
 
                         <!-- Excluding the reverse-engineering files  -->
+                        <exclude>**/test/resources/**/platforms/**</exclude>
                         <exclude>**/test/resources/**/reveng/**</exclude>
                         <exclude>**/test/resources/**/expected/**</exclude>
 
