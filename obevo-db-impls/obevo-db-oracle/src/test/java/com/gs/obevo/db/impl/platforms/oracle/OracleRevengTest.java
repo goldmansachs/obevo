@@ -55,6 +55,6 @@ public class OracleRevengTest extends AbstractDdlRevengTest {
      * can also access this.
      */
     static void compareOutput(File outputDir) {
-        DirectoryAssert.assertDirectoriesEqual(new File("./src/test/resources/reveng/oracle/expected"), outputDir);
+        DirectoryAssert.assertDirectoriesEqual(new File("./src/test/resources/reveng/oracle/expected"), outputDir, true);
     }
 }

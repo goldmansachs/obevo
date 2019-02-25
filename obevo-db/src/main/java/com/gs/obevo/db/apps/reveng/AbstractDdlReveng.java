@@ -330,13 +330,16 @@ public abstract class AbstractDdlReveng {
                         continue;
                     }
 
-                    candidateObject = patternMatch.getPrimaryName();
-                    candidateObject = chosenRevengPattern.remapObjectName(candidateObject);
+                    // we add this here to allow post-processing to occur on RevengPatterns but still not define the object to write to
+                    if (patternMatch.getRevengPattern().getChangeType() != null) {
+                        candidateObject = patternMatch.getPrimaryName();
+                        candidateObject = chosenRevengPattern.remapObjectName(candidateObject);
 
-                    if (patternMatch.getSecondaryName() != null) {
-                        secondaryName = patternMatch.getSecondaryName();
+                        if (patternMatch.getSecondaryName() != null) {
+                            secondaryName = patternMatch.getSecondaryName();
+                        }
+                        candidateObjectType = platform.getChangeType(patternMatch.getRevengPattern().getChangeType());
                     }
-                    candidateObjectType = platform.getChangeType(patternMatch.getRevengPattern().getChangeType());
                 }
 
                 // Ignore other schemas that may have been found in your parsing (came up during HSQLDB use case)

@@ -4,6 +4,7 @@
 
 ### Functionality Improvements
 #182: Adding Hibernate reverse-engineering API. See [ORM Integration docs](https://goldmansachs.github.io/obevo/orm-integration.html) for more details.
+#221 #223 #225: Oracle reverse-engineering improvements - unicode characters, nested tables, types, comments
 
 ### Technical Improvements
 
