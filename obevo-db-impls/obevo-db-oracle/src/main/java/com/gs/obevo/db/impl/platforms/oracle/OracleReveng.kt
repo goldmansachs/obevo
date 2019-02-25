@@ -77,8 +77,9 @@ internal class OracleReveng
                 // PACKAGE BODY as those are generated via package anyway
                 // DATABASE LINK as the get_ddl function doesn't work with it. We may support this later on
                 val sql = """
-select CASE WHEN obj.OBJECT_TYPE = 'TABLE' THEN 1 WHEN obj.OBJECT_TYPE = 'INDEX' THEN 3 ELSE 4 END SORT_ORDER
+select CASE WHEN obj.OBJECT_TYPE = 'INDEX' THEN 2 ELSE 1 END SORT_ORDER1
     , obj.OBJECT_NAME
+    , 1 AS SORT_ORDER2
     , obj.OBJECT_TYPE
     , dbms_metadata.get_ddl(REPLACE(obj.OBJECT_TYPE,' ','_'), obj.OBJECT_NAME, obj.owner) || ';' AS object_ddl
 FROM DBA_OBJECTS obj
@@ -91,21 +92,40 @@ WHERE obj.OWNER = '${args.dbSchema}'
 """
 
                 val commentSql = """
-select 2 SORT_ORDER  -- sort comments after tables but before indices
-    , com.TABLE_NAME as OBJECT_NAME
+SELECT 1 SORT_ORDER1  -- group comment ordering with tables and other objects, and ahead of indices
+    , obj.OBJECT_NAME
+    , 2 AS SORT_ORDER2  -- sort comments last compared to other table changes
     , 'COMMENT' as OBJECT_TYPE
-    , dbms_metadata.get_dependent_ddl('COMMENT', com.TABLE_NAME, com.owner) || ';' AS object_ddl
-FROM DBA_TAB_COMMENTS com
-WHERE com.OWNER = '${args.dbSchema}'
-    and TABLE_NAME not like 'BIN${'$'}%'  -- drop tables remain in the DB in the recycling bin; should ignore these
-    and comments is not null  -- tables w/out colums have this value as null
+    , dbms_metadata.get_dependent_ddl('COMMENT', obj.OBJECT_NAME, obj.OWNER) || ';' AS object_ddl
+FROM (
+    -- inner table is needed to extract all the object names that have comments (we cannot determine this solely from DBA_OBJECTS)
+    -- use DISTINCT as DBA_COL_COMMENTS may have multiple rows for a single table
+    SELECT DISTINCT obj.OWNER, obj.OBJECT_NAME, obj.OBJECT_TYPE
+    FROM DBA_OBJECTS obj
+    LEFT JOIN DBA_TAB_COMMENTS tabcom ON obj.OWNER = tabcom.OWNER and obj.OBJECT_NAME = tabcom.TABLE_NAME and tabcom.COMMENTS IS NOT NULL
+    LEFT JOIN DBA_COL_COMMENTS colcom ON obj.OWNER = colcom.OWNER and obj.OBJECT_NAME = colcom.TABLE_NAME and colcom.COMMENTS IS NOT NULL
+    WHERE obj.OWNER = '${args.dbSchema}'
+    and (tabcom.OWNER is not null OR colcom.OWNER is not null)
+) obj
+ORDER BY 1, 2
+"""
 
-    ORDER BY 1, 2
-                """
+                // note - need comments grouped in order with tables, but indexes
+                /* keeping this for the future as we support more object types with comments
+                    LEFT JOIN DBA_OPERATOR_COMMENTS opcom ON obj.OWNER = opcom.OWNER and obj.OBJECT_NAME = opcom.OPERATOR_NAME and opcom.COMMENTS IS NOT NULL
+                    LEFT JOIN DBA_INDEXTYPE_COMMENTS indexcom ON obj.OWNER = indexcom.OWNER and obj.OBJECT_NAME = indexcom.INDEXTYPE_NAME and indexcom.COMMENTS IS NOT NULL
+                    LEFT JOIN DBA_MVIEW_COMMENTS mviewcom ON obj.OWNER = mviewcom.OWNER and obj.OBJECT_NAME = mviewcom.MVIEW_NAME and mviewcom.COMMENTS IS NOT NULL
+                    LEFT JOIN DBA_EDITION_COMMENTS edcom ON obj.OBJECT_NAME = edcom.EDITION_NAME and edcom.COMMENTS IS NOT NULL  -- note - no OWNER supported here
+                 */
 
+
+                // Sorting algorithm:
+                // - We use SORT_ORDER1 to split between table and index changes, as we want index changes to come after tables,
+                // but the SQL query only gives the object name as the index name; hence, we can't group easily.
+                // - We use SORT_ORDER2 for having comments come after regular table changes.
                 val queryResults = listOf(sql, commentSql)
                         .flatMap { jdbc.queryForList(conn, it) }
-                        .sortedWith(compareBy({ it["SORT_ORDER"] as Comparable<*> }, { it["OBJECT_NAME"] as String }))
+                        .sortedWith(compareBy({ it["SORT_ORDER1"] as Comparable<*> }, { it["OBJECT_NAME"] as String }, { it["SORT_ORDER2"] as Comparable<*> }))
                 queryResults.forEach { map ->
                     val objectType = map["OBJECT_TYPE"] as String
                     val clobObject = map["OBJECT_DDL"] as Clob
@@ -174,7 +194,8 @@ WHERE com.OWNER = '${args.dbSchema}'
                         AbstractDdlReveng.RevengPattern(ChangeType.SEQUENCE_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)?sequence\\s+$schemaNameSubPattern").withPostProcessSql(AbstractDdlReveng.REPLACE_TABLESPACE).withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
                         AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+table\\s+$schemaNameSubPattern").withPostProcessSql(AbstractDdlReveng.REPLACE_TABLESPACE).withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
                         AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)alter\\s+table\\s+$schemaNameSubPattern").withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
-                        AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)comment\\s+on\\s+(?:\\w+)\\s+$schemaNameSubPattern").withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
+                        // Comments on columns can apply for both tables and views, with no way to split this from the text. Hence, we don't specify the object type here and rely on the comments being written after the object in the reverse-engineering extraction
+                        AbstractDdlReveng.RevengPattern(null, namePatternType, "(?i)comment\\s+on\\s+(?:\\w+)\\s+$schemaNameSubPattern").withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
                         AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+unique\\s+index\\s+$schemaSysNamePattern\\s+on\\s+$schemaNameSubPattern", 2, 1, "excludeEnvs=\"%\" comment=\"this_is_potentially_a_redundant_primaryKey_index_please_double_check\"").withPostProcessSql(AbstractDdlReveng.REPLACE_TABLESPACE).withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
                         AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+(?:unique\\s+)index\\s+$schemaNameSubPattern\\s+on\\s+$schemaNameSubPattern", 2, 1, "INDEX").withPostProcessSql(AbstractDdlReveng.REPLACE_TABLESPACE).withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
                         AbstractDdlReveng.RevengPattern(ChangeType.FUNCTION_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)?(?:force\\s+)?(?:editionable\\s+)?function\\s+$schemaNameSubPattern"),
