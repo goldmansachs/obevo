@@ -58,7 +58,6 @@ public class PostgreSqlDeployerIT {
         // ensuring that we can modify
         DbDeployerAppContext dbDeployerAppContext = getAppContext.valueOf(2);
         dbDeployerAppContext
-                .cleanEnvironment()
                 .setupEnvInfra()
                 .deploy();
 

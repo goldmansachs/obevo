@@ -27,7 +27,7 @@ class TextDependencyExtractableImpl<T> (
         override val contentForDependencyCalculation: String,
         val payload: T
 ) : TextDependencyExtractable {
-    override var codeDependencies: ImmutableSet<CodeDependency> = Sets.immutable.empty()
+    override var codeDependencies: ImmutableSet<CodeDependency>? = null
 
     override val excludeDependencies: ImmutableSet<String>
         get() = Sets.immutable.empty()

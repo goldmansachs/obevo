@@ -37,7 +37,7 @@ interface TextDependencyExtractable {
      *
      * @since 6.4.0
      */
-    val codeDependencies: ImmutableSet<CodeDependency>
+    val codeDependencies: ImmutableSet<CodeDependency>?
 
     /**
      * The dependencies to exclude from the text. This is to let the user specify the false-positive dependencies that
