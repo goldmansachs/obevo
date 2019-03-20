@@ -15,9 +15,25 @@
  */
 package com.gs.obevo.impl
 
-import com.gs.obevo.api.appdata.*
+import com.gs.obevo.api.appdata.Change
+import com.gs.obevo.api.appdata.ChangeIncremental
+import com.gs.obevo.api.appdata.ChangeKey
+import com.gs.obevo.api.appdata.ChangeRerunnable
+import com.gs.obevo.api.appdata.DeployExecution
+import com.gs.obevo.api.appdata.DeployExecutionImpl
+import com.gs.obevo.api.appdata.DeployExecutionStatus
+import com.gs.obevo.api.appdata.Environment
 import com.gs.obevo.api.factory.PlatformConfiguration
-import com.gs.obevo.api.platform.*
+import com.gs.obevo.api.platform.ChangeAuditDao
+import com.gs.obevo.api.platform.ChangeCommand
+import com.gs.obevo.api.platform.CommandExecutionContext
+import com.gs.obevo.api.platform.DeployExecutionDao
+import com.gs.obevo.api.platform.DeployExecutionException
+import com.gs.obevo.api.platform.DeployMetrics
+import com.gs.obevo.api.platform.FailedChange
+import com.gs.obevo.api.platform.GraphExportFormat
+import com.gs.obevo.api.platform.MainDeployerArgs
+import com.gs.obevo.api.platform.Platform
 import com.gs.obevo.impl.graph.GraphEnricher
 import com.gs.obevo.impl.graph.GraphUtil
 import com.gs.obevo.impl.text.TextDependencyExtractableImpl
@@ -35,13 +51,19 @@ import org.eclipse.collections.impl.block.factory.StringFunctions
 import org.eclipse.collections.impl.factory.Lists
 import org.eclipse.collections.impl.factory.Sets
 import org.jgrapht.DirectedGraph
-import org.jgrapht.ext.*
+import org.jgrapht.ext.DOTExporter
+import org.jgrapht.ext.GmlExporter
+import org.jgrapht.ext.GraphMLExporter
+import org.jgrapht.ext.IntegerEdgeNameProvider
+import org.jgrapht.ext.IntegerNameProvider
+import org.jgrapht.ext.MatrixExporter
+import org.jgrapht.ext.VertexNameProvider
 import org.jgrapht.graph.DefaultEdge
 import org.slf4j.LoggerFactory
 import java.io.FileWriter
 import java.io.Writer
 import java.sql.Timestamp
-import java.util.*
+import java.util.Date
 import java.util.concurrent.TimeUnit
 
 /**
@@ -188,23 +210,30 @@ class MainDeployer<P : Platform, E : Environment<P>>(
 
         // TODO refactor into separate method
         if (env.platform.isDropOrderRequired) {
+            // In this block, we set the "dependentChanges" field on the drop objects to ensure they can be sorted for dependencies later on
             val dropsToEnrich = changePairs
                     .filter { it.changeKey.changeType.isRerunnable && it.sourceChange == null && it.deployedChange != null }
                     .map { it.deployedChange!! }
 
-            val drops = dropsToEnrich.map {drop ->
+            val dropsByObjectName = dropsToEnrich.associateBy { env.platform.convertDbObjectName().valueOf(it.objectName) }
+
+            val dropsForTextProcessing = dropsToEnrich.map { drop ->
                 val sql = changeTypeBehaviorRegistry.getChangeTypeBehavior(drop.changeType).getDefinitionFromEnvironment(drop);
                 LOG.debug("Found the sql from the DB for dropping: {}", sql)
                 TextDependencyExtractableImpl(drop.objectName, sql ?: "", drop)
             }
 
-            val dropDependencies = this.textDependencyExtractor.calculateDependencies(drops)
+            val dropDependencies = this.textDependencyExtractor.calculateDependencies(dropsForTextProcessing)
 
-            drops.forEach { it.codeDependencies = Sets.immutable.ofAll(dropDependencies.get(it)) }
+            dropsForTextProcessing.forEach { it.codeDependencies = Sets.immutable.ofAll(dropDependencies.get(it)) }
 
-            val dependencyGraph = graphEnricher.createDependencyGraph(sourceChanges, deployerArgs.isRollback)
-
-            dropsToEnrich.forEach { it.dependentChanges = GraphUtil.getDependencyNodes(dependencyGraph, it) }
+            for (drop in dropsForTextProcessing) {
+                drop.codeDependencies?.let { deps ->
+                    if (deps.notEmpty()) {
+                        drop.payload.dependentChanges = Sets.immutable.ofAll(deps.map { dropsByObjectName[it.target] })
+                    }
+                }
+            }
         }
 
 
