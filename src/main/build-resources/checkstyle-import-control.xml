@@ -54,12 +54,13 @@ General Rules:
         <disallow pkg="com.gs.obevo.impl" />
     </subpackage>
     <subpackage name="api">
-        <disallow pkg="com.gs.obevo.impl" />
         <!-- Making an exception here for the text + graph packages.
         It makes things much easier for Change to implement the relevant interfaces directly,
         and haven't figured out a neat way to split from it. -->
         <allow pkg="com.gs.obevo.impl.text" />
         <allow pkg="com.gs.obevo.impl.graph" />
+
+        <disallow pkg="com.gs.obevo.impl" />
     </subpackage>
     <subpackage name="impl">
         <!-- The impl folder has the main deployer implementation; the subpackages help feed into it -->

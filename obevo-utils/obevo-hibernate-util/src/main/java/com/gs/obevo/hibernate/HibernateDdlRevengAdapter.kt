@@ -71,6 +71,8 @@ internal class HibernateDdlRevengAdapter<in T>(
                     RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+(?:\\w+\\s+)?index\\s+$schemaNameSubPattern\\s+on\\s+$schemaNameSubPattern", 2, 1, "INDEX")
                             .withRemapObjectName(remapObjectName),
                     RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)alter\\s+table\\s+$schemaNameSubPattern\\s+add\\s+constraint\\s+$schemaNameSubPattern\\s+foreign\\s+key", 1, 2, "FK").withShouldBeIgnored(!revengArgs.isGenerateForeignKeys)
+                            .withRemapObjectName(remapObjectName),
+                    RevengPattern(ChangeType.SEQUENCE_STR, namePatternType, "(?i)create\\s+sequence\\s+$schemaNameSubPattern\\s+")
                             .withRemapObjectName(remapObjectName)
             )
         }
