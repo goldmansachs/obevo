@@ -66,7 +66,7 @@ internal class HibernateDdlRevengAdapter<in T>(
 
             return Lists.immutable.with(
                     RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+table\\s+$schemaNameSubPattern")
-                            .withPostProcessSql { LineParseOutput(it + revengArgs.postCreateTableSql) }
+                            .withPostProcessSql { LineParseOutput(it + (revengArgs.postCreateTableSql ?: "")) }
                             .withRemapObjectName(remapObjectName),
                     RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+(?:\\w+\\s+)?index\\s+$schemaNameSubPattern\\s+on\\s+$schemaNameSubPattern", 2, 1, "INDEX")
                             .withRemapObjectName(remapObjectName),

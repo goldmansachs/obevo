@@ -240,6 +240,26 @@
                 <artifactId>obevo-reladomo-util</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.goldmansachs.obevo</groupId>
+                <artifactId>obevo-hibernate-util</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.goldmansachs.obevo</groupId>
+                <artifactId>obevo-hibernate3-util</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.goldmansachs.obevo</groupId>
+                <artifactId>obevo-hibernate4-util</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.goldmansachs.obevo</groupId>
+                <artifactId>obevo-hibernate5-util</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
