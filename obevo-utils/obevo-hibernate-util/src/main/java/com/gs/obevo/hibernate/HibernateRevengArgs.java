@@ -18,6 +18,7 @@ package com.gs.obevo.hibernate;
 import java.io.File;
 
 import com.gs.obevo.db.api.platform.DbPlatform;
+import org.jetbrains.annotations.Nullable;
 
 public class HibernateRevengArgs<T> {
     private final String schema;
@@ -26,6 +27,7 @@ public class HibernateRevengArgs<T> {
     private final Class hibernateDialectClass;
     private final T config;
     private boolean generateBaseline;
+    @Nullable
     private String postCreateTableSql;
     private boolean generateForeignKeys = true;
     private boolean explicitSchemaRequired;
@@ -71,10 +73,12 @@ public class HibernateRevengArgs<T> {
         return this;
     }
 
+    @Nullable
     public String getPostCreateTableSql() {
         return postCreateTableSql;
     }
 
+    @Nullable
     public void setPostCreateTableSql(String postCreateTableSql) {
         this.postCreateTableSql = postCreateTableSql;
     }
