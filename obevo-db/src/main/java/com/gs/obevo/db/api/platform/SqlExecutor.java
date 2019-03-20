@@ -63,5 +63,5 @@ public interface SqlExecutor {
      * @deprecated Do not use
      */
     @Deprecated
-    void performExtraCleanOperation(final ExecuteChangeCommand command, final DbMetadataManager metaDataMgr);
+    void performExtraCleanOperation(ExecuteChangeCommand command, DbMetadataManager metaDataMgr);
 }

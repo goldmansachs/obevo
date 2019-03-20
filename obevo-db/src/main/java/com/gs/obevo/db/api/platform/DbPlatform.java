@@ -30,7 +30,6 @@ import com.gs.obevo.dbmetadata.api.DbMetadataManager;
 import org.eclipse.collections.api.set.ImmutableSet;
 
 public interface DbPlatform extends Platform {
-
     Class<? extends Driver> getDriverClass(DbEnvironment env);
 
     /**
@@ -100,13 +99,13 @@ public interface DbPlatform extends Platform {
 
     DbTranslationDialect getDbTranslationDialect(DbPlatform targetDialect);
 
-    String getArtifactDeploymentDDLString(final String changeNameColumn,
-            final String changeTypeColumn,
-            final String deployUserIdColumn,
-            final String timeUpdatedColumn,
-            final String rollbackContentColumn,
-            final String tablespaceSql,
-            final DbEnvironment env);
+    String getArtifactDeploymentDDLString(String changeNameColumn,
+            String changeTypeColumn,
+            String deployUserIdColumn,
+            String timeUpdatedColumn,
+            String rollbackContentColumn,
+            String tablespaceSql,
+            DbEnvironment env);
 
     ImmutableSet<String> getRequiredValidationObjectTypes();
 
