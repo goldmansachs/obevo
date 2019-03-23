@@ -37,6 +37,8 @@ import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.factory.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Helper class for building unit test db environments and contexts, i.e. to not have to remember details for each unit
@@ -49,6 +51,7 @@ import org.eclipse.collections.impl.factory.Sets;
  * to that object will not impact anything existing
  */
 public class UnitTestDbBuilder {
+    private static final Logger LOG = LoggerFactory.getLogger(UnitTestDbBuilder.class);
     public static UnitTestDbBuilder newBuilder() {
         return new UnitTestDbBuilder();
     }
@@ -240,6 +243,10 @@ public class UnitTestDbBuilder {
         }
 
         if (this.dbServer != null) {
+            if (env.getJdbcUrl() != null) {
+                LOG.debug("Unsetting existing JDBC URL value, as we can rely on the in-memory DB value to be set here");
+                env.setJdbcUrl(null);
+            }
             env.setDbServer(this.dbServer);
         }
 

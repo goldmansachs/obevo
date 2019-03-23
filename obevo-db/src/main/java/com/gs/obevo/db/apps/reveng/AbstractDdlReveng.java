@@ -177,7 +177,7 @@ public abstract class AbstractDdlReveng {
                 System.out.println("***********");
                 System.out.println();
                 System.out.println("Once those steps are done, rerun the reverse-engineering command you just ran, but add the following argument based on the <outputDirectory> value passed in above the argument:");
-                System.out.println("    -inputPath " + ObjectUtils.defaultIfNull(args.getOutputPath(), "<outputFile>"));
+                System.out.println("    -inputPath " + interimDir.getAbsolutePath());
                 System.out.println();
                 System.out.println("If you need more information on the vendor reverse engineer process, see the doc: https://goldmansachs.github.io/obevo/reverse-engineer-dbmstools.html");
             }
