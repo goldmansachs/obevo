@@ -13,11 +13,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.gs.obevo.db.impl.platforms.sqltranslator;
+package com.gs.obevo.db.impl.platforms.postgresql;
 
-import com.gs.obevo.db.sqlparser.syntaxparser.CreateTable;
-import com.gs.obevo.db.sqlparser.syntaxparser.CreateTableColumn;
+import com.gs.obevo.db.impl.platforms.DefaultDbTranslationDialect;
+import org.eclipse.collections.api.list.ImmutableList;
+import org.eclipse.collections.impl.factory.Lists;
 
-public interface PostColumnSqlTranslator {
-    String handlePostColumnText(String postColumnText, CreateTableColumn column, CreateTable table);
+public class PostgreSqlToH2TranslationDialect extends DefaultDbTranslationDialect {
+    @Override
+    public ImmutableList<String> getInitSqls() {
+        return Lists.immutable.with("SET MODE PostgreSQL");
+    }
 }

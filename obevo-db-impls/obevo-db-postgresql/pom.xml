@@ -51,6 +51,21 @@
 
         <dependency>
             <groupId>com.goldmansachs.obevo</groupId>
+            <artifactId>obevo-db-h2</artifactId>
+            <version>${project.version}</version>
+            <optional>true</optional>
+            <!-- optional for the translation code -->
+        </dependency>
+        <dependency>
+            <groupId>com.goldmansachs.obevo</groupId>
+            <artifactId>obevo-db-hsql</artifactId>
+            <version>${project.version}</version>
+            <optional>true</optional>
+            <!-- optional for the translation code -->
+        </dependency>
+
+        <dependency>
+            <groupId>com.goldmansachs.obevo</groupId>
             <artifactId>obevo-db-internal-test-helper</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

@@ -105,7 +105,8 @@ public class PostgreSqlPgDumpReveng extends AbstractDdlReveng {
 
     private String getCommandWithDefaults(boolean container, AquaRevengArgs args, File interimDir, String username, String password, String dbHost, String dbPort, String dbName, String dbSchema, String outputDirectory) {
         String prefix = container ? "docker exec $CONTAINER_NAME " : "";
-        String fileSuffix = container ? "> " + interimDir.getAbsolutePath() : " -f " + interimDir.getAbsolutePath();
+        String fileSuffix = container ? "> " : " -f ";
+        fileSuffix += new File(interimDir, "revengoutput.txt").getAbsolutePath();
         return prefix + "pg_dump -O -s --no-privileges" +
                 " -h " + ObjectUtils.defaultIfNull(args.getDbHost(), dbHost) +
                 " -p " + ObjectUtils.defaultIfNull(args.getDbPort(), dbPort) +

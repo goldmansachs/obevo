@@ -78,6 +78,10 @@
     <orderEntry type="library" scope="RUNTIME" name="Maven: com.google.protobuf:protobuf-java:2.6.0" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-db2:14.16.04-java7" level="project" />
     <orderEntry type="library" name="Maven: org.postgresql:postgresql:42.1.1.jre7" level="project" />
+    <orderEntry type="module" module-name="obevo-db-h2" />
+    <orderEntry type="library" name="Maven: com.h2database:h2:1.4.187" level="project" />
+    <orderEntry type="module" module-name="obevo-db-hsql" />
+    <orderEntry type="library" name="Maven: org.hsqldb:hsqldb:2.3.4" level="project" />
     <orderEntry type="module" module-name="obevo-db-internal-test-helper" scope="TEST" />
     <orderEntry type="module" module-name="obevo-db" scope="TEST" production-on-test="" />
     <orderEntry type="module" module-name="obevo-db-unittest-util" scope="TEST" />

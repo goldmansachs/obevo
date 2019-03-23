@@ -157,7 +157,7 @@ TOKEN :
 
 TOKEN :
 {
-  < IDENTIFIER: (<LETTER>|<DIGIT>|<LBRACE>|<RBRACE>|<DOLLAR>|<DOT>|<POUND>)+ >
+  < IDENTIFIER: (<LETTER>|<DIGIT>|<LBRACE>|<RBRACE>|<DOLLAR>|<DOT>|<POUND>|<COLON>)+ >
 |
   < #LETTER:
       [
@@ -211,6 +211,7 @@ TOKEN :
 | < DOLLAR: "$" >
 | < DOT: "." >
 | < POUND: "#" >
+| < COLON: ":" >
 }
 
 
