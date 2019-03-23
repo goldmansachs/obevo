@@ -45,5 +45,7 @@ public class PostgreSqlRevengTest extends AbstractDdlRevengTest {
         new PostgreSqlDbPlatform().getDdlReveng().reveng(args);
 
         DirectoryAssert.assertDirectoriesEqual(new File("./src/test/resources/reveng/pgdump/expected"), new File(outputDir, "final"));
+
+        // TODO add test for input-noschemaqualifier.sql for older postgres versions
     }
 }

@@ -56,9 +56,10 @@ public class PostgreSqlPgDumpReveng extends AbstractDdlReveng {
     }
 
     private static ImmutableList<RevengPattern> getRevengPatterns() {
-        String schemaNameSubPattern = getObjectPattern("", "");
+        String schemaNameSubPattern = getSchemaObjectPattern("", "");
+        String objectNameSubPattern = getObjectPattern("", "");
 
-        NamePatternType namePatternType = NamePatternType.ONE;
+        NamePatternType namePatternType = NamePatternType.TWO;
         return Lists.immutable.with(
                 new RevengPattern(ChangeType.SEQUENCE_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)?sequence\\s+" + schemaNameSubPattern).withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
                 new RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+table\\s+" + schemaNameSubPattern).withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
@@ -66,33 +67,51 @@ public class PostgreSqlPgDumpReveng extends AbstractDdlReveng {
                 new RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)alter\\s+sequence\\s+" + schemaNameSubPattern + "\\s+owned\\s+by\\s+" + schemaNameSubPattern, 2, 1, null).withPostProcessSql(REMOVE_QUOTES),
                 new RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+(?:unique\\s+)index\\s+" + schemaNameSubPattern + "\\s+on\\s+" + schemaNameSubPattern, 2, 1, "INDEX").withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
                 new RevengPattern(ChangeType.FUNCTION_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)?(?:force\\s+)?(?:editionable\\s+)?function\\s+" + schemaNameSubPattern),
+                new RevengPattern(ChangeType.SP_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)?(?:force\\s+)?(?:editionable\\s+)?procedure\\s+" + schemaNameSubPattern),
                 new RevengPattern(ChangeType.VIEW_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)?(?:force\\s+)?(?:editionable\\s+)?view\\s+" + schemaNameSubPattern),
                 new RevengPattern(ChangeType.SP_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)procedure\\s+" + schemaNameSubPattern),
                 new RevengPattern(ChangeType.PACKAGE_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)package\\s+" + schemaNameSubPattern),
-                new RevengPattern(ChangeType.TRIGGER_STR, namePatternType, "(?i)create\\s+or\\s+replace\\s+trigger\\s+" + schemaNameSubPattern)
+                new RevengPattern(ChangeType.TRIGGER_STR, namePatternType, "(?i)create\\s+or\\s+replace\\s+trigger\\s+" + schemaNameSubPattern),
+                new RevengPattern(ChangeType.USERTYPE_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)?type\\s+" + schemaNameSubPattern)
         );
     }
 
     @Override
     protected boolean doRevengOrInstructions(PrintStream out, AquaRevengArgs args, File interimDir) {
-        out.println("1) Run the following command to generate the DDL file:");
-        out.println(getCommandWithDefaults(args, "<username>", "<password>", "<dbHost>", "<dbPortNumber>", "<dbName>", "<dbSchema>", "<outputFile>"));
-        out.println("");
+        out.println("1) Create the folder for your interim output:");
+        out.println();
+        out.println("mkdir -p " + interimDir.getAbsolutePath());
+        out.println();
+        out.println();
+        out.println("2) Run the following command to generate the DDL file:");
+        out.println();
+        out.println("(without Docker)");
+        out.println(getCommandWithDefaults(false, args, interimDir, "<username>", "<password>", "<dbHost>", "<dbPortNumber>", "<dbName>", "<dbSchema>", "<outputFile>"));
+        out.println();
+        out.println("(with Docker)");
+        out.println(getCommandWithDefaults(true, args, interimDir, "<username>", "<password>", "<dbHost>", "<dbPortNumber>", "<dbName>", "<dbSchema>", "<outputFile>"));
+        out.println();
         out.println("Here is an example command (in case your values are not filled in):");
-        out.println(getCommandWithDefaults(args, "myuser", "mypassword", "myhost.myplace.com", "12345", "mydb", "myschema", "H:\\sybase-ddl-output.txt"));
-        out.println("");
-        out.println("The pg_dump command will ");
+        out.println();
+        out.println("(without Docker)");
+        out.println(getCommandWithDefaults(false, args, interimDir, "myuser", "mypassword", "myhost.myplace.com", "12345", "mydb", "myschema", "H:\\sybase-ddl-output.txt"));
+        out.println();
+        out.println("(with Docker)");
+        out.println(getCommandWithDefaults(true, args, interimDir, "myuser", "mypassword", "myhost.myplace.com", "12345", "mydb", "myschema", "H:\\sybase-ddl-output.txt"));
+        out.println();
 
         return false;
     }
 
-    private String getCommandWithDefaults(AquaRevengArgs args, String username, String password, String dbHost, String dbPort, String dbName, String dbSchema, String outputDirectory) {
-        return "pg_dump -O --disable-dollar-quoting -s" +
+    private String getCommandWithDefaults(boolean container, AquaRevengArgs args, File interimDir, String username, String password, String dbHost, String dbPort, String dbName, String dbSchema, String outputDirectory) {
+        String prefix = container ? "docker exec $CONTAINER_NAME " : "";
+        String fileSuffix = container ? "> " + interimDir.getAbsolutePath() : " -f " + interimDir.getAbsolutePath();
+        return prefix + "pg_dump -O -s --no-privileges" +
                 " -h " + ObjectUtils.defaultIfNull(args.getDbHost(), dbHost) +
                 " -p " + ObjectUtils.defaultIfNull(args.getDbPort(), dbPort) +
                 " --username=" + ObjectUtils.defaultIfNull(args.getUsername(), username) +
                 " -d " + ObjectUtils.defaultIfNull(args.getDbServer(), dbName) +
                 " -n " + ObjectUtils.defaultIfNull(args.getDbSchema(), dbSchema) +
-                " -f " + ObjectUtils.defaultIfNull(args.getOutputPath(), outputDirectory);
+                " " + fileSuffix;
     }
 }

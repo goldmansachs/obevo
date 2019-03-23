@@ -57,8 +57,13 @@ public class PostgresqlDbMetadataManagerIT extends AbstractDbMetadataManagerIT {
     }
 
     @Override
+    boolean isUserTypeSupported() {
+        return true;
+    }
+
+    @Override
     protected boolean isStoredProcedureSupported() {
-        return false;  // postgresql only supports functions, not procedures separately
+        return false;  // postgresql only supports functions, not procedures separately. Metadata for procedures is stored as functions for now
     }
 
     @Override

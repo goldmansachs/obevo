@@ -135,7 +135,7 @@ class PlatformConfigReader {
                 return propertyInput.getFileName();
             }
         });
-        final MutableList<String> warnings = Lists.mutable.empty();
+        final MutableList<String> debugMessages = Lists.mutable.empty();
         final MutableList<String> errors = Lists.mutable.empty();
 
         propertiesByFileName.forEachKeyMultiValues(new Procedure2<String, Iterable<PropertyInput>>() {
@@ -157,7 +157,7 @@ class PlatformConfigReader {
                         }
                     }) + "]. Please ensure that priorities are distinct.");
                 } else if (priorities.size() > 1) {
-                    warnings.add("File name [" + fileName + "] was found in multiple locations [" + propertyInputs.collect(new Function<PropertyInput, URL>() {
+                    debugMessages.add("File name [" + fileName + "] was found in multiple locations [" + propertyInputs.collect(new Function<PropertyInput, URL>() {
                         @Override
                         public URL valueOf(PropertyInput propertyInput) {
                             return propertyInput.getPropertyFilePath();
@@ -167,8 +167,8 @@ class PlatformConfigReader {
             }
         });
 
-        if (warnings.notEmpty()) {
-            LOG.warn("Warnings on platform configuration file setup; please address in the future, but program will proceed:\n{}", warnings.makeString("\n"));
+        if (debugMessages.notEmpty()) {
+            LOG.debug("Debug notices on platform configuration file setup:\n{}", debugMessages.makeString("\n"));
         }
 
         if (errors.notEmpty()) {

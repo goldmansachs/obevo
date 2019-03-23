@@ -161,23 +161,24 @@ public abstract class AbstractDdlReveng {
     public void reveng(AquaRevengArgs args) {
         if (args.getInputPath() == null) {
             File interimDir = new File(args.getOutputPath(), "interim");
+            System.out.println();
             boolean proceedWithReveng = doRevengOrInstructions(System.out, args, interimDir);
-            System.out.println("");
-            System.out.println("");
+            System.out.println();
+            System.out.println();
             if (proceedWithReveng) {
                 System.out.println("Interim reverse-engineering from the vendor tool is complete.");
                 System.out.println("Content was written to: " + interimDir);
                 System.out.println("Proceeding with full reverse-engineering: " + interimDir);
-                System.out.println("");
+                System.out.println();
                 System.out.println("*** In case the interim content had issues when reverse-engineering to the final output, you can update the interim files and restart from there (without going back to the DB) by specifying the following argument:");
                 System.out.println("    -inputPath " + ObjectUtils.defaultIfNull(args.getOutputPath(), "<outputFile>"));
                 revengMain(interimDir, args);
             } else {
                 System.out.println("***********");
-                System.out.println("");
+                System.out.println();
                 System.out.println("Once those steps are done, rerun the reverse-engineering command you just ran, but add the following argument based on the <outputDirectory> value passed in above the argument:");
                 System.out.println("    -inputPath " + ObjectUtils.defaultIfNull(args.getOutputPath(), "<outputFile>"));
-                System.out.println("");
+                System.out.println();
                 System.out.println("If you need more information on the vendor reverse engineer process, see the doc: https://goldmansachs.github.io/obevo/reverse-engineer-dbmstools.html");
             }
         } else {
