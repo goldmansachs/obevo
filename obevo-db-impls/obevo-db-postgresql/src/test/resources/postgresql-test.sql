@@ -14,6 +14,11 @@
 -- under the License.
 --
 
+CREATE TYPE MyType AS ENUM ('1', '2', '3')
+GO
+CREATE TYPE MyType2 AS ENUM ('1', '2', '3')
+GO
+
 create table METADATA_TEST_TABLE (afield int, bfield int)
 GO
 

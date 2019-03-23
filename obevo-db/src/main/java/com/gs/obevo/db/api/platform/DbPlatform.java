@@ -71,6 +71,12 @@ public interface DbPlatform extends Platform {
      */
     String getSubschemaPrefix(PhysicalSchema schema);
 
+    /**
+     * The token to use to indicate a null field when creating columns in a table. Some platforms use the NULL keyword,
+     * and others imply a lack of keyword (e.g. "") as null.
+     *
+     * @since 6.0.0
+     */
     String getNullMarkerForCreateTable();
 
     String getTimestampType();

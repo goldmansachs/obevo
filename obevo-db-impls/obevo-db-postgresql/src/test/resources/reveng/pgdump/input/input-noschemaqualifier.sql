@@ -39,7 +39,7 @@ CREATE TYPE myschema01.usertype1 AS ENUM (
 -- Name: sp0(); Type: PROCEDURE; Schema: mylargeschema; Owner: -
 --
 
-CREATE PROCEDURE myschema01.sp1()
+CREATE PROCEDURE sp1()
     LANGUAGE plpgsql
     AS $$ DECLARE val INTEGER; END $$;
 
@@ -48,7 +48,7 @@ CREATE PROCEDURE myschema01.sp1()
 -- Name: func1(); Type: FUNCTION; Schema: myschema01; Owner: -
 --
 
-CREATE FUNCTION myschema01.func1() RETURNS integer
+CREATE FUNCTION func1() RETURNS integer
     LANGUAGE plpgsql
     AS '
 BEGIN
@@ -62,7 +62,7 @@ END;
 -- Name: func_with_overload(); Type: FUNCTION; Schema: myschema01; Owner: -
 --
 
-CREATE FUNCTION myschema01.func_with_overload() RETURNS integer
+CREATE FUNCTION func_with_overload() RETURNS integer
     LANGUAGE plpgsql
     AS '
 BEGIN
@@ -75,7 +75,7 @@ END;
 -- Name: func_with_overload(integer); Type: FUNCTION; Schema: myschema01; Owner: -
 --
 
-CREATE FUNCTION myschema01.func_with_overload(var1 integer) RETURNS integer
+CREATE FUNCTION func_with_overload(var1 integer) RETURNS integer
     LANGUAGE plpgsql
     AS '
 BEGIN
@@ -88,7 +88,7 @@ END;
 -- Name: func_with_overload(integer, character varying); Type: FUNCTION; Schema: myschema01; Owner: -
 --
 
-CREATE FUNCTION myschema01.func_with_overload(var1 integer, invalstr character varying) RETURNS integer
+CREATE FUNCTION func_with_overload(var1 integer, invalstr character varying) RETURNS integer
     LANGUAGE plpgsql
     AS '
 BEGIN
@@ -105,7 +105,7 @@ SET default_with_oids = false;
 -- Name: metadata_test_table; Type: TABLE; Schema: myschema01; Owner: -
 --
 
-CREATE TABLE myschema01.metadata_test_table (
+CREATE TABLE metadata_test_table (
     afield integer,
     bfield integer
 );
@@ -115,7 +115,7 @@ CREATE TABLE myschema01.metadata_test_table (
 -- Name: regular_sequence; Type: SEQUENCE; Schema: myschema01; Owner: -
 --
 
-CREATE SEQUENCE myschema01.regular_sequence
+CREATE SEQUENCE regular_sequence
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -127,7 +127,7 @@ CREATE SEQUENCE myschema01.regular_sequence
 -- Name: table_a; Type: TABLE; Schema: myschema01; Owner: -
 --
 
-CREATE TABLE myschema01.table_a (
+CREATE TABLE table_a (
     a_id integer NOT NULL,
     a2_id integer
 );
@@ -137,7 +137,7 @@ CREATE TABLE myschema01.table_a (
 -- Name: table_a_multicol_pk; Type: TABLE; Schema: myschema01; Owner: -
 --
 
-CREATE TABLE myschema01.table_a_multicol_pk (
+CREATE TABLE table_a_multicol_pk (
     a1_id integer NOT NULL,
     a2_id integer NOT NULL,
     val3 integer
@@ -148,7 +148,7 @@ CREATE TABLE myschema01.table_a_multicol_pk (
 -- Name: table_b_with_fk; Type: TABLE; Schema: myschema01; Owner: -
 --
 
-CREATE TABLE myschema01.table_b_with_fk (
+CREATE TABLE table_b_with_fk (
     b_id integer NOT NULL,
     other_a_id integer
 );
@@ -158,7 +158,7 @@ CREATE TABLE myschema01.table_b_with_fk (
 -- Name: table_b_with_multicol_fk; Type: TABLE; Schema: myschema01; Owner: -
 --
 
-CREATE TABLE myschema01.table_b_with_multicol_fk (
+CREATE TABLE table_b_with_multicol_fk (
     b_id integer NOT NULL,
     other_a1_id integer,
     other_a2_id integer
@@ -169,7 +169,7 @@ CREATE TABLE myschema01.table_b_with_multicol_fk (
 -- Name: table_generated_id; Type: TABLE; Schema: myschema01; Owner: -
 --
 
-CREATE TABLE myschema01.table_generated_id (
+CREATE TABLE table_generated_id (
     gen_id integer NOT NULL,
     field1 integer
 );
@@ -179,7 +179,7 @@ CREATE TABLE myschema01.table_generated_id (
 -- Name: table_generated_id_gen_id_seq; Type: SEQUENCE; Schema: myschema01; Owner: -
 --
 
-CREATE SEQUENCE myschema01.table_generated_id_gen_id_seq
+CREATE SEQUENCE table_generated_id_gen_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -198,24 +198,24 @@ ALTER SEQUENCE myschema01.table_generated_id_gen_id_seq OWNED BY myschema01.tabl
 -- Name: view1; Type: VIEW; Schema: myschema01; Owner: -
 --
 
-CREATE VIEW myschema01.view1 AS
+CREATE VIEW view1 AS
  SELECT metadata_test_table.afield,
     metadata_test_table.bfield
-   FROM myschema01.metadata_test_table;
+   FROM metadata_test_table;
 
 
 --
 -- Name: table_generated_id gen_id; Type: DEFAULT; Schema: myschema01; Owner: -
 --
 
-ALTER TABLE ONLY myschema01.table_generated_id ALTER COLUMN gen_id SET DEFAULT nextval('table_generated_id_gen_id_seq'::regclass);
+ALTER TABLE ONLY table_generated_id ALTER COLUMN gen_id SET DEFAULT nextval('table_generated_id_gen_id_seq'::regclass);
 
 
 --
 -- Name: table_a_multicol_pk table_a_multicol_pk_pkey; Type: CONSTRAINT; Schema: myschema01; Owner: -
 --
 
-ALTER TABLE ONLY myschema01.table_a_multicol_pk
+ALTER TABLE ONLY table_a_multicol_pk
     ADD CONSTRAINT table_a_multicol_pk_pkey PRIMARY KEY (a1_id, a2_id);
 
 
@@ -223,7 +223,7 @@ ALTER TABLE ONLY myschema01.table_a_multicol_pk
 -- Name: table_a table_a_pkey; Type: CONSTRAINT; Schema: myschema01; Owner: -
 --
 
-ALTER TABLE ONLY myschema01.table_a
+ALTER TABLE ONLY table_a
     ADD CONSTRAINT table_a_pkey PRIMARY KEY (a_id);
 
 
@@ -231,7 +231,7 @@ ALTER TABLE ONLY myschema01.table_a
 -- Name: table_b_with_fk table_b_with_fk_pkey; Type: CONSTRAINT; Schema: myschema01; Owner: -
 --
 
-ALTER TABLE ONLY myschema01.table_b_with_fk
+ALTER TABLE ONLY table_b_with_fk
     ADD CONSTRAINT table_b_with_fk_pkey PRIMARY KEY (b_id);
 
 
@@ -239,7 +239,7 @@ ALTER TABLE ONLY myschema01.table_b_with_fk
 -- Name: table_b_with_multicol_fk table_b_with_multicol_fk_pkey; Type: CONSTRAINT; Schema: myschema01; Owner: -
 --
 
-ALTER TABLE ONLY myschema01.table_b_with_multicol_fk
+ALTER TABLE ONLY table_b_with_multicol_fk
     ADD CONSTRAINT table_b_with_multicol_fk_pkey PRIMARY KEY (b_id);
 
 
@@ -247,7 +247,7 @@ ALTER TABLE ONLY myschema01.table_b_with_multicol_fk
 -- Name: table_b_with_fk fk_a; Type: FK CONSTRAINT; Schema: myschema01; Owner: -
 --
 
-ALTER TABLE ONLY myschema01.table_b_with_fk
+ALTER TABLE ONLY table_b_with_fk
     ADD CONSTRAINT fk_a FOREIGN KEY (other_a_id) REFERENCES table_a(a_id);
 
 
@@ -255,7 +255,7 @@ ALTER TABLE ONLY myschema01.table_b_with_fk
 -- Name: table_b_with_multicol_fk fk_a_multicol; Type: FK CONSTRAINT; Schema: myschema01; Owner: -
 --
 
-ALTER TABLE ONLY myschema01.table_b_with_multicol_fk
+ALTER TABLE ONLY table_b_with_multicol_fk
     ADD CONSTRAINT fk_a_multicol FOREIGN KEY (other_a1_id, other_a2_id) REFERENCES table_a_multicol_pk(a1_id, a2_id);
 
 

@@ -66,6 +66,9 @@ public class PostgreSqlDbPlatform extends AbstractDbPlatform {
         functionType = DbChangeTypeImpl.newDbChangeType(functionType).setGrantObjectQualifier("FUNCTION").build();
         replaceChangeType(changeTypes, functionType);
 
+        DbChangeType typeType = DbChangeTypeImpl.newDbChangeType(ChangeType.USERTYPE_STR, true, 1, "TYPE").build();
+        changeTypes.add(typeType);
+
         return changeTypes.toImmutable();
     }
 
@@ -92,8 +95,7 @@ public class PostgreSqlDbPlatform extends AbstractDbPlatform {
 
     @Override
     public String getNullMarkerForCreateTable() {
-        return "";  // for DB2 create statement, a blank implies NULL. Adding NULL explicitly was not allowed prior to
-        // v9.7, so we leave this here
+        return "";
     }
 
     @Override

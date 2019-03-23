@@ -23,9 +23,13 @@ import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.dbmetadata.api.DaExtension;
 import com.gs.obevo.dbmetadata.api.DaExtensionImpl;
 import com.gs.obevo.dbmetadata.api.DaRoutineType;
+import com.gs.obevo.dbmetadata.api.DaSchema;
+import com.gs.obevo.dbmetadata.api.DaUserType;
+import com.gs.obevo.dbmetadata.api.DaUserTypeImpl;
 import org.apache.commons.dbutils.handlers.ColumnListHandler;
 import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.eclipse.collections.api.block.function.Function;
+import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.block.factory.StringFunctions;
@@ -117,6 +121,24 @@ public class PostgresqlMetadataDialect extends AbstractMetadataDialect {
                 return new DaExtensionImpl((String) map.get("EXTNAME"));
             }
         }).toSet().toImmutable();
+    }
+
+    @Override
+    public ImmutableCollection<DaUserType> searchUserTypes(final DaSchema schema, Connection conn) {
+        String sql = "SELECT t.typname \n" +
+                "FROM        pg_type t \n" +
+                "LEFT JOIN   pg_catalog.pg_namespace n ON n.oid = t.typnamespace \n" +
+                "WHERE       (t.typrelid = 0 OR (SELECT c.relkind = 'c' FROM pg_catalog.pg_class c WHERE c.oid = t.typrelid)) \n" +
+                "AND     NOT EXISTS(SELECT 1 FROM pg_catalog.pg_type el WHERE el.oid = t.typelem AND el.typarray = t.oid)\n" +
+                "AND     n.nspname IN ('" + schema.getName() + "')";
+        ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(jdbc.query(conn, sql, new MapListHandler())).toImmutable();
+
+        return maps.collect(new Function<Map<String, Object>, DaUserType>() {
+            @Override
+            public DaUserType valueOf(Map<String, Object> map) {
+                return new DaUserTypeImpl((String) map.get("typname"), schema);
+            }
+        });
     }
 
     @Override
