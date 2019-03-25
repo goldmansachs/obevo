@@ -5,13 +5,13 @@
 ### Functionality Improvements
 #182: Adding Hibernate reverse-engineering API. See [ORM Integration docs](https://goldmansachs.github.io/obevo/orm-integration.html) for more details.
 #221 #223 #225: Oracle reverse-engineering improvements - unicode characters, nested tables, types, comments
-#227: PostgreSQL improvements for kata - reverse-engineering, in-memory databases
+#228: PostgreSQL improvements for kata - reverse-engineering, in-memory databases
 
 ### Technical Improvements
-#227: Upgrading checkstyle version to avoid security prompts at Github site
+#228: Upgrading checkstyle version to avoid security prompts at Github site
 
 ### Bug Fixes
-#227: Fixed drop behavior of PostgreSQL for multiple views that depended on each other
+#228: Fixed drop behavior of PostgreSQL for multiple views that depended on each other
 
 
 ## 7.0.2
