@@ -1,5 +1,15 @@
 # Change Log
 
+## 7.1.1
+
+### Functionality Improvements
+
+### Technical Improvements
+
+### Bug Fixes
+Oracle Reverse Engineering can still generate output even if a single object DDL cannot be generated.
+
+
 ## 7.1.0
 
 ### Functionality Improvements

@@ -28,7 +28,7 @@
     <name>${project.artifactId}</name>
 
     <properties>
-        <jacoco.minCoverage>0.40</jacoco.minCoverage>
+        <jacoco.minCoverage>0.34</jacoco.minCoverage>
     </properties>
 
     <dependencies>
