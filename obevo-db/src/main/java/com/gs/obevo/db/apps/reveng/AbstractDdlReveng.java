@@ -339,7 +339,11 @@ public abstract class AbstractDdlReveng {
                         if (patternMatch.getSecondaryName() != null) {
                             secondaryName = patternMatch.getSecondaryName();
                         }
-                        candidateObjectType = platform.getChangeType(patternMatch.getRevengPattern().getChangeType());
+                        if (patternMatch.getRevengPattern().getChangeType().equalsIgnoreCase(UnclassifiedChangeType.INSTANCE.getName())) {
+                            candidateObjectType = UnclassifiedChangeType.INSTANCE;
+                        } else {
+                            candidateObjectType = platform.getChangeType(patternMatch.getRevengPattern().getChangeType());
+                        }
                     }
                 }
 
