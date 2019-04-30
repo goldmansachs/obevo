@@ -3,11 +3,13 @@
 ## 7.1.1
 
 ### Functionality Improvements
+#231 #233: Correct reverse-engineering of table indices to their correct tables
+#232 #233: Support reverse-engineering of triggers
 
 ### Technical Improvements
 
 ### Bug Fixes
-Oracle Reverse Engineering can still generate output even if a single object DDL cannot be generated.
+#229: Oracle Reverse Engineering can still generate output even if a single object DDL cannot be generated.
 
 
 ## 7.1.0
