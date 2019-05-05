@@ -394,7 +394,7 @@ public abstract class AbstractDdlReveng {
 
                 Integer suggestedOrder = patternMatch != null ? patternMatch.getRevengPattern().getSuggestedOrder() : null;
 
-                if (debugComments.notEmpty()) {
+                if (debugLogEnabled && debugComments.notEmpty()) {
                     String debugCommentsStr = debugComments.keyValuesView().collect(new Function<Pair<String, Object>, String>() {
                         @Override
                         public String valueOf(Pair<String, Object> object) {

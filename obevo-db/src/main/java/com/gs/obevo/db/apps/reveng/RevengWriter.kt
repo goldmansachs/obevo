@@ -55,7 +55,7 @@ class RevengWriter {
         templateConfig.templateExceptionHandler = TemplateExceptionHandler.RETHROW_HANDLER
     }
 
-    fun write(platform: Platform, allRevEngDestinations: MutableList<ChangeEntry>, outputDir: File, generateBaseline: Boolean, shouldOverwritePredicate: Predicate2<File, RevEngDestination>?, jdbcUrl: String, dbHost: String?, dbPort: Int?, dbServer: String?, excludeObjects: String?) {
+    fun write(platform: Platform, allRevEngDestinations: MutableList<ChangeEntry>, outputDir: File, generateBaseline: Boolean, shouldOverwritePredicate: Predicate2<File, RevEngDestination>?, jdbcUrl: String?, dbHost: String?, dbPort: Int?, dbServer: String?, excludeObjects: String?) {
         var shouldOverwritePredicate = shouldOverwritePredicate
         outputDir.mkdirs()
         if (shouldOverwritePredicate == null) {
