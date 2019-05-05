@@ -263,7 +263,6 @@ public class AquaRevengArgs {
         this.excludeObjects = excludeObjects;
     }
 
-
     public boolean isDebugLogEnabled() {
         return debugLogEnabled;
     }
