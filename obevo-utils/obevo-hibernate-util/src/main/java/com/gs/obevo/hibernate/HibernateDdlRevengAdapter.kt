@@ -18,6 +18,8 @@ package com.gs.obevo.hibernate
 import com.gs.obevo.api.platform.ChangeType
 import com.gs.obevo.db.apps.reveng.AbstractDdlReveng
 import com.gs.obevo.db.apps.reveng.AquaRevengArgs
+import com.gs.obevo.db.apps.reveng.LineParseOutput
+import com.gs.obevo.db.apps.reveng.RevengPattern
 import com.gs.obevo.impl.util.MultiLineStringSplitter
 import org.eclipse.collections.api.list.ImmutableList
 import org.eclipse.collections.impl.factory.Lists
@@ -45,16 +47,16 @@ internal class HibernateDdlRevengAdapter<in T>(
         private val QUOTE = ""
         private val DELIMITER = ";"
 
-        private fun getRevengPatterns(revengArgs: HibernateRevengArgs<*>): ImmutableList<AbstractDdlReveng.RevengPattern> {
+        private fun getRevengPatterns(revengArgs: HibernateRevengArgs<*>): ImmutableList<RevengPattern> {
             val schemaNameSubPattern: String
-            val namePatternType: AbstractDdlReveng.NamePatternType
+            val namePatternType: RevengPattern.NamePatternType
 
             if (revengArgs.platform.isSubschemaSupported) {
                 schemaNameSubPattern = AbstractDdlReveng.getCatalogSchemaObjectPattern(QUOTE, QUOTE)
-                namePatternType = AbstractDdlReveng.NamePatternType.THREE
+                namePatternType = RevengPattern.NamePatternType.THREE
             } else {
                 schemaNameSubPattern = AbstractDdlReveng.getSchemaObjectPattern(QUOTE, QUOTE)
-                namePatternType = AbstractDdlReveng.NamePatternType.TWO
+                namePatternType = RevengPattern.NamePatternType.TWO
             }
 
             val remapObjectName = { objectName: String ->
@@ -66,7 +68,9 @@ internal class HibernateDdlRevengAdapter<in T>(
 
             return Lists.immutable.with(
                     RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+table\\s+$schemaNameSubPattern")
-                            .withPostProcessSql { LineParseOutput(it + (revengArgs.postCreateTableSql ?: "")) }
+                            .withPostProcessSql {
+                                LineParseOutput(it + (revengArgs.postCreateTableSql ?: ""))
+                            }
                             .withRemapObjectName(remapObjectName),
                     RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+(?:\\w+\\s+)?index\\s+$schemaNameSubPattern\\s+on\\s+$schemaNameSubPattern", 2, 1, "INDEX")
                             .withRemapObjectName(remapObjectName),

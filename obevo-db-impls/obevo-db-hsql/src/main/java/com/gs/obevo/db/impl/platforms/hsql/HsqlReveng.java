@@ -27,6 +27,8 @@ import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
 import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
+import com.gs.obevo.db.apps.reveng.RevengPattern;
+import com.gs.obevo.db.apps.reveng.RevengPattern.NamePatternType;
 import com.gs.obevo.db.impl.core.jdbc.JdbcDataSourceFactory;
 import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
 import com.gs.obevo.util.inputreader.Credential;
@@ -68,7 +70,7 @@ public class HsqlReveng extends AbstractDdlReveng {
     private static ImmutableList<RevengPattern> getRevengPatterns() {
         String schemaNameSubPattern = getSchemaObjectPattern(QUOTE, QUOTE);
         String schemaSysNamePattern = getSchemaObjectWithPrefixPattern(QUOTE, QUOTE, "SYS_");
-        NamePatternType namePatternType = NamePatternType.TWO;
+        NamePatternType namePatternType = RevengPattern.NamePatternType.TWO;
         return Lists.immutable.with(
                 new RevengPattern(ChangeType.SEQUENCE_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)?sequence\\s+" + schemaNameSubPattern).withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
                 new RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+(?:memory\\s+)table\\s+" + schemaNameSubPattern).withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),

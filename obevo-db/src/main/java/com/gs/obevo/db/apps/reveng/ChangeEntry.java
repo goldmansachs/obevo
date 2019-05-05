@@ -26,6 +26,7 @@ public class ChangeEntry {
     private final String changeAnnotation;
     private final int order;
     private final MutableList<String> metadataAnnotations = Lists.mutable.empty();
+    private String comment;
 
     public ChangeEntry(RevEngDestination destination, String sql) {
         this(destination, sql, null, null, 0);
@@ -77,5 +78,13 @@ public class ChangeEntry {
                 .append("metadataAnnotations", metadataAnnotations)
                 .append("sql", sql)
                 .toString();
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 }

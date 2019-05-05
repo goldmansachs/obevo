@@ -17,9 +17,9 @@ package com.gs.obevo.db.impl.platforms.db2;
 
 import java.io.File;
 
-import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
 import com.gs.obevo.db.apps.reveng.AbstractDdlRevengTest;
 import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
+import com.gs.obevo.db.apps.reveng.RevengPattern;
 import com.gs.obevo.db.testutil.DirectoryAssert;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.collections.api.list.ImmutableList;
@@ -76,9 +76,9 @@ public class Db2lookRevengTest extends AbstractDdlRevengTest {
 
     @Test
     public void testSchemaExtraction() {
-        ImmutableList<AbstractDdlReveng.RevengPattern> patterns = Db2lookReveng.getRevengPatterns().select(Predicates.attributeEqual(AbstractDdlReveng.RevengPattern.TO_CHANGE_TYPE, "VIEW"));
+        ImmutableList<RevengPattern> patterns = Db2lookReveng.getRevengPatterns().select(Predicates.attributeEqual(RevengPattern.TO_CHANGE_TYPE, "VIEW"));
 
-        AbstractDdlReveng.RevengPattern revengPattern = patterns.get(0);
+        RevengPattern revengPattern = patterns.get(0);
         assertEquals("MYVIEW", revengPattern.evaluate("CREATE or REPLACE VIEW SCHEMA.MYVIEW AS ABC DEF GHI").getPrimaryName());
         assertEquals("MYVIEW", revengPattern.evaluate("CREATE or REPLACE VIEW \"SCHEMA\".\"MYVIEW\" AS ABC DEF GHI").getPrimaryName());
         assertEquals("MYVIEW", revengPattern.evaluate("CREATE or REPLACE VIEW MYVIEW AS ABC DEF GHI").getPrimaryName());

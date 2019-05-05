@@ -21,6 +21,8 @@ import java.io.PrintStream;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
 import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
+import com.gs.obevo.db.apps.reveng.RevengPattern;
+import com.gs.obevo.db.apps.reveng.RevengPattern.NamePatternType;
 import com.gs.obevo.impl.util.MultiLineStringSplitter;
 import org.apache.commons.lang3.ObjectUtils;
 import org.eclipse.collections.api.block.predicate.Predicate;
@@ -59,7 +61,7 @@ public class PostgreSqlPgDumpReveng extends AbstractDdlReveng {
         String schemaNameSubPattern = getSchemaObjectPattern("", "");
         String objectNameSubPattern = getObjectPattern("", "");
 
-        NamePatternType namePatternType = NamePatternType.TWO;
+        NamePatternType namePatternType = RevengPattern.NamePatternType.TWO;
         return Lists.immutable.with(
                 new RevengPattern(ChangeType.SEQUENCE_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)?sequence\\s+" + schemaNameSubPattern).withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),
                 new RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+table\\s+" + schemaNameSubPattern).withPostProcessSql(REPLACE_TABLESPACE).withPostProcessSql(REMOVE_QUOTES),

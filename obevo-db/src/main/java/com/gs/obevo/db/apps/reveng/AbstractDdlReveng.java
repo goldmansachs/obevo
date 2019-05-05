@@ -23,7 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Objects;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,8 +37,6 @@ import com.gs.obevo.util.FileUtilsCobra;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.eclipse.collections.api.LazyIterable;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.function.Function0;
@@ -49,9 +47,9 @@ import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.multimap.set.MutableSetMultimap;
+import org.eclipse.collections.api.partition.list.PartitionList;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.api.tuple.Pair;
-import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.block.factory.StringPredicates;
 import org.eclipse.collections.impl.factory.Lists;
@@ -64,6 +62,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractDdlReveng {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractDdlReveng.class);
+    private static final String WORD_REGEX = "[\\w\\#]";
 
     private final DbPlatform platform;
     private final MultiLineStringSplitter stringSplitter;
@@ -89,8 +88,8 @@ public abstract class AbstractDdlReveng {
         return sb.toString();
     }
 
-    public static AbstractDdlReveng.LineParseOutput substituteTablespace(String input) {
-        Pattern compile = Pattern.compile("(\\s+IN\\s+)\"(\\w+)\"(\\s*)", Pattern.DOTALL);
+    public static LineParseOutput substituteTablespace(String input) {
+        Pattern compile = Pattern.compile("(\\s+IN\\s+)\"(" + WORD_REGEX + "+)\"(\\s*)", Pattern.DOTALL);
 
         StringBuffer sb = new StringBuffer(input.length());
 
@@ -104,18 +103,18 @@ public abstract class AbstractDdlReveng {
         }
         matcher.appendTail(sb);
 
-        return new AbstractDdlReveng.LineParseOutput(sb.toString()).withToken(addedToken, addedValue);
+        return new LineParseOutput(sb.toString()).withToken(addedToken, addedValue);
     }
 
-    protected static final Function<String, LineParseOutput> REMOVE_QUOTES = new Function<String, AbstractDdlReveng.LineParseOutput>() {
+    protected static final Function<String, LineParseOutput> REMOVE_QUOTES = new Function<String, LineParseOutput>() {
         @Override
-        public AbstractDdlReveng.LineParseOutput valueOf(String input) {
-            return new AbstractDdlReveng.LineParseOutput(removeQuotes(input));
+        public LineParseOutput valueOf(String input) {
+            return new LineParseOutput(removeQuotes(input));
         }
     };
-    protected static final Function<String, AbstractDdlReveng.LineParseOutput> REPLACE_TABLESPACE = new Function<String, AbstractDdlReveng.LineParseOutput>() {
+    protected static final Function<String, LineParseOutput> REPLACE_TABLESPACE = new Function<String, LineParseOutput>() {
         @Override
-        public AbstractDdlReveng.LineParseOutput valueOf(String input) {
+        public LineParseOutput valueOf(String input) {
             return substituteTablespace(input);
         }
     };
@@ -151,11 +150,11 @@ public abstract class AbstractDdlReveng {
     }
 
     private static String namePattern(String startQuoteStr, String endQuoteStr) {
-        return "(?:(?:" + startQuoteStr + ")?(\\w+)(?:" + endQuoteStr + ")?)";
+        return "(?:(?:" + startQuoteStr + ")?(" + WORD_REGEX + "+)(?:" + endQuoteStr + ")?)";
     }
 
     private static String nameWithPrefixPattern(String startQuoteStr, String endQuoteStr, String prefix) {
-        return "(?:(?:" + startQuoteStr + ")?(" + prefix + "\\w+)(?:" + endQuoteStr + ")?)";
+        return "(?:(?:" + startQuoteStr + ")?(" + prefix + WORD_REGEX + "+)(?:" + endQuoteStr + ")?)";
     }
 
     public void reveng(AquaRevengArgs args) {
@@ -246,9 +245,9 @@ public abstract class AbstractDdlReveng {
             public FileProcessingContext valueOf(File file) {
                 MutableList<String> sqlSnippets = getSqlSnippets(file);
 
-                final MutableList<Pair<String, RevengPatternOutput>> snippetPatternMatchPairs = sqlSnippets
+                PartitionList<Pair<String, RevengPatternOutput>> snippetPatternMatchPairs = sqlSnippets
                         .collect(patternMatchSnippet)
-                        .reject(new Predicate<Pair<String, RevengPatternOutput>>() {
+                        .partition(new Predicate<Pair<String, RevengPatternOutput>>() {
                             @Override
                             public boolean accept(Pair<String, RevengPatternOutput> each) {
                                 RevengPatternOutput patternMatch = each.getTwo();
@@ -259,6 +258,7 @@ public abstract class AbstractDdlReveng {
                                         && !args.getDbSchema().equalsIgnoreCase(patternMatch.getSchema());
                             }
                         });
+
                 return new FileProcessingContext(file, snippetPatternMatchPairs);
             }
         });
@@ -276,11 +276,20 @@ public abstract class AbstractDdlReveng {
             public Iterable<ChangeEntry> valueOf(FileProcessingContext fileProcessingContext) {
                 String schema = getObjectSchema(args.getDbSchema(), fileProcessingContext.getFile().getName());
 
-                return revengFile(schemaObjectReplacer, fileProcessingContext.getSnippetPatternMatchPairs(), schema);
+                return revengFile(schemaObjectReplacer, fileProcessingContext.getSnippetPatternMatchPairs(), schema, args.isDebugLogEnabled());
             }
         });
 
-        new RevengWriter().write(platform, changeEntries, new File(args.getOutputPath(), "final"), args.isGenerateBaseline(), RevengWriter.defaultShouldOverwritePredicate(), args.getJdbcUrl(), args.getDbHost(), args.getDbPort(), args.getDbServer(), args.getExcludeObjects());
+        final MutableList<ChangeEntry> invalidEntries = fileProcessingContexts.flatCollect(new Function<FileProcessingContext, Iterable<ChangeEntry>>() {
+            @Override
+            public Iterable<ChangeEntry> valueOf(FileProcessingContext fileProcessingContext) {
+                String schema = "UNMAPPEDSCHEMA";
+
+                return revengFile(schemaObjectReplacer, fileProcessingContext.getDiffSchemaSnippetPatternMatchPairs(), schema, args.isDebugLogEnabled());
+            }
+        });
+
+        new RevengWriter().write(platform, changeEntries.withAll(invalidEntries), new File(args.getOutputPath(), "final"), args.isGenerateBaseline(), RevengWriter.defaultShouldOverwritePredicate(), args.getJdbcUrl(), args.getDbHost(), args.getDbPort(), args.getDbServer(), args.getExcludeObjects());
     }
 
     /**
@@ -292,9 +301,9 @@ public abstract class AbstractDdlReveng {
 
     private static class FileProcessingContext {
         private final File file;
-        private final MutableList<Pair<String, RevengPatternOutput>> snippetPatternMatchPairs;
+        private final PartitionList<Pair<String, RevengPatternOutput>> snippetPatternMatchPairs;
 
-        FileProcessingContext(File file, MutableList<Pair<String, RevengPatternOutput>> snippetPatternMatchPairs) {
+        FileProcessingContext(File file, PartitionList<Pair<String, RevengPatternOutput>> snippetPatternMatchPairs) {
             this.file = file;
             this.snippetPatternMatchPairs = snippetPatternMatchPairs;
         }
@@ -303,12 +312,16 @@ public abstract class AbstractDdlReveng {
             return file;
         }
 
-        MutableList<Pair<String, RevengPatternOutput>> getSnippetPatternMatchPairs() {
-            return snippetPatternMatchPairs;
+        List<Pair<String, RevengPatternOutput>> getSnippetPatternMatchPairs() {
+            return snippetPatternMatchPairs.getRejected().toList();
+        }
+
+        List<Pair<String, RevengPatternOutput>> getDiffSchemaSnippetPatternMatchPairs() {
+            return snippetPatternMatchPairs.getSelected().toList();
         }
     }
 
-    private MutableList<ChangeEntry> revengFile(SchemaObjectReplacer schemaObjectReplacer, MutableList<Pair<String, RevengPatternOutput>> snippetPatternMatchPairs, String inputSchema) {
+    private MutableList<ChangeEntry> revengFile(SchemaObjectReplacer schemaObjectReplacer, List<Pair<String, RevengPatternOutput>> snippetPatternMatchPairs, String inputSchema, boolean debugLogEnabled) {
         final MutableList<ChangeEntry> changeEntries = Lists.mutable.empty();
 
         MutableMap<String, AtomicInteger> countByObject = Maps.mutable.empty();
@@ -321,9 +334,14 @@ public abstract class AbstractDdlReveng {
             try {
                 sqlSnippet = removeQuotesFromProcxmode(sqlSnippet);  // sybase ASE
 
+                MutableMap<String, Object> debugComments = Maps.mutable.empty();
+
                 RevengPattern chosenRevengPattern = null;
                 String secondaryName = null;
-                RevengPatternOutput patternMatch = snippetPatternMatchPair.getTwo();
+                final RevengPatternOutput patternMatch = snippetPatternMatchPair.getTwo();
+
+                debugComments.put("newPatternMatch", patternMatch != null);
+
                 if (patternMatch != null) {
                     chosenRevengPattern = patternMatch.getRevengPattern();
 
@@ -331,11 +349,14 @@ public abstract class AbstractDdlReveng {
                         continue;
                     }
 
+                    debugComments.put("objectType", patternMatch.getRevengPattern().getChangeType());
                     // we add this here to allow post-processing to occur on RevengPatterns but still not define the object to write to
                     if (patternMatch.getRevengPattern().getChangeType() != null) {
                         candidateObject = patternMatch.getPrimaryName();
+                        debugComments.put("originalObjectName", candidateObject);
                         candidateObject = chosenRevengPattern.remapObjectName(candidateObject);
 
+                        debugComments.put("secondaryName", patternMatch.getSecondaryName());
                         if (patternMatch.getSecondaryName() != null) {
                             secondaryName = patternMatch.getSecondaryName();
                         }
@@ -373,6 +394,15 @@ public abstract class AbstractDdlReveng {
 
                 Integer suggestedOrder = patternMatch != null ? patternMatch.getRevengPattern().getSuggestedOrder() : null;
 
+                if (debugComments.notEmpty()) {
+                    String debugCommentsStr = debugComments.keyValuesView().collect(new Function<Pair<String, Object>, String>() {
+                        @Override
+                        public String valueOf(Pair<String, Object> object) {
+                            return object.getOne() + "=" + object.getTwo();
+                        }
+                    }).makeString("; ");
+                    sqlSnippet = "-- DEBUG COMMENT: " + debugCommentsStr + "\n" + sqlSnippet;
+                }
                 ChangeEntry change = new ChangeEntry(destination, sqlSnippet + "\nGO", secondaryName, annotation, ObjectUtils.firstNonNull(suggestedOrder, selfOrder++));
 
                 postProcessChange.value(change, sqlSnippet);
@@ -567,317 +597,6 @@ public abstract class AbstractDdlReveng {
             return matcher.replaceAll("sp_procxmode '" + matcher.group(1) + "'");
         } else {
             return input;
-        }
-    }
-
-    public static class LineParseOutput {
-        private String lineOutput;
-        private MutableMap<String, String> tokens = Maps.mutable.empty();
-
-        public LineParseOutput() {
-        }
-
-        public LineParseOutput(String lineOutput) {
-            this.lineOutput = lineOutput;
-        }
-
-        public String getLineOutput() {
-            return lineOutput;
-        }
-
-        public void setLineOutput(String lineOutput) {
-            this.lineOutput = lineOutput;
-        }
-
-        public MutableMap<String, String> getTokens() {
-            return tokens;
-        }
-
-        public void addToken(String key, String value) {
-            tokens.put(key, value);
-        }
-
-        LineParseOutput withToken(String key, String value) {
-            tokens.put(key, value);
-            return this;
-        }
-    }
-
-    public enum NamePatternType {
-        ONE(1),
-        TWO(2),
-        THREE(3),;
-
-        private final int numParts;
-
-        NamePatternType(int numParts) {
-            this.numParts = numParts;
-        }
-
-        Integer getSchemaIndex(int groupIndex) {
-            switch (numParts) {
-            case 2:
-                return groupIndex * numParts - 1;
-            case 3:
-                return groupIndex * numParts - 2;
-            default:
-                return null;
-            }
-        }
-
-        Integer getSubSchemaIndex(int groupIndex) {
-            switch (numParts) {
-            case 3:
-                return groupIndex * numParts - 1;
-            default:
-                return null;
-            }
-        }
-
-        int getObjectIndex(int groupIndex) {
-            return groupIndex * numParts;
-        }
-    }
-
-    public static class RevengPattern {
-        private final String changeType;
-        private final NamePatternType namePatternType;
-        private final Pattern pattern;
-        private final int primaryNameIndex;
-        private final Integer secondaryNameIndex;
-        private final String annotation;
-        private final MutableList<Function<String, LineParseOutput>> postProcessSqls = Lists.mutable.empty();
-        private Integer suggestedOrder;
-        private boolean shouldBeIgnored;
-
-        public static final Function<RevengPattern, String> TO_CHANGE_TYPE = new Function<RevengPattern, String>() {
-            @Override
-            public String valueOf(RevengPattern revengPattern) {
-                return revengPattern.getChangeType();
-            }
-        };
-        private Function<String, String> remapObjectName = Functions.getStringPassThru();
-
-        public RevengPattern(String changeType, NamePatternType namePatternType, String pattern) {
-            this(changeType, namePatternType, pattern, 1);
-        }
-
-        private RevengPattern(String changeType, NamePatternType namePatternType, String pattern, int primaryNameIndex) {
-            this(changeType, namePatternType, pattern, primaryNameIndex, null, null);
-        }
-
-        public RevengPattern(String changeType, NamePatternType namePatternType, String pattern, int primaryNameIndex, Integer secondaryNameIndex, String annotation) {
-            this.changeType = changeType;
-            this.namePatternType = namePatternType;
-            this.pattern = Pattern.compile(pattern, Pattern.DOTALL);
-            this.primaryNameIndex = primaryNameIndex;
-            this.secondaryNameIndex = secondaryNameIndex;
-            this.annotation = annotation;
-        }
-
-        String getChangeType() {
-            return changeType;
-        }
-
-        public NamePatternType getNamePatternType() {
-            return namePatternType;
-        }
-
-        public Pattern getPattern() {
-            return pattern;
-        }
-
-        public int getPrimaryNameIndex() {
-            return primaryNameIndex;
-        }
-
-        public Integer getSecondaryNameIndex() {
-            return secondaryNameIndex;
-        }
-
-        String getAnnotation() {
-            return annotation;
-        }
-
-        MutableList<Function<String, LineParseOutput>> getPostProcessSqls() {
-            return postProcessSqls;
-        }
-
-        /**
-         * See {@link #withSuggestedOrder(Integer)}.
-         */
-        Integer getSuggestedOrder() {
-            return suggestedOrder;
-        }
-
-        public RevengPattern withPostProcessSql(Function<String, LineParseOutput> postProcessSql) {
-            this.postProcessSqls.add(postProcessSql);
-            return this;
-        }
-
-        /**
-         * A hint to the reverse-engineering where the resultant change should be ordered, relative to other changes.
-         * The default order is 0. This is needed for cases where changes for a particular object are spread across
-         * files in the input.
-         */
-        public RevengPattern withSuggestedOrder(Integer suggestedOrder) {
-            this.suggestedOrder = suggestedOrder;
-            return this;
-        }
-
-        boolean isShouldBeIgnored() {
-            return shouldBeIgnored;
-        }
-
-        public void setShouldBeIgnored(boolean shouldBeIgnored) {
-            this.shouldBeIgnored = shouldBeIgnored;
-        }
-
-        public RevengPattern withShouldBeIgnored(boolean shouldBeIgnored) {
-            this.shouldBeIgnored = shouldBeIgnored;
-            return this;
-        }
-
-        /**
-         * Remaps the object name in case users want to group objects into files together. By default, this is a passthrough
-         * function, but users can override the behavior.
-         */
-        public String remapObjectName(String candidateObject) {
-            return remapObjectName.valueOf(candidateObject);
-        }
-
-        public RevengPattern withRemapObjectName(Function<String, String> remapObjectName) {
-            this.remapObjectName = remapObjectName != null ? remapObjectName : Functions.getStringPassThru();
-            return this;
-        }
-
-        private String getMatcherGroup(Matcher matcher, Integer index) {
-            if (index == null) {
-                return null;
-            }
-            return matcher.group(index);
-        }
-
-        public RevengPatternOutput evaluate(String input) {
-            final Matcher matcher = pattern.matcher(input);
-
-            if (matcher.find()) {
-                String primaryName = matcher.group(namePatternType.getObjectIndex(primaryNameIndex));
-                String schema = getMatcherGroup(matcher, namePatternType.getSchemaIndex(primaryNameIndex));
-                String subSchema = getMatcherGroup(matcher, namePatternType.getSubSchemaIndex(primaryNameIndex));
-
-                // If we are looking for a subschema and only see one schema prefix, then assume it belongs to the subschema, not schema
-                if (namePatternType.getSubSchemaIndex(primaryNameIndex) != null && schema != null && subSchema == null) {
-                    subSchema = schema;
-                    schema = null;
-                }
-
-                String secondaryName = null;
-                if (secondaryNameIndex != null) {
-                    secondaryName = matcher.group(namePatternType.getObjectIndex(secondaryNameIndex));
-                    if (schema == null) {
-                        schema = getMatcherGroup(matcher, namePatternType.getSchemaIndex(secondaryNameIndex));
-                    }
-                    if (subSchema == null) {
-                        subSchema = getMatcherGroup(matcher, namePatternType.getSubSchemaIndex(secondaryNameIndex));
-                    }
-
-                    // Same check as above for subschema
-                    if (namePatternType.getSubSchemaIndex(secondaryNameIndex) != null && schema != null && subSchema == null) {
-                        subSchema = schema;
-                        schema = null;
-                    }
-                }
-
-                return new RevengPatternOutput(this, primaryName, secondaryName, schema, subSchema, input);
-            }
-
-            return null;
-        }
-
-        @Override
-        public String toString() {
-            return new ToStringBuilder(this)
-                    .append("changeType", changeType)
-                    .append("namePatternType", namePatternType)
-                    .append("pattern", pattern)
-                    .append("primaryNameIndex", primaryNameIndex)
-                    .append("secondaryNameIndex", secondaryNameIndex)
-                    .append("annotation", annotation)
-                    .append("postProcessSqls", postProcessSqls)
-                    .toString();
-        }
-    }
-
-    public static class RevengPatternOutput {
-        private final RevengPattern revengPattern;
-        private final String primaryName;
-        private final String secondaryName;
-        private final String schema;
-        private final String subSchema;
-        private final String revisedLine;
-
-        RevengPatternOutput(RevengPattern revengPattern, String primaryName, String secondaryName, String schema, String subSchema, String revisedLine) {
-            this.revengPattern = revengPattern;
-            this.primaryName = primaryName;
-            this.secondaryName = secondaryName;
-            this.schema = schema;
-            this.subSchema = subSchema;
-            this.revisedLine = revisedLine;
-        }
-
-        RevengPattern getRevengPattern() {
-            return revengPattern;
-        }
-
-        public String getPrimaryName() {
-            return primaryName;
-        }
-
-        String getSecondaryName() {
-            return secondaryName;
-        }
-
-        String getSchema() {
-            return schema;
-        }
-
-        String getSubSchema() {
-            return subSchema;
-        }
-
-        public String getRevisedLine() {
-            return revisedLine;
-        }
-
-        @Override
-        public String toString() {
-            return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-                    .append("schema", schema)
-                    .append("subSchema", subSchema)
-                    .append("primaryName", primaryName)
-                    .append("secondaryName", secondaryName)
-                    .toString();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            RevengPatternOutput that = (RevengPatternOutput) o;
-            return Objects.equals(primaryName, that.primaryName) &&
-                    Objects.equals(secondaryName, that.secondaryName) &&
-                    Objects.equals(schema, that.schema) &&
-                    Objects.equals(subSchema, that.subSchema);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(primaryName, secondaryName, schema, subSchema);
         }
     }
 }

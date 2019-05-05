@@ -53,4 +53,4 @@ deploy:
     file: obevo-dists/obevo-cli/target/obevo-cli-*-dist.zip
     on:
       all_branches: true
-      condition: $RELEASE_ENABLED == true
+      condition: $DEPLOY_ENABLED == true
