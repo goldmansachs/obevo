@@ -280,16 +280,16 @@ public abstract class AbstractDdlReveng {
             }
         });
 
-        final MutableList<ChangeEntry> invalidEntries = fileProcessingContexts.flatCollect(new Function<FileProcessingContext, Iterable<ChangeEntry>>() {
-            @Override
-            public Iterable<ChangeEntry> valueOf(FileProcessingContext fileProcessingContext) {
-                String schema = "UNMAPPEDSCHEMA";
+//        final MutableList<ChangeEntry> invalidEntries = fileProcessingContexts.flatCollect(new Function<FileProcessingContext, Iterable<ChangeEntry>>() {
+//            @Override
+//            public Iterable<ChangeEntry> valueOf(FileProcessingContext fileProcessingContext) {
+//                String schema = "UNMAPPEDSCHEMA";
+//
+//                return revengFile(schemaObjectReplacer, fileProcessingContext.getDiffSchemaSnippetPatternMatchPairs(), schema, args.isDebugLogEnabled());
+//            }
+//        });
 
-                return revengFile(schemaObjectReplacer, fileProcessingContext.getDiffSchemaSnippetPatternMatchPairs(), schema, args.isDebugLogEnabled());
-            }
-        });
-
-        new RevengWriter().write(platform, changeEntries.withAll(invalidEntries), new File(args.getOutputPath(), "final"), args.isGenerateBaseline(), RevengWriter.defaultShouldOverwritePredicate(), args.getJdbcUrl(), args.getDbHost(), args.getDbPort(), args.getDbServer(), args.getExcludeObjects());
+        new RevengWriter().write(platform, changeEntries, new File(args.getOutputPath(), "final"), args.isGenerateBaseline(), RevengWriter.defaultShouldOverwritePredicate(), args.getJdbcUrl(), args.getDbHost(), args.getDbPort(), args.getDbServer(), args.getExcludeObjects());
     }
 
     /**
