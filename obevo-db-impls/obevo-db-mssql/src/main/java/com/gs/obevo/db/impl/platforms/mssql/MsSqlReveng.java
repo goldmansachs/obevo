@@ -22,6 +22,8 @@ import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
 import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
 import com.gs.obevo.db.apps.reveng.ChangeEntry;
+import com.gs.obevo.db.apps.reveng.RevengPattern;
+import com.gs.obevo.db.apps.reveng.RevengPattern.NamePatternType;
 import com.gs.obevo.impl.reader.TextMarkupDocumentReader;
 import com.gs.obevo.impl.util.MultiLineStringSplitter;
 import org.apache.commons.lang3.ObjectUtils;
@@ -63,23 +65,23 @@ public class MsSqlReveng extends AbstractDdlReveng {
 
     private static ImmutableList<RevengPattern> getRevengPatterns() {
         String schemaNameSubPattern = getSchemaObjectPattern("\\[", "\\]");
-        NamePatternType namePatternType = NamePatternType.TWO;
+        NamePatternType namePatternType = RevengPattern.NamePatternType.TWO;
 
         return Lists.immutable.with(
-                new AbstractDdlReveng.RevengPattern(ChangeType.USERTYPE_STR, namePatternType, "(?i)create\\s+type\\s+" + schemaNameSubPattern + "\\s+"),
-                new AbstractDdlReveng.RevengPattern(ChangeType.DEFAULT_STR, namePatternType, "(?i)create\\s+default\\s+" + schemaNameSubPattern),
-                new AbstractDdlReveng.RevengPattern(ChangeType.SEQUENCE_STR, namePatternType, "(?i)create\\s+seq(uence)?\\s+" + schemaNameSubPattern),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+table\\s+" + schemaNameSubPattern),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+add\\s+constraint\\s+" + schemaNameSubPattern + "\\s+foreign\\s+key", 1, 2, "FK"),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+add\\s+constraint\\s+" + schemaNameSubPattern, 1, 2, null),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+"),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+(?:(?:unique)|(?:nonclustered)\\s+)?(?:\\w+\\s+)?index\\s+" + schemaNameSubPattern + "\\s+on\\s+" + schemaNameSubPattern, 2, 1, "INDEX"),
-                new AbstractDdlReveng.RevengPattern(ChangeType.FUNCTION_STR, namePatternType, "(?i)create\\s+func(tion)?\\s+" + schemaNameSubPattern),
-                new AbstractDdlReveng.RevengPattern(ChangeType.VIEW_STR, namePatternType, "(?i)create\\s+view\\s+" + schemaNameSubPattern),
-                new AbstractDdlReveng.RevengPattern(ChangeType.SP_STR, namePatternType, "(?i)create\\s+proc(?:edure)?\\s+" + schemaNameSubPattern),
-                new AbstractDdlReveng.RevengPattern(ChangeType.TRIGGER_STR, namePatternType, "(?i)create\\s+trigger\\s+" + schemaNameSubPattern + "\\s+on\\s+" + schemaNameSubPattern),
-                new AbstractDdlReveng.RevengPattern(ChangeType.RULE_STR, namePatternType, "(?i)create\\s+rule\\s+" + schemaNameSubPattern),
-                new AbstractDdlReveng.RevengPattern(ChangeType.USERTYPE_STR, namePatternType, "(?i)^(exec\\s+)?sp_addtype\\s+'(\\w+)'")
+                new RevengPattern(ChangeType.USERTYPE_STR, namePatternType, "(?i)create\\s+type\\s+" + schemaNameSubPattern + "\\s+"),
+                new RevengPattern(ChangeType.DEFAULT_STR, namePatternType, "(?i)create\\s+default\\s+" + schemaNameSubPattern),
+                new RevengPattern(ChangeType.SEQUENCE_STR, namePatternType, "(?i)create\\s+seq(uence)?\\s+" + schemaNameSubPattern),
+                new RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+table\\s+" + schemaNameSubPattern),
+                new RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+add\\s+constraint\\s+" + schemaNameSubPattern + "\\s+foreign\\s+key", 1, 2, "FK"),
+                new RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+add\\s+constraint\\s+" + schemaNameSubPattern, 1, 2, null),
+                new RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)alter\\s+table\\s+" + schemaNameSubPattern + "\\s+"),
+                new RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+(?:(?:unique)|(?:nonclustered)\\s+)?(?:\\w+\\s+)?index\\s+" + schemaNameSubPattern + "\\s+on\\s+" + schemaNameSubPattern, 2, 1, "INDEX"),
+                new RevengPattern(ChangeType.FUNCTION_STR, namePatternType, "(?i)create\\s+func(tion)?\\s+" + schemaNameSubPattern),
+                new RevengPattern(ChangeType.VIEW_STR, namePatternType, "(?i)create\\s+view\\s+" + schemaNameSubPattern),
+                new RevengPattern(ChangeType.SP_STR, namePatternType, "(?i)create\\s+proc(?:edure)?\\s+" + schemaNameSubPattern),
+                new RevengPattern(ChangeType.TRIGGER_STR, namePatternType, "(?i)create\\s+trigger\\s+" + schemaNameSubPattern + "\\s+on\\s+" + schemaNameSubPattern),
+                new RevengPattern(ChangeType.RULE_STR, namePatternType, "(?i)create\\s+rule\\s+" + schemaNameSubPattern),
+                new RevengPattern(ChangeType.USERTYPE_STR, namePatternType, "(?i)^(exec\\s+)?sp_addtype\\s+'(\\w+)'")
         );
     }
 

@@ -47,6 +47,7 @@ public class AquaRevengArgs {
     private boolean preprocessSchemaTokens = true;
     private String excludeObjects;
     private boolean explicitSchemaRequired;
+    private boolean debugLogEnabled;
 
     /**
      * @deprecated Use {@link #getInputPath()}
@@ -260,6 +261,15 @@ public class AquaRevengArgs {
     @Argument(value = "excludeObjects", required = false, description = "Object patterns to exclude from reverse-engineering, e.g. TABLE~tab1,tab2;VIEW~view1,view2")
     public void setExcludeObjects(String excludeObjects) {
         this.excludeObjects = excludeObjects;
+    }
+
+    public boolean isDebugLogEnabled() {
+        return debugLogEnabled;
+    }
+
+    @Argument(value = "debugLogEnabled", required = false, description = "Whether additional logging information should be printed for reverse-engineering")
+    public void setDebugLogEnabled(boolean debugLogEnabled) {
+        this.debugLogEnabled = debugLogEnabled;
     }
 
     public boolean isExplicitSchemaRequired() {

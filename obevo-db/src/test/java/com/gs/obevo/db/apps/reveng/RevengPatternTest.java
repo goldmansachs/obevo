@@ -15,9 +15,6 @@
  */
 package com.gs.obevo.db.apps.reveng;
 
-import com.gs.obevo.db.apps.reveng.AbstractDdlReveng.NamePatternType;
-import com.gs.obevo.db.apps.reveng.AbstractDdlReveng.RevengPattern;
-import com.gs.obevo.db.apps.reveng.AbstractDdlReveng.RevengPatternOutput;
 import org.junit.Test;
 
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -26,8 +23,8 @@ import static org.junit.Assert.assertThat;
 public class RevengPatternTest {
     private static final String NA = "n/a";
 
-    private final RevengPattern subschemaPattern = new RevengPattern(NA, NamePatternType.THREE, "pat " + AbstractDdlReveng.getCatalogSchemaObjectPattern("", ""), 1, null, NA);
-    private final RevengPattern schemaPattern = new RevengPattern(NA, NamePatternType.TWO, "pat " + AbstractDdlReveng.getSchemaObjectPattern("", ""), 1, null, NA);
+    private final RevengPattern subschemaPattern = new RevengPattern(NA, RevengPattern.NamePatternType.THREE, "pat " + AbstractDdlReveng.getCatalogSchemaObjectPattern("", ""), 1, null, NA);
+    private final RevengPattern schemaPattern = new RevengPattern(NA, RevengPattern.NamePatternType.TWO, "pat " + AbstractDdlReveng.getSchemaObjectPattern("", ""), 1, null, NA);
 
     @Test
     public void testFullSubschema() {

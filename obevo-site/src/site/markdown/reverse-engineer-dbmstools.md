@@ -44,7 +44,8 @@ B) If the user invokes the vendor API
 3. Re-execute the Obevo command w/ the DDL output file as an additional argument
 
 ## Execution Steps
-Step 1: execute the NEWREVENG command with your arguments
+
+#### Step 1: execute the NEWREVENG command with your arguments
 
 ```
 %OBEVO_HOME%\bin\deploy.bat NEWREVENG -dbType DB2 -dbSchema YourSchemaName -mode schema -outputPath h:\reveng-example-output -dbHost yourhost.me.com -dbPort 1234 -dbServer MYDB01
@@ -55,22 +56,27 @@ Detailing the arguments:
  -mode: required, use the "schema" value
  -outputPath: required, specify where your reverse-engineered output should go
  Connection arguments - specify either -dbHost and -dbPort for Sybase or -dbHost and -dbPort and -dbServer for DB2
+
+Optional Arguments:
+ -debugLogEnabled: use this if you have questions on reverse-engineering that you want to report to the Obevo team. This adds debug information that is useful for support
 ```
 
-Step 2: execute the commands that are prompted for you in the instructions from the Step 1 output.
+#### Step 2: execute the commands that are prompted for you in the instructions from the Step 1 output.
 
-Step 3: execute your step 1 command again, but add the -inputPath &lt;yourFilePath&gt; argument to do the conversion to the obevo format
+#### Step 3: execute your step 1 command again, but add the -inputPath &lt;yourFilePath&gt; argument to do the conversion to the obevo format
 
-Regarding the output:
+This will generate the reverse-engineered output under &lt;outputDir&gt;/final
 
-* This will generate the reverse-engineered output under &lt;outputDir&gt;/final
+Once you have these files, do the final touches on them as you see fit (e.g. delete junk tables)
 
-Once you have these files, do the final touches on them as you see fit (e.g. delete junk tables), and proceed to the next step
+Some files that you should note / cleanup
 
-* <font color="Red">Note the warning in your output - if you see any directories with a name containing
-    "-pleaseAnalyze" in the result of the DBREVENG script</font>, then the tool could not figure out what to do w/ those
-    sql snippets. Either manually figure out where to put them and do so, or if you find too many
-    such cases, reach out to the product team via Github, including a zip file of your reveng contents
+1. -pleaseAnalyze folders: If you see directories containing this phrase, then the tool could not figure out what to do w/
+those sql snippets. Either manually figure out where to put them and do so, or if you find too many such cases, reach
+out to the product team via Github, including a zip file of your reveng contents
+2. UNMAPPEDSCHEMA folder: The reverse-engineering only works on the schema you specify with the -dbSchema argument. If
+objects in other schemas are detected in your input script, they will be placed in this folder. Ideally, you should not
+see this or use these, but we place it here for full transparency.
 
 Note that we explicitly don't include the grants here. This is because you can (and should) use the global permissioning functionality instead.
 

@@ -18,6 +18,8 @@ package com.gs.obevo.db.impl.platforms.oracle
 import com.gs.obevo.api.platform.ChangeType
 import com.gs.obevo.db.apps.reveng.AbstractDdlReveng
 import com.gs.obevo.db.apps.reveng.AquaRevengArgs
+import com.gs.obevo.db.apps.reveng.LineParseOutput
+import com.gs.obevo.db.apps.reveng.RevengPattern
 import com.gs.obevo.db.impl.core.jdbc.JdbcHelper
 import com.gs.obevo.impl.changetypes.UnclassifiedChangeType
 import com.gs.obevo.impl.util.MultiLineStringSplitter
@@ -224,40 +226,40 @@ ORDER BY 1, 2
         private val LOG = LoggerFactory.getLogger(OracleReveng::class.java)
         private val QUOTE = "\""
 
-        private val revengPatterns: ImmutableList<AbstractDdlReveng.RevengPattern>
+        private val revengPatterns: ImmutableList<RevengPattern>
             get() {
                 val schemaNameSubPattern = AbstractDdlReveng.getSchemaObjectPattern(QUOTE, QUOTE)
                 val schemaSysNamePattern = AbstractDdlReveng.getSchemaObjectWithPrefixPattern(QUOTE, QUOTE, "SYS_")
-                val namePatternType = AbstractDdlReveng.NamePatternType.TWO
+                val namePatternType = RevengPattern.NamePatternType.TWO
                 // need this function to split the package and package body lines, as the Oracle reveng function combines them together
-                val prependBodyLineToPackageBody = object : Function<String, AbstractDdlReveng.LineParseOutput> {
+                val prependBodyLineToPackageBody = object : Function<String, LineParseOutput> {
                     private val packageBodyPattern = Pattern.compile("(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)package\\s+body\\s+$schemaNameSubPattern", Pattern.DOTALL)
 
-                    override fun valueOf(sql: String): AbstractDdlReveng.LineParseOutput {
+                    override fun valueOf(sql: String): LineParseOutput {
                         val matcher = packageBodyPattern.matcher(sql)
                         if (matcher.find()) {
                             val output = sql.substring(0, matcher.start()) + "\n//// BODY\n" + sql.substring(matcher.start())
-                            return AbstractDdlReveng.LineParseOutput(output)
+                            return LineParseOutput(output)
                         }
-                        return AbstractDdlReveng.LineParseOutput(sql)
+                        return LineParseOutput(sql)
                     }
                 }
                 return Lists.immutable.with(
-                        AbstractDdlReveng.RevengPattern(UnclassifiedChangeType.INSTANCE.name, namePatternType, "(?i)obevo\\s+exception\\s+$schemaNameSubPattern"),
-                        AbstractDdlReveng.RevengPattern(ChangeType.SEQUENCE_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)?sequence\\s+$schemaNameSubPattern").withPostProcessSql(AbstractDdlReveng.REPLACE_TABLESPACE).withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
-                        AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+table\\s+$schemaNameSubPattern").withPostProcessSql(AbstractDdlReveng.REPLACE_TABLESPACE).withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
-                        AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)alter\\s+table\\s+$schemaNameSubPattern").withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
+                        RevengPattern(UnclassifiedChangeType.INSTANCE.name, namePatternType, "(?i)obevo\\s+exception\\s+$schemaNameSubPattern"),
+                        RevengPattern(ChangeType.SEQUENCE_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)?sequence\\s+$schemaNameSubPattern").withPostProcessSql(AbstractDdlReveng.REPLACE_TABLESPACE).withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
+                        RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+table\\s+$schemaNameSubPattern").withPostProcessSql(AbstractDdlReveng.REPLACE_TABLESPACE).withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
+                        RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)alter\\s+table\\s+$schemaNameSubPattern").withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
                         // Comments on columns can apply for both tables and views, with no way to split this from the text. Hence, we don't specify the object type here and rely on the comments being written after the object in the reverse-engineering extraction
-                        AbstractDdlReveng.RevengPattern(null, namePatternType, "(?i)comment\\s+on\\s+(?:\\w+)\\s+$schemaNameSubPattern").withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
-                        AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+unique\\s+index\\s+$schemaSysNamePattern\\s+on\\s+$schemaNameSubPattern", 2, 1, "excludeEnvs=\"%\" comment=\"this_is_potentially_a_redundant_primaryKey_index_please_double_check\"").withPostProcessSql(AbstractDdlReveng.REPLACE_TABLESPACE).withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
-                        AbstractDdlReveng.RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+(?:unique\\s+)?index\\s+$schemaNameSubPattern\\s+on\\s+$schemaNameSubPattern", 2, 1, "INDEX").withPostProcessSql(AbstractDdlReveng.REPLACE_TABLESPACE).withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
-                        AbstractDdlReveng.RevengPattern(ChangeType.FUNCTION_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)?(?:force\\s+)?(?:editionable\\s+)?function\\s+$schemaNameSubPattern"),
-                        AbstractDdlReveng.RevengPattern(ChangeType.VIEW_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)?(?:force\\s+)?(?:editionable\\s+)?view\\s+$schemaNameSubPattern"),
-                        AbstractDdlReveng.RevengPattern(ChangeType.SP_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)?procedure\\s+$schemaNameSubPattern"),
-                        AbstractDdlReveng.RevengPattern(ChangeType.USERTYPE_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)?type\\s+$schemaNameSubPattern"),
-                        AbstractDdlReveng.RevengPattern(ChangeType.PACKAGE_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)?package\\s+$schemaNameSubPattern").withPostProcessSql(prependBodyLineToPackageBody),
-                        AbstractDdlReveng.RevengPattern(ChangeType.SYNONYM_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)?synonym\\s+$schemaNameSubPattern"),
-                        AbstractDdlReveng.RevengPattern(ChangeType.TRIGGER_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)?trigger\\s+$schemaNameSubPattern")
+                        RevengPattern(null, namePatternType, "(?i)comment\\s+on\\s+(?:\\w+)\\s+$schemaNameSubPattern").withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
+                        RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+unique\\s+index\\s+$schemaSysNamePattern\\s+on\\s+$schemaNameSubPattern", 2, 1, "excludeEnvs=\"%\" comment=\"this_is_potentially_a_redundant_primaryKey_index_please_double_check\"").withPostProcessSql(AbstractDdlReveng.REPLACE_TABLESPACE).withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
+                        RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+(?:unique\\s+)?index\\s+$schemaNameSubPattern\\s+on\\s+$schemaNameSubPattern", 2, 1, "INDEX").withPostProcessSql(AbstractDdlReveng.REPLACE_TABLESPACE).withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
+                        RevengPattern(ChangeType.FUNCTION_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)?(?:force\\s+)?(?:editionable\\s+)?function\\s+$schemaNameSubPattern"),
+                        RevengPattern(ChangeType.VIEW_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)?(?:force\\s+)?(?:editionable\\s+)?(?:editioning\\s+)?view\\s+$schemaNameSubPattern"),
+                        RevengPattern(ChangeType.SP_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)?procedure\\s+$schemaNameSubPattern"),
+                        RevengPattern(ChangeType.USERTYPE_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)?type\\s+$schemaNameSubPattern"),
+                        RevengPattern(ChangeType.PACKAGE_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)?package\\s+$schemaNameSubPattern").withPostProcessSql(prependBodyLineToPackageBody),
+                        RevengPattern(ChangeType.SYNONYM_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)?synonym\\s+$schemaNameSubPattern"),
+                        RevengPattern(ChangeType.TRIGGER_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)?trigger\\s+$schemaNameSubPattern")
                 )
             }
     }
