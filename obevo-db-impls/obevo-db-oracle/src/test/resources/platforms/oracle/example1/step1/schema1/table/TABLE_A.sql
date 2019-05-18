@@ -3,9 +3,13 @@ CREATE TABLE TABLE_A (
 	A_ID    INT	NOT NULL,
 	B_ID    INT	NOT NULL,
 	STRING_FIELD	VARCHAR(30)	NULL,
-	TIMESTAMP_FIELD	TIMESTAMP	NULL,
-    PRIMARY KEY (A_ID)
+	TIMESTAMP_FIELD	TIMESTAMP	NULL
 )
+GO
+
+-- define the PK separately from the CREATE TABLE to help test reverse engineering
+-- (ensuring that the reverse-engineering works whether or not the PK is defined separately)
+ALTER TABLE TABLE_A ADD CONSTRAINT MYPK PRIMARY KEY (A_ID)
 GO
 
 //// CHANGE name=emptychange

@@ -169,10 +169,13 @@ select CASE WHEN obj.OBJECT_TYPE = 'INDEX' THEN 2 ELSE 1 END SORT_ORDER1
     , ${objectDefSql} AS OBJECT_DDL
 FROM DBA_OBJECTS obj
 LEFT JOIN DBA_TABLES tab ON obj.OBJECT_TYPE = 'TABLE' AND obj.OWNER = tab.OWNER and obj.OBJECT_NAME = tab.TABLE_NAME
+LEFT JOIN DBA_CONSTRAINTS pk ON obj.OBJECT_TYPE = 'INDEX' AND pk.CONSTRAINT_TYPE = 'P' AND obj.OWNER = pk.OWNER AND obj.OBJECT_NAME = pk.CONSTRAINT_NAME
 WHERE obj.OWNER = '${schema}'
+    AND obj.GENERATED = 'N'  -- do not include generated objects
     AND obj.OBJECT_TYPE NOT IN ('PACKAGE BODY', 'LOB', 'TABLE PARTITION', 'DATABASE LINK')
     AND obj.OBJECT_NAME NOT LIKE 'MLOG${'$'}%' AND obj.OBJECT_NAME NOT LIKE 'RUPD${'$'}%'  -- exclude the helper tables for materialized views
     AND obj.OBJECT_NAME NOT LIKE 'SYS_%'  -- exclude other system tables
+    AND pk.OWNER IS NULL  -- exclude primary keys created as unique indexes, as the CREATE TABLE already includes it; SQL logic is purely in the join above
     AND (tab.NESTED is null OR tab.NESTED = 'NO')
     ${objectClause}
 """
@@ -229,8 +232,8 @@ ORDER BY 1, 2
         private val revengPatterns: ImmutableList<RevengPattern>
             get() {
                 val schemaNameSubPattern = AbstractDdlReveng.getSchemaObjectPattern(QUOTE, QUOTE)
-                val schemaSysNamePattern = AbstractDdlReveng.getSchemaObjectWithPrefixPattern(QUOTE, QUOTE, "SYS_")
                 val namePatternType = RevengPattern.NamePatternType.TWO
+
                 // need this function to split the package and package body lines, as the Oracle reveng function combines them together
                 val prependBodyLineToPackageBody = object : Function<String, LineParseOutput> {
                     private val packageBodyPattern = Pattern.compile("(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)package\\s+body\\s+$schemaNameSubPattern", Pattern.DOTALL)
@@ -251,7 +254,6 @@ ORDER BY 1, 2
                         RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)alter\\s+table\\s+$schemaNameSubPattern").withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
                         // Comments on columns can apply for both tables and views, with no way to split this from the text. Hence, we don't specify the object type here and rely on the comments being written after the object in the reverse-engineering extraction
                         RevengPattern(null, namePatternType, "(?i)comment\\s+on\\s+(?:\\w+)\\s+$schemaNameSubPattern").withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
-                        RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+unique\\s+index\\s+$schemaSysNamePattern\\s+on\\s+$schemaNameSubPattern", 2, 1, "excludeEnvs=\"%\" comment=\"this_is_potentially_a_redundant_primaryKey_index_please_double_check\"").withPostProcessSql(AbstractDdlReveng.REPLACE_TABLESPACE).withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
                         RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+(?:unique\\s+)?index\\s+$schemaNameSubPattern\\s+on\\s+$schemaNameSubPattern", 2, 1, "INDEX").withPostProcessSql(AbstractDdlReveng.REPLACE_TABLESPACE).withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
                         RevengPattern(ChangeType.FUNCTION_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)?(?:force\\s+)?(?:editionable\\s+)?function\\s+$schemaNameSubPattern"),
                         RevengPattern(ChangeType.VIEW_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)?(?:force\\s+)?(?:editionable\\s+)?(?:editioning\\s+)?view\\s+$schemaNameSubPattern"),

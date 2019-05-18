@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 @RunWith(Parameterized.class)
 public class OracleRevengIT {
     private static final Logger LOG = LoggerFactory.getLogger(OracleRevengIT.class);
-    private final Set<Integer> runSteps = Sets.mutable.of(2);
+    private final Set<Integer> runSteps = Sets.mutable.of(1, 2);
 
     @Parameterized.Parameters
     public static Iterable<Object[]> params() {
