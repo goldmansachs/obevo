@@ -1,10 +1,11 @@
 # Change Log
 
-## 7.1.1
+## 7.2.0
 
 ### Functionality Improvements
 #231 #233: Correct reverse-engineering of table indices to their correct tables
 #232 #233: Support reverse-engineering of triggers
+#231 #235: Removing redundant unique indexes for Oracle Primary Key reverse-engineering
 
 ### Technical Improvements
 
