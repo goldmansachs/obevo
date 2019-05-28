@@ -162,6 +162,11 @@ end
         // PACKAGE BODY as those are generated via package anyway
         // DATABASE LINK as the get_ddl function doesn't work with it. We may support this later on
         return """
+WITH MY_CONSTRAINT_INDICES AS (
+    SELECT DISTINCT INDEX_OWNER, INDEX_NAME
+    FROM DBA_CONSTRAINTS
+    WHERE OWNER = '${schema}' AND INDEX_OWNER IS NOT NULL AND INDEX_NAME IS NOT NULL
+)
 select CASE WHEN obj.OBJECT_TYPE = 'INDEX' THEN 2 ELSE 1 END SORT_ORDER1
     , obj.OBJECT_NAME
     , 1 AS SORT_ORDER2
@@ -169,13 +174,13 @@ select CASE WHEN obj.OBJECT_TYPE = 'INDEX' THEN 2 ELSE 1 END SORT_ORDER1
     , ${objectDefSql} AS OBJECT_DDL
 FROM DBA_OBJECTS obj
 LEFT JOIN DBA_TABLES tab ON obj.OBJECT_TYPE = 'TABLE' AND obj.OWNER = tab.OWNER and obj.OBJECT_NAME = tab.TABLE_NAME
-LEFT JOIN DBA_CONSTRAINTS pk ON obj.OBJECT_TYPE = 'INDEX' AND pk.CONSTRAINT_TYPE = 'P' AND obj.OWNER = pk.OWNER AND obj.OBJECT_NAME = pk.CONSTRAINT_NAME
+LEFT JOIN MY_CONSTRAINT_INDICES conind ON obj.OBJECT_TYPE = 'INDEX' AND obj.OWNER = conind.INDEX_OWNER AND obj.OBJECT_NAME = conind.INDEX_NAME
 WHERE obj.OWNER = '${schema}'
     AND obj.GENERATED = 'N'  -- do not include generated objects
     AND obj.OBJECT_TYPE NOT IN ('PACKAGE BODY', 'LOB', 'TABLE PARTITION', 'DATABASE LINK')
     AND obj.OBJECT_NAME NOT LIKE 'MLOG${'$'}%' AND obj.OBJECT_NAME NOT LIKE 'RUPD${'$'}%'  -- exclude the helper tables for materialized views
     AND obj.OBJECT_NAME NOT LIKE 'SYS_%'  -- exclude other system tables
-    AND pk.OWNER IS NULL  -- exclude primary keys created as unique indexes, as the CREATE TABLE already includes it; SQL logic is purely in the join above
+    AND conind.INDEX_OWNER IS NULL  -- exclude primary keys created as unique indexes, as the CREATE TABLE already includes it; SQL logic is purely in the join above
     AND (tab.NESTED is null OR tab.NESTED = 'NO')
     ${objectClause}
 """
