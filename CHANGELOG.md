@@ -1,5 +1,16 @@
 # Change Log
 
+## 7.2.1
+
+### Functionality Improvements
+#236: Support Character Set Encoding for Oracle Reverse Engineering
+
+### Technical Improvements
+
+### Bug Fixes
+#229: Oracle Reverse Engineering can still generate output even if a single object DDL cannot be generated.
+
+
 ## 7.2.0
 
 ### Functionality Improvements

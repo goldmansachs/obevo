@@ -25,6 +25,7 @@ import com.gs.obevo.impl.changetypes.UnclassifiedChangeType
 import com.gs.obevo.impl.util.MultiLineStringSplitter
 import com.gs.obevo.util.inputreader.Credential
 import org.apache.commons.io.IOUtils
+import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.eclipse.collections.api.block.function.Function
 import org.eclipse.collections.api.list.ImmutableList
@@ -68,11 +69,16 @@ internal class OracleReveng
         val jdbcFactory = OracleJdbcDataSourceFactory()
         val ds = jdbcFactory.createDataSource(env, Credential(args.username, args.password), 1)
         val jdbc = JdbcHelper(null, false)
+        var charEncoding: Charset
 
+        if(StringUtils.isNotEmpty(args.charsetEncoding))
+            charEncoding = Charset.forName(args.charsetEncoding)
+        else
+            charEncoding = Charset.defaultCharset()
         interimDir.mkdirs()
 
         ds.connection.use { conn ->
-            val bufferedWriter = Files.newBufferedWriter(interimDir.toPath().resolve("output.sql"), Charset.defaultCharset())
+            val bufferedWriter = Files.newBufferedWriter(interimDir.toPath().resolve("output.sql"), charEncoding)
             bufferedWriter.use { fileWriter ->
                 // https://docs.oracle.com/database/121/ARPLS/d_metada.htm#BGBJBFGE
                 // Note - can't remap schema name, object name, tablespace name within JDBC calls; we will leave that to the existing code in AbstractDdlReveng
@@ -148,7 +154,7 @@ end
                             "SORT_ORDER2" to it["SORT_ORDER2"]!!,
                             "OBJECT_TYPE" to it["OBJECT_TYPE"]!!,
                             "OBJECT_DDL" to exceptionText
-                            ))
+                    ))
                 }
             }.toSet().toList()
         }
