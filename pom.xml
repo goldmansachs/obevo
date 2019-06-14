@@ -534,6 +534,7 @@
                         <!-- Standard project files to exclude -->
                         <exclude>**/.idea/**</exclude>
                         <exclude>**/.travis.yml</exclude>
+                        <exclude>**/dco/*.dco</exclude>
                         <exclude>**/CHANGELOG.md</exclude>
                         <exclude>**/CONTRIBUTING.md</exclude>
                         <exclude>**/CODE_OF_CONDUCT.md</exclude>

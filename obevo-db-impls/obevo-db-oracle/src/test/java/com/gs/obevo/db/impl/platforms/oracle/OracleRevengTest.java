@@ -16,6 +16,7 @@
 package com.gs.obevo.db.impl.platforms.oracle;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 
 import com.gs.obevo.db.apps.reveng.AbstractDdlRevengTest;
 import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
@@ -38,6 +39,7 @@ public class OracleRevengTest extends AbstractDdlRevengTest {
         args.setJdbcUrl("jdbc:oracle:thin:@localhost:1521/ORCLPDB1");
         args.setUsername("myuser");
         args.setPassword("mypass");
+        args.setCharsetEncoding(StandardCharsets.UTF_8.displayName());
 
         File outputDir = new File("./target/outputReveng");
         FileUtils.deleteDirectory(outputDir);

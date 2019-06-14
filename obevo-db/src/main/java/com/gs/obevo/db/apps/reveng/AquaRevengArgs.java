@@ -48,6 +48,7 @@ public class AquaRevengArgs {
     private String excludeObjects;
     private boolean explicitSchemaRequired;
     private boolean debugLogEnabled;
+    private String charsetEncoding;
 
     /**
      * @deprecated Use {@link #getInputPath()}
@@ -278,6 +279,15 @@ public class AquaRevengArgs {
 
     public void setExplicitSchemaRequired(boolean explicitSchemaRequired) {
         this.explicitSchemaRequired = explicitSchemaRequired;
+    }
+
+    public String getCharsetEncoding() {
+        return charsetEncoding;
+    }
+
+    @Argument(value = "charsetEncoding", required = false, description = "Few schemas may need different encoding e.g. UTF-8")
+    public void setCharsetEncoding(String charsetEncoding) {
+        this.charsetEncoding = charsetEncoding;
     }
 
     @Override
