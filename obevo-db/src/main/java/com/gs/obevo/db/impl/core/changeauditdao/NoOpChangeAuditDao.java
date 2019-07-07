@@ -17,6 +17,7 @@ package com.gs.obevo.db.impl.core.changeauditdao;
 
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.DeployExecution;
+import com.gs.obevo.api.platform.AuditLock;
 import com.gs.obevo.api.platform.ChangeAuditDao;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.impl.factory.Lists;
@@ -53,5 +54,10 @@ public class NoOpChangeAuditDao implements ChangeAuditDao {
 
     @Override
     public void deleteObjectChanges(Change change) {
+    }
+
+    @Override
+    public AuditLock acquireLock() {
+        return new InMemLock();
     }
 }

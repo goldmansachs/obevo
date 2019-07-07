@@ -18,6 +18,7 @@ package com.gs.obevo.api.platform;
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.DeployExecution;
 import org.eclipse.collections.api.list.ImmutableList;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Interface to access the audit table for a given environment.
@@ -66,4 +67,6 @@ public interface ChangeAuditDao {
      * Removes all changes related to the incoming changed object based on the {@link Change#getObjectKey()}.
      */
     void deleteObjectChanges(Change change);
+
+    @NotNull AuditLock acquireLock();
 }

@@ -19,6 +19,10 @@ import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.sql.DataSource;
 
@@ -26,6 +30,7 @@ import com.gs.obevo.db.api.platform.DbDeployerAppContext;
 import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
 import org.apache.commons.dbutils.DbUtils;
 import org.eclipse.collections.api.block.function.primitive.IntToObjectFunction;
+import org.eclipse.collections.impl.factory.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -49,14 +54,45 @@ public class PostgreSqlDeployerIT {
 
     @Test
     public void testDeploy() throws Exception {
-        getAppContext.valueOf(1)
+        DbDeployerAppContext dbDeployerAppContext = getAppContext.valueOf(1)
                 .setupEnvInfra()
                 .setupEnvInfra()
-                .cleanEnvironment()
-                .deploy();
+                .cleanEnvironment();
+
+        ExecutorService executorService = Executors.newFixedThreadPool(5);
+        List<Future<Object>> futures = executorService.invokeAll(Lists.mutable.of(
+                new Callable<Object>() {
+                    @Override
+                    public Object call() throws Exception {
+                        System.out.println("DEPLOY THREAD 1`");
+                        getAppContext.valueOf(1).deploy();
+                        return null;
+                    }
+                },
+                new Callable<Object>() {
+                    @Override
+                    public Object call() throws Exception {
+                        System.out.println("DEPLOY THREAD 2");
+                        getAppContext.valueOf(1).deploy();
+                        return null;
+                    }
+                },
+                new Callable<Object>() {
+                    @Override
+                    public Object call() throws Exception {
+                        System.out.println("DEPLOY THREAD 3");
+                        getAppContext.valueOf(1).deploy();
+                        return null;
+                    }
+                }
+        ));
+
+        for (Future<Object> future : futures) {
+            future.get();
+        }
 
         // ensuring that we can modify
-        DbDeployerAppContext dbDeployerAppContext = getAppContext.valueOf(2);
+        dbDeployerAppContext = getAppContext.valueOf(2);
         dbDeployerAppContext
                 .setupEnvInfra()
                 .deploy();

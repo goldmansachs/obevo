@@ -132,6 +132,9 @@ class MainDeployer<P : Platform, E : Environment<P>>(
 
         val deployStrategy = getDeployMode(deployerArgs)
 
+        val lock = artifactDeployerDao.acquireLock()
+        lock.lock()
+
         val deployedChanges = readDeployedChanges(deployerArgs)
         mainInputReader.logChanges("deployed", deployedChanges)
 
@@ -260,9 +263,7 @@ class MainDeployer<P : Platform, E : Environment<P>>(
         deployerPlugin.validatePriorToDeployment(env, deployStrategy, sourceChanges, deployedChanges, artifactsToProcess)
 
         if (this.shouldProceedWithDbChange(artifactsToProcess, deployerArgs)) {
-            for (schema in env.physicalSchemas) {
-                deployerPlugin.initializeSchema(env, schema)
-            }
+            env.physicalSchemas.forEach { deployerPlugin.initializeSchema(env, it) }
 
             // Note - only init the audit table if we actually proceed w/ a deploy
             this.deployExecutionDao.init()
@@ -293,6 +294,7 @@ class MainDeployer<P : Platform, E : Environment<P>>(
                     deployExecution.status = DeployExecutionStatus.SUCCEEDED
                     this.deployExecutionDao.update(deployExecution)
                 }
+                lock.unlock();
                 return
             }
 
@@ -339,6 +341,7 @@ class MainDeployer<P : Platform, E : Environment<P>>(
                 }
 
                 LOG.info("Deploy complete!")
+                lock.unlock()
             }
         }
     }
