@@ -36,8 +36,8 @@ fi
 
 # These props are also defined in docker-db2-creds.yaml. Copy this from there
 DB2_GROUP=com.ibm.db2
-DB2_ARTIFACTS="db2jcc db2jcc4 db2jcc_license_cu"
-DB2_JAVA_BINARY_HOME=/home/$INSTANCE_USERID/sqllib/java
+DB2_ARTIFACTS="db2jcc4 db2jcc_license_cu"
+DB2_JAVA_BINARY_HOME=/database/config/$INSTANCE_USERID/sqllib/java
 TMPDIR=/tmp
 
 echo "Setting up DB2 Jars in your Maven environment"

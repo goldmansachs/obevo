@@ -29,7 +29,7 @@
     <name>${project.artifactId}</name>
 
     <properties>
-        <db2.version>10.5.0.5</db2.version>
+        <db2.version>11.5.0.0</db2.version>
     </properties>
 
     <dependencies>
