@@ -28,8 +28,6 @@ CONTAINER_NAME=obevo-db2-instance
 
 
 ## Now start the setup
-docker pull ibmcom/db2express-c
-
 OLD_CONTAINER_ID=$(docker ps -aqf "name=$CONTAINER_NAME")
 if [ ! -z "$OLD_CONTAINER_ID" ]
 then
@@ -39,9 +37,42 @@ then
 fi
 
 echo "Starting new container"
-docker run --name $CONTAINER_NAME -d -i -t -p $INSTANCE_PORT:$INSTANCE_PORT -e DB2INST1_PASSWORD=$INSTANCE_PASSWORD -e LICENSE=accept ibmcom/db2express-c:10.5.0.5-3.10.0 db2start
+
+dir_resolve() {
+    local dir=`dirname "$1"`
+    pushd "$dir" &>/dev/null || return $? # On error, return error code
+    echo "`pwd -P`" # output full, link-resolved path with filename
+    popd &> /dev/null
+}
+
+PWDVARNAME=`echo "$INSTANCE_USERID" | tr a-z A-Z`
+CURDIR=$(dir_resolve $(dirname $0))
+docker run --name $CONTAINER_NAME -d -i -t -p $INSTANCE_PORT:$INSTANCE_PORT -e DB2INSTANCE=$INSTANCE_USERID -e ${PWDVARNAME}_PASSWORD=$INSTANCE_PASSWORD -e DBNAME=$INSTANCE_DBNAME -e LICENSE=accept -e IS_OSXFS=true --ipc=host --privileged=true -v $CURDIR/target/db2docker:/database ibmcom/db2:$DB2_VERSION
+
+echo "Done with setup"
+
+COUNTER=1
+while [ $COUNTER -lt 10 ]
+do
+    echo "Try #$COUNTER to start docker"
+    ((COUNTER++))
+
+    CONTAINER_ID=$(docker ps -aqf "name=$CONTAINER_NAME")
+    if [ -z "$CONTAINER_ID" ]
+    then
+        echo "Container failed unexpectedly; exiting with error"
+        exit 6
+    fi
+
+    docker exec -ti $CONTAINER_NAME bash -c "su - $INSTANCE_USERID -c 'db2 connect to $INSTANCE_DBNAME'" && RETVAL=$? || RETVAL=$?
+
+    if [ $RETVAL -eq 0 ]; then
+        echo "DB started"
+        break
+    fi
+
+    echo "DB not yet started on count #$COUNTER, will wait for 30 seconds"
+    sleep 30
+done
 
 export CONTAINER_ID=$(docker ps -aqf "name=$CONTAINER_NAME")
-
-echo "Creating the database (may take a few seconds)"
-docker exec $CONTAINER_ID bash -c "su - $INSTANCE_USERID -c 'db2 create db $INSTANCE_DBNAME'"
