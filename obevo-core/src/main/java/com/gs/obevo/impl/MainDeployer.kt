@@ -154,7 +154,9 @@ class MainDeployer<P : Platform, E : Environment<P>>(
         val newChangeInputSetMap = mutableMapOf<ChangeInput, Set<CodeDependency>>()
         val packageChanges = changeInputs.filter { it.objectKey.changeType.name == ChangeType.PACKAGE_STR }
                 .map { it.objectKey.objectName }.toSet()
-        changeInputSetMap.forEach { change, dependencies ->
+        changeInputSetMap.onEach { entry ->
+            val change = entry.key
+            val dependencies = entry.value
             if (change.objectKey.changeType.name == ChangeType.PACKAGE_BODY) {
                 newChangeInputSetMap.put(change, dependencies.filterNot { packageChanges.contains(it.target) }.toSet())
             } else {

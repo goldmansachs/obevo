@@ -22,6 +22,10 @@ import java.util.regex.Pattern;
  * (wildcard strings are much easier for users to use).
  */
 public class RegexUtil {
+    public static final String WORD_REGEX = "[\\w\\#]";
+
+    public static final Pattern SPACE_PATTERN = Pattern.compile("[^\\w#]+", Pattern.DOTALL);
+
     /**
      * Converts the incoming wildcardPattern (* and % are glob patterns) to the Java-regexp pattern.
      */

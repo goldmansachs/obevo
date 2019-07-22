@@ -36,15 +36,15 @@ class TextDependencyExtractorImplTest {
     fun testCalculateDependencies() {
         val sp1 = newObject("sp1", "sp1 sp2('a')", Sets.immutable.empty(), Sets.immutable.with("manuallyAddedDependency"))
         val sp2 = newObject("sp2", "sp2")
-        val sp3 = newObject("sp3", "sp3 sp1 ('a')sp2('a')")
-        val spA = newObject("spA", "spA sp1('a') ('a')sp2('a') sp3", Sets.immutable.with("sp1", "sp2"), Sets.immutable.empty())
+        val spChar = newObject("sp#", "sp# sp1 ('a')sp2('a')")
+        val spA = newObject("spA", "spA sp1('a') ('a')sp2('a') sp#", Sets.immutable.with("sp1", "sp2"), Sets.immutable.empty())
 
-        val dependencies = enricher.calculateDependencies(Lists.mutable.with(sp1, sp2, sp3, spA))
+        val dependencies = enricher.calculateDependencies(Lists.mutable.with(sp1, sp2, spChar, spA))
 
         assertThat(dependencies.get(sp1), containsInAnyOrder(CodeDependency("sp2", CodeDependencyType.DISCOVERED), CodeDependency("manuallyAddedDependency", CodeDependencyType.EXPLICIT)))
         assertThat(dependencies.get(sp2), empty())
-        assertThat(dependencies.get(sp3), containsInAnyOrder(CodeDependency("sp2", CodeDependencyType.DISCOVERED), CodeDependency("sp1", CodeDependencyType.DISCOVERED)))
-        assertThat(dependencies.get(spA), containsInAnyOrder(CodeDependency("sp3", CodeDependencyType.DISCOVERED)))
+        assertThat(dependencies.get(spChar), containsInAnyOrder(CodeDependency("sp2", CodeDependencyType.DISCOVERED), CodeDependency("sp1", CodeDependencyType.DISCOVERED)))
+        assertThat(dependencies.get(spA), containsInAnyOrder(CodeDependency("sp#", CodeDependencyType.DISCOVERED)))
     }
 
     @Test

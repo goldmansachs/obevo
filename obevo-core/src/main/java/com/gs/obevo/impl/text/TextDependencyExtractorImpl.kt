@@ -17,7 +17,7 @@ package com.gs.obevo.impl.text
 
 import com.gs.obevo.api.appdata.CodeDependency
 import com.gs.obevo.api.appdata.CodeDependencyType
-import java.util.regex.Pattern
+import com.gs.obevo.util.RegexUtil
 
 /**
  * Standard implementation of [TextDependencyExtractor] going forward. Looks across all object types.
@@ -47,11 +47,7 @@ class TextDependencyExtractorImpl(
     }
 
     internal fun calculateDependencies(logMessage: String, content: String, objectNames: Set<String>): Set<String> {
-        val tokens = CommentRemover.removeComments(content, logMessage).split(SPACE_PATTERN)
+        val tokens = CommentRemover.removeComments(content, logMessage).split(RegexUtil.SPACE_PATTERN)
         return tokens.filter { objectNames.contains(convertDbObjectName(it)) }.toSet()
-    }
-
-    companion object {
-        private val SPACE_PATTERN = Pattern.compile("\\W+", Pattern.DOTALL)
     }
 }
