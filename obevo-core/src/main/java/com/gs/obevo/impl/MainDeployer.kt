@@ -17,8 +17,10 @@ package com.gs.obevo.impl
 
 import com.gs.obevo.api.appdata.Change
 import com.gs.obevo.api.appdata.ChangeIncremental
+import com.gs.obevo.api.appdata.ChangeInput
 import com.gs.obevo.api.appdata.ChangeKey
 import com.gs.obevo.api.appdata.ChangeRerunnable
+import com.gs.obevo.api.appdata.CodeDependency
 import com.gs.obevo.api.appdata.DeployExecution
 import com.gs.obevo.api.appdata.DeployExecutionImpl
 import com.gs.obevo.api.appdata.DeployExecutionStatus
@@ -26,6 +28,7 @@ import com.gs.obevo.api.appdata.Environment
 import com.gs.obevo.api.factory.PlatformConfiguration
 import com.gs.obevo.api.platform.ChangeAuditDao
 import com.gs.obevo.api.platform.ChangeCommand
+import com.gs.obevo.api.platform.ChangeType
 import com.gs.obevo.api.platform.CommandExecutionContext
 import com.gs.obevo.api.platform.DeployExecutionDao
 import com.gs.obevo.api.platform.DeployExecutionException
@@ -148,6 +151,17 @@ class MainDeployer<P : Platform, E : Environment<P>>(
                 changeInputs.filter { it.changeKey.changeType.isEnrichableForDependenciesInText }
         )
 
+        val newChangeInputSetMap = mutableMapOf<ChangeInput, Set<CodeDependency>>()
+        val packageChanges = changeInputs.filter { it.objectKey.changeType.name == ChangeType.PACKAGE_STR }
+                .map { it.objectKey.objectName }.toSet()
+        changeInputSetMap.forEach { change, dependencies ->
+            if (change.objectKey.changeType.name == ChangeType.PACKAGE_BODY) {
+                newChangeInputSetMap.put(change, dependencies.filterNot { packageChanges.contains(it.target) }.toSet())
+            } else {
+                newChangeInputSetMap.put(change, dependencies)
+            }
+        }
+
         var sourceChanges = changeInputs.collect { input ->
             val change: Change
             if (input.isRerunnable) {
@@ -182,7 +196,7 @@ class MainDeployer<P : Platform, E : Environment<P>>(
             change.changeset = input.changeset
 
             change.codeDependencies = Sets.immutable.withAll(
-                    changeInputSetMap.get(input)  // option 1 - use the inputs extracted from the next if possible
+                    newChangeInputSetMap.get(input)  // option 1 - use the inputs extracted from the next if possible
                             ?: input.codeDependencies  // option 2 - use the pre-populated codeDependencies value
                             ?: emptySet()  // fallback - default to empty set
             )

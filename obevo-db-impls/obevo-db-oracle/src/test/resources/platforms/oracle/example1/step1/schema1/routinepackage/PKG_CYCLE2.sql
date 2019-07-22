@@ -1,0 +1,18 @@
+CREATE OR REPLACE PACKAGE PKG_CYCLE2
+AS
+    FUNCTION PKG_CYCLE2_FUNCA return integer;
+END;
+
+//// BODY
+CREATE OR REPLACE PACKAGE BODY PKG_CYCLE2
+AS
+    FUNCTION PKG_CYCLE2_FUNCA
+    RETURN integer IS
+    mytest INT;
+    BEGIN
+        IF false THEN
+            mytest := PKG_CYCLE1.PKG_CYCLE1_FUNCA();
+        END IF;
+        RETURN 1;
+    END;
+END;

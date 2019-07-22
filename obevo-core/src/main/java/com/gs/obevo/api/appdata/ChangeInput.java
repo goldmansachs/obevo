@@ -150,6 +150,7 @@ public class ChangeInput implements TextDependencyExtractable, Restrictable {
         this.convertedRollbackContent = convertedRollbackContent;
     }
 
+    @NotNull
     public ObjectKey getObjectKey() {
         return this.changeKey.getObjectKey();
     }
