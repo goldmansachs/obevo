@@ -34,6 +34,7 @@ import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.impl.changetypes.UnclassifiedChangeType;
 import com.gs.obevo.impl.util.MultiLineStringSplitter;
 import com.gs.obevo.util.FileUtilsCobra;
+import com.gs.obevo.util.RegexUtil;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -62,7 +63,6 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractDdlReveng {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractDdlReveng.class);
-    private static final String WORD_REGEX = "[\\w\\#]";
 
     private final DbPlatform platform;
     private final MultiLineStringSplitter stringSplitter;
@@ -89,7 +89,7 @@ public abstract class AbstractDdlReveng {
     }
 
     public static LineParseOutput substituteTablespace(String input) {
-        Pattern compile = Pattern.compile("(\\s+IN\\s+)\"(" + WORD_REGEX + "+)\"(\\s*)", Pattern.DOTALL);
+        Pattern compile = Pattern.compile("(\\s+IN\\s+)\"(" + RegexUtil.WORD_REGEX + "+)\"(\\s*)", Pattern.DOTALL);
 
         StringBuffer sb = new StringBuffer(input.length());
 
@@ -150,11 +150,11 @@ public abstract class AbstractDdlReveng {
     }
 
     private static String namePattern(String startQuoteStr, String endQuoteStr) {
-        return "(?:(?:" + startQuoteStr + ")?(" + WORD_REGEX + "+)(?:" + endQuoteStr + ")?)";
+        return "(?:(?:" + startQuoteStr + ")?(" + RegexUtil.WORD_REGEX + "+)(?:" + endQuoteStr + ")?)";
     }
 
     private static String nameWithPrefixPattern(String startQuoteStr, String endQuoteStr, String prefix) {
-        return "(?:(?:" + startQuoteStr + ")?(" + prefix + WORD_REGEX + "+)(?:" + endQuoteStr + ")?)";
+        return "(?:(?:" + startQuoteStr + ")?(" + prefix + RegexUtil.WORD_REGEX + "+)(?:" + endQuoteStr + ")?)";
     }
 
     public void reveng(AquaRevengArgs args) {
