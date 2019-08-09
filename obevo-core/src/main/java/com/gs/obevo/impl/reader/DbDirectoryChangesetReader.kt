@@ -45,11 +45,11 @@ class DbDirectoryChangesetReader : FileSourceContext {
     private val packageMetadataReader: PackageMetadataReader
     private val packageMetadataCache = ConcurrentHashMap<FileObject, PackageMetadata>()
     private val tableChangeParser: DbChangeFileParser
-    private val baselineTableChangeParser: DbChangeFileParser
+    private val baselineTableChangeParser: DbChangeFileParser?
     private val rerunnableChangeParser: DbChangeFileParser
     private val deployMetricsCollector: DeployMetricsCollector
 
-    constructor(convertDbObjectName: Function<String, String>, deployMetricsCollector: DeployMetricsCollector, backwardsCompatibleMode: Boolean, textMarkupDocumentReader: TextMarkupDocumentReader, baselineTableChangeParser: DbChangeFileParser, getChangeType: GetChangeType) {
+    constructor(convertDbObjectName: Function<String, String>, deployMetricsCollector: DeployMetricsCollector, backwardsCompatibleMode: Boolean, textMarkupDocumentReader: TextMarkupDocumentReader, baselineTableChangeParser: DbChangeFileParser?, getChangeType: GetChangeType) {
         this.packageMetadataReader = PackageMetadataReader(textMarkupDocumentReader)
         this.convertDbObjectName = convertDbObjectName
         this.tableChangeParser = TableChangeParser(OldWhitespaceAgnosticDbChangeHashStrategy(), backwardsCompatibleMode, deployMetricsCollector, textMarkupDocumentReader, getChangeType)
@@ -60,7 +60,7 @@ class DbDirectoryChangesetReader : FileSourceContext {
 
     @VisibleForTesting
     constructor(convertDbObjectName: Function<String, String>, tableChangeParser: DbChangeFileParser,
-                         baselineTableChangeParser: DbChangeFileParser, rerunnableChangeParser: DbChangeFileParser) {
+                         baselineTableChangeParser: DbChangeFileParser?, rerunnableChangeParser: DbChangeFileParser) {
         this.packageMetadataReader = PackageMetadataReader(TextMarkupDocumentReader(false))
         this.convertDbObjectName = convertDbObjectName
         this.tableChangeParser = tableChangeParser
@@ -75,10 +75,6 @@ class DbDirectoryChangesetReader : FileSourceContext {
      * @see com.gs.obevo.db.newdb.DbChangeReader#readChanges(java.io.File)
      */
     override fun readChanges(fileSourceParams: FileSourceParams): ImmutableList<ChangeInput> {
-        if (fileSourceParams.isBaseline && baselineTableChangeParser == null) {
-            throw IllegalArgumentException("Cannot invoke readChanges with useBaseline == true if baselineTableChangeParser hasn't been set; baseline reading may not be enabled in your Platform type")
-        }
-
         val allChanges = mutableListOf<ChangeInput>()
 
         val envSchemas = fileSourceParams.schemaNames.collect(this.convertDbObjectName)
@@ -170,6 +166,11 @@ class DbDirectoryChangesetReader : FileSourceContext {
             LOG.info("Using the 'useBaseline' mode to read in the db changes")
             val baselineFiles = findFiles(tableDir,
                     if (this.isUsingChangesConvention(tableDir)) CHANGES_WILDCARD_FILTER else baselineFilter, acceptedExtensions)
+
+            if (baselineTableChangeParser == null) {
+                throw IllegalArgumentException("Cannot invoke readChanges with useBaseline == true if baselineTableChangeParser hasn't been set; baseline reading may not be enabled in your Platform type")
+            }
+
             val baselineChanges = parseChanges(changeType, baselineFiles, this.baselineTableChangeParser, schema, sourceEncoding)
 
             for (baselineChange in baselineChanges) {
