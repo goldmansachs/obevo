@@ -13,7 +13,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.gs.obevo.db.apps.reveng;
+package com.gs.obevo.apps.reveng;
 
 import org.junit.Test;
 
@@ -23,8 +23,8 @@ import static org.junit.Assert.assertThat;
 public class RevengPatternTest {
     private static final String NA = "n/a";
 
-    private final RevengPattern subschemaPattern = new RevengPattern(NA, RevengPattern.NamePatternType.THREE, "pat " + AbstractDdlReveng.getCatalogSchemaObjectPattern("", ""), 1, null, NA);
-    private final RevengPattern schemaPattern = new RevengPattern(NA, RevengPattern.NamePatternType.TWO, "pat " + AbstractDdlReveng.getSchemaObjectPattern("", ""), 1, null, NA);
+    private final RevengPattern subschemaPattern = new RevengPattern(NA, RevengPattern.NamePatternType.THREE, "pat " + AbstractReveng.getCatalogSchemaObjectPattern("", ""), 1, null, NA);
+    private final RevengPattern schemaPattern = new RevengPattern(NA, RevengPattern.NamePatternType.TWO, "pat " + AbstractReveng.getSchemaObjectPattern("", ""), 1, null, NA);
 
     @Test
     public void testFullSubschema() {

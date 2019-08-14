@@ -22,10 +22,9 @@ import java.sql.Timestamp;
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.platform.Platform;
+import com.gs.obevo.apps.reveng.ChangeEntry;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.appdata.GrantTargetType;
-import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
-import com.gs.obevo.db.apps.reveng.ChangeEntry;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
 import org.eclipse.collections.api.set.ImmutableSet;
 
@@ -114,11 +113,6 @@ public interface DbPlatform extends Platform {
             DbEnvironment env);
 
     ImmutableSet<String> getRequiredValidationObjectTypes();
-
-    /**
-     * Still in beta...
-     */
-    AbstractDdlReveng getDdlReveng();
 
     String getTableSuffixSql(DbEnvironment env);
 

@@ -22,15 +22,15 @@ import com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder;
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.DeployerAppContext;
+import com.gs.obevo.apps.reveng.ChangeEntry;
+import com.gs.obevo.apps.reveng.Reveng;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.appdata.GrantTargetType;
 import com.gs.obevo.db.api.platform.DbChangeTypeImpl;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.db.api.platform.DbTranslationDialect;
 import com.gs.obevo.db.api.platform.SqlExecutor;
-import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
 import com.gs.obevo.db.apps.reveng.AseDdlgenReveng;
-import com.gs.obevo.db.apps.reveng.ChangeEntry;
 import com.gs.obevo.db.impl.platforms.AbstractDbPlatform;
 import com.gs.obevo.impl.reader.TextMarkupDocumentReader;
 import org.apache.commons.lang3.ObjectUtils;
@@ -165,7 +165,7 @@ public class AseDbPlatform extends AbstractDbPlatform {
     }
 
     @Override
-    public AbstractDdlReveng getDdlReveng() {
+    public Reveng getDdlReveng() {
         return new AseDdlgenReveng();
     }
 

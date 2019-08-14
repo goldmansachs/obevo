@@ -13,7 +13,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.gs.obevo.db.apps.reveng;
+package com.gs.obevo.apps.reveng;
 
 import java.util.Objects;
 

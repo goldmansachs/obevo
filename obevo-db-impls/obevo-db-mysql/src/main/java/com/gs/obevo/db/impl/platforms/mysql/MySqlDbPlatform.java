@@ -16,7 +16,7 @@
 package com.gs.obevo.db.impl.platforms.mysql;
 
 import com.gs.obevo.api.platform.DeployerAppContext;
-import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
+import com.gs.obevo.apps.reveng.Reveng;
 import com.gs.obevo.db.impl.platforms.AbstractDbPlatform;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.impl.block.factory.StringFunctions;
@@ -52,7 +52,7 @@ public class MySqlDbPlatform extends AbstractDbPlatform {
     }
 
     @Override
-    public AbstractDdlReveng getDdlReveng() {
+    public Reveng getDdlReveng() {
         return new MySqlReveng();
     }
 }

@@ -20,7 +20,7 @@ import java.io.File;
 import com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.db.api.platform.DbPlatform;
-import com.gs.obevo.db.testutil.DirectoryAssert;
+import com.gs.obevo.testutil.DirectoryAssert;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.collections.impl.block.factory.Functions;
 import org.junit.Test;

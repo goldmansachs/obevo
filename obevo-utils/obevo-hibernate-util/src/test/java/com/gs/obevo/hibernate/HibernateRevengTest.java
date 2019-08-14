@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.gs.obevo.db.impl.platforms.db2.Db2DbPlatform;
-import com.gs.obevo.db.testutil.DirectoryAssert;
+import com.gs.obevo.testutil.DirectoryAssert;
 import org.apache.commons.io.FileUtils;
 import org.hibernate.dialect.DB2Dialect;
 import org.junit.Test;

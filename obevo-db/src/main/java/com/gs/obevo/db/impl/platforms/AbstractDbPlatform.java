@@ -26,6 +26,8 @@ import com.gs.obevo.api.factory.EnvironmentEnricher;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.ChangeTypeImpl;
 import com.gs.obevo.api.platform.DeployerAppContext;
+import com.gs.obevo.apps.reveng.ChangeEntry;
+import com.gs.obevo.apps.reveng.Reveng;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.appdata.GrantTargetType;
 import com.gs.obevo.db.api.factory.DbEnvironmentXmlEnricher;
@@ -35,8 +37,6 @@ import com.gs.obevo.db.api.platform.DbChangeTypeImpl;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.db.api.platform.DbTranslationDialect;
 import com.gs.obevo.db.api.platform.SqlExecutor;
-import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
-import com.gs.obevo.db.apps.reveng.ChangeEntry;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
 import org.apache.commons.configuration2.ImmutableHierarchicalConfiguration;
 import org.apache.commons.lang3.Validate;
@@ -161,7 +161,7 @@ public abstract class AbstractDbPlatform implements DbPlatform {
     }
 
     @Override
-    public AbstractDdlReveng getDdlReveng() {
+    public Reveng getDdlReveng() {
         throw new UnsupportedOperationException("No ddl reveng implementation defined for this platform: " + this.getClass());
     }
 

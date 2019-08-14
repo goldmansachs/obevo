@@ -13,19 +13,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.gs.obevo.db.apps.reveng;
+package com.gs.obevo.apps.reveng;
 
 import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * Test that contains common logic for all reverse-engineer tools based on {@link AbstractDdlReveng}.
+ * Test that contains common logic for all reverse-engineer tools based on {@link AbstractReveng}.
  *
  * For now - we have no common logic but want to refactor in the future. This class is still useful as it facilitates
  * running all tests in one shot in the IDE.
  */
 @Ignore("The child classes should get executed")
-public abstract class AbstractDdlRevengTest {
+public abstract class AbstractRevengTest {
     @Test
     public abstract void testReverseEngineeringFromFile() throws Exception;
 }

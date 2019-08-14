@@ -45,7 +45,7 @@
         </dependency>
         <dependency>
             <groupId>com.goldmansachs.obevo</groupId>
-            <artifactId>obevo-db</artifactId>
+            <artifactId>obevo-core</artifactId>
             <version>${project.version}</version>
             <classifier>tests</classifier>
             <scope>test</scope>

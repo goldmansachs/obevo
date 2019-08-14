@@ -15,7 +15,7 @@
  */
 package com.gs.obevo.hibernate;
 
-import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
+import com.gs.obevo.apps.reveng.AquaRevengArgs;
 
 public class HibernateRevengImpl<T> implements HibernateReveng<T> {
     private final HibernateSchemaGenerator<T> schemaGenerator;

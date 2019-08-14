@@ -17,10 +17,10 @@ package com.gs.obevo.db.apps.reveng;
 
 import java.io.File;
 
+import com.gs.obevo.api.factory.PlatformConfiguration;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.DeployerRuntimeException;
-import com.gs.obevo.db.api.factory.DbPlatformConfiguration;
-import com.gs.obevo.db.api.platform.DbPlatform;
+import com.gs.obevo.api.platform.Platform;
 import com.gs.obevo.util.ArgsParser;
 import com.gs.obevo.util.DAStringUtil;
 import com.gs.obevo.util.FileUtilsCobra;
@@ -169,11 +169,11 @@ public class DbFileMerger {
             throw new DeployerRuntimeException("Exception reading configs from file " + args.getDbMergeConfigFile(), e);
         }
 
-        DbPlatform dialect = DbPlatformConfiguration.getInstance().valueOf(config.getString("dbType"));
+        Platform dialect = PlatformConfiguration.getInstance().valueOf(config.getString("dbType"));
         this.generateDiffs(dialect, dbNameLocationPairs, args.getOutputDir());
     }
 
-    private void generateDiffs(DbPlatform dialect, RichIterable<DbMergeInfo> dbNameLocationPairs, File outputDir) {
+    private void generateDiffs(Platform dialect, RichIterable<DbMergeInfo> dbNameLocationPairs, File outputDir) {
         System.out.println("Generating diffs for " + dbNameLocationPairs);
         MutableMap<Pair<ChangeType, String>, FileComparison> objectMap = Maps.mutable.empty();
         for (DbMergeInfo dbNameLocationPair : dbNameLocationPairs) {
@@ -293,6 +293,5 @@ public class DbFileMerger {
             }
         }
 */
-
     }
 }

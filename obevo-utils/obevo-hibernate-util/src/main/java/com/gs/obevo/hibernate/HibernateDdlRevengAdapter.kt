@@ -16,10 +16,11 @@
 package com.gs.obevo.hibernate
 
 import com.gs.obevo.api.platform.ChangeType
+import com.gs.obevo.apps.reveng.AbstractReveng
+import com.gs.obevo.apps.reveng.AquaRevengArgs
+import com.gs.obevo.apps.reveng.LineParseOutput
+import com.gs.obevo.apps.reveng.RevengPattern
 import com.gs.obevo.db.apps.reveng.AbstractDdlReveng
-import com.gs.obevo.db.apps.reveng.AquaRevengArgs
-import com.gs.obevo.db.apps.reveng.LineParseOutput
-import com.gs.obevo.db.apps.reveng.RevengPattern
 import com.gs.obevo.impl.util.MultiLineStringSplitter
 import org.eclipse.collections.api.list.ImmutableList
 import org.eclipse.collections.impl.factory.Lists
@@ -52,10 +53,10 @@ internal class HibernateDdlRevengAdapter<in T>(
             val namePatternType: RevengPattern.NamePatternType
 
             if (revengArgs.platform.isSubschemaSupported) {
-                schemaNameSubPattern = AbstractDdlReveng.getCatalogSchemaObjectPattern(QUOTE, QUOTE)
+                schemaNameSubPattern = AbstractReveng.getCatalogSchemaObjectPattern(QUOTE, QUOTE)
                 namePatternType = RevengPattern.NamePatternType.THREE
             } else {
-                schemaNameSubPattern = AbstractDdlReveng.getSchemaObjectPattern(QUOTE, QUOTE)
+                schemaNameSubPattern = AbstractReveng.getSchemaObjectPattern(QUOTE, QUOTE)
                 namePatternType = RevengPattern.NamePatternType.TWO
             }
 

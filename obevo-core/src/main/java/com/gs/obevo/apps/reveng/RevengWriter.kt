@@ -13,16 +13,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.gs.obevo.db.apps.reveng
+package com.gs.obevo.apps.reveng
 
 import com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder
 import com.gs.obevo.api.platform.ChangeAuditDao
 import com.gs.obevo.api.platform.ChangeType
 import com.gs.obevo.api.platform.DeployExecutionDao
 import com.gs.obevo.api.platform.Platform
-import com.gs.obevo.db.impl.core.checksum.DbChecksumDao
 import freemarker.template.Configuration
-import freemarker.template.TemplateException
 import freemarker.template.TemplateExceptionHandler
 import org.apache.commons.io.FileUtils
 import org.apache.commons.lang3.StringUtils
@@ -55,7 +53,7 @@ class RevengWriter {
         templateConfig.templateExceptionHandler = TemplateExceptionHandler.RETHROW_HANDLER
     }
 
-    fun write(platform: Platform, allRevEngDestinations: MutableList<ChangeEntry>, outputDir: File, generateBaseline: Boolean, shouldOverwritePredicate: Predicate2<File, RevEngDestination>?, jdbcUrl: String?, dbHost: String?, dbPort: Int?, dbServer: String?, excludeObjects: String?) {
+    fun write(platform: Platform, allRevEngDestinations: List<ChangeEntry>, outputDir: File, generateBaseline: Boolean, shouldOverwritePredicate: Predicate2<File, RevEngDestination>?, excludeObjects: String?) {
         var shouldOverwritePredicate = shouldOverwritePredicate
         outputDir.mkdirs()
         if (shouldOverwritePredicate == null) {
@@ -65,7 +63,14 @@ class RevengWriter {
         val coreTablesToExclude = Multimaps.mutable.set.empty<String, String>()
         coreTablesToExclude.putAll(ChangeType.TABLE_STR, Sets.immutable.with(
                 ChangeAuditDao.CHANGE_AUDIT_TABLE_NAME,
-                DbChecksumDao.SCHEMA_CHECKSUM_TABLE_NAME,
+//                DbChecksumDao.SCHEMA_CHECKSUM_TABLE_NAME,  should reactivate this, though this functionality has been disabled for a while
+                DeployExecutionDao.DEPLOY_EXECUTION_TABLE_NAME,
+                DeployExecutionDao.DEPLOY_EXECUTION_ATTRIBUTE_TABLE_NAME
+        ).collect(platform.convertDbObjectName()))
+        // TODO using COLLECTION for MongoDB - make this generic
+        coreTablesToExclude.putAll("COLLECTION", Sets.immutable.with(
+                ChangeAuditDao.CHANGE_AUDIT_TABLE_NAME,
+//                DbChecksumDao.SCHEMA_CHECKSUM_TABLE_NAME,  should reactivate this, though this functionality has been disabled for a while
                 DeployExecutionDao.DEPLOY_EXECUTION_TABLE_NAME,
                 DeployExecutionDao.DEPLOY_EXECUTION_ATTRIBUTE_TABLE_NAME
         ).collect(platform.convertDbObjectName()))
@@ -81,7 +86,7 @@ class RevengWriter {
         )
 
         val revEngDestinationMap = HashingStrategyMaps.mutable.of<RevEngDestination, MutableList<ChangeEntry>>(HashingStrategies.fromFunction(Function<RevEngDestination, String> { revEngDestination -> revEngDestination.identity }))
-        for (allRevEngDestination in allRevEngDestinations.select { objectExclusionPredicate.accept(it.destination) }) {
+        for (allRevEngDestination in allRevEngDestinations.filter { objectExclusionPredicate.accept(it.destination) }) {
             var changeEntries: MutableList<ChangeEntry>? = revEngDestinationMap[allRevEngDestination.destination]
             if (changeEntries == null) {
                 changeEntries = Lists.mutable.empty()
@@ -144,28 +149,18 @@ class RevengWriter {
             }
 
         }
+    }
 
-        val schemas = allRevEngDestinations.collect({ entry -> entry.destination.schema }, Sets.mutable.empty())
+    fun writeConfig(templatePath: String, platform: Platform, outputDir: File, schema: String, params: Map<String, String>) {
+        FileWriter(File(outputDir, "system-config.xml")).use { fileWriter ->
+            val template = templateConfig.getTemplate(templatePath)
 
-        try {
-            FileWriter(File(outputDir, "system-config.xml")).use { fileWriter ->
-                val template = templateConfig.getTemplate("deployer/reveng/system-config-template.xml.ftl")
-
-                val params = Maps.mutable.empty<String, Any>()
-                params["platform"] = platform.name
-                params["schemas"] = schemas
-                params["jdbcUrl"] = jdbcUrl
-                params["dbHost"] = dbHost
-                params["dbPort"] = dbPort?.toString()
-                params["dbServer"] = dbServer
-                template.process(params, fileWriter)
-            }
-        } catch (e: TemplateException) {
-            throw RuntimeException(e)
-        } catch (e: IOException) {
-            throw RuntimeException(e)
+            val displayParams = Maps.mutable.empty<String, Any>()
+            displayParams["platform"] = platform.name
+            displayParams["schemas"] = listOf(schema)
+            params.forEach { key, value -> displayParams[key] = value }
+            template.process(displayParams, fileWriter)
         }
-
     }
 
     companion object {

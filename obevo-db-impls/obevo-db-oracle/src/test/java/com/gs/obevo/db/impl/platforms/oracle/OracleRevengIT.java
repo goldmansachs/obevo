@@ -23,7 +23,7 @@ import javax.sql.DataSource;
 import com.gs.obevo.api.factory.Obevo;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.platform.DbDeployerAppContext;
-import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
+import com.gs.obevo.apps.reveng.AquaRevengArgs;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.collections.api.block.function.primitive.IntToObjectFunction;
 import org.eclipse.collections.impl.factory.Sets;

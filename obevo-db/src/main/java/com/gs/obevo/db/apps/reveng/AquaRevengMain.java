@@ -24,6 +24,11 @@ import java.util.regex.Pattern;
 import com.gs.obevo.api.appdata.Schema;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.Platform;
+import com.gs.obevo.apps.reveng.AquaRevengArgs;
+import com.gs.obevo.apps.reveng.ChangeEntry;
+import com.gs.obevo.apps.reveng.RevEngDestination;
+import com.gs.obevo.apps.reveng.RevengMode;
+import com.gs.obevo.apps.reveng.RevengWriter;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.platform.DbDeployerAppContext;
 import com.gs.obevo.db.api.platform.DbPlatform;
@@ -99,10 +104,11 @@ public class AquaRevengMain {
         Validate.notNull(args.getDbSchema(), "dbSchema argument must be specified");
         Validate.notNull(input, "Directory " + input + " was not found"); // Maven supplies a null File value in this case
 
+        DbPlatform platform = (DbPlatform) args.getPlatform();
         if (args.getDbHost() != null) {
             DbEnvironment env = new DbEnvironment();
-            env.setPlatform(args.getDbPlatform());
-            env.setSystemDbPlatform(args.getDbPlatform());
+            env.setPlatform(platform);
+            env.setSystemDbPlatform(platform);
             env.setDbHost(args.getDbHost());
             env.setDbPort(args.getDbPort());
             env.setDbServer(args.getDbServer());
@@ -133,10 +139,10 @@ public class AquaRevengMain {
         });
 
         if (preprocessSchemaTokens && !tablespaceToken) {
-            files = preprocessSchemaTokens(files, args.getDbSchema(), new File(outputDir, "interim-schemaReplaced"), args.getDbPlatform());
+            files = preprocessSchemaTokens(files, args.getDbSchema(), new File(outputDir, "interim-schemaReplaced"), platform);
         }
 
-        this.patternMap = initPatternMap(args.getDbPlatform());
+        this.patternMap = initPatternMap(platform);
         MutableList<ChangeEntry> allRevEngDestinations = Lists.mutable.empty();
         for (File file : files) {
             if (file.isDirectory()) {
@@ -146,11 +152,19 @@ public class AquaRevengMain {
                 System.out.println("Skipping the static data table file: " + file);
                 continue;
             }
-            allRevEngDestinations.addAll(this.calculateRevEngDest(args.getDbPlatform(), file, args.getNameCombinePattern()));
+            allRevEngDestinations.addAll(this.calculateRevEngDest(platform, file, args.getNameCombinePattern()));
         }
 
         File outputWriteFolder = tablespaceToken ? outputDir : new File(outputDir, "final");  // check the tablespaceToken value for backwards-compatibility
-        new RevengWriter().write(args.getDbPlatform(), allRevEngDestinations, outputWriteFolder, this.generateBaseline, null, args.getJdbcUrl(), args.getDbHost(), args.getDbPort(), args.getDbServer(), args.getExcludeObjects());
+        new RevengWriter().write(platform, allRevEngDestinations, outputWriteFolder, this.generateBaseline, null, args.getExcludeObjects());
+        new RevengWriter().writeConfig("deployer/reveng/system-config-template.xml.ftl", platform, outputWriteFolder, args.getDbSchema(),
+                Maps.immutable.of(
+                        "jdbcUrl", args.getJdbcUrl(),
+                        "dbHost", args.getDbHost(),
+                        "dbPort", args.getDbPort() != null ? args.getDbPort().toString() : null,
+                        "dbServer", args.getDbServer()
+                ).toMap()
+        );
     }
 
     private ImmutableMap<ChangeType, Pattern> initPatternMap(Platform platform) {

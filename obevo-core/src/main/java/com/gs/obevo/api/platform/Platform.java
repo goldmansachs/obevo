@@ -17,6 +17,7 @@ package com.gs.obevo.api.platform;
 
 import com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder;
 import com.gs.obevo.api.factory.EnvironmentEnricher;
+import com.gs.obevo.apps.reveng.Reveng;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
@@ -77,4 +78,9 @@ public interface Platform {
     ImmutableSet<String> getAcceptedExtensions();
 
     EnvironmentEnricher getEnvironmentEnricher();
+
+    /**
+     * Returns the component that can handle the reverse-engineering for this platform.
+     */
+    Reveng getDdlReveng();
 }

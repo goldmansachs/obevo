@@ -13,13 +13,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.gs.obevo.db.apps.reveng;
+package com.gs.obevo.apps.reveng;
 
 import java.io.File;
 import java.util.Arrays;
 
-import com.gs.obevo.db.api.factory.DbPlatformConfiguration;
-import com.gs.obevo.db.api.platform.DbPlatform;
+import com.gs.obevo.api.factory.PlatformConfiguration;
+import com.gs.obevo.api.platform.Platform;
 import com.sampullara.cli.Argument;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.collections.api.set.MutableSet;
@@ -32,7 +32,7 @@ public class AquaRevengArgs {
     private boolean tablespaceToken;
     private boolean tokenizeDefaultSchema;
     private boolean generateBaseline;
-    private DbPlatform dbPlatform;
+    private Platform platform;
     private String dbHost;
     private String jdbcUrl;
     private Integer dbPort;
@@ -138,13 +138,24 @@ public class AquaRevengArgs {
         this.generateBaseline = generateBaseline;
     }
 
-    public DbPlatform getDbPlatform() {
-        return this.dbPlatform;
+    public Platform getPlatform() {
+        return this.platform;
     }
 
-    @Argument(value = "dbType", required = true, description = "DB Type is needed to facilitate reverse engineering; use values [H2, HSQL, SYBASE_IQ, DB2, SYBASE_ASE, POSTGRESQL]")
+    /**
+     * Sets the platform parameter.
+     * @deprecated Use {@link #setPlatformStr(String)} instead.
+     * @param dbType
+     */
+    @Argument(value = "dbType", required = false, description = "(Deprecated - use -platform instead) DB Type is needed to facilitate reverse engineering; use values [H2, HSQL, SYBASE_IQ, DB2, SYBASE_ASE, POSTGRESQL]")
+    @Deprecated
     public void setDbTypeStr(String dbType) {
-        this.dbPlatform = DbPlatformConfiguration.getInstance().valueOf(dbType.toUpperCase());
+        this.platform = PlatformConfiguration.getInstance().valueOf(dbType.toUpperCase());
+    }
+
+    @Argument(value = "platform", required = false, description = "Defines the platform to reverse engineer to. Use values [H2, HSQL, SYBASE_IQ, DB2, SYBASE_ASE, POSTGRESQL, MONGODB]")
+    public void setPlatformStr(String platformStr) {
+        this.platform = PlatformConfiguration.getInstance().valueOf(platformStr.toUpperCase());
     }
 
     public String getJdbcUrl() {
@@ -305,8 +316,8 @@ public class AquaRevengArgs {
         }
         builder.append("tablespaceToken=").append(tablespaceToken).append(", tokenizeDefaultSchema=")
                 .append(tokenizeDefaultSchema).append(", generateBaseline=").append(generateBaseline).append(", ");
-        if (dbPlatform != null) {
-            builder.append("dbPlatform=").append(dbPlatform).append(", ");
+        if (platform != null) {
+            builder.append("platform=").append(platform).append(", ");
         }
         if (dbHost != null) {
             builder.append("dbHost=").append(dbHost).append(", ");

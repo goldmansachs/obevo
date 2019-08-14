@@ -17,15 +17,15 @@ package com.gs.obevo.db.impl.platforms.mssql;
 
 import java.io.File;
 
-import com.gs.obevo.db.apps.reveng.AbstractDdlRevengTest;
-import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
+import com.gs.obevo.apps.reveng.AbstractRevengTest;
+import com.gs.obevo.apps.reveng.AquaRevengArgs;
 import com.gs.obevo.db.testutil.DirectoryAssert;
 import org.apache.commons.io.FileUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 
 @Ignore("Ignoring for deploy test for now")
-public class MsSqlRevengTest extends AbstractDdlRevengTest {
+public class MsSqlRevengTest extends AbstractRevengTest {
     @Test
     @Override
     public void testReverseEngineeringFromFile() throws Exception {

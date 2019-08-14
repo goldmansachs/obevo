@@ -16,10 +16,11 @@
 package com.gs.obevo.db.impl.platforms.oracle
 
 import com.gs.obevo.api.platform.ChangeType
+import com.gs.obevo.apps.reveng.AbstractReveng
+import com.gs.obevo.apps.reveng.AquaRevengArgs
+import com.gs.obevo.apps.reveng.LineParseOutput
+import com.gs.obevo.apps.reveng.RevengPattern
 import com.gs.obevo.db.apps.reveng.AbstractDdlReveng
-import com.gs.obevo.db.apps.reveng.AquaRevengArgs
-import com.gs.obevo.db.apps.reveng.LineParseOutput
-import com.gs.obevo.db.apps.reveng.RevengPattern
 import com.gs.obevo.db.impl.core.jdbc.JdbcHelper
 import com.gs.obevo.impl.changetypes.UnclassifiedChangeType
 import com.gs.obevo.impl.util.MultiLineStringSplitter
@@ -81,7 +82,7 @@ internal class OracleReveng
             val bufferedWriter = Files.newBufferedWriter(interimDir.toPath().resolve("output.sql"), charEncoding)
             bufferedWriter.use { fileWriter ->
                 // https://docs.oracle.com/database/121/ARPLS/d_metada.htm#BGBJBFGE
-                // Note - can't remap schema name, object name, tablespace name within JDBC calls; we will leave that to the existing code in AbstractDdlReveng
+                // Note - can't remap schema name, object name, tablespace name within JDBC calls; we will leave that to the existing code in AbstractReveng
                 jdbc.update(conn, "begin DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM,'STORAGE',false); end;")
                 jdbc.update(conn, "begin DBMS_METADATA.SET_TRANSFORM_PARAM(DBMS_METADATA.SESSION_TRANSFORM,'SQLTERMINATOR',true); end;")
 
@@ -243,7 +244,7 @@ ORDER BY 1, 2
 
         private val revengPatterns: ImmutableList<RevengPattern>
             get() {
-                val schemaNameSubPattern = AbstractDdlReveng.getSchemaObjectPattern(QUOTE, QUOTE)
+                val schemaNameSubPattern = AbstractReveng.getSchemaObjectPattern(QUOTE, QUOTE)
                 val namePatternType = RevengPattern.NamePatternType.TWO
 
                 // need this function to split the package and package body lines, as the Oracle reveng function combines them together
@@ -261,12 +262,12 @@ ORDER BY 1, 2
                 }
                 return Lists.immutable.with(
                         RevengPattern(UnclassifiedChangeType.INSTANCE.name, namePatternType, "(?i)obevo\\s+exception\\s+$schemaNameSubPattern"),
-                        RevengPattern(ChangeType.SEQUENCE_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)?sequence\\s+$schemaNameSubPattern").withPostProcessSql(AbstractDdlReveng.REPLACE_TABLESPACE).withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
-                        RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+table\\s+$schemaNameSubPattern").withPostProcessSql(AbstractDdlReveng.REPLACE_TABLESPACE).withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
-                        RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)alter\\s+table\\s+$schemaNameSubPattern").withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
+                        RevengPattern(ChangeType.SEQUENCE_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)?sequence\\s+$schemaNameSubPattern").withPostProcessSql(AbstractReveng.REPLACE_TABLESPACE).withPostProcessSql(AbstractReveng.REMOVE_QUOTES),
+                        RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+table\\s+$schemaNameSubPattern").withPostProcessSql(AbstractReveng.REPLACE_TABLESPACE).withPostProcessSql(AbstractReveng.REMOVE_QUOTES),
+                        RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)alter\\s+table\\s+$schemaNameSubPattern").withPostProcessSql(AbstractReveng.REMOVE_QUOTES),
                         // Comments on columns can apply for both tables and views, with no way to split this from the text. Hence, we don't specify the object type here and rely on the comments being written after the object in the reverse-engineering extraction
-                        RevengPattern(null, namePatternType, "(?i)comment\\s+on\\s+(?:\\w+)\\s+$schemaNameSubPattern").withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
-                        RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+(?:unique\\s+)?index\\s+$schemaNameSubPattern\\s+on\\s+$schemaNameSubPattern", 2, 1, "INDEX").withPostProcessSql(AbstractDdlReveng.REPLACE_TABLESPACE).withPostProcessSql(AbstractDdlReveng.REMOVE_QUOTES),
+                        RevengPattern(null, namePatternType, "(?i)comment\\s+on\\s+(?:\\w+)\\s+$schemaNameSubPattern").withPostProcessSql(AbstractReveng.REMOVE_QUOTES),
+                        RevengPattern(ChangeType.TABLE_STR, namePatternType, "(?i)create\\s+(?:unique\\s+)?index\\s+$schemaNameSubPattern\\s+on\\s+$schemaNameSubPattern", 2, 1, "INDEX").withPostProcessSql(AbstractReveng.REPLACE_TABLESPACE).withPostProcessSql(AbstractReveng.REMOVE_QUOTES),
                         RevengPattern(ChangeType.FUNCTION_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)?(?:force\\s+)?(?:editionable\\s+)?function\\s+$schemaNameSubPattern"),
                         RevengPattern(ChangeType.VIEW_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)?(?:force\\s+)?(?:editionable\\s+)?(?:editioning\\s+)?view\\s+$schemaNameSubPattern"),
                         RevengPattern(ChangeType.SP_STR, namePatternType, "(?i)create\\s+(?:or\\s+replace\\s+)(?:editionable\\s+)?procedure\\s+$schemaNameSubPattern"),
