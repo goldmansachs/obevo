@@ -13,11 +13,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.gs.obevo.db.apps.reveng;
+package com.gs.obevo.apps.reveng;
 
 import java.io.File;
 
 import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.MutableList;
@@ -25,7 +26,7 @@ import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.impl.collection.mutable.CollectionAdapter;
 import org.eclipse.collections.impl.factory.Lists;
 
-class DbMergeInfo {
+public class DbMergeInfo {
     private final String name;
     private final File inputDir;
     private String driverClassName;
@@ -125,5 +126,18 @@ class DbMergeInfo {
 
     private void setPhysicalSchema(String physicalSchema) {
         this.physicalSchema = physicalSchema;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("name", name)
+                .append("inputDir", inputDir)
+                .append("driverClassName", driverClassName)
+                .append("url", url)
+                .append("username", username)
+                .append("password", password)
+                .append("physicalSchema", physicalSchema)
+                .toString();
     }
 }

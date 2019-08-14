@@ -17,9 +17,9 @@ package com.gs.obevo.db.impl.platforms.db2;
 
 import java.io.File;
 
-import com.gs.obevo.db.apps.reveng.AbstractDdlRevengTest;
-import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
-import com.gs.obevo.db.apps.reveng.RevengPattern;
+import com.gs.obevo.apps.reveng.AbstractRevengTest;
+import com.gs.obevo.apps.reveng.AquaRevengArgs;
+import com.gs.obevo.apps.reveng.RevengPattern;
 import com.gs.obevo.db.testutil.DirectoryAssert;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.collections.api.list.ImmutableList;
@@ -28,7 +28,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class Db2lookRevengTest extends AbstractDdlRevengTest {
+public class Db2lookRevengTest extends AbstractRevengTest {
     private static final String SCHEMA = "MYSCHEMA01";
 
     @Test

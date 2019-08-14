@@ -18,8 +18,8 @@ package com.gs.obevo.db.impl.platforms.oracle;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 
-import com.gs.obevo.db.apps.reveng.AbstractDdlRevengTest;
-import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
+import com.gs.obevo.apps.reveng.AbstractRevengTest;
+import com.gs.obevo.apps.reveng.AquaRevengArgs;
 import com.gs.obevo.db.testutil.DirectoryAssert;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
@@ -29,7 +29,7 @@ import org.junit.Test;
  * We have this unit test so that we can verify this test for all builds, as we don't have the Oracle DB setup for
  * integration testing yet.
  */
-public class OracleRevengTest extends AbstractDdlRevengTest {
+public class OracleRevengTest extends AbstractRevengTest {
     @Test
     @Override
     public void testReverseEngineeringFromFile() throws Exception {

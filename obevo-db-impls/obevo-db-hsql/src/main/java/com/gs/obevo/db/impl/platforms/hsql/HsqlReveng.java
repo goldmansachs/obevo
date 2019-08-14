@@ -24,11 +24,11 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 
 import com.gs.obevo.api.platform.ChangeType;
+import com.gs.obevo.apps.reveng.AquaRevengArgs;
+import com.gs.obevo.apps.reveng.RevengPattern;
+import com.gs.obevo.apps.reveng.RevengPattern.NamePatternType;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
-import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
-import com.gs.obevo.db.apps.reveng.RevengPattern;
-import com.gs.obevo.db.apps.reveng.RevengPattern.NamePatternType;
 import com.gs.obevo.db.impl.core.jdbc.JdbcDataSourceFactory;
 import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
 import com.gs.obevo.util.inputreader.Credential;
@@ -97,7 +97,7 @@ public class HsqlReveng extends AbstractDdlReveng {
         interimDir.mkdirs();
         try (Connection conn = ds.getConnection()) {
             // https://docs.oracle.com/database/121/ARPLS/d_metada.htm#BGBJBFGE
-            // Note - can't remap schema name, object name, tablespace name within JDBC calls; we will leave that to the existing code in AbstractDdlReveng
+            // Note - can't remap schema name, object name, tablespace name within JDBC calls; we will leave that to the existing code in AbstractReveng
             File outputFile = new File(interimDir, "output.sql");
             outputFile.delete();  // clean before creating
             jdbc.update(conn, "SCRIPT '" + outputFile.getCanonicalPath() + "'");

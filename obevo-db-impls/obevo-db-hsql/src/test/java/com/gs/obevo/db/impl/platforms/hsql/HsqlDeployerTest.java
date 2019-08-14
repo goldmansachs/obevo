@@ -22,7 +22,7 @@ import java.sql.SQLException;
 import com.gs.obevo.api.factory.Obevo;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.platform.DbDeployerAppContext;
-import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
+import com.gs.obevo.apps.reveng.AquaRevengArgs;
 import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
 import com.gs.obevo.db.unittest.UnitTestDbBuilder;
 import org.apache.commons.dbutils.DbUtils;

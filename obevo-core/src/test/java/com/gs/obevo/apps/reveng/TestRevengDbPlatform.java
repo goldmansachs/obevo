@@ -13,7 +13,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.gs.obevo.mongodb.impl;
+package com.gs.obevo.apps.reveng;
 
 import com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder;
 import com.gs.obevo.api.factory.EnvironmentEnricher;
@@ -21,33 +21,35 @@ import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.ChangeTypeImpl;
 import com.gs.obevo.api.platform.DeployerAppContext;
 import com.gs.obevo.api.platform.Platform;
-import com.gs.obevo.apps.reveng.AbstractReveng;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
-import org.eclipse.collections.impl.block.factory.Functions;
+import org.eclipse.collections.impl.block.factory.StringFunctions;
 import org.eclipse.collections.impl.factory.Lists;
-import org.eclipse.collections.impl.factory.Sets;
 
-public class MongoDbPlatform implements Platform {
-    private final ImmutableList<ChangeType> changeTypes;
+/**
+ * Mock DB platform solely for use in the reverse-engineering, which mainly needs access to the change types.
+ */
+public class TestRevengDbPlatform implements Platform {
+    private final ImmutableList<ChangeType> changeTypes = Lists.immutable.<ChangeType>of(
+            ChangeTypeImpl.newChangeType("TABLE", false, 1).build(),
+            ChangeTypeImpl.newChangeType("SP", true, 2).build()
+    );
 
-    public MongoDbPlatform() {
-        this.changeTypes = Lists.immutable.<ChangeType>of(
-                ChangeTypeImpl.newChangeType("COLLECTION", true, 0).build(),
-                ChangeTypeImpl.newChangeType(ChangeType.MIGRATION_STR, false, 100).setEnrichableForDependenciesInText(false).build()
-        );
+    @Override
+    public String getName() {
+        return "TEST_REVENG";
+    }
+
+    @Override
+    public Function<String, String> convertDbObjectName() {
+        return StringFunctions.toUpperCase();
     }
 
     @Override
     public Class<? extends DeployerAppContext> getAppContextBuilderClass() {
-        return MongoDbDeployerAppContext.class;
-    }
-
-    @Override
-    public String getName() {
-        return "MONGODB";
+        return null;
     }
 
     @Override
@@ -59,20 +61,15 @@ public class MongoDbPlatform implements Platform {
     public ChangeType getChangeType(final String name) {
         return getChangeTypes().detect(new Predicate<ChangeType>() {
             @Override
-            public boolean accept(ChangeType it) {
-                return it.getName().equals(name);
+            public boolean accept(ChangeType each) {
+                return name.equalsIgnoreCase(each.getName());
             }
         });
     }
 
     @Override
-    public boolean hasChangeType(final String name) {
-        return getChangeTypes().anySatisfy(new Predicate<ChangeType>() {
-            @Override
-            public boolean accept(ChangeType it) {
-                return it.getName().equals(name);
-            }
-        });
+    public boolean hasChangeType(String name) {
+        return false;
     }
 
     @Override
@@ -81,27 +78,22 @@ public class MongoDbPlatform implements Platform {
     }
 
     @Override
-    public Function<String, String> convertDbObjectName() {
-        return Functions.getStringPassThru();
-    }
-
-    @Override
     public ObjectTypeAndNamePredicateBuilder getObjectExclusionPredicateBuilder() {
-        return new ObjectTypeAndNamePredicateBuilder(ObjectTypeAndNamePredicateBuilder.FilterType.EXCLUDE);
+        return null;
     }
 
     @Override
     public ImmutableSet<String> getAcceptedExtensions() {
-        return Sets.immutable.of("js");
+        return null;
     }
 
     @Override
     public EnvironmentEnricher getEnvironmentEnricher() {
-        return new MongoDbEnvironmentEnricher();
+        return null;
     }
 
     @Override
-    public AbstractReveng getDdlReveng() {
-        throw new UnsupportedOperationException("Not yet implemented");
+    public Reveng getDdlReveng() {
+        return null;
     }
 }

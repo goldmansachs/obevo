@@ -51,7 +51,6 @@
     <orderEntry type="library" name="Maven: commons-beanutils:commons-beanutils:1.9.3" level="project" />
     <orderEntry type="library" name="Maven: commons-dbcp:commons-dbcp:1.4" level="project" />
     <orderEntry type="library" name="Maven: commons-pool:commons-pool:1.5.4" level="project" />
-    <orderEntry type="library" name="Maven: org.freemarker:freemarker:2.3.23" level="project" />
     <orderEntry type="module" module-name="obevo-dbmetadata-impl" scope="RUNTIME" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler:14.16.04-java7" level="project" />
     <orderEntry type="library" name="Maven: commons-io:commons-io:2.0" level="project" />
@@ -89,6 +88,7 @@
     <orderEntry type="library" name="Maven: org.apache.commons:commons-vfs2:2.0" level="project" />
     <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.10" level="project" />
     <orderEntry type="library" name="Maven: com.googlecode.juniversalchardet:juniversalchardet:1.0.3" level="project" />
+    <orderEntry type="library" name="Maven: org.freemarker:freemarker:2.3.23" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:jcl-over-slf4j:1.7.18" level="project" />
     <orderEntry type="library" name="Maven: joda-time:joda-time:1.6.2" level="project" />
     <orderEntry type="library" name="Maven: org.mongodb:mongo-java-driver:3.1.1" level="project" />

@@ -18,12 +18,12 @@ package com.gs.obevo.db.impl.platforms.db2;
 import com.gs.obevo.api.appdata.ObjectTypeAndNamePredicateBuilder;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.DeployerAppContext;
+import com.gs.obevo.apps.reveng.Reveng;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.platform.DbChangeType;
 import com.gs.obevo.db.api.platform.DbChangeTypeImpl;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.db.api.platform.DbTranslationDialect;
-import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
 import com.gs.obevo.db.impl.platforms.AbstractDbPlatform;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
@@ -101,7 +101,7 @@ public class Db2DbPlatform extends AbstractDbPlatform {
     }
 
     @Override
-    public AbstractDdlReveng getDdlReveng() {
+    public Reveng getDdlReveng() {
         return new Db2lookReveng();
     }
 

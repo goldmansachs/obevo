@@ -25,13 +25,13 @@ import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.factory.EnvironmentEnricher;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.DeployerAppContext;
+import com.gs.obevo.apps.reveng.Reveng;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.appdata.GrantTargetType;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.db.api.platform.DbTranslationDialect;
 import com.gs.obevo.db.api.platform.SqlExecutor;
-import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
-import com.gs.obevo.db.apps.reveng.ChangeEntry;
+import com.gs.obevo.apps.reveng.ChangeEntry;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
@@ -189,7 +189,7 @@ public class DbEnvironmentXmlEnricherTest1DbPlatform implements DbPlatform {
     }
 
     @Override
-    public AbstractDdlReveng getDdlReveng() {
+    public Reveng getDdlReveng() {
         return null;
     }
 

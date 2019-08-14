@@ -17,12 +17,14 @@ package com.gs.obevo.db.apps.reveng;
 
 import java.io.File;
 
+import com.gs.obevo.apps.reveng.AbstractRevengTest;
+import com.gs.obevo.apps.reveng.AquaRevengArgs;
 import com.gs.obevo.db.impl.platforms.sybasease.AseDbPlatform;
 import com.gs.obevo.db.testutil.DirectoryAssert;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
-public class AseDdlgenRevengTest extends AbstractDdlRevengTest {
+public class AseDdlgenRevengTest extends AbstractRevengTest {
     @Test
     public void testInstructions() throws Exception {
         File outputDir = new File("./target/ddlgen/instructions");

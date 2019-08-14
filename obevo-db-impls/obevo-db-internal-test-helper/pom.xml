@@ -30,6 +30,12 @@
     <dependencies>
         <dependency>
             <groupId>com.goldmansachs.obevo</groupId>
+            <artifactId>obevo-core</artifactId>
+            <version>${project.version}</version>
+            <classifier>tests</classifier>
+        </dependency>
+        <dependency>
+            <groupId>com.goldmansachs.obevo</groupId>
             <artifactId>obevo-db</artifactId>
             <version>${project.version}</version>
             <classifier>tests</classifier>

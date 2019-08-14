@@ -29,6 +29,7 @@ import java.util.Date;
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.appdata.Schema;
 import com.gs.obevo.api.platform.ChangeType;
+import com.gs.obevo.apps.reveng.AquaRevengArgs;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.platform.DbDeployerAppContext;
 import com.gs.obevo.db.api.platform.DbPlatform;
@@ -64,8 +65,9 @@ class CsvStaticDataWriter {
 
     public static void start(final AquaRevengArgs args, File workDir) {
         final DbEnvironment env = new DbEnvironment();
-        env.setPlatform(args.getDbPlatform());
-        env.setSystemDbPlatform(args.getDbPlatform());
+        DbPlatform platform = (DbPlatform) args.getPlatform();
+        env.setPlatform(platform);
+        env.setSystemDbPlatform(platform);
         if (args.getJdbcUrl() != null) {
             env.setJdbcUrl(args.getJdbcUrl());
         } else {

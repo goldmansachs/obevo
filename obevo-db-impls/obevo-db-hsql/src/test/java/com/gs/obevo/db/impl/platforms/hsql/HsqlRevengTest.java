@@ -17,15 +17,15 @@ package com.gs.obevo.db.impl.platforms.hsql;
 
 import java.io.File;
 
+import com.gs.obevo.apps.reveng.AbstractRevengTest;
+import com.gs.obevo.apps.reveng.AquaRevengArgs;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
 import com.gs.obevo.db.api.factory.DbEnvironmentFactory;
-import com.gs.obevo.db.apps.reveng.AbstractDdlRevengTest;
-import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
 import com.gs.obevo.db.testutil.DirectoryAssert;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
-public class HsqlRevengTest extends AbstractDdlRevengTest {
+public class HsqlRevengTest extends AbstractRevengTest {
     @Test
     @Override
     public void testReverseEngineeringFromFile() throws Exception {

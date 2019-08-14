@@ -29,7 +29,7 @@
     <name>${project.artifactId}</name>
 
     <properties>
-        <jacoco.minCoverage>0.40</jacoco.minCoverage>
+        <jacoco.minCoverage>0.39</jacoco.minCoverage>
     </properties>
 
     <build>
@@ -177,6 +177,10 @@
             <groupId>com.googlecode.juniversalchardet</groupId>
             <artifactId>juniversalchardet</artifactId>
             <version>1.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
         </dependency>
         <dependency>
             <!-- VFS required apache commons logging in some form (whether the original or via jcl-over-slf4j) in the classpath -->

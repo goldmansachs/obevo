@@ -17,9 +17,9 @@ package com.gs.obevo.reladomo;
 
 import java.io.File;
 
+import com.gs.obevo.apps.reveng.AquaRevengArgs;
 import com.gs.obevo.db.api.factory.DbPlatformConfiguration;
 import com.gs.obevo.db.api.platform.DbPlatform;
-import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
 
 /**
  * Converter for reladomo schema inputs into the Obevo format.

@@ -19,11 +19,11 @@ import java.io.File;
 import java.io.PrintStream;
 
 import com.gs.obevo.api.platform.ChangeType;
+import com.gs.obevo.apps.reveng.AquaRevengArgs;
+import com.gs.obevo.apps.reveng.ChangeEntry;
+import com.gs.obevo.apps.reveng.RevengPattern;
+import com.gs.obevo.apps.reveng.RevengPattern.NamePatternType;
 import com.gs.obevo.db.apps.reveng.AbstractDdlReveng;
-import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
-import com.gs.obevo.db.apps.reveng.ChangeEntry;
-import com.gs.obevo.db.apps.reveng.RevengPattern;
-import com.gs.obevo.db.apps.reveng.RevengPattern.NamePatternType;
 import com.gs.obevo.impl.reader.TextMarkupDocumentReader;
 import com.gs.obevo.impl.util.MultiLineStringSplitter;
 import org.apache.commons.lang3.ObjectUtils;
@@ -34,7 +34,7 @@ import org.eclipse.collections.impl.block.factory.StringPredicates;
 import org.eclipse.collections.impl.factory.Lists;
 
 public class MsSqlReveng extends AbstractDdlReveng {
-    public MsSqlReveng() {
+    MsSqlReveng() {
         super(
                 new MsSqlDbPlatform(),
                 new MultiLineStringSplitter("GO", true),

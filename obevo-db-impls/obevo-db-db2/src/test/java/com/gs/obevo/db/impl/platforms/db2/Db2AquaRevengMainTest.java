@@ -17,7 +17,7 @@ package com.gs.obevo.db.impl.platforms.db2;
 
 import java.io.File;
 
-import com.gs.obevo.db.apps.reveng.AquaRevengArgs;
+import com.gs.obevo.apps.reveng.AquaRevengArgs;
 import com.gs.obevo.db.apps.reveng.AquaRevengMain;
 import com.gs.obevo.db.testutil.DirectoryAssert;
 import com.gs.obevo.util.ArgsParser;
