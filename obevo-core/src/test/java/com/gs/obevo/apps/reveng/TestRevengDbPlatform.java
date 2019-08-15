@@ -93,7 +93,7 @@ public class TestRevengDbPlatform implements Platform {
     }
 
     @Override
-    public Reveng getDdlReveng() {
+    public AbstractReveng getDdlReveng() {
         return null;
     }
 }

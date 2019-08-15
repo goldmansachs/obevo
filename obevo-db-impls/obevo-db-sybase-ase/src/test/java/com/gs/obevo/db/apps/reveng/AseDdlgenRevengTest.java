@@ -20,7 +20,7 @@ import java.io.File;
 import com.gs.obevo.apps.reveng.AbstractRevengTest;
 import com.gs.obevo.apps.reveng.AquaRevengArgs;
 import com.gs.obevo.db.impl.platforms.sybasease.AseDbPlatform;
-import com.gs.obevo.db.testutil.DirectoryAssert;
+import com.gs.obevo.testutil.DirectoryAssert;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
