@@ -25,6 +25,8 @@ import javax.sql.DataSource;
 
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.platform.DeployerRuntimeException;
+import com.gs.obevo.apps.reveng.DbFileMergerArgs;
+import com.gs.obevo.apps.reveng.DbMergeInfo;
 import com.gs.obevo.db.api.factory.DbPlatformConfiguration;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.db.impl.core.jdbc.JdbcDataSourceFactory;

@@ -17,12 +17,12 @@ package com.gs.obevo.dist;
 
 import java.util.Date;
 
+import com.gs.obevo.apps.reveng.AbstractReveng;
+import com.gs.obevo.cmdline.DeployerArgs;
 import com.gs.obevo.apps.reveng.AquaRevengArgs;
+import com.gs.obevo.db.apps.reveng.AquaRevengMain;
 import com.gs.obevo.apps.reveng.DbFileMerger;
 import com.gs.obevo.apps.reveng.DbFileMergerArgs;
-import com.gs.obevo.apps.reveng.Reveng;
-import com.gs.obevo.cmdline.DeployerArgs;
-import com.gs.obevo.db.apps.reveng.AquaRevengMain;
 import com.gs.obevo.db.apps.reveng.TableSyncher;
 import com.gs.obevo.db.cmdline.DbDeployerMain;
 import com.gs.obevo.db.impl.core.compare.data.DbDataComparisonUtil;
@@ -204,7 +204,7 @@ public class Main {
             @Override
             public void value(String[] argSubset) {
                 AquaRevengArgs newArgsObj = new ArgsParser().parse(argSubset, new AquaRevengArgs());
-                Reveng ddlReveng = newArgsObj.getPlatform().getDdlReveng();
+                AbstractReveng ddlReveng = newArgsObj.getPlatform().getDdlReveng();
                 ddlReveng.reveng(newArgsObj);
             }
         });
