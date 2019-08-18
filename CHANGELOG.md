@@ -1,24 +1,18 @@
 # Change Log
 
-## 7.2.1
-
-### Functionality Improvements
-#236: Support Character Set Encoding for Oracle Reverse Engineering
-
-### Technical Improvements
-
-### Bug Fixes
-#229: Oracle Reverse Engineering can still generate output even if a single object DDL cannot be generated.
-
 
 ## 7.2.0
 
 ### Functionality Improvements
+#239: MongoDB productionization: collection now treated as an incremental change type, reverse-engineering support, clean functionality built
 #231 #233: Correct reverse-engineering of table indices to their correct tables
 #232 #233: Support reverse-engineering of triggers
 #231 #235: Removing redundant unique indexes for Oracle Primary Key reverse-engineering
+#236: Support Character Set Encoding for Oracle Reverse Engineering
+Allowing valid special characters (e.g. #) to be in object names, as certain RDBMS platforms also allow them
 
 ### Technical Improvements
+DB2 build updated to use the new Docker Hub coordinates from IBM
 
 ### Bug Fixes
 #229: Oracle Reverse Engineering can still generate output even if a single object DDL cannot be generated.

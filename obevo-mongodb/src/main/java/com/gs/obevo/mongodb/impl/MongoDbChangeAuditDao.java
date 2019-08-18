@@ -29,10 +29,10 @@ import com.gs.obevo.api.platform.Platform;
 import com.gs.obevo.mongodb.api.appdata.MongoDbEnvironment;
 import com.gs.obevo.util.knex.InternMap;
 import com.mongodb.MongoClient;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.MongoIterable;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Indexes;
 import org.apache.commons.lang3.ObjectUtils;
@@ -185,7 +185,7 @@ public class MongoDbChangeAuditDao implements ChangeAuditDao {
         );
     }
 
-    static <T> MutableList<T> iterableToCollection(FindIterable<T> iterable) {
+    static <T> MutableList<T> iterableToCollection(MongoIterable<T> iterable) {
         MutableList<T> list = Lists.mutable.empty();
         try (MongoCursor<T> iterator = iterable.iterator()) {
             while (iterator.hasNext()) {

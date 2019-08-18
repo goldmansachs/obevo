@@ -21,7 +21,7 @@ import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.ChangeTypeImpl;
 import com.gs.obevo.api.platform.DeployerAppContext;
 import com.gs.obevo.api.platform.Platform;
-import com.gs.obevo.apps.reveng.AbstractReveng;
+import com.gs.obevo.apps.reveng.Reveng;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
@@ -31,11 +31,12 @@ import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Sets;
 
 public class MongoDbPlatform implements Platform {
+    public static final String CHANGE_TYPE_COLLECTION = "COLLECTION";
     private final ImmutableList<ChangeType> changeTypes;
 
     public MongoDbPlatform() {
         this.changeTypes = Lists.immutable.<ChangeType>of(
-                ChangeTypeImpl.newChangeType("COLLECTION", true, 0).build(),
+                ChangeTypeImpl.newChangeType(CHANGE_TYPE_COLLECTION, true, 0).build(),
                 ChangeTypeImpl.newChangeType(ChangeType.MIGRATION_STR, false, 100).setEnrichableForDependenciesInText(false).build()
         );
     }
@@ -101,7 +102,7 @@ public class MongoDbPlatform implements Platform {
     }
 
     @Override
-    public AbstractReveng getDdlReveng() {
-        throw new UnsupportedOperationException("Not yet implemented");
+    public Reveng getDdlReveng() {
+        return new MongoDbReveng(this);
     }
 }
