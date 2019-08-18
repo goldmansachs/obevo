@@ -15,7 +15,7 @@
  */
 //// CHANGE name="init1"
 
-coll = db.mytable;
+coll = db.table1;
 
 coll.insertOne( { category: 3 }, { mystuff: "abc" } );
 coll.insertOne( { category: 4 }, { mystuff: "abc" } );

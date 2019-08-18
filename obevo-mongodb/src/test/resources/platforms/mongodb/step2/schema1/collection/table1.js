@@ -13,7 +13,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-coll = db.mytable;
-coll.dropIndex( { name: "ind1" } );
-coll.createIndex( { name: "ind1" }, { category: -1 } );
-coll.createIndex( { name: "ind2" }, { field1: 1 } );
+//// CHANGE INDEX name="tab1ind1"
+db.table1.createIndex(
+   { orderDate: 1, category: 1 },
+   { name: "tab1ind1", collation: { locale: "fr", strength: 2 } }
+)

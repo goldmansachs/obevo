@@ -53,6 +53,7 @@ import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.multimap.Multimap;
 import org.eclipse.collections.api.partition.list.PartitionMutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
+import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.block.factory.StringFunctions;
 import org.eclipse.collections.impl.block.factory.StringPredicates;
@@ -157,7 +158,15 @@ public class AquaRevengMain {
 
         File outputWriteFolder = tablespaceToken ? outputDir : new File(outputDir, "final");  // check the tablespaceToken value for backwards-compatibility
         new RevengWriter().write(platform, allRevEngDestinations, outputWriteFolder, this.generateBaseline, null, args.getExcludeObjects());
-        new RevengWriter().writeConfig("deployer/reveng/system-config-template.xml.ftl", platform, outputWriteFolder, args.getDbSchema(),
+
+        // For legacy reasons w/ Aqua Reverse Engineering, get the list of schemas from the generated destinations
+        MutableSet<String> schemas = allRevEngDestinations.collect(new Function<ChangeEntry, String>() {
+            @Override
+            public String valueOf(ChangeEntry object) {
+                return object.getDestination().getSchema();
+            }
+        }).toSet();
+        new RevengWriter().writeConfig("deployer/reveng/system-config-template.xml.ftl", platform, outputWriteFolder, schemas,
                 Maps.immutable.of(
                         "jdbcUrl", args.getJdbcUrl(),
                         "dbHost", args.getDbHost(),

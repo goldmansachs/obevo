@@ -290,7 +290,7 @@ public abstract class AbstractReveng implements Reveng {
 //        });
 
         new RevengWriter().write(platform, changeEntries, new File(args.getOutputPath(), "final"), args.isGenerateBaseline(), RevengWriter.defaultShouldOverwritePredicate(), args.getExcludeObjects());
-        new RevengWriter().writeConfig("deployer/reveng/system-config-template.xml.ftl", platform, new File(args.getOutputPath(), "final"), args.getDbSchema(),
+        new RevengWriter().writeConfig("deployer/reveng/system-config-template.xml.ftl", platform, new File(args.getOutputPath(), "final"), Lists.mutable.of(args.getDbSchema()),
                 Maps.immutable.of(
                         "jdbcUrl", args.getJdbcUrl(),
                         "dbHost", args.getDbHost(),

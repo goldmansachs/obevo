@@ -50,8 +50,8 @@ public class MongoDbDeployIT {
 
     @Test
     public void deployFromFile() {
-        deployFromFile("./src/test/resources/platforms/mongodb/step1");
-//        deployFromFile("./src/test/resources/platforms/mongodb/step2");
+        deployFromFile("./src/test/resources/platforms/mongodb/step1", true);
+        deployFromFile("./src/test/resources/platforms/mongodb/step2", false);
     }
 
     private void deployProgrammatically(String sourcePath) {
@@ -63,19 +63,22 @@ public class MongoDbDeployIT {
         env.setConnectionURI(MongoDbTestHelper.CONNECTION_URI);
     }
 
-    private void deployFromFile(String sourcePath) {
+    private void deployFromFile(String sourcePath, boolean clean) {
         ImmutableCollection<MongoDbEnvironment> environments = Obevo.readEnvironments(sourcePath);
         for (MongoDbEnvironment environment : environments) {
-            deploy(environment);
+            deploy(environment, clean);
         }
     }
 
-    private void deploy(MongoDbEnvironment env) {
+    private void deploy(MongoDbEnvironment env, boolean clean) {
         MainDeployerArgs args = new MainDeployerArgs();
 
         Credential credential = new Credential("a", "b");
         //DeployerAppContext deployerAppContext = new Obevo().buildContext(sourcePath, credential);
         DeployerAppContext deployerAppContext = Obevo.buildContext(env, credential);
+        if (clean) {
+            deployerAppContext.cleanEnvironment();
+        }
         deployerAppContext.deploy(args);
 //        deployerAppContext.deploy(changes, args);  // part 2
 //        deployerAppContext.deploy(changes, args);  // part 3
