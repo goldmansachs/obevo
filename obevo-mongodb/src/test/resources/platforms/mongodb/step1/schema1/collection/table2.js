@@ -13,10 +13,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-//// CHANGE name="init1"
-
-coll = db.table1;
-
-coll.insertOne( { category: 3 }, { mystuff: "abc" } );
-coll.insertOne( { category: 4 }, { mystuff: "abc" } );
-coll.insertOne( { category: 5 }, { mystuff: "abc" } );
+//// CHANGE INDEX name="tab2ind1"
+db.table2.createIndex(
+   { orderDate: 1, category: 1 },
+   { name: "tab2ind1", collation: { locale: "fr", strength: 2 } }
+)

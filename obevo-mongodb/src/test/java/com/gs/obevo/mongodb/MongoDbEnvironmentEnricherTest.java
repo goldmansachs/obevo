@@ -15,7 +15,6 @@
  */
 package com.gs.obevo.mongodb;
 
-import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.api.factory.XmlFileConfigReader;
 import com.gs.obevo.mongodb.api.appdata.MongoDbEnvironment;
 import com.gs.obevo.mongodb.impl.MongoDbEnvironmentEnricher;

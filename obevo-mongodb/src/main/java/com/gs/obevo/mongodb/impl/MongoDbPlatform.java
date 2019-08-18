@@ -36,7 +36,7 @@ public class MongoDbPlatform implements Platform {
 
     public MongoDbPlatform() {
         this.changeTypes = Lists.immutable.<ChangeType>of(
-                ChangeTypeImpl.newChangeType(CHANGE_TYPE_COLLECTION, true, 0).build(),
+                ChangeTypeImpl.newChangeType(CHANGE_TYPE_COLLECTION, false, 0).build(),
                 ChangeTypeImpl.newChangeType(ChangeType.MIGRATION_STR, false, 100).setEnrichableForDependenciesInText(false).build()
         );
     }

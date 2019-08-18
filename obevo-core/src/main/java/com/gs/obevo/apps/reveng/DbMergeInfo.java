@@ -26,7 +26,7 @@ import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.impl.collection.mutable.CollectionAdapter;
 import org.eclipse.collections.impl.factory.Lists;
 
-class DbMergeInfo {
+public class DbMergeInfo {
     private final String name;
     private final File inputDir;
     private String driverClassName;

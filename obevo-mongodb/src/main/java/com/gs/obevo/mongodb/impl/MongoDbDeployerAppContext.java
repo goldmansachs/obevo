@@ -123,7 +123,8 @@ public class MongoDbDeployerAppContext extends AbstractDeployerAppContext<MongoD
 
     @Override
     public MongoDbDeployerAppContext cleanEnvironment() {
-        LOG.info("setupEnvInfra is not implemented; doing nothing");
+        MongoDbEnvironmentCleaner cleaner = new MongoDbEnvironmentCleaner(getMongoClient(), env);
+        cleaner.clean();
         return this;
     }
 }

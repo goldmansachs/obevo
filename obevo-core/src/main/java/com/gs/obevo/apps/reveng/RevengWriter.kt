@@ -151,14 +151,14 @@ class RevengWriter {
         }
     }
 
-    fun writeConfig(templatePath: String, platform: Platform, outputDir: File, schema: String, params: Map<String, String>) {
+    fun writeConfig(templatePath: String, platform: Platform, outputDir: File, schemas: Collection<String>, params: Map<String, String>) {
         FileWriter(File(outputDir, "system-config.xml")).use { fileWriter ->
             val template = templateConfig.getTemplate(templatePath)
 
             val displayParams = Maps.mutable.empty<String, Any>()
             displayParams["platform"] = platform.name
-            displayParams["schemas"] = listOf(schema)
-            params.forEach { key, value -> displayParams[key] = value }
+            displayParams["schemas"] = schemas
+            params.forEach { (key, value) -> displayParams[key] = value }
             template.process(displayParams, fileWriter)
         }
     }
