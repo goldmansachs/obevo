@@ -51,7 +51,7 @@ public class MongoDbDeployIT {
     @Test
     public void deployFromFile() {
         deployFromFile("./src/test/resources/platforms/mongodb/step1");
-        deployFromFile("./src/test/resources/platforms/mongodb/step2");
+//        deployFromFile("./src/test/resources/platforms/mongodb/step2");
     }
 
     private void deployProgrammatically(String sourcePath) {

@@ -15,9 +15,11 @@ Obevo has your use case covered.
 Supported platforms: DB2, H2, HSQLDB, Microsoft SQL Server, MongoDB, Oracle, PostgreSQL, Redshift (from Amazon), Sybase ASE, Sybase IQ
 
 
-## RDBMS and NoSQL (MongoDB) platforms supported!
+## NoSQL (MongoDB) platforms also supported!
 
-MongoDB support is here in version 6.5.0!
+Obevo can be used for more than just relational databases.
+
+MongoDB support is now being piloted by end-users with version 7.2.0.
 
 This is the first non-RDBMS platform supported, which shows that the object-based management pattern described
 [here](https://www.infoq.com/articles/Obevo-Introduction) can be applicable elsewhere.

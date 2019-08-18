@@ -13,7 +13,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-coll = db.mytable;
-coll.dropIndex( { name: "ind1" } );
-coll.createIndex( { name: "ind1" }, { category: 1 } );
-coll.createIndex( { name: "ind1" }, { category: 1 } );
+db.mytable.dropIndex( { name: "ind1" } );
+db.mytable.createIndex( { name: "ind1" }, { category2: 1 } );
+db.mytable.dropIndex( { name: "date_category_fr" } );
+db.mytable.createIndex(
+   { orderDate: 1, category: 1 },
+   { name: "date_category_fr", collation: { locale: "fr", strength: 2 } }
+)
+db.mytable.createIndex(
+   { abcdef: 2, ghijkl: 2 },
+   { name: "date_category_fr2", collation: { locale: "fr", strength: 2 } }
+)
+db.mytable.dropIndex( { name: "ind2" } );
+db.mytable.createIndex( { name: "ind2" }, { category: 1 } );
