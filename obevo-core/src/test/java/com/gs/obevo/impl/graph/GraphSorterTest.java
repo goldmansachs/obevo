@@ -15,23 +15,20 @@
  */
 package com.gs.obevo.impl.graph;
 
-import java.util.Set;
-
 import com.gs.obevo.api.appdata.ChangeKey;
 import com.gs.obevo.api.platform.ChangeType;
 import org.eclipse.collections.api.block.function.Function;
-import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.ListIterable;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.block.factory.Comparators;
+import org.eclipse.collections.impl.collection.mutable.CollectionAdapter;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.list.fixed.ArrayAdapter;
-import org.eclipse.collections.impl.set.mutable.SetAdapter;
 import org.eclipse.collections.impl.test.Verify;
-import org.jgrapht.DirectedGraph;
+import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.junit.Rule;
@@ -59,7 +56,7 @@ public class GraphSorterTest {
         String sp4 = "sp4";
         String sp5 = "sp5";
 
-        DirectedGraph<String, DefaultEdge> graph = new DefaultDirectedGraph<String, DefaultEdge>(DefaultEdge.class);
+        Graph<String, DefaultEdge> graph = new DefaultDirectedGraph<String, DefaultEdge>(DefaultEdge.class);
 
         for (String vertex : Lists.mutable.with(sp1, sp2, sp3, sp4, sp5).toReversed()) {
             graph.addVertex(vertex);
@@ -91,7 +88,7 @@ public class GraphSorterTest {
         SortableDependency sp4 = newVertex("sp4");
         SortableDependency sp5 = newVertex("sp5");
 
-        DirectedGraph<SortableDependency, DefaultEdge> graph = new DefaultDirectedGraph<SortableDependency, DefaultEdge>(DefaultEdge.class);
+        Graph<SortableDependency, DefaultEdge> graph = new DefaultDirectedGraph<SortableDependency, DefaultEdge>(DefaultEdge.class);
 
         for (SortableDependency vertex : shuffledList(sp1, sp2, sp3, sp4, sp5)) {
             graph.addVertex(vertex);
@@ -124,7 +121,7 @@ public class GraphSorterTest {
     public void expectExceptionIfNonComparableElementsAreProvidedForSorting() {
         SortableDependency sp1 = newVertex("sp1");
 
-        DirectedGraph<SortableDependency, DefaultEdge> graph = new DefaultDirectedGraph<SortableDependency, DefaultEdge>(DefaultEdge.class);
+        Graph<SortableDependency, DefaultEdge> graph = new DefaultDirectedGraph<SortableDependency, DefaultEdge>(DefaultEdge.class);
 
         for (SortableDependency vertex : shuffledList(sp1)) {
             graph.addVertex(vertex);
@@ -144,7 +141,7 @@ public class GraphSorterTest {
         String sp4 = "sp4";
         String sp5 = "sp5";
 
-        DirectedGraph<String, DefaultEdge> graph = new DefaultDirectedGraph<String, DefaultEdge>(DefaultEdge.class);
+        Graph<String, DefaultEdge> graph = new DefaultDirectedGraph<String, DefaultEdge>(DefaultEdge.class);
 
         for (String vertex : shuffledList(sp1, sp2, sp3, sp4, sp5)) {
             graph.addVertex(vertex);
@@ -176,7 +173,7 @@ public class GraphSorterTest {
         SortableDependency sp7 = newVertex("sp7");
         SortableDependency sp8 = newVertex("sp8");
 
-        DirectedGraph<SortableDependency, DefaultEdge> graph = new DefaultDirectedGraph<SortableDependency, DefaultEdge>(DefaultEdge.class);
+        Graph<SortableDependency, DefaultEdge> graph = new DefaultDirectedGraph<SortableDependency, DefaultEdge>(DefaultEdge.class);
         for (SortableDependency vertex : shuffledList(sp1, sp2, sp3, sp4, sp5, sp6, sp7, sp8)) {
             graph.addVertex(vertex);
         }
@@ -186,6 +183,7 @@ public class GraphSorterTest {
         graph.addEdge(sp1, sp5);
         graph.addEdge(sp3, sp5);
         graph.addEdge(sp4, sp5);
+        graph.addEdge(sp6, sp5);
         graph.addEdge(sp7, sp6);
         graph.addEdge(sp8, sp7);
         graph.addEdge(sp6, sp8);
@@ -201,17 +199,9 @@ public class GraphSorterTest {
     }
 
     private void verifyCycleExists(GraphCycleException e, final ImmutableSet<String> cycleVertices) {
-        Verify.assertAnySatisfy(e.<SortableDependency>getCycleComponents(), new Predicate<Set<SortableDependency>>() {
-            @Override
-            public boolean accept(Set<SortableDependency> each) {
-                return SetAdapter.adapt(each).collect(new Function<SortableDependency, String>() {
-                    @Override
-                    public String valueOf(SortableDependency sortableDependency) {
-                        return sortableDependency.getChangeKey().getChangeName();
-                    }
-                }).equals(cycleVertices);
-            }
-        });
+        Verify.assertAnySatisfy(e.<SortableDependency>getCycleComponents(), each ->
+                CollectionAdapter.wrapSet(each).collect(sortableDependency ->
+                        sortableDependency.getChangeKey().getChangeName()).equals(cycleVertices));
     }
 
     private static SortableDependency newVertex(String vertexName) {

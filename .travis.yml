@@ -11,7 +11,6 @@ env:
     - DEPLOY_ENABLED=`if [[ (! -z "$TRAVIS_TAG") || ("$TRAVIS_BRANCH" == "master") ]]; then echo true; else echo false; fi`
     - RELEASE_ENABLED=`if [[ (! -z "$TRAVIS_TAG")]]; then echo true; else echo false; fi`
     - VERSION=`if [[ -z "$TRAVIS_TAG" ]]; then echo $TRAVIS_BRANCH-SNAPSHOT; else echo $TRAVIS_TAG; fi`
-    - JAVA7_HOME=/usr/lib/jvm/java-7-openjdk-amd64
     - MAVEN_OPTS="-Drevision=$VERSION -Dmaven.repo.local=$HOME/.m2/repository -Xmx2g -Dorg.slf4j.simpleLogger.showDateTime=true -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss:SSS -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
       # SONATYPE_USERNAME
     - secure: "Rp3iGAP4E9jzUKJnIswrRvMJnx/69W7LMqidDsUA12+aQQwMl9Ukm9SPKW6l67Z2Yt9bsDltnkISqJ4Zgxp2DLH+g8Oqq0vz7E5vs9JEXJUGEzyVp2jsDskrAjT2V7HVpnxB6iDG6NNxDGV12UkmV2aCbBLWNiLNZDd1W/wS84G/I9Qx8FVoYl4glFCHbfw4JBcUtSb66tdZ2UjqSzyAIPJYZHO8FJyiygj+/rY1fvqH1Pbw8tY0g5gshmGNdrXqETukpx+fxpL8KCEpUy7XWKS6h1b/AH8AEepmG3WYY0O5mqPV/y/OKrtnJSoWOW6sp+o9eiCx/Kmt04Qvv4Uc4b/3YMQs9oaPyhNnu2g1IgJXhYbYZMzZbhEfXsMGoBKV139n+mT70scXVkmvQy/5nqD2RtNTSV9Y0NWy0am11vFWbGMnlvmsrtgt/6VBQ4xMEr+NiSo1IiqiEpT1regFKuI9wUbMDbmJD6oO8rvhwBKUKjPZ46OO5skdpBNlgWoJYUgs0BvwqRjTXS6m9y4pxrLgcLxmnJ5Vu184zLroO6fjN1NB3BttfN42VHXPv8aKN3R6wXArnm520ZLfX7BfzolJzmYW+tFD7XirGSYu7lFwV2HOptceTmnicVSwHZrmV5/cpxadakSuhxCeys12IwYXhHjInhy2D+LrMEKvTXA="

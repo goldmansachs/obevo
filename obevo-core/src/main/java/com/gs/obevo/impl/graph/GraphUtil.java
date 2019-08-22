@@ -21,25 +21,28 @@
  */
 package com.gs.obevo.impl.graph;
 
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.gs.obevo.util.CollectionUtil;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ListIterable;
 import org.eclipse.collections.api.set.SetIterable;
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.block.factory.Functions;
+import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.list.mutable.ListAdapter;
 import org.eclipse.collections.impl.set.mutable.SetAdapter;
 import org.eclipse.collections.impl.tuple.Tuples;
-import org.jgrapht.DirectedGraph;
-import org.jgrapht.alg.CycleDetector;
-import org.jgrapht.alg.StrongConnectivityInspector;
+import org.jgrapht.Graph;
+import org.jgrapht.alg.connectivity.KosarajuStrongConnectivityInspector;
+import org.jgrapht.alg.cycle.DirectedSimpleCycles;
+import org.jgrapht.alg.cycle.HawickJamesSimpleCycles;
+import org.jgrapht.alg.interfaces.StrongConnectivityAlgorithm;
+import org.jgrapht.graph.AsSubgraph;
 import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DirectedSubgraph;
-import org.jgrapht.traverse.DepthFirstIterator;
+import org.jgrapht.traverse.RandomWalkIterator;
 
 /**
  * Utility class to work w/ graphs in the JGraphT library. There are a couple usages that need syntax sugar...
@@ -48,7 +51,7 @@ public final class GraphUtil {
     private GraphUtil() {
     }
 
-    public static <T> SetIterable<T> getDependentNodes(final DirectedGraph<T, DefaultEdge> graph, T vertex) {
+    public static <T> SetIterable<T> getDependentNodes(final Graph<T, DefaultEdge> graph, T vertex) {
         return SetAdapter.adapt(graph.outgoingEdgesOf(vertex)).collect(new Function<DefaultEdge, T>() {
             @Override
             public T valueOf(DefaultEdge e) {
@@ -57,7 +60,7 @@ public final class GraphUtil {
         });
     }
 
-    public static <T> SetIterable<T> getDependencyNodes(final DirectedGraph<T, DefaultEdge> graph, T vertex) {
+    public static <T> SetIterable<T> getDependencyNodes(final Graph<T, DefaultEdge> graph, T vertex) {
         return SetAdapter.adapt(graph.incomingEdgesOf(vertex)).collect(new Function<DefaultEdge, T>() {
             @Override
             public T valueOf(DefaultEdge e) {
@@ -66,7 +69,7 @@ public final class GraphUtil {
         });
     }
 
-    public static <T, E> SetIterable<Pair<T, E>> getDependencyNodesAndEdges(final DirectedGraph<T, E> graph, T vertex) {
+    public static <T, E> SetIterable<Pair<T, E>> getDependencyNodesAndEdges(final Graph<T, E> graph, T vertex) {
         return SetAdapter.adapt(graph.incomingEdgesOf(vertex)).collect(new Function<E, Pair<T, E>>() {
             @Override
             public Pair<T, E> valueOf(E edge) {
@@ -75,54 +78,36 @@ public final class GraphUtil {
         });
     }
 
-    public static <T> void validateNoCycles(final DirectedGraph<T, DefaultEdge> graph) {
+    public static <T> void validateNoCycles(final Graph<T, DefaultEdge> graph) {
         validateNoCycles(graph, Functions.getToString(), null);
     }
 
-    public static <T, E> void validateNoCycles(final DirectedGraph<T, E> graph, final Function<? super T, String> vertexToString, final Function<? super E, String> edgeToString) {
-        ListIterable<Set<T>> cycleComponents = getCycleComponents(graph);
+    public static <T, E> void validateNoCycles(final Graph<T, E> graph, final Function<? super T, String> vertexToString, final Function<? super E, String> edgeToString) {
+        DirectedSimpleCycles<T, E> simpleCycles = new HawickJamesSimpleCycles<>(graph);
+        List<List<T>> cycleComponents = simpleCycles.findSimpleCycles();
 
         if (!cycleComponents.isEmpty()) {
             final AtomicInteger cycleCounter = new AtomicInteger(0);
-            ListIterable<String> cycleMessages = cycleComponents.collect(new Function<Set<T>, String>() {
-                @Override
-                public String valueOf(Set<T> cycleComponent) {
-                    final StringBuilder sb = new StringBuilder();
-                    final DirectedSubgraph<T, E> cycleSubgraph = new DirectedSubgraph<T, E>(graph, cycleComponent, null);
-                    DepthFirstIterator<T, E> iterator = new DepthFirstIterator<T, E>(cycleSubgraph) {
-                        boolean started = false;
-                        boolean afterCycle = false;
+            ListIterable<String> cycleMessages = ListAdapter.adapt(cycleComponents).collect(cycleComponent -> {
+                AsSubgraph<T, E> subgraph = new AsSubgraph<>(graph, Sets.mutable.ofAll(cycleComponent));
+                Set<T> visitedVertices = Sets.mutable.empty();
 
-                        @Override
-                        protected void encounterVertex(T vertex, E edge) {
-                            if (!started) {
-                                sb.append("Cycle #" + cycleCounter.incrementAndGet() + ":");
-                                sb.append("\n    " + vertexToString.valueOf(vertex));
-                                started = true;
-                            } else {
-                                if (afterCycle) {
-                                    afterCycle = false;
-                                    sb.append("\nCycle #" + cycleCounter.incrementAndGet() + ":");
-                                    sb.append("\n    " + vertexToString.valueOf(cycleSubgraph.getEdgeSource(edge)));
-                                }
-                                sb.append("\n    => ").append(vertexToString.valueOf(vertex)).append(" (").append(edge).append(")");
-                            }
-                            super.encounterVertex(vertex, edge);
-                        }
+                final StringBuilder sb = new StringBuilder();
+                sb.append("Cycle #" + cycleCounter.incrementAndGet() + ":");
 
-                        @Override
-                        protected void encounterVertexAgain(T vertex, E edge) {
-                            sb.append("\n    => ").append(vertexToString.valueOf(vertex)).append(" (").append(edge).append(") (CYCLE FORMED)");
-                            afterCycle = true;
-                            super.encounterVertexAgain(vertex, edge);
-                        }
-                    };
-
-                    CollectionUtil.iteratorToList(iterator);  // force iteration through the list
-
-                    return sb.toString();
+                RandomWalkIterator<T, E> teRandomWalkIterator = new RandomWalkIterator<>(subgraph);
+                while (teRandomWalkIterator.hasNext()) {
+                    T next = teRandomWalkIterator.next();
+                    if (!visitedVertices.contains(next)) {
+                        sb.append("\n    " + vertexToString.valueOf(next) + "   =>");
+                        visitedVertices.add(next);
+                    } else {
+                        sb.append("\n    " + vertexToString.valueOf(next) + " (CYCLE FORMED)");
+                        break;
+                    }
                 }
-            });
+                return sb.toString();
+            }).toList();
 
             throw new GraphCycleException(
                     "Found cycles for the changes below. Please correct the object content.\n" +
@@ -140,11 +125,11 @@ public final class GraphUtil {
 
     /**
      * Returns the components of the graph that are cycles.
-     * Taken from the implementation of {@link CycleDetector#findCycles()}. (EPL)
+     * Taken from the implementation of CycleDetector#findCycles(). (EPL)
      */
-    private static <T, E> ListIterable<Set<T>> getCycleComponents(final DirectedGraph<T, E> graph) {
-        StrongConnectivityInspector<T, E> inspector =
-                new StrongConnectivityInspector<T, E>(graph);
+    private static <T, E> ListIterable<Set<T>> getCycleComponents(final Graph<T, E> graph) {
+        StrongConnectivityAlgorithm<T, E> inspector =
+                new KosarajuStrongConnectivityInspector<>(graph);
 
         return ListAdapter.adapt(inspector.stronglyConnectedSets()).select(new Predicate<Set<T>>() {
             @Override

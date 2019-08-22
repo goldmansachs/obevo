@@ -105,12 +105,6 @@
                     </dependency>
                 </dependencies>
             </plugin>
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <jvm>${env.JAVA_HOME}/bin/java</jvm>  <!-- Hibernate 5 is compiled on Java 8 -->
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 

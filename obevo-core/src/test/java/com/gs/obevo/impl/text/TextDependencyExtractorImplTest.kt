@@ -79,6 +79,14 @@ class TextDependencyExtractorImplTest {
         assertEquals(Sets.mutable.with("sp1", "sp_3", "sp4"), dependencies)
     }
 
+    @Test
+    fun testCalculateDependenciesForPrefix() {
+        val dependencies = enricher.calculateDependencies("testPrefix",
+                "create procedure sp1\nobj1\nobj1_prefix1\nobj1_prefix1_prefix2\n",
+                Sets.mutable.with("sp1", "obj1"))
+        assertEquals(Sets.mutable.with("sp1", "obj1"), dependencies)
+    }
+
     private fun newObject(objectName: String, content: String): TextDependencyExtractable {
         return newObject(SCHEMA1, objectName, content)
     }
