@@ -66,7 +66,7 @@ Fork the repository in GitHub and make changes in your fork.
 
 Please add a description of your changes to the [Change Log](CHANGELOG.md).
 
-Before you submit your first pull request, please first submit a DCO, per the instructions in the last seciton on this page.
+Before you submit your first pull request, please first submit a DCO, per the instructions in the last section on this page.
 
 Finally, submit a pull request. In your pull requests:
 * Make sure you [rebase your fork](https://github.com/edx/edx-platform/wiki/How-to-Rebase-a-Pull-Request) so that pull requests can be fast-forward merges.
