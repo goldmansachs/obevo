@@ -11,3 +11,4 @@ Each module in this project has a NOTICE.txt file denoting the module's own depe
 
 This product depends on (links to) the following software:
 
+This product contains code copyright Alpay Yildirim, licensed under Apache 2.0 license
