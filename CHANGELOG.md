@@ -13,6 +13,7 @@ Allowing valid special characters (e.g. #) to be in object names, as certain RDB
 
 ### Technical Improvements
 DB2 build updated to use the new Docker Hub coordinates from IBM
+#252: Optimize Images 610.60kb -> 448.30kb (26.58%) and fix typo
 
 ### Bug Fixes
 #229: Oracle Reverse Engineering can still generate output even if a single object DDL cannot be generated.
