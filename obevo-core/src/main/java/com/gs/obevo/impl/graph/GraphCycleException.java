@@ -15,20 +15,18 @@
  */
 package com.gs.obevo.impl.graph;
 
-import java.util.Set;
-
-import org.eclipse.collections.api.list.ListIterable;
+import java.util.List;
 
 /**
  * Note: Exception classes cannot be generic, so we need the hack in the constructor and getter to get this to compile.
  */
 class GraphCycleException extends IllegalArgumentException {
     private final String message;
-    private final ListIterable<Set<?>> cycleComponents;
+    private final List<? extends List<?>> cycleComponents;
 
-    <T> GraphCycleException(String message, ListIterable<Set<T>> cycleComponents) {
+    GraphCycleException(String message, List<? extends List<?>> cycleComponents) {
         this.message = message;
-        this.cycleComponents = (ListIterable) cycleComponents;
+        this.cycleComponents = cycleComponents;
     }
 
     @Override
@@ -36,7 +34,7 @@ class GraphCycleException extends IllegalArgumentException {
         return message;
     }
 
-    public <T> ListIterable<Set<T>> getCycleComponents() {
-        return (ListIterable<Set<T>>) (ListIterable) cycleComponents;
+    <T> List<List<T>> getCycleComponents() {
+        return (List<List<T>>) (List) cycleComponents;
     }
 }

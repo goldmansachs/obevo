@@ -34,9 +34,9 @@ import org.eclipse.collections.api.list.MutableList
 import org.eclipse.collections.impl.factory.Lists
 import org.eclipse.collections.impl.list.mutable.ListAdapter
 import org.eclipse.collections.impl.set.mutable.SetAdapter
-import org.jgrapht.alg.ConnectivityInspector
+import org.jgrapht.alg.connectivity.ConnectivityInspector
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.Objects
 
 internal class GroupChangeTypeCommandCalculator(private val changeCommandFactory: ChangeCommandFactory, private val enricher: GraphEnricher) : ChangeTypeCommandCalculator {
     private val sorter = GraphSorter()

@@ -15,7 +15,7 @@
  */
 package com.gs.obevo.impl.graph
 
-import org.jgrapht.DirectedGraph
+import org.jgrapht.Graph
 import org.jgrapht.graph.DefaultEdge
 
 /**
@@ -30,7 +30,7 @@ interface GraphEnricher {
      * @param rollback Whether the ordering should be done assuming the changes are to be rolled back
      * (thus, reverse order for incremental changes)
      */
-    fun <T : SortableDependencyGroup> createDependencyGraph(inputs: Iterable<T>, rollback: Boolean): DirectedGraph<T, DefaultEdge>
+    fun <T : SortableDependencyGroup> createDependencyGraph(inputs: Iterable<T>, rollback: Boolean): Graph<T, DefaultEdge>
 
-    fun <T> createSimpleDependencyGraph(inputs: Iterable<T>, edgesFunction: Function1<T, Iterable<T>>): DirectedGraph<T, DefaultEdge>
+    fun <T> createSimpleDependencyGraph(inputs: Iterable<T>, edgesFunction: Function1<T, Iterable<T>>): Graph<T, DefaultEdge>
 }

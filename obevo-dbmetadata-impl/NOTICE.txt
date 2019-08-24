@@ -15,6 +15,7 @@ This product depends on (links to) the following software:
   Apache Commons Configuration under Apache License, Version 2.0
   Apache Commons CSV under Apache License, Version 2.0
   Apache Commons DbUtils under The Apache Software License, Version 2.0
+  Apache Commons Text under Apache License, Version 2.0
   Command Line Interface Parser for Java under The Apache Software License, Version 2.0
   Commons Collections under The Apache Software License, Version 2.0
   Commons IO under The Apache Software License, Version 2.0
@@ -26,7 +27,8 @@ This product depends on (links to) the following software:
   IntelliJ IDEA Annotations under The Apache Software License, Version 2.0
   JCL 1.1.1 implemented over SLF4J under MIT License
   JGraphT - Core under Eclipse Public License (EPL) 1.0
-  JGraphT - Ext under GNU Lesser General Public License Version 2.1, February 1999 or Eclipse Public License (EPL) 1.0
+  JGraphT - I/O under GNU Lesser General Public License Version 2.1, February 1999 or Eclipse Public License (EPL) 2.0
+  JHeaps under Apache License, Version 2.0
   Joda time under Apache 2
   juniversalchardet under Mozilla Public License 1.1 (MPL 1.1)
   MySQL Connector/J under The GNU General Public License, v2 with FOSS exception
@@ -37,6 +39,7 @@ This product depends on (links to) the following software:
   org.jetbrains.kotlin:kotlin-stdlib under The Apache License, Version 2.0
   org.jetbrains.kotlin:kotlin-stdlib-common under The Apache License, Version 2.0
   org.jetbrains.kotlin:kotlin-stdlib-jdk7 under The Apache License, Version 2.0
+  org.jetbrains.kotlin:kotlin-stdlib-jdk8 under The Apache License, Version 2.0
   Protocol Buffer Java API under New BSD license
   SchemaCrawler under Eclipse Public License - v 1.0
   SchemaCrawler for HyperSQL under Eclipse Public License - v 1.0

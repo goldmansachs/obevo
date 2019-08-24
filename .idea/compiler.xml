@@ -38,41 +38,41 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="obevo-bom" target="1.7" />
-      <module name="obevo-cli" target="1.7" />
-      <module name="obevo-core" target="1.7" />
-      <module name="obevo-db" target="1.7" />
-      <module name="obevo-db-client-alldbs" target="1.7" />
-      <module name="obevo-db-db2" target="1.7" />
-      <module name="obevo-db-h2" target="1.7" />
-      <module name="obevo-db-hsql" target="1.7" />
-      <module name="obevo-db-impls" target="1.7" />
-      <module name="obevo-db-internal-test-helper" target="1.7" />
-      <module name="obevo-db-mssql" target="1.7" />
-      <module name="obevo-db-mysql" target="1.7" />
-      <module name="obevo-db-oracle" target="1.7" />
-      <module name="obevo-db-postgresql" target="1.7" />
-      <module name="obevo-db-scenario-tests" target="1.7" />
-      <module name="obevo-db-sybase-ase" target="1.7" />
-      <module name="obevo-db-sybase-iq" target="1.7" />
-      <module name="obevo-db-unittest-util" target="1.7" />
-      <module name="obevo-dbmetadata-impl" target="1.7" />
-      <module name="obevo-dependencies" target="1.7" />
-      <module name="obevo-dists" target="1.7" />
-      <module name="obevo-hibernate-util" target="1.7" />
-      <module name="obevo-hibernate3-util" target="1.7" />
-      <module name="obevo-hibernate4-util" target="1.7" />
-      <module name="obevo-hibernate5-util" target="1.7" />
-      <module name="obevo-internal-comparer" target="1.7" />
-      <module name="obevo-internal-test-client-01" target="1.7" />
-      <module name="obevo-internal-test-client-02" target="1.7" />
-      <module name="obevo-internal-test-util" target="1.7" />
-      <module name="obevo-maven-plugin" target="1.7" />
-      <module name="obevo-mongodb" target="1.7" />
-      <module name="obevo-parent" target="1.7" />
-      <module name="obevo-reladomo-util" target="1.7" />
-      <module name="obevo-site" target="1.7" />
-      <module name="obevo-utils" target="1.7" />
+      <module name="obevo-bom" target="1.8" />
+      <module name="obevo-cli" target="1.8" />
+      <module name="obevo-core" target="1.8" />
+      <module name="obevo-db" target="1.8" />
+      <module name="obevo-db-client-alldbs" target="1.8" />
+      <module name="obevo-db-db2" target="1.8" />
+      <module name="obevo-db-h2" target="1.8" />
+      <module name="obevo-db-hsql" target="1.8" />
+      <module name="obevo-db-impls" target="1.8" />
+      <module name="obevo-db-internal-test-helper" target="1.8" />
+      <module name="obevo-db-mssql" target="1.8" />
+      <module name="obevo-db-mysql" target="1.8" />
+      <module name="obevo-db-oracle" target="1.8" />
+      <module name="obevo-db-postgresql" target="1.8" />
+      <module name="obevo-db-scenario-tests" target="1.8" />
+      <module name="obevo-db-sybase-ase" target="1.8" />
+      <module name="obevo-db-sybase-iq" target="1.8" />
+      <module name="obevo-db-unittest-util" target="1.8" />
+      <module name="obevo-dbmetadata-impl" target="1.8" />
+      <module name="obevo-dependencies" target="1.8" />
+      <module name="obevo-dists" target="1.8" />
+      <module name="obevo-hibernate-util" target="1.8" />
+      <module name="obevo-hibernate3-util" target="1.8" />
+      <module name="obevo-hibernate4-util" target="1.8" />
+      <module name="obevo-hibernate5-util" target="1.8" />
+      <module name="obevo-internal-comparer" target="1.8" />
+      <module name="obevo-internal-test-client-01" target="1.8" />
+      <module name="obevo-internal-test-client-02" target="1.8" />
+      <module name="obevo-internal-test-util" target="1.8" />
+      <module name="obevo-maven-plugin" target="1.8" />
+      <module name="obevo-mongodb" target="1.8" />
+      <module name="obevo-parent" target="1.8" />
+      <module name="obevo-reladomo-util" target="1.8" />
+      <module name="obevo-site" target="1.8" />
+      <module name="obevo-utils" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

@@ -27,7 +27,7 @@ import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.block.factory.StringFunctions;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Sets;
-import org.jgrapht.DirectedGraph;
+import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 import org.junit.Test;
 
@@ -72,7 +72,7 @@ public class GraphEnricherImplTest {
         SortableDependencyGroup sch2Obj1 = newChange(schema2, type1, "obj1", Sets.immutable.with(caseInsensitive ? "obj2".toUpperCase() : "obj2"));
         SortableDependencyGroup sch2Obj2 = newChange(schema2, type2, "obj2", Sets.immutable.with(schema1 + ".obj3"));
 
-        DirectedGraph<SortableDependencyGroup, DefaultEdge> sortGraph = enricher.createDependencyGraph(Lists.mutable.with(
+        Graph<SortableDependencyGroup, DefaultEdge> sortGraph = enricher.createDependencyGraph(Lists.mutable.with(
                 sch1Obj1, sch1Obj2, sch1Obj3, sch2Obj1, sch2Obj2), false);
 
         validateChange(sortGraph, sch1Obj1, Sets.immutable.with(sch1Obj3, sch2Obj2), Sets.immutable.<SortableDependencyGroup>with());
@@ -124,7 +124,7 @@ public class GraphEnricherImplTest {
         // D) Check that a rerunnable object can depend on an incremental object; this would put this dependency at the end
         SortableDependencyGroup sch1SingleObj6 = newChange(schema1, type1, "singleObj6", Sets.immutable.with("obj2"));
 
-        DirectedGraph<SortableDependencyGroup, DefaultEdge> sortGraph = enricher.createDependencyGraph(Lists.mutable.with(
+        Graph<SortableDependencyGroup, DefaultEdge> sortGraph = enricher.createDependencyGraph(Lists.mutable.with(
                 sch1Obj1Chng0, sch1Obj1Chng1, sch1Obj1Chng2, sch1Obj2Chng0, sch1Obj2Chng1, sch1Obj2Chng2, sch1Obj3Chng0, sch1Obj3Chng1, sch2Obj1Chng0, sch2Obj1Chng1, sch2Obj1Chng2, sch1SingleObj5, sch1SingleObj6), rollback);
 
         if (!rollback) {
@@ -174,7 +174,7 @@ public class GraphEnricherImplTest {
         SortableDependencyGroup sp1Schema2 = newChange(schema2, type1, "sp1", "n/a", 0, Sets.immutable.with("sp2", schema1 + ".sp3"));
         SortableDependencyGroup sp2Schema2 = newChange(schema2, type1, "sP2", "n/a", 0, Sets.immutable.<String>with());
 
-        DirectedGraph<SortableDependencyGroup, DefaultEdge> sortGraph = enricher.createDependencyGraph(Lists.mutable.with(
+        Graph<SortableDependencyGroup, DefaultEdge> sortGraph = enricher.createDependencyGraph(Lists.mutable.with(
                 sp1, sp2, sp3, spA, sp1Schema2, sp2Schema2), false);
 
         validateChange(sortGraph, sp1, Sets.immutable.with(sp2), Sets.immutable.with(sp3));
@@ -233,7 +233,7 @@ public class GraphEnricherImplTest {
         }
     }
 
-    private void validateChange(DirectedGraph<SortableDependencyGroup, DefaultEdge> changes, SortableDependencyGroup change, RichIterable<SortableDependencyGroup> precedingChanges, RichIterable<SortableDependencyGroup> followingChanges) {
+    private void validateChange(Graph<SortableDependencyGroup, DefaultEdge> changes, SortableDependencyGroup change, RichIterable<SortableDependencyGroup> precedingChanges, RichIterable<SortableDependencyGroup> followingChanges) {
         assertThat("testing preceding changes on " + change, GraphUtil.getDependencyNodes(changes, change), equalTo(precedingChanges));
         assertThat("testing following changes on " + change, GraphUtil.getDependentNodes(changes, change), equalTo(followingChanges));
     }

@@ -1,5 +1,16 @@
 # Change Log
 
+## 8.0.0
+
+### Functionality Improvements
+
+### Technical Improvements
+Upgrading to JDK 8 bytecode
+Upgrading to JGraphT 1.3.0 (first required JDK 8 dependency)
+
+### Bug Fixes
+Correcting error messages on graph cycles for complex databases
+
 
 ## 7.2.0
 

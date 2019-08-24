@@ -18,12 +18,13 @@ package com.gs.obevo.impl.graph
 import com.gs.obevo.util.CollectionUtil
 import org.eclipse.collections.api.RichIterable
 import org.eclipse.collections.api.list.ImmutableList
+import org.eclipse.collections.impl.block.factory.Comparators
 import org.eclipse.collections.impl.factory.Lists
-import org.jgrapht.DirectedGraph
+import org.jgrapht.Graph
+import org.jgrapht.graph.AsSubgraph
 import org.jgrapht.graph.DefaultEdge
-import org.jgrapht.graph.DirectedSubgraph
 import org.jgrapht.traverse.TopologicalOrderIterator
-import java.util.*
+import java.util.Comparator
 
 /**
  * Iterates through the inputs and graph to come up w/ a proper topological sorting.
@@ -42,7 +43,7 @@ class GraphSorter {
      * @param graph The input graph
      * @param subsetVertices The subset vertices of the graph we want to sort
      */
-    fun <T> sortChanges(graph: DirectedGraph<T, DefaultEdge>, subsetVertices: RichIterable<T>): ImmutableList<T> {
+    fun <T> sortChanges(graph: Graph<T, DefaultEdge>, subsetVertices: RichIterable<T>): ImmutableList<T> {
         return sortChanges(graph, subsetVertices, null)
     }
 
@@ -53,12 +54,12 @@ class GraphSorter {
      * @param subsetVertices The subset vertices of the graph we want to sort
      * @param comparator The comparator on which to order the vertices to guarantee a consistent topological ordering
      */
-    fun <T> sortChanges(graph: DirectedGraph<T, DefaultEdge>, subsetVertices: RichIterable<T>, comparator: Comparator<in T>?): ImmutableList<T> {
+    fun <T> sortChanges(graph: Graph<T, DefaultEdge>, subsetVertices: RichIterable<T>, comparator: Comparator<in T>?): ImmutableList<T> {
         if (subsetVertices.toSet().size != subsetVertices.size()) {
             throw IllegalStateException("Unexpected state - have some dupe elements here: $subsetVertices")
         }
 
-        val subsetGraph = DirectedSubgraph(
+        val subsetGraph = AsSubgraph(
                 graph, subsetVertices.toSet(), null)
 
         // At one point, we _thought_ that the DirectedSubGraph was dropping vertices that don't have edges, so we
@@ -76,7 +77,7 @@ class GraphSorter {
      *
      * @param graph The input graph - all vertices in the graph will be returned in the output list
      */
-    fun <T> sortChanges(graph: DirectedGraph<T, DefaultEdge>): ImmutableList<T> {
+    fun <T> sortChanges(graph: Graph<T, DefaultEdge>): ImmutableList<T> {
         return sortChanges(graph, null as Comparator<T>?)
     }
 
@@ -86,7 +87,7 @@ class GraphSorter {
      * @param graph The input graph - all vertices in the graph will be returned in the output list
      * @param comparator The comparator on which to order the vertices to guarantee a consistent topological ordering
      */
-    fun <T> sortChanges(graph: DirectedGraph<T, DefaultEdge>, comparator: Comparator<in T>?): ImmutableList<T> {
+    fun <T> sortChanges(graph: Graph<T, DefaultEdge>, comparator: Comparator<in T>?): ImmutableList<T> {
         if (graph.vertexSet().isEmpty()) {
             return Lists.immutable.empty()
         }
@@ -98,13 +99,12 @@ class GraphSorter {
         return CollectionUtil.iteratorToList(iterator)
     }
 
-    private fun <T> getTopologicalOrderIterator(graph: DirectedGraph<T, DefaultEdge>, comparator: Comparator<in T>?): TopologicalOrderIterator<T, DefaultEdge> {
+    private fun <T> getTopologicalOrderIterator(graph: Graph<T, DefaultEdge>, comparator: Comparator<in T>?): TopologicalOrderIterator<T, DefaultEdge> {
         if (comparator != null) {
-            val queue = PriorityQueue(10, comparator)
-            return TopologicalOrderIterator(graph, queue)
+            return TopologicalOrderIterator(graph, comparator as Comparator<T>)
         } else if (graph.vertexSet().iterator().next() is Comparable<*>) {
-            val queue = PriorityQueue<T>()
-            return TopologicalOrderIterator(graph, queue)
+            // ensure consistent output order
+            return TopologicalOrderIterator(graph, Comparators.naturalOrder<T>())
         } else {
             throw IllegalArgumentException("Unsortable graph elements - either need to provide a Comparator or have Comparable vertices to guarantee a consistent topological order")
         }

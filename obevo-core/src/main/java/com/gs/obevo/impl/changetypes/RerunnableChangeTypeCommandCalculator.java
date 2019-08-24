@@ -39,7 +39,7 @@ import org.eclipse.collections.impl.block.factory.HashingStrategies;
 import org.eclipse.collections.impl.factory.HashingStrategySets;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Sets;
-import org.jgrapht.DirectedGraph;
+import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.traverse.BreadthFirstIterator;
 import org.slf4j.Logger;
@@ -149,7 +149,7 @@ class RerunnableChangeTypeCommandCalculator implements ChangeTypeCommandCalculat
         }
         // do not log errors as info or above here when creating the graph as we know that we don't have the full graph
         LOG.debug("START BLOCK: Ignore any 'Invalid change found?' errors in this block of code");
-        DirectedGraph<Change, DefaultEdge> graph = enricher.createDependencyGraph(fromSourceList.select(new Predicate<Change>() {
+        Graph<Change, DefaultEdge> graph = enricher.createDependencyGraph(fromSourceList.select(new Predicate<Change>() {
             @Override
             public boolean accept(Change it) {
                 return it.getChangeType().equals(changeType);

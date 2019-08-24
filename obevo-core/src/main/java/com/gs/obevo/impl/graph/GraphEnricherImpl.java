@@ -34,7 +34,7 @@ import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.eclipse.collections.impl.tuple.Tuples;
 import org.jetbrains.annotations.NotNull;
-import org.jgrapht.DirectedGraph;
+import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.slf4j.Logger;
@@ -53,7 +53,7 @@ public class GraphEnricherImpl implements GraphEnricher {
     }
 
     @Override
-    public <T extends SortableDependencyGroup> DirectedGraph<T, DefaultEdge> createDependencyGraph(Iterable<? extends T> inputs2, boolean rollback) {
+    public <T extends SortableDependencyGroup> Graph<T, DefaultEdge> createDependencyGraph(Iterable<? extends T> inputs2, boolean rollback) {
         RichIterable<T> inputs = Lists.mutable.withAll(inputs2);
 
         final RichIterable<ChangeIndex<T>> changeIndexes = Lists.mutable.of(
@@ -182,7 +182,7 @@ public class GraphEnricherImpl implements GraphEnricher {
 
     @NotNull
     @Override
-    public <T> DirectedGraph<T, DefaultEdge> createSimpleDependencyGraph(@NotNull Iterable<? extends T> inputs, @NotNull Function1<? super T, ? extends Iterable<? extends T>> edgesFunction) {
+    public <T> Graph<T, DefaultEdge> createSimpleDependencyGraph(@NotNull Iterable<? extends T> inputs, @NotNull Function1<? super T, ? extends Iterable<? extends T>> edgesFunction) {
         final DefaultDirectedGraph<T, DefaultEdge> graph = new DefaultDirectedGraph<T, DefaultEdge>(DefaultEdge.class);
         for (T input : inputs) {
             graph.addVertex(input);
