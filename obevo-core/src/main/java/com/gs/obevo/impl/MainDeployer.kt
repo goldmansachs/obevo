@@ -251,7 +251,7 @@ class MainDeployer<P : Platform, E : Environment<P>>(
 //            FileWriter(sourceGraphOutputFile).use { exporterFunc(it, dependencyGraph) }
         }
 
-        sourceChanges.each { it.dependentChanges = GraphUtil.getDependencyNodes(dependencyGraph, it) }
+        sourceChanges.each { it.dependentChanges = Sets.immutable.ofAll(GraphUtil.getDependencyNodes(dependencyGraph, it)) }
 
         val artifactsToProcess = changesetCreator.determineChangeset(changePairs, sourceChanges, deployStrategy.isInitAllowedOnHashExceptions)
                 .applyDeferredPredicate(deployerArgs.changesetPredicate)

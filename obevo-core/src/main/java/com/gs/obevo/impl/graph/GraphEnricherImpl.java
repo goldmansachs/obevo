@@ -23,7 +23,6 @@ import com.gs.obevo.api.platform.ChangeType;
 import kotlin.jvm.functions.Function1;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.function.Function;
-import org.eclipse.collections.api.block.procedure.primitive.ObjectIntProcedure;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.multimap.Multimap;
@@ -106,52 +105,33 @@ public class GraphEnricherImpl implements GraphEnricher {
         }
 
         // Add in changes within incremental files to ensure proper order
-        RichIterable<Pair<T, SortableDependency>> groupToComponentPairs = inputs.flatCollect(new Function<T, Iterable<Pair<T, SortableDependency>>>() {
-            @Override
-            public Iterable<Pair<T, SortableDependency>> valueOf(T group) {
-                return group.getComponents().collect(Functions.pair(Functions.getFixedValue(group), Functions.<SortableDependency>getPassThru()));
-            }
-        });
+        RichIterable<Pair<T, SortableDependency>> groupToComponentPairs = inputs.flatCollect(group -> group.getComponents().collect(Functions.pair(Functions.getFixedValue(group), Functions.<SortableDependency>getPassThru())));
 
-        final Multimap<String, Pair<T, SortableDependency>> incrementalChangeByObjectMap = groupToComponentPairs.groupBy(new Function<Pair<T, SortableDependency>, String>() {
-            @Override
-            public String valueOf(Pair<T, SortableDependency> pair) {
-                SortableDependency tSortMetadata = pair.getTwo();
-                String changeType = tSortMetadata.getChangeKey().getObjectKey().getChangeType().getName();
-                if (changeType.equals(ChangeType.TRIGGER_INCREMENTAL_OLD_STR) || changeType.equals(ChangeType.FOREIGN_KEY_STR)) {
-                    changeType = ChangeType.TABLE_STR;
-                }
-                return changeType + ":" + tSortMetadata.getChangeKey().getObjectKey().getSchema() + ":" + convertDbObjectName.valueOf(tSortMetadata.getChangeKey().getObjectKey().getObjectName());
+        final Multimap<String, Pair<T, SortableDependency>> incrementalChangeByObjectMap = groupToComponentPairs.groupBy(pair -> {
+            SortableDependency tSortMetadata = pair.getTwo();
+            String changeType = tSortMetadata.getChangeKey().getObjectKey().getChangeType().getName();
+            if (changeType.equals(ChangeType.TRIGGER_INCREMENTAL_OLD_STR) || changeType.equals(ChangeType.FOREIGN_KEY_STR)) {
+                changeType = ChangeType.TABLE_STR;
             }
+            return changeType + ":" + tSortMetadata.getChangeKey().getObjectKey().getSchema() + ":" + convertDbObjectName.valueOf(tSortMetadata.getChangeKey().getObjectKey().getObjectName());
         });
 
         for (RichIterable<Pair<T, SortableDependency>> sortMetadataPairs : incrementalChangeByObjectMap.multiValuesView()) {
-            final MutableList<Pair<T, SortableDependency>> sortedChanges = sortMetadataPairs.toSortedListBy(Functions.chain(Functions.<SortableDependency>secondOfPair(), new Function<SortableDependency, Integer>() {
-                @Override
-                public Integer valueOf(SortableDependency sortableDependency) {
-                    return sortableDependency.getOrderWithinObject();
-                }
-            }));
+            final MutableList<Pair<T, SortableDependency>> sortedChanges = sortMetadataPairs.toSortedListBy(pair -> pair.getTwo().getOrderWithinObject());
             if (sortedChanges.size() > 1) {
                 if (rollback) {
-                    sortedChanges.forEachWithIndex(0, sortedChanges.size() - 2, new ObjectIntProcedure<Pair<T, SortableDependency>>() {
-                        @Override
-                        public void value(Pair<T, SortableDependency> each, int index) {
-                            // for rollback, we go in reverse-order (each change follows the one after it in the file)
-                            Pair<T, SortableDependency> nextChange = sortedChanges.get(index + 1);
+                    sortedChanges.forEachWithIndex(0, sortedChanges.size() - 2, (each, index) -> {
+                        // for rollback, we go in reverse-order (each change follows the one after it in the file)
+                        Pair<T, SortableDependency> nextChange = sortedChanges.get(index + 1);
 
-                            graph.addEdge(nextChange.getOne(), each.getOne(), new DependencyEdge(nextChange.getOne(), each.getOne(), CodeDependencyType.IMPLICIT));
-                        }
+                        graph.addEdge(nextChange.getOne(), each.getOne(), new DependencyEdge(nextChange.getOne(), each.getOne(), CodeDependencyType.IMPLICIT));
                     });
                 } else {
-                    sortedChanges.forEachWithIndex(1, sortedChanges.size() - 1, new ObjectIntProcedure<Pair<T, SortableDependency>>() {
-                        @Override
-                        public void value(Pair<T, SortableDependency> each, int index) {
-                            // for regular mode, we go in regular-order (each change follows the one before it in the file)
-                            Pair<T, SortableDependency> previousChange = sortedChanges.get(index - 1);
+                    sortedChanges.forEachWithIndex(1, sortedChanges.size() - 1, (each, index) -> {
+                        // for regular mode, we go in regular-order (each change follows the one before it in the file)
+                        Pair<T, SortableDependency> previousChange = sortedChanges.get(index - 1);
 
-                            graph.addEdge(previousChange.getOne(), each.getOne(), new DependencyEdge(previousChange.getOne(), each.getOne(), CodeDependencyType.IMPLICIT));
-                        }
+                        graph.addEdge(previousChange.getOne(), each.getOne(), new DependencyEdge(previousChange.getOne(), each.getOne(), CodeDependencyType.IMPLICIT));
                     });
                 }
             }
@@ -159,23 +139,8 @@ public class GraphEnricherImpl implements GraphEnricher {
 
         // validate
         GraphUtil.validateNoCycles(graph,
-                new Function<T, String>() {
-                    @Override
-                    public String valueOf(T t) {
-                        return t.getComponents().collect(new Function<SortableDependency, String>() {
-                            @Override
-                            public String valueOf(SortableDependency sortableDependency) {
-                                return "[" + sortableDependency.getChangeKey().getObjectKey().getObjectName() + "." + sortableDependency.getChangeKey().getChangeName() + "]";
-                            }
-                        }).makeString(", ");
-                    }
-                },
-                new Function<DefaultEdge, String>() {
-                    @Override
-                    public String valueOf(DefaultEdge dependencyEdge) {
-                        return "-" + ((DependencyEdge) dependencyEdge).getEdgeType();
-                    }
-                });
+                t -> t.getComponents().collect(sortableDependency -> "[" + sortableDependency.getChangeKey().getObjectKey().getObjectName() + "." + sortableDependency.getChangeKey().getChangeName() + "]").makeString(", "),
+                dependencyEdge -> ((DependencyEdge) dependencyEdge).getEdgeType().name());
 
         return graph;
     }
@@ -184,9 +149,7 @@ public class GraphEnricherImpl implements GraphEnricher {
     @Override
     public <T> Graph<T, DefaultEdge> createSimpleDependencyGraph(@NotNull Iterable<? extends T> inputs, @NotNull Function1<? super T, ? extends Iterable<? extends T>> edgesFunction) {
         final DefaultDirectedGraph<T, DefaultEdge> graph = new DefaultDirectedGraph<T, DefaultEdge>(DefaultEdge.class);
-        for (T input : inputs) {
-            graph.addVertex(input);
-        }
+        inputs.forEach(graph::addVertex);
 
         for (T input : inputs) {
             Iterable<? extends T> targetVertices = edgesFunction.invoke(input);
@@ -228,7 +191,7 @@ public class GraphEnricherImpl implements GraphEnricher {
 
         @Override
         public T retrieve(String schema, String dependency) {
-            return (T) schemaToObjectMap.get(Tuples.pair(schema, convertDbObjectName.valueOf(dependency)));
+            return schemaToObjectMap.get(Tuples.pair(schema, convertDbObjectName.valueOf(dependency)));
         }
     }
 
@@ -265,7 +228,7 @@ public class GraphEnricherImpl implements GraphEnricher {
 
         @Override
         public T retrieve(String schema, String dependency) {
-            return (T) schemaToObjectMap.get(Tuples.pair(schema, convertDbObjectName.valueOf(dependency)));
+            return schemaToObjectMap.get(Tuples.pair(schema, convertDbObjectName.valueOf(dependency)));
         }
     }
 
