@@ -23,4 +23,8 @@ import com.gs.obevo.api.platform.ChangeType
 data class ObjectKey(val schema: String, val objectName: String, val changeType: ChangeType) {
     val changeTypeName: String
         get() = changeType.name
+
+    fun toStringShort(): String {
+        return schema + "-" + objectName + "-" + changeType.name
+    }
 }

@@ -275,7 +275,7 @@ public abstract class AbstractDeployerAppContext<E extends Environment, Self ext
     }
 
     protected GraphEnricher graphEnricher() {
-        return new GraphEnricherImpl(env.getPlatform().convertDbObjectName());
+        return new GraphEnricherImpl(env.getPlatform().convertDbObjectName()::valueOf);
     }
 
     public static class ReaderContext {
