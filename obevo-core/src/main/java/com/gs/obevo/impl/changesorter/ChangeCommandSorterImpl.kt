@@ -50,7 +50,7 @@ class ChangeCommandSorterImpl(
     private val graphSorter = GraphSorter()
 
     init {
-        this.enricher = GraphEnricherImpl(dialect.convertDbObjectName())
+        this.enricher = GraphEnricherImpl(dialect.convertDbObjectName()::valueOf)
     }
 
     override fun sort(changeCommands: Iterable<ExecuteChangeCommand>): List<ExecuteChangeCommand> {

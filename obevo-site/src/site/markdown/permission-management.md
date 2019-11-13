@@ -53,6 +53,7 @@ system-config.xml. See this example:
 ```
 
 Element Descriptions:
+
 * &lt;permission&gt; defines a particular scheme
  * Each DB object will have a particular scheme
  * By default, the scheme name will be the object type, e.g. TABLE, SP, VIEW, SEQUENCE, FUNCTION

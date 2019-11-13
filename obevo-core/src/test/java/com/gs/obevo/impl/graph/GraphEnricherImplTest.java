@@ -39,7 +39,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class GraphEnricherImplTest {
-    private GraphEnricher enricher = new GraphEnricherImpl(Functions.getStringPassThru());
+    private GraphEnricher enricher = new GraphEnricherImpl(Functions.getStringPassThru()::valueOf);
 
     private final String schema1 = "schema1";
     private final String schema2 = "schema2";
@@ -62,7 +62,7 @@ public class GraphEnricherImplTest {
      * a bit so that we can verify that the resolution works either way.
      */
     private void testSchemaObjectDependencies(boolean caseInsensitive) {
-        this.enricher = new GraphEnricherImpl(caseInsensitive ? StringFunctions.toUpperCase() : Functions.getStringPassThru());
+        this.enricher = new GraphEnricherImpl(caseInsensitive ? String::toUpperCase : Functions.getStringPassThru()::valueOf);
 
         SortableDependencyGroup sch1Obj1 = newChange(schema1, type1, "obj1", Sets.immutable.with("obj3", schema2 + ".obj2"));
         SortableDependencyGroup sch1Obj2 = newChange(schema1, type2, "obj2", Sets.immutable.<String>with());
@@ -103,7 +103,7 @@ public class GraphEnricherImplTest {
     }
 
     private void testSchemaObjectChangeDependencies(boolean caseInsensitive, boolean rollback) {
-        this.enricher = new GraphEnricherImpl(caseInsensitive ? StringFunctions.toUpperCase() : Functions.getStringPassThru());
+        this.enricher = new GraphEnricherImpl(caseInsensitive ? String::toUpperCase : Functions.getStringPassThru()::valueOf);
 
         SortableDependencyGroup sch1Obj1Chng0 = newChange(schema1, type1, "obj1", "c0", 0, Sets.immutable.<String>with());
         SortableDependencyGroup sch1Obj1Chng1 = newChange(schema1, type1, "obj1", "c1", 1, Sets.immutable.<String>with());
@@ -162,7 +162,7 @@ public class GraphEnricherImplTest {
 
     @Test
     public void testGetChangesCaseInsensitive() {
-        this.enricher = new GraphEnricherImpl(StringFunctions.toUpperCase());
+        this.enricher = new GraphEnricherImpl(String::toUpperCase);
         String schema1 = "schema1";
         String schema2 = "schema2";
         String type1 = "type1";
@@ -187,7 +187,7 @@ public class GraphEnricherImplTest {
 
     @Test
     public void testCycleValidation() {
-        this.enricher = new GraphEnricherImpl(Functions.getStringPassThru());
+        this.enricher = new GraphEnricherImpl(Functions.getStringPassThru()::valueOf);
 
         SortableDependencyGroup cyc1Obj1 = newChange(schema1, type1, "cyc1Obj1", Sets.immutable.with(schema2 + ".cyc1Obj3"));
         SortableDependencyGroup cyc1Obj2 = newChange(schema1, type2, "cyc1Obj2", Sets.immutable.with("cyc1Obj1"));
@@ -213,7 +213,7 @@ public class GraphEnricherImplTest {
 
     @Test
     public void testCycleValidationWithIncrementalChanges() {
-        this.enricher = new GraphEnricherImpl(Functions.getStringPassThru());
+        this.enricher = new GraphEnricherImpl(Functions.getStringPassThru()::valueOf);
 
         SortableDependencyGroup sch1Obj1C1 = newChange(schema1, type1, "obj1", "c1", 0, null);
         SortableDependencyGroup sch1Obj1C2 = newChange(schema1, type1, "obj1", "c2", 1, Sets.immutable.<String>with("obj2"));
@@ -265,11 +265,12 @@ public class GraphEnricherImplTest {
         when(sort.getOrderWithinObject()).thenReturn(orderWithinObject);
 
         // to print out a nice message for the mock; we do need the string variable on a separate line
-        String keyString = key.toString();
+        String keyString = key.toStringShort() + "-" + changeName;
         when(sort.toString()).thenReturn(keyString);
 
         SortableDependencyGroup depGroup = mock(SortableDependencyGroup.class);
         when(depGroup.getComponents()).thenReturn(Sets.immutable.<SortableDependency>with(sort));
+        when(depGroup.toString()).thenReturn(keyString);
         return depGroup;
     }
 }
