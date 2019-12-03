@@ -16,11 +16,10 @@
 package com.gs.obevo.api.platform;
 
 import com.gs.obevo.api.appdata.PhysicalSchema;
-import com.gs.obevo.impl.MainDeployer;
 
 /**
  * Component to ensure that only a single client can invoke a deploy on an Obevo environment.
- * This component is mainly called from {@link MainDeployer}.
+ * This component is mainly called from MainDeployer.
  * As of today, the lock is environment wide (i.e. not per {@link PhysicalSchema}); this may be refactored in the future.
  */
 public interface AuditLock {
@@ -30,7 +29,7 @@ public interface AuditLock {
     void lock();
 
     /**
-     * Release the lock on the environment. Okay to throw exceptions here, as {@link MainDeployer} will handle
+     * Release the lock on the environment. Okay to throw exceptions here, as MainDeployer will handle
      * and ignore exceptions when calling this.
      */
     void unlock();
