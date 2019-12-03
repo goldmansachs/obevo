@@ -40,12 +40,7 @@ class PostgreSqlLock internal constructor(
             if (!lockAcquired) {
                 LOG.info("Lock not yet available; waiting for {} seconds", defaultRetryDelay.seconds)
 
-                try {
-                    Thread.sleep(defaultRetryDelay.toMillis())
-                } catch (e: InterruptedException) {
-                    throw RuntimeException(e)
-                }
-
+                Thread.sleep(defaultRetryDelay.toMillis())
             }
         }
     }

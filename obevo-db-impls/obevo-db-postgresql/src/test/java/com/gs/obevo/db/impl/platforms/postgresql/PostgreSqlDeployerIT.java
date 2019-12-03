@@ -19,10 +19,11 @@ import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.function.Function;
 
 import javax.sql.DataSource;
 
@@ -59,34 +60,20 @@ public class PostgreSqlDeployerIT {
                 .setupEnvInfra()
                 .cleanEnvironment();
 
-        ExecutorService executorService = Executors.newFixedThreadPool(5);
-        List<Future<Object>> futures = executorService.invokeAll(Lists.mutable.of(
-                new Callable<Object>() {
-                    @Override
-                    public Object call() throws Exception {
-                        System.out.println("DEPLOY THREAD 1`");
-                        getAppContext.valueOf(1).deploy();
-                        return null;
-                    }
-                },
-                new Callable<Object>() {
-                    @Override
-                    public Object call() throws Exception {
-                        System.out.println("DEPLOY THREAD 2");
-                        getAppContext.valueOf(1).deploy();
-                        return null;
-                    }
-                },
-                new Callable<Object>() {
-                    @Override
-                    public Object call() throws Exception {
-                        System.out.println("DEPLOY THREAD 3");
-                        getAppContext.valueOf(1).deploy();
-                        return null;
-                    }
-                }
-        ));
+        Function<Integer, Void> threadInvoker = i -> {
+            System.out.println("DEPLOY THREAD 1`");
+            getAppContext.valueOf(1).deploy();
+            return null;
+        };
 
+        // Invoke the jobs in parallel to ensure that the postgresql locking works; only one deploy should go through,
+        // whereas the others will become no-ops
+        ExecutorService executorService = Executors.newFixedThreadPool(3);
+        List<Future<Object>> futures = executorService.invokeAll(Lists.mutable.of(
+                () -> threadInvoker.apply(1),
+                () -> threadInvoker.apply(2),
+                () -> threadInvoker.apply(3)
+        ));
         for (Future<Object> future : futures) {
             future.get();
         }
