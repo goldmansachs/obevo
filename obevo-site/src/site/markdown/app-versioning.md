@@ -92,7 +92,7 @@ In the example above, from a human perspective, it seems obvious that V2 is a la
 V2 to V1 should be a rollback. How can we tell Obevo to do this?
 
 
-1) Specify the -productVersion <versionName> attribute in your deploy call to have the version number stored
+1) Specify the -productVersion \<versionName> attribute in your deploy call to have the version number stored
 
 ```
 deploy.sh DEPLOY -sourcePath /my/source/path -productVersion 1.2.3

@@ -480,11 +480,6 @@ public class SameSchemaChangeAuditDao implements ChangeAuditDao {
 
     @Override
     public AuditLock acquireLock() {
-        return sqlExecutor.executeWithinContext(env.getPhysicalSchemas().getFirst(), new ThrowingFunction<Connection, AuditLock>() {
-            @Override
-            public AuditLock safeValueOf(Connection conn) {
-                return sqlExecutor.lock(conn);
-            }
-        });
+        return sqlExecutor.executeWithinContext(env.getPhysicalSchemas().getFirst(), sqlExecutor::lock);
     }
 }

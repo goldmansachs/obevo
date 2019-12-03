@@ -53,7 +53,17 @@ import org.eclipse.collections.impl.block.factory.Predicates
 import org.eclipse.collections.impl.block.factory.StringFunctions
 import org.eclipse.collections.impl.factory.Lists
 import org.eclipse.collections.impl.factory.Sets
+import org.jgrapht.Graph
+import org.jgrapht.graph.DefaultEdge
+import org.jgrapht.io.ComponentNameProvider
+import org.jgrapht.io.DOTExporter
+import org.jgrapht.io.GmlExporter
+import org.jgrapht.io.GraphMLExporter
+import org.jgrapht.io.IntegerComponentNameProvider
+import org.jgrapht.io.MatrixExporter
 import org.slf4j.LoggerFactory
+import java.io.FileWriter
+import java.io.Writer
 import java.sql.Timestamp
 import java.util.Date
 import java.util.concurrent.TimeUnit
@@ -133,241 +143,251 @@ class MainDeployer<P : Platform, E : Environment<P>>(
         val deployStrategy = getDeployMode(deployerArgs)
 
         val lock = artifactDeployerDao.acquireLock()
-        lock.lock()
+        try {
+            LOG.info("Attempting to acquire deploy lock")
+            lock.lock()
+            LOG.info("Deploy lock acquired")
 
-        val deployedChanges = readDeployedChanges(deployerArgs)
-        mainInputReader.logChanges("deployed", deployedChanges)
+            val deployedChanges = readDeployedChanges(deployerArgs)
+            mainInputReader.logChanges("deployed", deployedChanges)
 
-        // TODO ensure that we've handled the split between static data and others properly
-        val changeInputSetMap = this.textDependencyExtractor.calculateDependencies(
-                changeInputs.filter { it.changeKey.changeType.isEnrichableForDependenciesInText }
-        )
-
-        val newChangeInputSetMap = mutableMapOf<ChangeInput, Set<CodeDependency>>()
-        val packageChanges = changeInputs.filter { it.objectKey.changeType.name == ChangeType.PACKAGE_STR || it.objectKey.changeType.name == ChangeType.PACKAGE_BODY }
-                .map { it.objectKey.objectName }.toSet()
-        changeInputSetMap.onEach { entry ->
-            val change = entry.key
-            val dependencies = entry.value
-            if (change.objectKey.changeType.name == ChangeType.PACKAGE_BODY) {
-                newChangeInputSetMap.put(change, dependencies.filterNot { packageChanges.contains(it.target) }.toSet())
-            } else {
-                newChangeInputSetMap.put(change, dependencies)
-            }
-        }
-
-        var sourceChanges = changeInputs.collect { input ->
-            val change: Change
-            if (input.isRerunnable) {
-                change = ChangeRerunnable(input.changeKey, input.contentHash, input.content)
-            } else {
-                change = ChangeIncremental(
-                        input.changeKey,
-                        input.orderWithinObject,
-                        input.contentHash,
-                        input.content,
-                        input.rollbackIfAlreadyDeployedContent,
-                        input.isActive
-                )
-                change.isDrop = input.isDrop
-                change.baselinedChanges = input.baselinedChanges
-                change.parallelGroup = input.parallelGroup
-                change.isKeepIncrementalOrder = input.isKeepIncrementalOrder
-            }
-
-            change.metadataSection = input.metadataSection
-
-            // TODO should not need separate converted*Content fields in Change. Should only be in ChangeInput - see GITHUB#191
-            change.convertedContent = input.convertedContent
-            change.rollbackContent = input.rollbackContent
-            change.convertedRollbackContent = input.convertedRollbackContent
-
-            change.changeInput = input
-            change.orderWithinObject = input.orderWithinObject
-
-            change.order = input.order
-            change.applyGrants = input.applyGrants
-            change.changeset = input.changeset
-
-            change.codeDependencies = Sets.immutable.withAll(
-                    newChangeInputSetMap.get(input)  // option 1 - use the inputs extracted from the next if possible
-                            ?: input.codeDependencies  // option 2 - use the pre-populated codeDependencies value
-                            ?: emptySet()  // fallback - default to empty set
+            // TODO ensure that we've handled the split between static data and others properly
+            val changeInputSetMap = this.textDependencyExtractor.calculateDependencies(
+                    changeInputs.filter { it.changeKey.changeType.isEnrichableForDependenciesInText }
             )
 
-            change.dropContent = input.dropContent
-            change.permissionScheme = input.permissionScheme
-
-            return@collect change
-        }
-
-        // add rollback scripts here
-
-        val changePairs = ChangesetCreator.getChangePairs(deployedChanges, sourceChanges)
-
-        if (deployerArgs.isRollback) {
-            // Add back rollback changes to the sourceList so that they can take part in the change calculation
-            val rollbacksToAddBack = changePairs
-                    .filter { !it.changeKey.changeType.isRerunnable && it.sourceChange == null && it.deployedChange != null }
-                    .map { it.deployedChange as ChangeIncremental }
-
-            rollbacksToAddBack.forEach { it.isRollbackActivated = true }
-
-            sourceChanges = sourceChanges.newWithAll(rollbacksToAddBack)
-        }
-
-        // TODO refactor into separate method
-        if (env.platform.isDropOrderRequired) {
-            // In this block, we set the "dependentChanges" field on the drop objects to ensure they can be sorted for dependencies later on
-            val dropsToEnrich = changePairs
-                    .filter { it.changeKey.changeType.isRerunnable && it.sourceChange == null && it.deployedChange != null }
-                    .map { it.deployedChange!! }
-
-            val dropsByObjectName = dropsToEnrich.associateBy { env.platform.convertDbObjectName().valueOf(it.objectName) }
-
-            val dropsForTextProcessing = dropsToEnrich.map { drop ->
-                val sql = changeTypeBehaviorRegistry.getChangeTypeBehavior(drop.changeType).getDefinitionFromEnvironment(drop);
-                LOG.debug("Found the sql from the DB for dropping: {}", sql)
-                TextDependencyExtractableImpl(drop.objectName, sql ?: "", drop)
-            }
-
-            val dropDependencies = this.textDependencyExtractor.calculateDependencies(dropsForTextProcessing)
-
-            dropsForTextProcessing.forEach { it.codeDependencies = Sets.immutable.ofAll(dropDependencies.get(it)) }
-
-            for (drop in dropsForTextProcessing) {
-                drop.codeDependencies?.let { deps ->
-                    if (deps.notEmpty()) {
-                        drop.payload.dependentChanges = Sets.immutable.ofAll(deps.map { dropsByObjectName[it.target] })
-                    }
+            val newChangeInputSetMap = mutableMapOf<ChangeInput, Set<CodeDependency>>()
+            val packageChanges = changeInputs.filter { it.objectKey.changeType.name == ChangeType.PACKAGE_STR || it.objectKey.changeType.name == ChangeType.PACKAGE_BODY }
+                    .map { it.objectKey.objectName }.toSet()
+            changeInputSetMap.onEach { entry ->
+                val change = entry.key
+                val dependencies = entry.value
+                if (change.objectKey.changeType.name == ChangeType.PACKAGE_BODY) {
+                    newChangeInputSetMap.put(change, dependencies.filterNot { packageChanges.contains(it.target) }.toSet())
+                } else {
+                    newChangeInputSetMap.put(change, dependencies)
                 }
             }
-        }
 
+            var sourceChanges = changeInputs.collect { input ->
+                val change: Change
+                if (input.isRerunnable) {
+                    change = ChangeRerunnable(input.changeKey, input.contentHash, input.content)
+                } else {
+                    change = ChangeIncremental(
+                            input.changeKey,
+                            input.orderWithinObject,
+                            input.contentHash,
+                            input.content,
+                            input.rollbackIfAlreadyDeployedContent,
+                            input.isActive
+                    )
+                    change.isDrop = input.isDrop
+                    change.baselinedChanges = input.baselinedChanges
+                    change.parallelGroup = input.parallelGroup
+                    change.isKeepIncrementalOrder = input.isKeepIncrementalOrder
+                }
 
-        val dependencyGraph = graphEnricher.createDependencyGraph(sourceChanges, deployerArgs.isRollback)
+                change.metadataSection = input.metadataSection
 
-        deployerArgs.sourceGraphExportFile?.let { sourceGraphOutputFile ->
-            val exporterFormat = deployerArgs.sourceGraphExportFormat ?: GraphExportFormat.DOT
-            // TODO undo this change
-//            val exporterFunc = getExporterFunc(exporterFormat)
-//            FileWriter(sourceGraphOutputFile).use { exporterFunc(it, dependencyGraph) }
-        }
+                // TODO should not need separate converted*Content fields in Change. Should only be in ChangeInput - see GITHUB#191
+                change.convertedContent = input.convertedContent
+                change.rollbackContent = input.rollbackContent
+                change.convertedRollbackContent = input.convertedRollbackContent
 
-        sourceChanges.each { it.dependentChanges = Sets.immutable.ofAll(GraphUtil.getDependencyNodes(dependencyGraph, it)) }
+                change.changeInput = input
+                change.orderWithinObject = input.orderWithinObject
 
-        val artifactsToProcess = changesetCreator.determineChangeset(changePairs, sourceChanges, deployStrategy.isInitAllowedOnHashExceptions)
-                .applyDeferredPredicate(deployerArgs.changesetPredicate)
+                change.order = input.order
+                change.applyGrants = input.applyGrants
+                change.changeset = input.changeset
 
-        validatePriorToDeployment(env, deployStrategy, sourceChanges, deployedChanges, artifactsToProcess)
-        deployerPlugin.validatePriorToDeployment(env, deployStrategy, sourceChanges, deployedChanges, artifactsToProcess)
-
-        if (this.shouldProceedWithDbChange(artifactsToProcess, deployerArgs)) {
-            env.physicalSchemas.forEach { deployerPlugin.initializeSchema(env, it) }
-
-            // Note - only init the audit table if we actually proceed w/ a deploy
-            this.deployExecutionDao.init()
-            this.artifactDeployerDao.init()
-
-            val executionsBySchema = env.schemas.associateBy({it.name}, { schema ->
-                val deployExecution = DeployExecutionImpl(
-                        deployerArgs.deployRequesterId,
-                        credential.username,
-                        schema.name,
-                        PlatformConfiguration.getInstance().toolVersion,
-                        Timestamp(Date().time),
-                        deployerArgs.isPerformInitOnly,
-                        deployerArgs.isRollback,
-                        deployerArgs.productVersion,
-                        deployerArgs.reason,
-                        deployerArgs.deployExecutionAttributes
+                change.codeDependencies = Sets.immutable.withAll(
+                        newChangeInputSetMap.get(input)  // option 1 - use the inputs extracted from the next if possible
+                                ?: input.codeDependencies  // option 2 - use the pre-populated codeDependencies value
+                                ?: emptySet()  // fallback - default to empty set
                 )
-                deployExecution.status = DeployExecutionStatus.IN_PROGRESS
-                deployExecutionDao.persistNew(deployExecution, env.getPhysicalSchema(schema.name))
-                deployExecution
-            })
 
-            // If there are no deployments required, then just update the artifact tables and return
-            if (!artifactsToProcess.isDeploymentNeeded) {
-                LOG.info("No changes detected in the database deployment. Updating Deploy Status")
-                executionsBySchema.values.forEach { deployExecution ->
-                    deployExecution.status = DeployExecutionStatus.SUCCEEDED
-                    this.deployExecutionDao.update(deployExecution)
-                }
-                lock.unlock();
-                return
+                change.dropContent = input.dropContent
+                change.permissionScheme = input.permissionScheme
+
+                return@collect change
             }
 
-            val action = if (deployerArgs.isRollback) "Rollback" else "Deployment"
+            // add rollback scripts here
 
-            var mainDeploymentSuccess = false
-            val cec = CommandExecutionContext()
-            try {
-                this.doExecute(artifactsToProcess, deployStrategy, onboardingStrategy, executionsBySchema, cec)
-                LOG.info("$action has Completed Successfully!")
-                executionsBySchema.values.forEach { deployExecution ->
-                    deployExecution.status = DeployExecutionStatus.SUCCEEDED
-                    this.deployExecutionDao.update(deployExecution)
+            val changePairs = ChangesetCreator.getChangePairs(deployedChanges, sourceChanges)
+
+            if (deployerArgs.isRollback) {
+                // Add back rollback changes to the sourceList so that they can take part in the change calculation
+                val rollbacksToAddBack = changePairs
+                        .filter { !it.changeKey.changeType.isRerunnable && it.sourceChange == null && it.deployedChange != null }
+                        .map { it.deployedChange as ChangeIncremental }
+
+                rollbacksToAddBack.forEach { it.isRollbackActivated = true }
+
+                sourceChanges = sourceChanges.newWithAll(rollbacksToAddBack)
+            }
+
+            // TODO refactor into separate method
+            if (env.platform.isDropOrderRequired) {
+                // In this block, we set the "dependentChanges" field on the drop objects to ensure they can be sorted for dependencies later on
+                val dropsToEnrich = changePairs
+                        .filter { it.changeKey.changeType.isRerunnable && it.sourceChange == null && it.deployedChange != null }
+                        .map { it.deployedChange!! }
+
+                val dropsByObjectName = dropsToEnrich.associateBy { env.platform.convertDbObjectName().valueOf(it.objectName) }
+
+                val dropsForTextProcessing = dropsToEnrich.map { drop ->
+                    val sql = changeTypeBehaviorRegistry.getChangeTypeBehavior(drop.changeType).getDefinitionFromEnvironment(drop);
+                    LOG.debug("Found the sql from the DB for dropping: {}", sql)
+                    TextDependencyExtractableImpl(drop.objectName, sql ?: "", drop)
                 }
 
-                mainDeploymentSuccess = true
-            } catch (exc: RuntimeException) {
-                LOG.info("$action has Failed. We will error out, but first complete the post-deploy step")
-                executionsBySchema.values.forEach { deployExecution ->
-                    deployExecution.status = DeployExecutionStatus.FAILED
-                    this.deployExecutionDao.update(deployExecution)
-                }
-                throw exc
-            } finally {
-                LOG.info("Executing the post-deploy step")
-                try {
-                    deployerPlugin.doPostDeployAction(env, sourceChanges)
-                    this.postDeployAction.value(env)
-                } catch (exc: RuntimeException) {
-                    if (mainDeploymentSuccess) {
-                        LOG.info("Exception found in the post-deploy step", exc)
-                        throw exc
-                    } else {
-                        LOG.error("Exception found in the post-deploy step; printing it out here, but there was an exception during the regular deploy as well", exc)
+                val dropDependencies = this.textDependencyExtractor.calculateDependencies(dropsForTextProcessing)
+
+                dropsForTextProcessing.forEach { it.codeDependencies = Sets.immutable.ofAll(dropDependencies.get(it)) }
+
+                for (drop in dropsForTextProcessing) {
+                    drop.codeDependencies?.let { deps ->
+                        if (deps.notEmpty()) {
+                            drop.payload.dependentChanges = Sets.immutable.ofAll(deps.map { dropsByObjectName[it.target] })
+                        }
                     }
                 }
+            }
 
-                LOG.info("Post-deploy step completed")
 
-                val warnings = cec.warnings
-                if (warnings.notEmpty()) {
-                    LOG.info("")
-                    LOG.info("Summary of warnings from this deployment; please address:\n{}", warnings.collect(StringFunctions.prepend("    ")).makeString("\n"))
+            val dependencyGraph = graphEnricher.createDependencyGraph(sourceChanges, deployerArgs.isRollback)
+
+            deployerArgs.sourceGraphExportFile?.let { sourceGraphOutputFile ->
+                val exporterFormat = deployerArgs.sourceGraphExportFormat ?: GraphExportFormat.DOT
+                // TODO undo this change
+                val exporterFunc = getExporterFunc(exporterFormat)
+                FileWriter(sourceGraphOutputFile).use { exporterFunc(it, dependencyGraph) }
+            }
+
+            sourceChanges.each { it.dependentChanges = Sets.immutable.ofAll(GraphUtil.getDependencyNodes(dependencyGraph, it)) }
+
+            val artifactsToProcess = changesetCreator.determineChangeset(changePairs, sourceChanges, deployStrategy.isInitAllowedOnHashExceptions)
+                    .applyDeferredPredicate(deployerArgs.changesetPredicate)
+
+            validatePriorToDeployment(env, deployStrategy, sourceChanges, deployedChanges, artifactsToProcess)
+            deployerPlugin.validatePriorToDeployment(env, deployStrategy, sourceChanges, deployedChanges, artifactsToProcess)
+
+            if (this.shouldProceedWithDbChange(artifactsToProcess, deployerArgs)) {
+                env.physicalSchemas.forEach { deployerPlugin.initializeSchema(env, it) }
+
+                // Note - only init the audit table if we actually proceed w/ a deploy
+                this.deployExecutionDao.init()
+                this.artifactDeployerDao.init()
+
+                val executionsBySchema = env.schemas.associateBy({ it.name }, { schema ->
+                    val deployExecution = DeployExecutionImpl(
+                            deployerArgs.deployRequesterId,
+                            credential.username,
+                            schema.name,
+                            PlatformConfiguration.getInstance().toolVersion,
+                            Timestamp(Date().time),
+                            deployerArgs.isPerformInitOnly,
+                            deployerArgs.isRollback,
+                            deployerArgs.productVersion,
+                            deployerArgs.reason,
+                            deployerArgs.deployExecutionAttributes
+                    )
+                    deployExecution.status = DeployExecutionStatus.IN_PROGRESS
+                    deployExecutionDao.persistNew(deployExecution, env.getPhysicalSchema(schema.name))
+                    deployExecution
+                })
+
+                // If there are no deployments required, then just update the artifact tables and return
+                if (!artifactsToProcess.isDeploymentNeeded) {
+                    LOG.info("No changes detected in the database deployment. Updating Deploy Status")
+                    executionsBySchema.values.forEach { deployExecution ->
+                        deployExecution.status = DeployExecutionStatus.SUCCEEDED
+                        this.deployExecutionDao.update(deployExecution)
+                    }
+                    return
                 }
 
-                LOG.info("Deploy complete!")
+                val action = if (deployerArgs.isRollback) "Rollback" else "Deployment"
+
+                var mainDeploymentSuccess = false
+                val cec = CommandExecutionContext()
+                try {
+                    this.doExecute(artifactsToProcess, deployStrategy, onboardingStrategy, executionsBySchema, cec)
+                    LOG.info("$action has Completed Successfully!")
+                    executionsBySchema.values.forEach { deployExecution ->
+                        deployExecution.status = DeployExecutionStatus.SUCCEEDED
+                        this.deployExecutionDao.update(deployExecution)
+                    }
+
+                    mainDeploymentSuccess = true
+                } catch (exc: RuntimeException) {
+                    LOG.info("$action has Failed. We will error out, but first complete the post-deploy step")
+                    executionsBySchema.values.forEach { deployExecution ->
+                        deployExecution.status = DeployExecutionStatus.FAILED
+                        this.deployExecutionDao.update(deployExecution)
+                    }
+                    throw exc
+                } finally {
+                    LOG.info("Executing the post-deploy step")
+                    try {
+                        deployerPlugin.doPostDeployAction(env, sourceChanges)
+                        this.postDeployAction.value(env)
+                    } catch (exc: RuntimeException) {
+                        if (mainDeploymentSuccess) {
+                            LOG.info("Exception found in the post-deploy step", exc)
+                            throw exc
+                        } else {
+                            LOG.error("Exception found in the post-deploy step; printing it out here, but there was an exception during the regular deploy as well", exc)
+                        }
+                    }
+
+                    LOG.info("Post-deploy step completed")
+
+                    val warnings = cec.warnings
+                    if (warnings.notEmpty()) {
+                        LOG.info("")
+                        LOG.info("Summary of warnings from this deployment; please address:\n{}", warnings.collect(StringFunctions.prepend("    ")).makeString("\n"))
+                    }
+
+                    LOG.info("Deploy complete!")
+                }
+            }
+        } catch (outerExc: Exception) {
+            LOG.info("Attempting to release deploy lock")
+            try {
                 lock.unlock()
+                LOG.info("Deploy lock released")
+            } catch (_: Exception) {
+                LOG.info("Deploy lock release failed; ignoring exception")
             }
         }
     }
 
-//    private fun getExporterFunc(exporterFormat: Enum<GraphExportFormat>): (Writer, Graph<Change, DefaultEdge>) -> Unit {
-//        val vertexNameProvider : ComponentNameProvider<Change> = ComponentNameProvider {
-//            change : Change -> change.objectName + "." + change.changeName
-//        }
-//
-//        // TODO Temporary - undo this change!
-//        when (exporterFormat) {
-//            GraphExportFormat.DOT -> return { writer: Writer, graph: Graph<Change, DefaultEdge> ->
-//                DOTExporter<Change, DefaultEdge>(IntegerComponentNameProvider<Change>(), vertexNameProvider, null).export(writer, graph)
-//            }
-//            GraphExportFormat.GML -> return { writer: Writer, graph: Graph<Change, DefaultEdge> ->
-//                GmlExporter<Change, DefaultEdge>(IntegerComponentNameProvider<Change>(), vertexNameProvider, IntegerEdgeNameProvider<DefaultEdge>(), null).export(writer, graph)
-//            }
-//            GraphExportFormat.GRAPHML -> return { writer: Writer, graph: Graph<Change, DefaultEdge> ->
-//                GraphMLExporter<Change, DefaultEdge>(IntegerComponentNameProvider<Change>(), vertexNameProvider, IntegerEdgeNameProvider<DefaultEdge>(), null).export(writer, graph)
-//            }
-//            GraphExportFormat.MATRIX -> return { writer: Writer, graph: Graph<Change, DefaultEdge> ->
-//                MatrixExporter<Change, DefaultEdge>().exportAdjacencyMatrix(writer, graph)
-//            }
-//            else -> throw IllegalArgumentException("Export Format $exporterFormat is not supported here")
-//        }
-//    }
+    private fun getExporterFunc(exporterFormat: Enum<GraphExportFormat>): (Writer, Graph<Change, DefaultEdge>) -> Unit {
+        val vertexNameProvider : ComponentNameProvider<Change> = ComponentNameProvider {
+            change : Change -> change.objectName + "." + change.changeName
+        }
+
+        // TODO Temporary - undo this change!
+        when (exporterFormat) {
+            GraphExportFormat.DOT -> return { writer: Writer, graph: Graph<Change, DefaultEdge> ->
+                DOTExporter<Change, DefaultEdge>(IntegerComponentNameProvider<Change>(), vertexNameProvider, null).exportGraph(graph, writer)
+            }
+            GraphExportFormat.GML -> return { writer: Writer, graph: Graph<Change, DefaultEdge> ->
+                GmlExporter<Change, DefaultEdge>(IntegerComponentNameProvider<Change>(), vertexNameProvider, IntegerComponentNameProvider<DefaultEdge>(), null).exportGraph(graph, writer)
+            }
+            GraphExportFormat.GRAPHML -> return { writer: Writer, graph: Graph<Change, DefaultEdge> ->
+                GraphMLExporter<Change, DefaultEdge>(IntegerComponentNameProvider<Change>(), vertexNameProvider, IntegerComponentNameProvider<DefaultEdge>(), null).exportGraph(graph, writer)
+            }
+            GraphExportFormat.MATRIX -> return { writer: Writer, graph: Graph<Change, DefaultEdge> ->
+                MatrixExporter<Change, DefaultEdge>().exportGraph(graph, writer)
+            }
+            else -> throw IllegalArgumentException("Export Format $exporterFormat is not supported here")
+        }
+    }
 
     private fun logArgumentMetrics(deployerArgs: MainDeployerArgs) {
         deployMetricsCollector.addMetric("args.onboardingMode", deployerArgs.isOnboardingMode)

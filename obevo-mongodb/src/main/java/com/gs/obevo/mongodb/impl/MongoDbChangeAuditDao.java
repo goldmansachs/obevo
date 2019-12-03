@@ -24,8 +24,10 @@ import com.gs.obevo.api.appdata.ChangeKey;
 import com.gs.obevo.api.appdata.ChangeRerunnable;
 import com.gs.obevo.api.appdata.DeployExecution;
 import com.gs.obevo.api.appdata.PhysicalSchema;
+import com.gs.obevo.api.platform.AuditLock;
 import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.Platform;
+import com.gs.obevo.impl.changeauditdao.InMemLock;
 import com.gs.obevo.mongodb.api.appdata.MongoDbEnvironment;
 import com.gs.obevo.util.knex.InternMap;
 import com.mongodb.MongoClient;
@@ -211,5 +213,10 @@ public class MongoDbChangeAuditDao implements ChangeAuditDao {
         auditCollection.deleteOne(
                 Filters.eq("OBJECTNAME", change.getObjectName())
         );
+    }
+
+    @Override
+    public AuditLock acquireLock() {
+        return new InMemLock();
     }
 }

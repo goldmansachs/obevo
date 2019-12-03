@@ -30,7 +30,7 @@ import org.eclipse.collections.impl.factory.Lists;
 public class Db2ToInMemorySqlTranslator implements PostColumnSqlTranslator, PostParsedSqlTranslator, UnparsedSqlTranslator {
     private final Pattern defaultPattern = Pattern.compile("(?i)((?:not\\s+)?null)\\s+default\\s+(.*)");
 
-    // SHANT add test cases for this in the integration test
+    // TODO add test cases for this in the integration test
     // these are allowable by db2 (i.e. to use dots instead of colons), but HSQL does not
     public static final ImmutableList<String> ACCEPTED_DATE_FORMATS = Lists.immutable.with(
             "yyyy-MM-dd-HH.mm.ss.SSS",

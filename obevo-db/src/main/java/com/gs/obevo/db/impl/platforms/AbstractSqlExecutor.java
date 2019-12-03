@@ -20,10 +20,8 @@ import java.sql.Connection;
 import javax.sql.DataSource;
 
 import com.gs.obevo.api.appdata.PhysicalSchema;
-import com.gs.obevo.api.platform.AuditLock;
 import com.gs.obevo.api.platform.DeployerRuntimeException;
 import com.gs.obevo.db.api.platform.SqlExecutor;
-import com.gs.obevo.db.impl.core.changeauditdao.InMemLock;
 import com.gs.obevo.db.impl.core.jdbc.DefaultJdbcHandler;
 import com.gs.obevo.db.impl.core.jdbc.JdbcHandler;
 import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
@@ -109,10 +107,5 @@ public abstract class AbstractSqlExecutor implements SqlExecutor {
 
     protected boolean isParameterTypeEnabled() {
         return true;
-    }
-
-    @Override
-    public AuditLock lock(Connection conn) {
-        return new InMemLock();
     }
 }

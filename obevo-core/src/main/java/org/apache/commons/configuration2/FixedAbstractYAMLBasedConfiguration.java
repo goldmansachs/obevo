@@ -123,7 +123,7 @@ public class FixedAbstractYAMLBasedConfiguration extends BaseHierarchicalConfigu
                         constructHierarchy(subtree, (Map) value);
                 parent.addChild(children);
             }
-            // Shant added this fix for the Collection block
+            // DEVELOPER NOTE - this is the sectino modified by the Obevo developers to add the Collection block
             else if (value instanceof Collection)
             {
                 boolean areAllChildConfigs = true;

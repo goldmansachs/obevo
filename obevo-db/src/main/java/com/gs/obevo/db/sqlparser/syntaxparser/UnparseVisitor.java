@@ -102,7 +102,7 @@ public class UnparseVisitor implements SqlParserVisitor {
         }
 
         if (debug) {
-            this.out.print("\n");  // shant added
+            this.out.print("\n");  // DEVELOPER NOTE - this line was added after the code generation by Obevo developers
         }
     }
 

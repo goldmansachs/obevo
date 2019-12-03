@@ -19,6 +19,7 @@ import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.DeployExecution;
 import com.gs.obevo.api.platform.AuditLock;
 import com.gs.obevo.api.platform.ChangeAuditDao;
+import com.gs.obevo.impl.changeauditdao.InMemLock;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.impl.factory.Lists;
 
