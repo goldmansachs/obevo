@@ -64,7 +64,7 @@ public class PostgreSqlDeployerIT {
             System.out.println("DEPLOY THREAD 1`");
             getAppContext.valueOf(1).deploy();
             return null;
-        };
+        };l
 
         // Invoke the jobs in parallel to ensure that the postgresql locking works; only one deploy should go through,
         // whereas the others will become no-ops

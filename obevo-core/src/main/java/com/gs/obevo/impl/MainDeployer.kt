@@ -355,7 +355,7 @@ class MainDeployer<P : Platform, E : Environment<P>>(
                     LOG.info("Deploy complete!")
                 }
             }
-        } catch (outerExc: Exception) {
+        } finally {
             LOG.info("Attempting to release deploy lock")
             try {
                 lock.unlock()
