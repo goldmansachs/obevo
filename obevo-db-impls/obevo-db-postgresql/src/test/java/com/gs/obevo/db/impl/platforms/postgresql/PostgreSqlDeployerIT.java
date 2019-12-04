@@ -19,7 +19,6 @@ import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -60,11 +59,11 @@ public class PostgreSqlDeployerIT {
                 .setupEnvInfra()
                 .cleanEnvironment();
 
-        Function<Integer, Void> threadInvoker = i -> {
-            System.out.println("DEPLOY THREAD 1`");
+        Function<Integer, Void> threadInvoker = threadNumber -> {
+            System.out.println("DEPLOY THREAD " + threadNumber);
             getAppContext.valueOf(1).deploy();
             return null;
-        };l
+        };
 
         // Invoke the jobs in parallel to ensure that the postgresql locking works; only one deploy should go through,
         // whereas the others will become no-ops
