@@ -18,9 +18,11 @@ package com.gs.obevo.db.api.platform;
 import java.sql.Connection;
 
 import com.gs.obevo.api.appdata.PhysicalSchema;
+import com.gs.obevo.api.platform.AuditLock;
 import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
 import com.gs.obevo.dbmetadata.api.DbMetadataManager;
 import com.gs.obevo.impl.ExecuteChangeCommand;
+import com.gs.obevo.impl.changeauditdao.InMemLock;
 import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.impl.block.function.checked.ThrowingFunction;
 
@@ -64,4 +66,8 @@ public interface SqlExecutor {
      */
     @Deprecated
     void performExtraCleanOperation(ExecuteChangeCommand command, DbMetadataManager metaDataMgr);
+
+    default AuditLock lock(Connection conn) {
+        return new InMemLock();
+    }
 }

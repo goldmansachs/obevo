@@ -148,7 +148,7 @@ class IncrementalChangeTypeCommandCalculator internal constructor(private val nu
                 }
             } else {
                 if (initAllowedOnHashExceptions) {
-                    // SHANT handle init exceptions
+                    // TODO handle init exceptions
                     changeset.add(changeCommandFactory.createUpdateAuditTableOnly(source, "initOnly"))
                 } else {
                     changeset.add(HashMismatchWarning(source, deployed))
@@ -244,7 +244,7 @@ class IncrementalChangeTypeCommandCalculator internal constructor(private val nu
 
         for (baseline in baselinedDrops) {
             if (!successfulBaselinedChanges.contains(baseline)) {
-                // SHANT do the baseline check here (collect changes that need to be cleared out)
+                // TODO do the baseline check here (collect changes that need to be cleared out)
                 changeset.add(changeCommandFactory.createImproperlyRemovedWarning(baseline))
             }
         }

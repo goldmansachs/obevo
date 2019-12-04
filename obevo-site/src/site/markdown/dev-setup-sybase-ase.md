@@ -79,7 +79,7 @@ mkdir /opt/sap/install
 cd /opt/sap/install
 
 cp ~/host/ase_suite.tar .
-tar -xf /home/shantstepanian/host/ase_suite.tar
+tar -xf /home/myuser/host/ase_suite.tar
 
 ./setup.bin
 

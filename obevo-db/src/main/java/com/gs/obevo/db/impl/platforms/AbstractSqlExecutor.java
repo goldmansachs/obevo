@@ -38,6 +38,10 @@ public abstract class AbstractSqlExecutor implements SqlExecutor {
         this.ds = ds;
     }
 
+    protected DataSource getDs() {
+        return ds;
+    }
+
     @Override
     public final JdbcHelper getJdbcTemplate() {
         // Note - pmdBroken value should be false, as otherwise the CSV inserts w/ prepared statements may not work.

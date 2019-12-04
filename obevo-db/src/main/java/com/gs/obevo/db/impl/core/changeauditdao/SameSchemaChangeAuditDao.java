@@ -29,6 +29,7 @@ import com.gs.obevo.api.appdata.DeployExecutionImpl;
 import com.gs.obevo.api.appdata.DeployExecutionStatus;
 import com.gs.obevo.api.appdata.ObjectKey;
 import com.gs.obevo.api.appdata.PhysicalSchema;
+import com.gs.obevo.api.platform.AuditLock;
 import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.DeployExecutionDao;
@@ -475,5 +476,10 @@ public class SameSchemaChangeAuditDao implements ChangeAuditDao {
 
     private String resolveColumnName(String colName) {
         return colName;
+    }
+
+    @Override
+    public AuditLock acquireLock() {
+        return sqlExecutor.executeWithinContext(env.getPhysicalSchemas().getFirst(), sqlExecutor::lock);
     }
 }

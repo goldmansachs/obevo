@@ -16,10 +16,12 @@
 package com.gs.obevo.db.impl.platforms.postgresql;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
 import com.gs.obevo.api.appdata.PhysicalSchema;
+import com.gs.obevo.api.platform.AuditLock;
 import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
 import com.gs.obevo.db.impl.platforms.AbstractSqlExecutor;
 import org.slf4j.Logger;
@@ -40,5 +42,14 @@ public class PostgreSqlSqlExecutor extends AbstractSqlExecutor {
         // (unfortunately, can't easily bring up version 8.3 on an app server environment for easy testing)
         JdbcHelper jdbc = this.getJdbcTemplate();
         jdbc.update(conn, "SET search_path TO " + schema.getPhysicalName());
+    }
+
+    @Override
+    public AuditLock lock(Connection conn) {
+        try {
+            return new PostgreSqlLock(this.getJdbcTemplate(), getDs().getConnection());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -19,6 +19,10 @@ import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.function.Function;
 
 import javax.sql.DataSource;
 
@@ -26,6 +30,7 @@ import com.gs.obevo.db.api.platform.DbDeployerAppContext;
 import com.gs.obevo.db.impl.core.jdbc.JdbcHelper;
 import org.apache.commons.dbutils.DbUtils;
 import org.eclipse.collections.api.block.function.primitive.IntToObjectFunction;
+import org.eclipse.collections.impl.factory.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -49,14 +54,31 @@ public class PostgreSqlDeployerIT {
 
     @Test
     public void testDeploy() throws Exception {
-        getAppContext.valueOf(1)
+        DbDeployerAppContext dbDeployerAppContext = getAppContext.valueOf(1)
                 .setupEnvInfra()
                 .setupEnvInfra()
-                .cleanEnvironment()
-                .deploy();
+                .cleanEnvironment();
+
+        Function<Integer, Void> threadInvoker = threadNumber -> {
+            System.out.println("DEPLOY THREAD " + threadNumber);
+            getAppContext.valueOf(1).deploy();
+            return null;
+        };
+
+        // Invoke the jobs in parallel to ensure that the postgresql locking works; only one deploy should go through,
+        // whereas the others will become no-ops
+        ExecutorService executorService = Executors.newFixedThreadPool(3);
+        List<Future<Object>> futures = executorService.invokeAll(Lists.mutable.of(
+                () -> threadInvoker.apply(1),
+                () -> threadInvoker.apply(2),
+                () -> threadInvoker.apply(3)
+        ));
+        for (Future<Object> future : futures) {
+            future.get();
+        }
 
         // ensuring that we can modify
-        DbDeployerAppContext dbDeployerAppContext = getAppContext.valueOf(2);
+        dbDeployerAppContext = getAppContext.valueOf(2);
         dbDeployerAppContext
                 .setupEnvInfra()
                 .deploy();

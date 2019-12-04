@@ -3,9 +3,12 @@
 ## 8.0.0
 
 ### Functionality Improvements
+#111: Preventing concurrent deploys against a given schema
+
 
 ### Technical Improvements
 Upgrading to JDK 8 bytecode
+
 Upgrading to JGraphT 1.3.0 (first required JDK 8 dependency)
 
 ### Bug Fixes
@@ -16,14 +19,20 @@ Correcting error messages on graph cycles for complex databases
 
 ### Functionality Improvements
 #239: MongoDB productionization: collection now treated as an incremental change type, reverse-engineering support, clean functionality built
+
 #231 #233: Correct reverse-engineering of table indices to their correct tables
+
 #232 #233: Support reverse-engineering of triggers
+
 #231 #235: Removing redundant unique indexes for Oracle Primary Key reverse-engineering
+
 #236: Support Character Set Encoding for Oracle Reverse Engineering
+
 Allowing valid special characters (e.g. #) to be in object names, as certain RDBMS platforms also allow them
 
 ### Technical Improvements
 DB2 build updated to use the new Docker Hub coordinates from IBM
+
 #252: Optimize Images 610.60kb -> 448.30kb (26.58%) and fix typo
 
 ### Bug Fixes
@@ -34,7 +43,9 @@ DB2 build updated to use the new Docker Hub coordinates from IBM
 
 ### Functionality Improvements
 #182: Adding Hibernate reverse-engineering API. See [ORM Integration docs](https://goldmansachs.github.io/obevo/orm-integration.html) for more details.
+
 #221 #223 #225: Oracle reverse-engineering improvements - unicode characters, nested tables, types, comments
+
 #228: PostgreSQL improvements for kata - reverse-engineering, in-memory databases
 
 ### Technical Improvements
@@ -53,6 +64,7 @@ DB2 build updated to use the new Docker Hub coordinates from IBM
 
 ### Bug Fixes
 #212: Fixing inability to handle DB2 reorg exceptions during static data queries. Previously, reorg detection only worked on update statements
+
 #210 #213: Oracle - ignoring DATABASE LINKs during reverse-engineering, instead of erroring out. Separate ticket #186 is there for DATABASE LINK and materialized view support
 
 
@@ -60,13 +72,18 @@ DB2 build updated to use the new Docker Hub coordinates from IBM
 
 ### Functionality Improvements
 #199: Adding support for PostgreSQL roles and extensions in the environment setup step
+
 #202: Add option to export graph representation to a file
+
 #196: Adding UUID support for CSV data loads for PostgreSQL
+
 Initial MySQL support (still in Alpha)
 
 ### Technical Improvements
 Moving more of the code over to Kotlin
+
 #153: Refactor of dependency implementation
+
 #193: Docker onboarding for testing
 
 ### Bug Fixes
@@ -82,6 +99,7 @@ Moving more of the code over to Kotlin
 
 ### Bug Fixes
 #188: Correcting the metadata retrieval for ASE and PostgreSQL
+
 #184: Documentation cleanups
 
 
@@ -92,13 +110,18 @@ Moving more of the code over to Kotlin
 
 ### Technical Improvements
 #173: Support YAML/JSON configurations and move away from type safe config towards commons-config v2
+
 #175: Removing retrolambda, moving back to Java 7, and initial support for Kotlin
+
 #150: Documentation updates
 
 ### Bug Fixes
 #125: Clarify error messages when reading merge config file (missing input dirs, forward-slashes specified)
+
 #165: Supporting Unicode in regular table/db object files and avoiding "TokenMgrError: Lexical error at line ..." issues
+
 #169: Fixing missing quotes in deploy.sh/bat files in obevo-cli; otherwise, spaces in JAVA_HOME or OBEVO_HOME were not supported.
+
 #166: Clearer error message if an invalid platform type is specified in config
 
 
