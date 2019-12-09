@@ -36,6 +36,6 @@ environments:
     driverClass: com.mysql.cj.jdbc.Driver
     cleanBuildAllowed: true
     forceEnvInfraSetup: true
-    jdbcUrl: jdbc:mysql://localhost:3306?allowPublicKeyRetrieval=true&useSSL=false
+    jdbcUrl: jdbc:mysql://localhost:3306/dbdeploy?allowPublicKeyRetrieval=true&useSSL=false&generateSimpleParameterMetadata=true
     defaultUserId: root
     defaultPassword: "Deploybuilddb0!"  # password is set in mysql-setup.sh

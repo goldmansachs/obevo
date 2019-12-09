@@ -24,6 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -240,27 +241,21 @@ public abstract class AbstractReveng implements Reveng {
         }
 
         // next - extract all the objects that we've matched based on the reverse engineering inputs and the schema
-        MutableList<FileProcessingContext> fileProcessingContexts = files.collect(new Function<File, FileProcessingContext>() {
-            @Override
-            public FileProcessingContext valueOf(File file) {
-                MutableList<String> sqlSnippets = getSqlSnippets(file);
+        MutableList<FileProcessingContext> fileProcessingContexts = files.collect(file -> {
+            MutableList<String> sqlSnippets = getSqlSnippets(file);
 
-                PartitionList<Pair<String, RevengPatternOutput>> snippetPatternMatchPairs = sqlSnippets
-                        .collect(patternMatchSnippet)
-                        .partition(new Predicate<Pair<String, RevengPatternOutput>>() {
-                            @Override
-                            public boolean accept(Pair<String, RevengPatternOutput> each) {
-                                RevengPatternOutput patternMatch = each.getTwo();
-                                return !skipSchemaValidation
-                                        && patternMatch != null
-                                        && (args.isExplicitSchemaRequired() || patternMatch.getSchema() != null)
-                                        && patternMatch.getSubSchema() == null
-                                        && !args.getDbSchema().equalsIgnoreCase(patternMatch.getSchema());
-                            }
-                        });
+            PartitionList<Pair<String, RevengPatternOutput>> snippetPatternMatchPairs = sqlSnippets
+                    .collect(patternMatchSnippet)
+                    .partition(each -> {
+                        RevengPatternOutput patternMatch = each.getTwo();
+                        return !skipSchemaValidation
+                                && patternMatch != null
+                                && (args.isExplicitSchemaRequired() || patternMatch.getSchema() != null)
+                                && patternMatch.getSubSchema() == null
+                                && !args.getDbSchema().equalsIgnoreCase(patternMatch.getSchema());
+                    });
 
-                return new FileProcessingContext(file, snippetPatternMatchPairs);
-            }
+            return new FileProcessingContext(file, snippetPatternMatchPairs);
         });
 
         // add those pattern matches to the schema object replacer. This is there to replace all references of the schema in other objects
@@ -271,13 +266,10 @@ public abstract class AbstractReveng implements Reveng {
             }
         }
 
-        final MutableList<ChangeEntry> changeEntries = fileProcessingContexts.flatCollect(new Function<FileProcessingContext, Iterable<ChangeEntry>>() {
-            @Override
-            public Iterable<ChangeEntry> valueOf(FileProcessingContext fileProcessingContext) {
-                String schema = getObjectSchema(args.getDbSchema(), fileProcessingContext.getFile().getName());
+        final MutableList<ChangeEntry> changeEntries = fileProcessingContexts.flatCollect(fileProcessingContext -> {
+            String schema = getObjectSchema(args.getDbSchema(), fileProcessingContext.getFile().getName());
 
-                return revengFile(schemaObjectReplacer, fileProcessingContext.getSnippetPatternMatchPairs(), schema, args.isDebugLogEnabled());
-            }
+            return revengFile(schemaObjectReplacer, fileProcessingContext.getSnippetPatternMatchPairs(), schema, args.isDebugLogEnabled());
         });
 
 //        final MutableList<ChangeEntry> invalidEntries = fileProcessingContexts.flatCollect(new Function<FileProcessingContext, Iterable<ChangeEntry>>() {
@@ -390,7 +382,8 @@ public abstract class AbstractReveng implements Reveng {
                 if (secondaryName == null) {
                     secondaryName = "change" + objectOrder2.getAndIncrement();
                 }
-                RevEngDestination destination = new RevEngDestination(inputSchema, candidateObjectType, candidateObject, false);
+
+                RevEngDestination destination = new RevEngDestination(inputSchema, candidateObjectType, candidateObject, false, Optional.ofNullable(chosenRevengPattern).map(RevengPattern::isKeepLastOnly).orElse(false));
 
                 String annotation = chosenRevengPattern != null ? chosenRevengPattern.getAnnotation() : null;
                 MutableList<Function<String, LineParseOutput>> postProcessSqls = chosenRevengPattern != null ? chosenRevengPattern.getPostProcessSqls() : Lists.mutable.<Function<String, LineParseOutput>>empty();

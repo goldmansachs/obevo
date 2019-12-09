@@ -207,7 +207,7 @@ public abstract class AbstractDbPlatform implements DbPlatform {
 
     @Override
     public final String getGrantTargetTypeStr(GrantTargetType grantTargetType, String grantTarget) {
-        if ("public".equalsIgnoreCase(grantTarget)) {
+        if (GrantTargetType.PUBLIC.equals(grantTargetType) || "public".equalsIgnoreCase(grantTarget)) {
             return "";
         } else {
             return this.getGrantTargetTypeStrDbSpecific(grantTargetType);

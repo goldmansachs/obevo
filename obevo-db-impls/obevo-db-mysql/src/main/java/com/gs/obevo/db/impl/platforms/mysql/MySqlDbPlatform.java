@@ -53,6 +53,15 @@ public class MySqlDbPlatform extends AbstractDbPlatform {
 
     @Override
     public Reveng getDdlReveng() {
-        return new MySqlReveng();
+        return new MySqlDumpReveng();
+    }
+
+    /**
+     * MySQL doesn't have a public grant concept. Obevo currently doesn't have a good way to define a read-only
+     * grant to another user/group, so we leave this for now.
+     */
+    @Override
+    public boolean isPublicSchemaSupported() {
+        return false;
     }
 }

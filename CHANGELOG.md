@@ -5,6 +5,9 @@
 ### Functionality Improvements
 #111: Preventing concurrent deploys against a given schema
 
+#47: MySQL Support added - only for table/view objects with reverse-engineering. Still needs public schema permissions, more object types supported, embedding generateSimpleParameterMetadata param in the connection within our code.
+
+#247: MongoDB - adding reverse-engineering, decoupling from deprecated eval API
 
 ### Technical Improvements
 Upgrading to JDK 8 bytecode

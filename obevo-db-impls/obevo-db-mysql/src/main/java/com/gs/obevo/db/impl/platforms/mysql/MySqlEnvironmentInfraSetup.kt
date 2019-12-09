@@ -28,7 +28,6 @@ import javax.sql.DataSource
  * MySQL environment setup.
  */
 internal class MySqlEnvironmentInfraSetup(env: DbEnvironment, ds: DataSource, deployMetricsCollector: DeployMetricsCollector, dbMetadataManager: DbMetadataManager, changeTypeBehaviorRegistry: ChangeTypeBehaviorRegistry) : AbstractEnvironmentInfraSetup(env, ds, deployMetricsCollector, dbMetadataManager, changeTypeBehaviorRegistry) {
-
     override fun createSchema(conn: Connection, schema: PhysicalSchema) {
         jdbc.update(conn, "CREATE SCHEMA " + schema.physicalName)
     }

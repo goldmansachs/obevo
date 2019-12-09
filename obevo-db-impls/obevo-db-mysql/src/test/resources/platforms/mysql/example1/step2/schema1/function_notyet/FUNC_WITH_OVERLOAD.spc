@@ -1,0 +1,20 @@
+CREATE FUNCTION FUNC_WITH_OVERLOAD (OUT mycount INT) RETURNS INT AS $$
+BEGIN
+    SELECT count(*) into mycount FROM TABLE_A;
+END;
+$$ LANGUAGE plpgsql;
+GO
+
+CREATE FUNCTION FUNC_WITH_OVERLOAD (IN input INT, OUT mycount INT) RETURNS INT AS $$
+BEGIN
+    SELECT count(*) into mycount FROM TABLE_A;
+END;
+$$ LANGUAGE plpgsql;
+GO
+
+CREATE FUNCTION FUNC_WITH_OVERLOAD (IN input INT, IN invalstr VARCHAR(32), OUT mycount INT) RETURNS INT AS $$
+BEGIN
+    SELECT count(*) into mycount FROM TABLE_A;
+END;
+$$ LANGUAGE plpgsql;
+GO

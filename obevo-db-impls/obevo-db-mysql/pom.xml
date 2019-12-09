@@ -30,7 +30,8 @@ under the License.
     <name>${project.artifactId}</name>
 
     <properties>
-        <skipTests>true</skipTests>  <!-- module still in development; tests should be skipped -->
+        <mysql.version>8.0.18</mysql.version>
+        <jacoco.minCoverage>0.10</jacoco.minCoverage>  <!-- TODO increase this before merge request -->
     </properties>
 
     <dependencies>
@@ -48,6 +49,18 @@ under the License.
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql.version}</version>
+            <optional>true</optional>  <!-- specifying as optional due to the licensing -->
+        </dependency>
+        <dependency>
+            <groupId>us.fatehi</groupId>
+            <artifactId>schemacrawler-mysql</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>mysql</groupId>
+                    <artifactId>mysql-connector-java</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -85,7 +98,9 @@ under the License.
                                 <configuration>
                                     <skip>${skipTests}</skip>
                                     <target>
-                                        <exec executable="${basedir}/mysql-setup.sh" />
+                                        <exec executable="${basedir}/mysql-setup.sh">
+                                            <arg value="${mysql.version}" />
+                                        </exec>
                                     </target>
                                 </configuration>
                             </execution>

@@ -34,7 +34,7 @@ public class PostgreSqlPgDumpReveng extends AbstractDdlReveng {
     PostgreSqlPgDumpReveng() {
         super(
                 new PostgreSqlDbPlatform(),
-                new MultiLineStringSplitter("GO", true),
+                new MultiLineStringSplitter("GO", true),  // the GO comes from a hack in AbstractReveng - should ideally be fixed
                 Lists.immutable.<Predicate<String>>of(
                         StringPredicates.contains("-- PostgreSQL database dump").and(StringPredicates.contains("-- Dumped by pg_dump"))
                 ),

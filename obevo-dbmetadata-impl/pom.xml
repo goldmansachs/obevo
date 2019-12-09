@@ -101,10 +101,6 @@
         </dependency>
         <dependency>
             <groupId>us.fatehi</groupId>
-            <artifactId>schemacrawler-mysql</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>us.fatehi</groupId>
             <artifactId>schemacrawler-db2</artifactId>
         </dependency>
 

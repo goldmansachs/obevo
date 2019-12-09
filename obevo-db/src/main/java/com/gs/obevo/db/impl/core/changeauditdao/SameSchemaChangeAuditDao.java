@@ -145,8 +145,10 @@ public class SameSchemaChangeAuditDao implements ChangeAuditDao {
             // and so can modify this table)
             DbChangeTypeBehavior tableChangeType = (DbChangeTypeBehavior) changeTypeBehaviorRegistry.getChangeTypeBehavior(ChangeType.TABLE_STR);
 
-            tableChangeType.applyGrants(conn, physicalSchema, dbChangeTable, Lists.immutable.with(new Permission("artifacTable",
-                    Lists.immutable.with(new Grant(Lists.immutable.with("SELECT"), Multimaps.immutable.list.with(GrantTargetType.PUBLIC, "PUBLIC"))))));
+            if (env.getPlatform().isPublicSchemaSupported()) {
+                tableChangeType.applyGrants(conn, physicalSchema, dbChangeTable, Lists.immutable.with(new Permission("artifacTable",
+                        Lists.immutable.with(new Grant(Lists.immutable.with("SELECT"), Multimaps.immutable.list.with(GrantTargetType.PUBLIC, "PUBLIC"))))));
+            }
         } else {
             // We will still grant this here to make up for the existing DBs that did not have the grants given
             DbChangeTypeBehavior tableChangeType = (DbChangeTypeBehavior) changeTypeBehaviorRegistry.getChangeTypeBehavior(ChangeType.TABLE_STR);

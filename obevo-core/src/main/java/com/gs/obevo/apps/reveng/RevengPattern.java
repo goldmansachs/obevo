@@ -42,6 +42,7 @@ public class RevengPattern {
         }
     };
     private Function<String, String> remapObjectName = Functions.getStringPassThru();
+    private boolean keepLastOnly;
 
     public RevengPattern(String changeType, NamePatternType namePatternType, String pattern) {
         this(changeType, namePatternType, pattern, 1);
@@ -123,6 +124,19 @@ public class RevengPattern {
         return this;
     }
 
+    public boolean isKeepLastOnly() {
+        return keepLastOnly;
+    }
+
+    public void setKeepLastOnly(boolean keepLastOnly) {
+        this.keepLastOnly = keepLastOnly;
+    }
+
+    public RevengPattern withKeepLastOnly(boolean keepLastOnly) {
+        this.setKeepLastOnly(keepLastOnly);
+        return this;
+    }
+
     /**
      * Remaps the object name in case users want to group objects into files together. By default, this is a passthrough
      * function, but users can override the behavior.
@@ -190,6 +204,7 @@ public class RevengPattern {
                 .append("secondaryNameIndex", secondaryNameIndex)
                 .append("annotation", annotation)
                 .append("postProcessSqls", postProcessSqls)
+                .append("keepLastOnly", keepLastOnly)
                 .toString();
     }
 
