@@ -1,0 +1,6 @@
+//// CHANGE name=change0
+CREATE TABLE TABLE_B (
+  B_ID int(11) NOT NULL,
+  PRIMARY KEY (B_ID)
+)
+GO

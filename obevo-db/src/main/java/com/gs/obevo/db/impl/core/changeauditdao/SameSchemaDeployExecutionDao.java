@@ -26,6 +26,7 @@ import com.gs.obevo.api.appdata.DeployExecutionAttributeImpl;
 import com.gs.obevo.api.appdata.DeployExecutionImpl;
 import com.gs.obevo.api.appdata.DeployExecutionStatus;
 import com.gs.obevo.api.appdata.PhysicalSchema;
+import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.DeployExecutionDao;
 import com.gs.obevo.db.api.appdata.DbEnvironment;
@@ -157,14 +158,18 @@ public class SameSchemaDeployExecutionDao implements DeployExecutionDao {
             // create main table
             jdbc.execute(conn, get5_3TableSql(physicalSchema));
 
-            tableChangeType.applyGrants(conn, physicalSchema, deployExecutionTableName, Lists.immutable.with(new Permission("artifactTable",
-                    Lists.immutable.with(new Grant(Lists.immutable.with("SELECT"), Multimaps.immutable.list.with(GrantTargetType.PUBLIC, "PUBLIC"))))));
+            if (env.getPlatform().isPublicSchemaSupported()) {
+                tableChangeType.applyGrants(conn, physicalSchema, deployExecutionTableName, Lists.immutable.with(new Permission("artifactTable",
+                        Lists.immutable.with(new Grant(Lists.immutable.with("SELECT"), Multimaps.immutable.list.with(GrantTargetType.PUBLIC, "PUBLIC"))))));
+            }
 
             // create attr table
             jdbc.execute(conn, get5_2AttrTableSql(physicalSchema));
 
-            tableChangeType.applyGrants(conn, physicalSchema, deployExecutionAttributeTableName, Lists.immutable.with(new Permission("artifactTable",
-                    Lists.immutable.with(new Grant(Lists.immutable.with("SELECT"), Multimaps.immutable.list.with(GrantTargetType.PUBLIC, "PUBLIC"))))));
+            if (env.getPlatform().isPublicSchemaSupported()) {
+                tableChangeType.applyGrants(conn, physicalSchema, deployExecutionAttributeTableName, Lists.immutable.with(new Permission("artifactTable",
+                        Lists.immutable.with(new Grant(Lists.immutable.with("SELECT"), Multimaps.immutable.list.with(GrantTargetType.PUBLIC, "PUBLIC"))))));
+            }
         } else {
             DaTable executionTable = queryAuditExecutionTable(physicalSchema);
 
@@ -468,7 +473,7 @@ public class SameSchemaDeployExecutionDao implements DeployExecutionDao {
         // first, get a mapping of all the IDs to DB schemas from the artifactdeployment table. Note that technically
         // we may have lost information as rows can get updated in place, but we'll make do here
         final MutableSetMultimap<Long, String> execIdToSchemaMap = Multimaps.mutable.set.empty();
-        for (Map<String, Object> tempExecIdToSchemaMap : jdbc.queryForList(conn, "SELECT DISTINCT INSERTDEPLOYID, UPDATEDEPLOYID, DBSCHEMA FROM " + platform.getSubschemaPrefix(physicalSchema) + "ARTIFACTDEPLOYMENT")) {
+        for (Map<String, Object> tempExecIdToSchemaMap : jdbc.queryForList(conn, "SELECT DISTINCT INSERTDEPLOYID, UPDATEDEPLOYID, DBSCHEMA FROM " + platform.getSubschemaPrefix(physicalSchema) + platform.convertDbObjectName().valueOf(ChangeAuditDao.CHANGE_AUDIT_TABLE_NAME))) {
             Long insertDeployId = platform.getLongValue(tempExecIdToSchemaMap.get("INSERTDEPLOYID"));
             Long updateDeployId = platform.getLongValue(tempExecIdToSchemaMap.get("UPDATEDEPLOYID"));
             String dbSchema = (String) tempExecIdToSchemaMap.get("DBSCHEMA");

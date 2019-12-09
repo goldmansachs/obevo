@@ -297,7 +297,7 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
             return database.getTables().iterator().next();
         default:
             throw new IllegalArgumentException("Should have only found 0 or 1 tables here for " + physicalSchema + "," +
-                    "" + tableName + "; found " + database.getTables().size());
+                    "" + tableName + "; found " + database.getTables().size() + ": " + database.getTables());
         }
     }
 

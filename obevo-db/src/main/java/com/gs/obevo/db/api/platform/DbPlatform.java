@@ -133,4 +133,13 @@ public interface DbPlatform extends Platform {
      * This is simple for most DBMSs, but a few need special handling.
      */
     Integer getIntegerValue(Object obj);
+
+    /**
+     * Determines whether we allow a public grant on the audit log tables to allow read-only IDs to view the data.
+     * @deprecated Should not be used outside of Obevo; this will be refactored.
+     */
+    @Deprecated
+    default boolean isPublicSchemaSupported() {
+        return true;
+    }
 }

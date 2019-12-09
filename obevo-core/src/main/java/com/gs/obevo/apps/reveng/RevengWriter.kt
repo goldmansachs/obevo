@@ -99,11 +99,15 @@ class RevengWriter {
         for (pair in revEngDestinationMap.keyValuesView()) {
             val dest = pair.one
 
-            val changes = pair.two
+            var changes = pair.two
                     .sortedBy { it.name ?: "" }
                     .sortedBy { it.order }
 
-            val metadataAnnotations = changes.flatMap { it.metadataAnnotations }.toMutableList()
+            if (dest.isKeepLastOnly) {
+                changes = changes.subList(changes.size - 1, changes.size)
+            }
+
+            val metadataAnnotations = changes.flatMap { it.metadataAnnotations }
 
             val metadataString = if (metadataAnnotations.isEmpty()) "" else "//// METADATA " + metadataAnnotations.joinToString(" ") + "\n"
 

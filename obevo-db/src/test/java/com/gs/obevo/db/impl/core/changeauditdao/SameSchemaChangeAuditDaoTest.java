@@ -23,6 +23,7 @@ import java.util.Map;
 import com.gs.obevo.api.appdata.DeployExecution;
 import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.platform.ChangeAuditDao;
+import com.gs.obevo.api.platform.DeployExecutionDao;
 import com.gs.obevo.db.api.platform.DbDeployerAppContext;
 import com.gs.obevo.db.api.platform.DbPlatform;
 import com.gs.obevo.db.impl.core.DbDeployerAppContextImpl;
@@ -94,9 +95,9 @@ public abstract class SameSchemaChangeAuditDaoTest {
 
     @Test
     public void testUpgrade() {
-        updateAndIgnoreError("DROP TABLE " + getTestPhysicalSchema() + "ARTIFACTDEPLOYMENT");
-        updateAndIgnoreError("DROP TABLE " + getTestPhysicalSchema() + "ARTIFACTEXECUTION");
-        updateAndIgnoreError("DROP TABLE " + getTestPhysicalSchema() + "ARTIFACTEXECUTIONATTR");
+        updateAndIgnoreError("DROP TABLE " + getChangeAuditTableName());
+        updateAndIgnoreError("DROP TABLE " + getDeployExecutionTableName());
+        updateAndIgnoreError("DROP TABLE " + getDeployExecutionAttrTableName());
 
         jdbcHelper.update(conn, artifactDeployerDao.get5_0Sql(testSchema));
 
@@ -112,9 +113,9 @@ public abstract class SameSchemaChangeAuditDaoTest {
     }
 
     private void setup5_3Upgrade() {
-        updateAndIgnoreError("DROP TABLE " + getTestPhysicalSchema() + "ARTIFACTDEPLOYMENT");
-        updateAndIgnoreError("DROP TABLE " + getTestPhysicalSchema() + "ARTIFACTEXECUTION");
-        updateAndIgnoreError("DROP TABLE " + getTestPhysicalSchema() + "ARTIFACTEXECUTIONATTR");
+        updateAndIgnoreError("DROP TABLE " + getChangeAuditTableName());
+        updateAndIgnoreError("DROP TABLE " + getDeployExecutionTableName());
+        updateAndIgnoreError("DROP TABLE " + getDeployExecutionAttrTableName());
 
         jdbcHelper.update(conn, artifactDeployerDao.get5_1Sql(testSchema));
 
@@ -130,25 +131,25 @@ public abstract class SameSchemaChangeAuditDaoTest {
         // We upgrade a single schema, but declare two versions to upgrade to
 
         // Execution 1 - goes to schema 1
-        jdbcHelper.update(conn, "INSERT INTO " + getTestPhysicalSchema() + "ARTIFACTEXECUTION (ID, STATUS, DEPLOYTIME, EXECUTORID, TOOLVERSION, INIT_COMMAND, ROLLBACK_COMMAND)" +
+        jdbcHelper.update(conn, "INSERT INTO " + getDeployExecutionTableName() + " (ID, STATUS, DEPLOYTIME, EXECUTORID, TOOLVERSION, INIT_COMMAND, ROLLBACK_COMMAND)" +
                         "VALUES (?, ?, ?, ?, ?, ?, ?)",
                 1L, "S", new java.sql.Timestamp(new Date().getTime()), "test", "0.0.0", 0, 0
         );
-        jdbcHelper.update(conn, "INSERT INTO " + getTestPhysicalSchema() + "ARTIFACTEXECUTIONATTR (DEPLOYEXECUTIONID, ATTRNAME, ATTRVALUE)" +
+        jdbcHelper.update(conn, "INSERT INTO " + getDeployExecutionAttrTableName() + " (DEPLOYEXECUTIONID, ATTRNAME, ATTRVALUE)" +
                         "VALUES (?, ?, ?)",
                 1L, "conduit.version.name", myVersion
         );
-        jdbcHelper.update(conn, "INSERT INTO " + getTestPhysicalSchema() + "ARTIFACTDEPLOYMENT (ARTFTYPE, ARTIFACTPATH, OBJECTNAME, ACTIVE, " + CHANGETYPE_COL + ", UPDATEDEPLOYID, DBSCHEMA)" +
+        jdbcHelper.update(conn, "INSERT INTO " + getChangeAuditTableName() + " (ARTFTYPE, ARTIFACTPATH, OBJECTNAME, ACTIVE, " + CHANGETYPE_COL + ", UPDATEDEPLOYID, DBSCHEMA)" +
                         "VALUES (?, ?, ?, ?, ?, ?, ?)",
                 "R", "n/a", "OBJ1", 1, "VIEW", 1L, logicalSchema1
         );
 
         // Execution 2 - can't link directly via ARTIFACTDEPLOYMENT, but since it has the same version as schema 1, we can share
-        jdbcHelper.update(conn, "INSERT INTO " + getTestPhysicalSchema() + "ARTIFACTEXECUTION (ID, STATUS, DEPLOYTIME, EXECUTORID, TOOLVERSION, INIT_COMMAND, ROLLBACK_COMMAND)" +
+        jdbcHelper.update(conn, "INSERT INTO " + getDeployExecutionTableName() + " (ID, STATUS, DEPLOYTIME, EXECUTORID, TOOLVERSION, INIT_COMMAND, ROLLBACK_COMMAND)" +
                         "VALUES (?, ?, ?, ?, ?, ?, ?)",
                 2L, "S", new Timestamp(new Date().getTime()), "test", "0.0.0", 0, 0
         );
-        jdbcHelper.update(conn, "INSERT INTO " + getTestPhysicalSchema() + "ARTIFACTEXECUTIONATTR (DEPLOYEXECUTIONID, ATTRNAME, ATTRVALUE)" +
+        jdbcHelper.update(conn, "INSERT INTO " + getDeployExecutionAttrTableName() + " (DEPLOYEXECUTIONID, ATTRNAME, ATTRVALUE)" +
                         "VALUES (?, ?, ?)",
                 2L, "conduit.version.name", myVersion2
         );
@@ -160,9 +161,9 @@ public abstract class SameSchemaChangeAuditDaoTest {
 
         deployExecutionDao.init();
 
-        MutableMap<Long, String> schemasById = jdbcHelper.queryForList(conn, "SELECT * FROM " + getTestPhysicalSchema() + "ARTIFACTEXECUTION")
+        MutableMap<Long, String> schemasById = jdbcHelper.queryForList(conn, "SELECT * FROM " + getDeployExecutionTableName())
                 .toMap(toLong("ID"), this.<String>getFunction("DBSCHEMA"));
-        MutableMap<Long, String> versionsById = jdbcHelper.queryForList(conn, "SELECT * FROM " + getTestPhysicalSchema() + "ARTIFACTEXECUTION")
+        MutableMap<Long, String> versionsById = jdbcHelper.queryForList(conn, "SELECT * FROM " + getDeployExecutionTableName())
                 .toMap(toLong("ID"), this.<String>getFunction("PRODUCTVERSION"));
         assertEquals(logicalSchema1, schemasById.get(1L));
         assertEquals(logicalSchema1, schemasById.get(2L));
@@ -179,48 +180,48 @@ public abstract class SameSchemaChangeAuditDaoTest {
         // this test verifies that we can still migrate different logical schemas even if many are found in the same physical schema
 
         // Exection 1 - belongs to schema1 via ARTIFACTDEPLOYMENT
-        jdbcHelper.update(conn, "INSERT INTO " + getTestPhysicalSchema() + "ARTIFACTEXECUTION (ID, STATUS, DEPLOYTIME, EXECUTORID, TOOLVERSION, INIT_COMMAND, ROLLBACK_COMMAND)" +
+        jdbcHelper.update(conn, "INSERT INTO " + getDeployExecutionTableName() + " (ID, STATUS, DEPLOYTIME, EXECUTORID, TOOLVERSION, INIT_COMMAND, ROLLBACK_COMMAND)" +
                         "VALUES (?, ?, ?, ?, ?, ?, ?)",
                 1L, "S", new java.sql.Timestamp(new Date().getTime()), "test", "0.0.0", 0, 0
         );
-        jdbcHelper.update(conn, "INSERT INTO " + getTestPhysicalSchema() + "ARTIFACTEXECUTIONATTR (DEPLOYEXECUTIONID, ATTRNAME, ATTRVALUE)" +
+        jdbcHelper.update(conn, "INSERT INTO " + getDeployExecutionAttrTableName() + " (DEPLOYEXECUTIONID, ATTRNAME, ATTRVALUE)" +
                         "VALUES (?, ?, ?)",
                 1L, "conduit.version.name", myVersion
         );
-        jdbcHelper.update(conn, "INSERT INTO " + getTestPhysicalSchema() + "ARTIFACTDEPLOYMENT (ARTFTYPE, ARTIFACTPATH, OBJECTNAME, ACTIVE, " + CHANGETYPE_COL + ", UPDATEDEPLOYID, DBSCHEMA)" +
+        jdbcHelper.update(conn, "INSERT INTO " + getChangeAuditTableName() + " (ARTFTYPE, ARTIFACTPATH, OBJECTNAME, ACTIVE, " + CHANGETYPE_COL + ", UPDATEDEPLOYID, DBSCHEMA)" +
                         "VALUES (?, ?, ?, ?, ?, ?, ?)",
                 "R", "n/a", "OBJ1", 1, "VIEW", 1L, logicalSchema1
         );
 
         // Exection 2 - linked to schema1 via execution 1
-        jdbcHelper.update(conn, "INSERT INTO " + getTestPhysicalSchema() + "ARTIFACTEXECUTION (ID, STATUS, DEPLOYTIME, EXECUTORID, TOOLVERSION, INIT_COMMAND, ROLLBACK_COMMAND)" +
+        jdbcHelper.update(conn, "INSERT INTO " + getDeployExecutionTableName() + " (ID, STATUS, DEPLOYTIME, EXECUTORID, TOOLVERSION, INIT_COMMAND, ROLLBACK_COMMAND)" +
                         "VALUES (?, ?, ?, ?, ?, ?, ?)",
                 2, "S", new java.sql.Timestamp(new Date().getTime()), "test", "0.0.0", 0, 0
         );
-        jdbcHelper.update(conn, "INSERT INTO " + getTestPhysicalSchema() + "ARTIFACTEXECUTIONATTR (DEPLOYEXECUTIONID, ATTRNAME, ATTRVALUE)" +
+        jdbcHelper.update(conn, "INSERT INTO " + getDeployExecutionAttrTableName() + " (DEPLOYEXECUTIONID, ATTRNAME, ATTRVALUE)" +
                         "VALUES (?, ?, ?)",
                 2, "conduit.version.name", myVersion
         );
 
         // Exection 3 - linked to schema2 via ARTIFACTDEPLOYMENT
-        jdbcHelper.update(conn, "INSERT INTO " + getTestPhysicalSchema() + "ARTIFACTEXECUTION (ID, STATUS, DEPLOYTIME, EXECUTORID, TOOLVERSION, INIT_COMMAND, ROLLBACK_COMMAND)" +
+        jdbcHelper.update(conn, "INSERT INTO " + getDeployExecutionTableName() + " (ID, STATUS, DEPLOYTIME, EXECUTORID, TOOLVERSION, INIT_COMMAND, ROLLBACK_COMMAND)" +
                         "VALUES (?, ?, ?, ?, ?, ?, ?)",
                 3, "S", new java.sql.Timestamp(new Date().getTime()), "test", "0.0.0", 0, 0
         );
-        jdbcHelper.update(conn, "INSERT INTO " + getTestPhysicalSchema() + "ARTIFACTEXECUTIONATTR (DEPLOYEXECUTIONID, ATTRNAME, ATTRVALUE)" +
+        jdbcHelper.update(conn, "INSERT INTO " + getDeployExecutionAttrTableName() + " (DEPLOYEXECUTIONID, ATTRNAME, ATTRVALUE)" +
                         "VALUES (?, ?, ?)",
                 3, "conduit.version.name", myVersion2
         );
-        jdbcHelper.update(conn, "INSERT INTO " + getTestPhysicalSchema() + "ARTIFACTDEPLOYMENT (ARTFTYPE, ARTIFACTPATH, OBJECTNAME, ACTIVE, " + CHANGETYPE_COL + ", UPDATEDEPLOYID, DBSCHEMA)" +
+        jdbcHelper.update(conn, "INSERT INTO " + getChangeAuditTableName() + " (ARTFTYPE, ARTIFACTPATH, OBJECTNAME, ACTIVE, " + CHANGETYPE_COL + ", UPDATEDEPLOYID, DBSCHEMA)" +
                         "VALUES (?, ?, ?, ?, ?, ?, ?)",
                 "R", "n/a", "OBJ2", 1, "VIEW", 3L, logicalSchema2
         );
 
         deployExecutionDao.init();
 
-        MutableMap<Long, String> schemasById = jdbcHelper.queryForList(conn, "SELECT * FROM " + getTestPhysicalSchema() + "ARTIFACTEXECUTION")
+        MutableMap<Long, String> schemasById = jdbcHelper.queryForList(conn, "SELECT * FROM " + getDeployExecutionTableName())
                 .toMap(toLong("ID"), this.<String>getFunction("DBSCHEMA"));
-        MutableMap<Long, String> versionsById = jdbcHelper.queryForList(conn, "SELECT * FROM " + getTestPhysicalSchema() + "ARTIFACTEXECUTION")
+        MutableMap<Long, String> versionsById = jdbcHelper.queryForList(conn, "SELECT * FROM " + getDeployExecutionTableName())
                 .toMap(toLong("ID"), this.<String>getFunction("PRODUCTVERSION"));
         assertEquals(logicalSchema1, schemasById.get(1L));
         assertEquals(logicalSchema1, schemasById.get(2L));
@@ -242,66 +243,66 @@ public abstract class SameSchemaChangeAuditDaoTest {
         setup5_3Upgrade();
 
         // execution 1 - normal use case, on version1
-        jdbcHelper.update(conn, "INSERT INTO " + getTestPhysicalSchema() + "ARTIFACTEXECUTION (ID, STATUS, DEPLOYTIME, EXECUTORID, TOOLVERSION, INIT_COMMAND, ROLLBACK_COMMAND)" +
+        jdbcHelper.update(conn, "INSERT INTO " + getDeployExecutionTableName() + " (ID, STATUS, DEPLOYTIME, EXECUTORID, TOOLVERSION, INIT_COMMAND, ROLLBACK_COMMAND)" +
                         "VALUES (?, ?, ?, ?, ?, ?, ?)",
                 1L, "S", new java.sql.Timestamp(new Date().getTime()), "test", "0.0.0", 0, 0
         );
-        jdbcHelper.update(conn, "INSERT INTO " + getTestPhysicalSchema() + "ARTIFACTEXECUTIONATTR (DEPLOYEXECUTIONID, ATTRNAME, ATTRVALUE)" +
+        jdbcHelper.update(conn, "INSERT INTO " + getDeployExecutionAttrTableName() + " (DEPLOYEXECUTIONID, ATTRNAME, ATTRVALUE)" +
                         "VALUES (?, ?, ?)",
                 1L, "conduit.version.name", myVersion
         );
-        jdbcHelper.update(conn, "INSERT INTO " + getTestPhysicalSchema() + "ARTIFACTDEPLOYMENT (ARTFTYPE, ARTIFACTPATH, OBJECTNAME, ACTIVE, " + CHANGETYPE_COL + ", UPDATEDEPLOYID, DBSCHEMA)" +
+        jdbcHelper.update(conn, "INSERT INTO " + getChangeAuditTableName() + " (ARTFTYPE, ARTIFACTPATH, OBJECTNAME, ACTIVE, " + CHANGETYPE_COL + ", UPDATEDEPLOYID, DBSCHEMA)" +
                         "VALUES (?, ?, ?, ?, ?, ?, ?)",
                 "R", "n/a", "OBJ1", 1, "VIEW", 1L, logicalSchema1
         );
 
         // execution 2 - no schema is defined, and we have no linkages to any artifacts. Thus, we end up defaulting to the "NOSCHEMA" value
-        jdbcHelper.update(conn, "INSERT INTO " + getTestPhysicalSchema() + "ARTIFACTEXECUTION (ID, STATUS, DEPLOYTIME, EXECUTORID, TOOLVERSION, INIT_COMMAND, ROLLBACK_COMMAND)" +
+        jdbcHelper.update(conn, "INSERT INTO " + getDeployExecutionTableName() + " (ID, STATUS, DEPLOYTIME, EXECUTORID, TOOLVERSION, INIT_COMMAND, ROLLBACK_COMMAND)" +
                         "VALUES (?, ?, ?, ?, ?, ?, ?)",
                 2L, "S", new java.sql.Timestamp(new Date().getTime()), "test", "0.0.0", 0, 0
         );
-        jdbcHelper.update(conn, "INSERT INTO " + getTestPhysicalSchema() + "ARTIFACTEXECUTIONATTR (DEPLOYEXECUTIONID, ATTRNAME, ATTRVALUE)" +
+        jdbcHelper.update(conn, "INSERT INTO " + getDeployExecutionAttrTableName() + " (DEPLOYEXECUTIONID, ATTRNAME, ATTRVALUE)" +
                         "VALUES (?, ?, ?)",
                 2L, "conduit.version.name", myVersion
         );
 
         // execution 3 - on version 2
-        jdbcHelper.update(conn, "INSERT INTO " + getTestPhysicalSchema() + "ARTIFACTEXECUTION (ID, STATUS, DEPLOYTIME, EXECUTORID, TOOLVERSION, INIT_COMMAND, ROLLBACK_COMMAND)" +
+        jdbcHelper.update(conn, "INSERT INTO " + getDeployExecutionTableName() + " (ID, STATUS, DEPLOYTIME, EXECUTORID, TOOLVERSION, INIT_COMMAND, ROLLBACK_COMMAND)" +
                         "VALUES (?, ?, ?, ?, ?, ?, ?)",
                 3L, "S", new java.sql.Timestamp(new Date().getTime()), "test", "0.0.0", 0, 0
         );
-        jdbcHelper.update(conn, "INSERT INTO " + getTestPhysicalSchema() + "ARTIFACTEXECUTIONATTR (DEPLOYEXECUTIONID, ATTRNAME, ATTRVALUE)" +
+        jdbcHelper.update(conn, "INSERT INTO " + getDeployExecutionAttrTableName() + " (DEPLOYEXECUTIONID, ATTRNAME, ATTRVALUE)" +
                         "VALUES (?, ?, ?)",
                 3L, "conduit.version.name", myVersion
         );
-        jdbcHelper.update(conn, "INSERT INTO " + getTestPhysicalSchema() + "ARTIFACTDEPLOYMENT (ARTFTYPE, ARTIFACTPATH, OBJECTNAME, ACTIVE, " + CHANGETYPE_COL + ", UPDATEDEPLOYID, DBSCHEMA)" +
+        jdbcHelper.update(conn, "INSERT INTO " + getChangeAuditTableName() + " (ARTFTYPE, ARTIFACTPATH, OBJECTNAME, ACTIVE, " + CHANGETYPE_COL + ", UPDATEDEPLOYID, DBSCHEMA)" +
                         "VALUES (?, ?, ?, ?, ?, ?, ?)",
                 "R", "n/a", "OBJ2", 1, "VIEW", 3L, logicalSchema2
         );
 
         // execution 4 - multiple schemas associated to it in ARTIFACTDEPLOYMENT. This shouldn't ever happen, but we code for it just in case
-        jdbcHelper.update(conn, "INSERT INTO " + getTestPhysicalSchema() + "ARTIFACTEXECUTION (ID, STATUS, DEPLOYTIME, EXECUTORID, TOOLVERSION, INIT_COMMAND, ROLLBACK_COMMAND)" +
+        jdbcHelper.update(conn, "INSERT INTO " + getDeployExecutionTableName() + " (ID, STATUS, DEPLOYTIME, EXECUTORID, TOOLVERSION, INIT_COMMAND, ROLLBACK_COMMAND)" +
                         "VALUES (?, ?, ?, ?, ?, ?, ?)",
                 4L, "S", new java.sql.Timestamp(new Date().getTime()), "test", "0.0.0", 0, 0
         );
-        jdbcHelper.update(conn, "INSERT INTO " + getTestPhysicalSchema() + "ARTIFACTEXECUTIONATTR (DEPLOYEXECUTIONID, ATTRNAME, ATTRVALUE)" +
+        jdbcHelper.update(conn, "INSERT INTO " + getDeployExecutionAttrTableName() + " (DEPLOYEXECUTIONID, ATTRNAME, ATTRVALUE)" +
                         "VALUES (?, ?, ?)",
                 4L, "conduit.version.name", myVersion
         );
-        jdbcHelper.update(conn, "INSERT INTO " + getTestPhysicalSchema() + "ARTIFACTDEPLOYMENT (ARTFTYPE, ARTIFACTPATH, OBJECTNAME, ACTIVE, " + CHANGETYPE_COL + ", UPDATEDEPLOYID, DBSCHEMA)" +
+        jdbcHelper.update(conn, "INSERT INTO " + getChangeAuditTableName() + " (ARTFTYPE, ARTIFACTPATH, OBJECTNAME, ACTIVE, " + CHANGETYPE_COL + ", UPDATEDEPLOYID, DBSCHEMA)" +
                         "VALUES (?, ?, ?, ?, ?, ?, ?)",
                 "R", "n/a", "OBJ3", 1, "VIEW", 4L, logicalSchema1
         );
-        jdbcHelper.update(conn, "INSERT INTO " + getTestPhysicalSchema() + "ARTIFACTDEPLOYMENT (ARTFTYPE, ARTIFACTPATH, OBJECTNAME, ACTIVE, " + CHANGETYPE_COL + ", UPDATEDEPLOYID, DBSCHEMA)" +
+        jdbcHelper.update(conn, "INSERT INTO " + getChangeAuditTableName() + " (ARTFTYPE, ARTIFACTPATH, OBJECTNAME, ACTIVE, " + CHANGETYPE_COL + ", UPDATEDEPLOYID, DBSCHEMA)" +
                         "VALUES (?, ?, ?, ?, ?, ?, ?)",
                 "R", "n/a", "OBJ4", 1, "VIEW", 4L, logicalSchema2
         );
 
         deployExecutionDao.init();
 
-        MutableMap<Long, String> schemasById = jdbcHelper.queryForList(conn, "SELECT * FROM " + getTestPhysicalSchema() + "ARTIFACTEXECUTION")
+        MutableMap<Long, String> schemasById = jdbcHelper.queryForList(conn, "SELECT * FROM " + getDeployExecutionTableName())
                 .toMap(toLong("ID"), this.<String>getFunction("DBSCHEMA"));
-        MutableMap<Long, String> versionsById = jdbcHelper.queryForList(conn, "SELECT * FROM " + getTestPhysicalSchema() + "ARTIFACTEXECUTION")
+        MutableMap<Long, String> versionsById = jdbcHelper.queryForList(conn, "SELECT * FROM " + getDeployExecutionTableName())
                 .toMap(toLong("ID"), this.<String>getFunction("PRODUCTVERSION"));
         assertEquals(logicalSchema1, schemasById.get(1L));
         assertEquals("NOSCHEMA", schemasById.get(2L));
@@ -313,21 +314,23 @@ public abstract class SameSchemaChangeAuditDaoTest {
         assertEquals(myVersion, versionsById.get(4L));
     }
 
+    private String getDeployExecutionAttrTableName() {
+        return getTestPhysicalSchema() + platform.convertDbObjectName().valueOf(DeployExecutionDao.DEPLOY_EXECUTION_ATTRIBUTE_TABLE_NAME);
+    }
+
+    private String getChangeAuditTableName() {
+        return getTestPhysicalSchema() + platform.convertDbObjectName().valueOf(ChangeAuditDao.CHANGE_AUDIT_TABLE_NAME);
+    }
+
+    private String getDeployExecutionTableName() {
+        return getTestPhysicalSchema() + platform.convertDbObjectName().valueOf(DeployExecutionDao.DEPLOY_EXECUTION_TABLE_NAME);
+    }
+
     private <T> Function<Map<String, Object>, T> getFunction(final String field) {
-        return new Function<Map<String, Object>, T>() {
-            @Override
-            public T valueOf(Map<String, Object> stringObjectMap) {
-                return (T) stringObjectMap.get(field);
-            }
-        };
+        return stringObjectMap -> (T) stringObjectMap.get(field);
     }
 
     private Function<Map<String, Object>, Long> toLong(final String field) {
-        return new Function<Map<String, Object>, Long>() {
-            @Override
-            public Long valueOf(Map<String, Object> stringObjectMap) {
-                return platform.getLongValue(stringObjectMap.get(field));
-            }
-        };
+        return stringObjectMap -> platform.getLongValue(stringObjectMap.get(field));
     }
 }

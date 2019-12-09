@@ -26,13 +26,19 @@ public class RevEngDestination {
     private final String objectName;
     private final boolean duplicate;
     private final boolean baselineEligible;
+    private final boolean keepLastOnly;
 
     public RevEngDestination(String schema, ChangeType dbObjectType, String objectName, boolean duplicate) {
+        this(schema, dbObjectType, objectName, duplicate, false);
+    }
+
+    public RevEngDestination(String schema, ChangeType dbObjectType, String objectName, boolean duplicate, boolean keepLastOnly) {
         this.schema = schema;
         this.dbObjectType = dbObjectType;
         this.objectName = objectName;
         this.duplicate = duplicate;
         this.baselineEligible = !dbObjectType.isRerunnable();
+        this.keepLastOnly = keepLastOnly;
     }
 
     public String getSchema() {
@@ -72,6 +78,10 @@ public class RevEngDestination {
         return this.duplicate;
     }
 
+    public boolean isKeepLastOnly() {
+        return keepLastOnly;
+    }
+
     @Override
     public String toString() {
         return "RevEngDestination{" +
@@ -80,6 +90,7 @@ public class RevEngDestination {
                 ", objectName='" + objectName + '\'' +
                 ", duplicate=" + duplicate +
                 ", baselineEligible=" + baselineEligible +
+                ", keepLastOnly=" + keepLastOnly +
                 '}';
     }
 }

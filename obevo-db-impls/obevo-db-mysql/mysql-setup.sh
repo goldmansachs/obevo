@@ -18,14 +18,16 @@ set -x
 # under the License.
 #
 
+DB_VERSION=$1
+
 INSTANCE_PORT=3306
 INSTANCE_DBNAME="dbdeploy"
 INSTANCE_SCHEMAS="dbdeploy03 dbdeploy01 dbdeploy02"
 INSTANCE_USERID="root"  # note - this user ID is hardcoded by the container
 INSTANCE_PASSWORD="Deploybuilddb0!"
 
-CONTAINER_IMAGE="mysql:latest"
-CONTAINER_NAME=obevo-mssql-instance
+CONTAINER_IMAGE="mysql:$DB_VERSION"
+CONTAINER_NAME=obevo-mysql-instance
 
 OLD_CONTAINER_ID=$(docker ps -aqf "name=$CONTAINER_NAME")
 if [ ! -z "$OLD_CONTAINER_ID" ]
@@ -35,20 +37,15 @@ then
     docker rm $OLD_CONTAINER_ID
 fi
 
-echo "Setting password $INSTANCE_PASSWORD"
+echo "MySQL container creation started"
 
-docker pull $CONTAINER_IMAGE
 docker run -e "MYSQL_ROOT_PASSWORD=$INSTANCE_PASSWORD" \
    -p $INSTANCE_PORT:$INSTANCE_PORT --name $CONTAINER_NAME \
+   -e MYSQL_DATABASE=$INSTANCE_DBNAME \
    -d $CONTAINER_IMAGE
 
-echo "Container created"
-
-#for SCHEMA in $INSTANCE_SCHEMAS; do
-#    docker run -it --link $CONTAINER_NAME --rm mysql sh -c 'exec mysql -h"localhost" -P"$INSTANCE_PORT" -uroot -p"$INSTANCE_PASSWORD"'
-#    docker run -it --link $CONTAINER_NAME --rm mysql sh -c 'exec mysql -h"$MYSQL_PORT_3306_TCP_ADDR" -P"$MYSQL_PORT_3306_TCP_PORT" -uroot -p"$MYSQL_ENV_MYSQL_ROOT_PASSWORD"'
-
-#    docker exec $CONTAINER_NAME /opt/mssql-tools/bin/sqlcmd \
-#       -S localhost -U $INSTANCE_USERID -P "$INSTANCE_PASSWORD" \
-#       -Q "CREATE DATABASE $SCHEMA"
-#done
+echo "MySQL container created"
+docker ps
+sleep 30
+docker ps
+echo "MySQL container setup done"
