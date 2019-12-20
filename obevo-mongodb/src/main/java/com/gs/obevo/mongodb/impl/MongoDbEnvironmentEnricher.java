@@ -29,6 +29,7 @@ public class MongoDbEnvironmentEnricher extends AbstractEnvironmentEnricher<Mong
     @Override
     protected void createEnv(MongoDbEnvironment env, ImmutableHierarchicalConfiguration envCfg, Platform systemDbPlatform) {
         env.setPlatform((MongoDbPlatform) systemDbPlatform);
-        env.setConnectionURI(envCfg.getString("connectionURI"));
+        env.setHost(envCfg.getString("host"));
+        env.setPort(envCfg.getInt("port"));
     }
 }

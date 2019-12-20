@@ -25,17 +25,17 @@
         <!-- Your production database that you reverse-engineered from; do NOT deploy to this environment for your testing!
         DELETE THIS COMMENT AFTER FINISHING ONBOARDING -->
         <environment name="prod"
-        <#if connectionURI??>
-            connectionURI="${connectionURI}">
+        <#if host?? && port??>
+            host="${host}" port="${port}">
         <#else>
-            connectionURI="mongodb://myProdHost.me.com:27017">
+            host="myProdHost.me.com" port="27017">
         </#if>
         </environment>
 
         <!-- Please work with this environment instead for your onboarding testing
         DELETE THIS COMMENT AFTER FINISHING ONBOARDING -->
         <environment name="dev1" cleanBuildAllowed="true"
-            connectionURI="mongodb://myProdHost.me.com:27017">
+            host="myProdHost.me.com" port="27017">
 
             <!-- To specify a different physical schema, either:
             1) Use the dbSchemaPrefix or dbSchemaSuffix attributes in the <environment> element, e.g.

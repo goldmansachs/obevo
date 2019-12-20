@@ -34,13 +34,21 @@ types.
 The configuration and file setup for MongoDB mostly follows the pattern described in the [DB Project Structure](db-project-structure.html)
 page. Here we highlight the differences.
 
+### Runtime: "mongo" required in PATH
+
+Obevo executes Mongo statements by executing the "mongo" command line shell. Hence, this command needs to be set in the
+environment PATH before invoking Obevo.
+
+Executing deployments via the native Java API is not yet supported, but we are looking into this in the future.
+
+
 ### system-config.xml file
 
 Renamings:
 * dbSystemConfig can be referred to as systemConfig; dbSystemConfig is also readable for backwards-compatibility purposes
 * dbEnvironment can be referred to as environment; dbSystemConfig is also readable for backwards-compatibility purposes
 
-The only connection parameter allowed is connectionURI, whose format is defined in the [MongoClientURI Javadoc](http://api.mongodb.com/java/current/com/mongodb/MongoClientURI.html)
+Connection parameters to specify are the host and port where the MongoDb instance resides.
 
 Permission schemes, grants, and users are not supported.
 
@@ -52,8 +60,8 @@ Here is an example configuration file:
         <schema name="MYSCHEMA" />
     </schemas>
     <environments>
-        <environment name="test1" connectionURI="mongodb://localhost:10000" />
-        <environment name="test2" connectionURI="mongodb://localhost:10001">
+        <environment name="test1" host="localhost" port="10000" />
+        <environment name="test2" host="localhost" port="10001">
             <schemaOverrides>
                 <schemaOverride schema="MYSCHEMA" overrideValue="MYSCHEMA_TEST2"/>
             </schemaOverrides>
@@ -75,7 +83,7 @@ All source is read as Javascript files with extension *.js
 
 ##### /collection
 
-Rerunnable object type that contains information for collection definitions, e.g. indexes.
+Incremental object type that contains information for collection definitions, e.g. indexes.
 
 ##### /migration
 

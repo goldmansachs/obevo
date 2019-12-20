@@ -5,6 +5,7 @@ jdk: openjdk8
 
 services:
   - docker
+  - mongodb  # setting up Mongo to get access to the CLI. We instantiate our test Mongo instance via Docker
 
 env:
   global:

@@ -56,14 +56,16 @@ public class MongoDbEnvironmentEnricherTest {
     }
 
     private void validateEnv1(MongoDbEnvironment env1) {
-        assertThat(env1.getConnectionURI(), equalTo("mongodb://localhost:10000"));
+        assertThat(env1.getHost(), equalTo("localhost"));
+        assertThat(env1.getPort(), equalTo(10000));
         assertThat(env1.getSchemaNames(), equalTo(Sets.immutable.of("MYSCHEMA")));
         assertThat(env1.getPhysicalSchema("MYSCHEMA").getPhysicalName(), equalTo("MYSCHEMA"));
         assertThat(env1.getTokens(), equalTo(Maps.immutable.<String, String>empty()));
     }
 
     private void validateEnv2(MongoDbEnvironment env2) {
-        assertThat(env2.getConnectionURI(), equalTo("mongodb://localhost:10001"));
+        assertThat(env2.getHost(), equalTo("localhost"));
+        assertThat(env2.getPort(), equalTo(10001));
         assertThat(env2.getSchemaNames(), equalTo(Sets.immutable.of("MYSCHEMA")));
         assertThat(env2.getPhysicalSchema("MYSCHEMA").getPhysicalName(), equalTo("MYSCHEMA_TEST2"));
         assertThat(env2.getTokens(), equalTo(Maps.immutable.of("key", "val")));

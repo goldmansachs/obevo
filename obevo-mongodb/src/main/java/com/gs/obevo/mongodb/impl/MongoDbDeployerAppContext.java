@@ -27,7 +27,6 @@ import com.gs.obevo.impl.context.AbstractDeployerAppContext;
 import com.gs.obevo.impl.reader.TableChangeParser;
 import com.gs.obevo.mongodb.api.appdata.MongoDbEnvironment;
 import com.mongodb.MongoClient;
-import org.eclipse.collections.api.block.function.Function0;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.partition.list.PartitionImmutableList;
@@ -66,12 +65,7 @@ public class MongoDbDeployerAppContext extends AbstractDeployerAppContext<MongoD
     }
 
     private ChangeTypeBehavior deployBehavior() {
-        return singleton("deployBehavior", new Function0<ChangeTypeBehavior>() {
-            @Override
-            public ChangeTypeBehavior value() {
-                return new MongoDeployBehavior(getMongoClient(), env);
-            }
-        });
+        return singleton("deployBehavior", () -> new MongoDeployBehavior(env));
     }
 
     @Override
@@ -80,12 +74,7 @@ public class MongoDbDeployerAppContext extends AbstractDeployerAppContext<MongoD
     }
 
     private MongoClient getMongoClient() {
-        return singleton("mongoClient", new Function0<MongoClient>() {
-            @Override
-            public MongoClient value() {
-                return MongoClientFactory.getInstance().getMongoClient(env);
-            }
-        });
+        return singleton("mongoClient", () -> MongoClientFactory.getInstance().getMongoClient(env));
     }
 
     @Override

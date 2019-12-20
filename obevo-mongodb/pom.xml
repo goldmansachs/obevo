@@ -31,7 +31,9 @@
     <name>${project.artifactId}</name>
 
     <properties>
-        <jacoco.minCoverage>0.01</jacoco.minCoverage>
+        <jacoco.minCoverage>0.50</jacoco.minCoverage>
+        <mongo.driver.version>3.1.1</mongo.driver.version>
+        <mongo.version>4.0.14</mongo.version>
     </properties>
 
     <dependencies>
@@ -47,7 +49,7 @@
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
-            <version>3.1.1</version>
+            <version>${mongo.driver.version}</version>
         </dependency>
         <dependency>
             <groupId>com.goldmansachs.obevo</groupId>
@@ -88,4 +90,40 @@
         </dependency>
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>integration-build</id>
+            <activation>
+                <property>
+                    <name>docker.build.enabled</name>
+                    <value>true</value>
+                </property>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>setup-mongodb</id>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <phase>pre-integration-test</phase>
+                                <configuration>
+                                    <skip>${skipTests}</skip>
+                                    <target>
+                                        <exec executable="${basedir}/mongodb-setup.sh">
+                                            <arg value="${mongo.version}" />
+                                        </exec>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
