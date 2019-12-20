@@ -32,7 +32,6 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import org.eclipse.collections.impl.factory.Sets;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -40,13 +39,12 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Ignore("Not yet setup for remote environments")
 public class MongoDbChangeAuditDaoIT {
     private MongoClient mongoClient;
 
     @Before
     public void setup() {
-        this.mongoClient = MongoClientFactory.getInstance().getMongoClient(MongoDbTestHelper.CONNECTION_URI);
+        this.mongoClient = MongoClientFactory.getInstance().getMongoClient(MongoDbTestHelper.HOST, MongoDbTestHelper.PORT);
         MongoDatabase mydb = mongoClient.getDatabase("mydb");
         mydb.getCollection("ARTIFACTDEPLOYMENT").drop();
         mydb.getCollection("ARTIFACTDEPLOYMENT").drop();

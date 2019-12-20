@@ -34,7 +34,8 @@ public class MongoDbRevengTest extends AbstractRevengTest {
         AquaRevengArgs args = new AquaRevengArgs();
         args.setDbSchema("mydb");
         args.setGenerateBaseline(false);
-        args.setJdbcUrl(MongoDbTestHelper.CONNECTION_URI);
+        args.setDbHost(MongoDbTestHelper.HOST);
+        args.setDbPort(MongoDbTestHelper.PORT);
         args.setUsername("myuser");
         args.setPassword("mypass");
         args.setCharsetEncoding(StandardCharsets.UTF_8.displayName());

@@ -49,6 +49,7 @@ import org.joda.time.DateTime;
 public class MongoDbChangeAuditDao implements ChangeAuditDao {
     private final MongoClient mongoClient;
     private final MongoDbEnvironment env;
+    private final MongoDeployBehavior deployBehavior;
     private final Platform platform;
     private final String deployUserId;
     private final String changeNameColumn = "changeName";
@@ -63,12 +64,14 @@ public class MongoDbChangeAuditDao implements ChangeAuditDao {
     public MongoDbChangeAuditDao(MongoClient mongoClient, MongoDbEnvironment env, Platform platform, String deployUserId) {
         this.mongoClient = mongoClient;
         this.env = env;
+        this.deployBehavior = new MongoDeployBehavior(env);
         this.platform = platform;
         this.deployUserId = deployUserId;
     }
 
     @Override
     public void init() {
+        deployBehavior.validateMongoEnvironmentSetup();
         for (PhysicalSchema physicalSchema : env.getPhysicalSchemas()) {
             MongoDatabase database = mongoClient.getDatabase(physicalSchema.getPhysicalName());
             try {

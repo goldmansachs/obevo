@@ -20,7 +20,7 @@
         <schema name="schema1" />
     </schemas>
     <environments>
-        <environment name="test1" connectionURI="mongodb://localhost:27017">
+        <environment name="test1" host="localhost" port="27017">
             <schemaOverrides>
                 <schemaOverride schema="schema1" overrideValue="mydb" />
             </schemaOverrides>

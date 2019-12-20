@@ -17,29 +17,32 @@ package com.gs.obevo.mongodb.api.appdata;
 
 import com.gs.obevo.api.appdata.Environment;
 import com.gs.obevo.mongodb.impl.MongoDbPlatform;
-import com.mongodb.MongoClientURI;
 
 public class MongoDbEnvironment extends Environment<MongoDbPlatform> {
-    private String connectionURI;
+    private String host;
+    private int port;
 
     @Override
     public void copyFieldsFrom(Environment<MongoDbPlatform> baseEnv) {
         MongoDbEnvironment env = (MongoDbEnvironment) baseEnv;
         super.copyFieldsFrom(baseEnv);
-        this.connectionURI = env.connectionURI;
+        this.host = env.host;
+        this.port = env.port;
     }
 
-    /**
-     * The string to connect to MongoDB, following the syntax mentioned here: {@link MongoClientURI}.
-     */
-    public void setConnectionURI(String connectionURI) {
-        this.connectionURI = connectionURI;
+    public String getHost() {
+        return host;
     }
 
-    /**
-     * The string to connect to MongoDB, following the syntax mentioned here: {@link MongoClientURI}.
-     */
-    public String getConnectionURI() {
-        return connectionURI;
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 }

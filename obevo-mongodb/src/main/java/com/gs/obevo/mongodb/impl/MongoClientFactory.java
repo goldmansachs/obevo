@@ -17,7 +17,6 @@ package com.gs.obevo.mongodb.impl;
 
 import com.gs.obevo.mongodb.api.appdata.MongoDbEnvironment;
 import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
 
 /**
  * Utility to instantiate MongoClient instances for use in Obevo.
@@ -33,14 +32,10 @@ public final class MongoClientFactory {
     }
 
     public MongoClient getMongoClient(MongoDbEnvironment env) {
-        return getMongoClient(env.getConnectionURI());
+        return getMongoClient(env.getHost(), env.getPort());
     }
 
-    public MongoClient getMongoClient(String mongoClientURI) {
-        return getMongoClient(new MongoClientURI(mongoClientURI));
-    }
-
-    private MongoClient getMongoClient(MongoClientURI mongoClientURI) {
-        return new MongoClient(mongoClientURI);
+    public MongoClient getMongoClient(String host, int port) {
+        return new MongoClient(host, port);
     }
 }

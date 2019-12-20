@@ -29,14 +29,12 @@ import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.factory.Sets;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore("Not yet setup for remote environments")
 public class MongoDbDeployIT {
     @Before
     public void setup() {
-        MongoDatabase mydb = MongoClientFactory.getInstance().getMongoClient(MongoDbTestHelper.CONNECTION_URI).getDatabase("mydb");
+        MongoDatabase mydb = MongoClientFactory.getInstance().getMongoClient(MongoDbTestHelper.HOST, MongoDbTestHelper.PORT).getDatabase("mydb");
         mydb.getCollection("ARTIFACTDEPLOYMENT").drop();
         mydb.getCollection("ARTIFACTDEPLOYMENT").drop();
         mydb.getCollection("ARTIFACTEXECUTION").drop();
@@ -60,7 +58,9 @@ public class MongoDbDeployIT {
         env.setSourceDirs(FileRetrievalMode.FILE_SYSTEM.resolveFileObjects(sourcePath));
         env.setSchemas(Sets.immutable.<Schema>of(new Schema("schema1")));
         env.setSchemaNameOverrides(Maps.immutable.of("schema1", "mydb"));
-        env.setConnectionURI(MongoDbTestHelper.CONNECTION_URI);
+        env.setHost(MongoDbTestHelper.HOST);
+        env.setPort(MongoDbTestHelper.PORT);
+        deploy(env, true);
     }
 
     private void deployFromFile(String sourcePath, boolean clean) {

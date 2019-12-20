@@ -19,7 +19,7 @@ Supported platforms: DB2, H2, HSQLDB, Microsoft SQL Server, MongoDB, Oracle, Pos
 
 Obevo can be used for more than just relational databases.
 
-MongoDB support is now being piloted by end-users with version 7.2.0.
+MongoDB support is now available and supported for MongoDB versions 4.1.x and greater (i.e. not using the deprecated "eval" API).
 
 This is the first non-RDBMS platform supported, which shows that the object-based management pattern described
 [here](https://www.infoq.com/articles/Obevo-Introduction) can be applicable elsewhere.

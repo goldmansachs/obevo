@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory
 
 class MongoDbReveng internal constructor(private val platform: Platform) : Reveng {
     override fun reveng(args: AquaRevengArgs) {
-        val mongoClient = MongoClientFactory.getInstance().getMongoClient(args.jdbcUrl)
+        val mongoClient = MongoClientFactory.getInstance().getMongoClient(args.dbHost, args.dbPort)
 
         val database = mongoClient.getDatabase(args.dbSchema)
 
@@ -74,7 +74,7 @@ class MongoDbReveng internal constructor(private val platform: Platform) : Reven
                 platform,
                 args.outputPath,
                 listOf(args.dbSchema),
-                mapOf("connectionURI" to args.jdbcUrl)
+                mapOf("host" to args.dbHost, "port" to args.dbPort.toString())
         )
     }
 
