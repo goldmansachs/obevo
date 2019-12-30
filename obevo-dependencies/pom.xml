@@ -118,6 +118,16 @@
                 <version>3.1</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-csv</artifactId>
+                <version>1.4</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.opencsv</groupId>
+                <artifactId>opencsv</artifactId>
+                <version>2.3</version>
+            </dependency>
+            <dependency>
                 <groupId>commons-lang</groupId>
                 <artifactId>commons-lang</artifactId>
                 <version>2.6</version>
@@ -140,7 +150,7 @@
             <dependency>
                 <groupId>commons-collections</groupId>
                 <artifactId>commons-collections</artifactId>
-                <version>3.2.1</version>
+                <version>3.2.2</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.collections</groupId>
@@ -182,7 +192,7 @@
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
-                <version>1.9.3</version>
+                <version>1.9.4</version>
                 <exclusions>
                     <exclusion>
                         <!-- replaced by slf4j -->
@@ -306,7 +316,7 @@
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>42.1.1.jre7</version>
+                <version>42.2.9</version>
             </dependency>
             <dependency>
                 <groupId>com.microsoft.sqlserver</groupId>
