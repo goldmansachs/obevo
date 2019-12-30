@@ -12,12 +12,12 @@ Each module in this project has a NOTICE.txt file denoting the module's own depe
 This product depends on (links to) the following software:
   Apache Commons BeanUtils under Apache License, Version 2.0
   Apache Commons Codec under Apache License, Version 2.0
+  Apache Commons Collections under Apache License, Version 2.0
   Apache Commons Configuration under Apache License, Version 2.0
   Apache Commons CSV under Apache License, Version 2.0
   Apache Commons DbUtils under The Apache Software License, Version 2.0
   Apache Commons Text under Apache License, Version 2.0
   Command Line Interface Parser for Java under The Apache Software License, Version 2.0
-  Commons Collections under The Apache Software License, Version 2.0
   Commons DBCP under The Apache Software License, Version 2.0
   Commons IO under The Apache Software License, Version 2.0
   Commons Lang under The Apache Software License, Version 2.0
@@ -42,7 +42,7 @@ This product depends on (links to) the following software:
   org.jetbrains.kotlin:kotlin-stdlib-common under The Apache License, Version 2.0
   org.jetbrains.kotlin:kotlin-stdlib-jdk7 under The Apache License, Version 2.0
   org.jetbrains.kotlin:kotlin-stdlib-jdk8 under The Apache License, Version 2.0
-  PostgreSQL JDBC Driver - JDBC 4.1 under The PostgreSQL License
+  PostgreSQL JDBC Driver - JDBC 4.2 under BSD-2-Clause
   SchemaCrawler under Eclipse Public License - v 1.0
   SchemaCrawler for HyperSQL under Eclipse Public License - v 1.0
   SchemaCrawler for IBM DB2 under Eclipse Public License - v 1.0
