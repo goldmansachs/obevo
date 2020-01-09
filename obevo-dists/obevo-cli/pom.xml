@@ -44,6 +44,8 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- will re-enable on next release -->
+            <!--
             <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
@@ -63,6 +65,7 @@
                     </execution>
                 </executions>
             </plugin>
+            -->
         </plugins>
     </build>
     <dependencies>
