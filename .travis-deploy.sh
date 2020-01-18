@@ -16,12 +16,24 @@
 #
 set -e
 echo "Deploying to Maven Central Repo with Maven Opts $MAVEN_OPTS"
-openssl aes-256-cbc -K $encrypted_a2f0f379c735_key -iv $encrypted_a2f0f379c735_iv -in codesigning.asc.enc -out codesigning.asc -d
-gpg --fast-import codesigning.asc
-cp .travis.maven.settings.xml $HOME/.m2/settings.xml && mvn -B -DskipTests -P release deploy
+
+# Maven deploy steps done with help from:
+# - https://github.com/stefanbirkner/travis-deploy-to-maven-central
+# - https://central.sonatype.org/pages/apache-maven.html
+# - https://central.sonatype.org/pages/working-with-pgp-signatures.html
+
+# the following openssl line is taken from the "travis encrypt" command
+openssl aes-256-cbc -K $encrypted_a2f0f379c735_key -iv $encrypted_a2f0f379c735_iv -in deploy/signingkey.asc.enc -out deploy/signingkey.asc -d
+
+gpg --fast-import deploy/signingkey.asc
+cp deploy/.travis.maven.settings.xml $HOME/.m2/settings.xml
+mvn -B -DskipTests -P release deploy
 
 
 echo "Deploying to Docker Hub"
+
+# Note - docker recommends passing in the password via --password-stdin for security purposes.
+# See https://docs.docker.com/engine/reference/commandline/login/#provide-a-password-using-stdin
 echo "$SONATYPE_PASSWORD" | docker login -u "$SONATYPE_USERNAME" --password-stdin
 
 if [[ "$VERSION" != "*-SNAPSHOT" ]];

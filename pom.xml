@@ -542,7 +542,8 @@
                         <exclude>**/NOTICE.template.txt</exclude>
                         <exclude>**/README.md</exclude>
                         <exclude>**/SDLC_NOTES.md</exclude>
-                        <exclude>**/codesigning.asc*</exclude>
+                        <exclude>**/deploy/*.asc</exclude>
+                        <exclude>**/deploy/*.asc.*</exclude>
                         <exclude>**/node_modules/**</exclude>
 
                         <!-- Excluding the reverse-engineering files  -->
@@ -564,6 +565,7 @@
                         <exclude>**/src/test/resources/testdata3.txt</exclude>
                         <exclude>**/src/test/resources/testdb.ddl</exclude>
                     </excludes>
+                    <consoleOutput>true</consoleOutput>
                 </configuration>
                 <executions>
                     <execution>
@@ -750,8 +752,8 @@
                                     <goal>sign</goal>
                                 </goals>
                                 <configuration>
-                                    <keyname>${env.SONATYPE_GPG_KEY_NAME}</keyname>
-                                    <passphrase>${env.SONATYPE_GPG_PASSPHRASE}</passphrase>
+                                    <keyname>${env.GPG_KEYNAME}</keyname>
+                                    <passphrase>${env.GPG_PASSPHRASE}</passphrase>
                                 </configuration>
                             </execution>
                         </executions>

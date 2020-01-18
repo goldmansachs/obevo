@@ -21,7 +21,6 @@ import java.util.List;
 
 import com.gs.obevocomparer.data.CatoDataObject;
 import com.gs.obevocomparer.util.TestUtil;
-import org.apache.log4j.Level;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -66,8 +65,5 @@ public class MinFieldTest {
         TestUtil.clearLogged();
 
         org.junit.Assert.assertEquals(5.5, (double) this.field.getValue(objs), 0.01);
-        TestUtil.assertLogged(Level.WARN,
-                "Value abc skipped - is not of required type Number for record " +
-                        "SimpleDataObject {Val 1=abc [String], Val 2=13 [Integer]}");
     }
 }

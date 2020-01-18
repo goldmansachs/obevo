@@ -20,7 +20,6 @@ import java.util.List;
 
 import com.gs.obevocomparer.data.CatoDataObject;
 import com.gs.obevocomparer.util.TestUtil;
-import org.apache.log4j.Level;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,8 +31,6 @@ public class DelimitedStreamDataSourceTest {
         DelimitedStreamDataSource dataSource = new DelimitedStreamDataSource("Test", new StringReader(TEST_FILE), "|");
 
         Assert.assertEquals("|", dataSource.getDelimiter());
-        TestUtil.assertLogged(Level.WARN,
-                "The delimiter is a regex, are you sure you want to use \"|\" instead of \"\\|\"?");
     }
 
     @Test
