@@ -31,9 +31,6 @@ import com.gs.obevocomparer.input.AbstractCatoDataSource;
 import com.gs.obevocomparer.input.CatoDataSource;
 import com.gs.obevocomparer.output.CatoContentRow.ValueType;
 import com.gs.obevocomparer.output.simple.SimpleContentRow;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.spi.LoggingEvent;
 import org.junit.Assert;
 import org.junit.Ignore;
 
@@ -141,22 +138,8 @@ public class TestUtil {
         }
     }
 
-    public static void assertLogged(Level level, String message) {
-        for (LoggingEvent event : getTestAppender().getEvents()) {
-            if (event.getLevel() == level && event.getMessage().toString().contains(message)) {
-                return;
-            }
-        }
-
-        Assert.fail("For level " + level + ", failed to find logged message " + message);
-    }
-
     public static void clearLogged() {
-        getTestAppender().getEvents().clear();
-    }
-
-    private static TestAppender getTestAppender() {
-        return (TestAppender) Logger.getRootLogger().getAppender("TEST");
+        // TODO no longer used
     }
 
     public static void assertException(String message, Class<? extends UnsupportedOperationException> clazz, Throwable ex) {

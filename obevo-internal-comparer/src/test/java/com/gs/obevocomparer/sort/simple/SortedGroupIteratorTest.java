@@ -22,7 +22,6 @@ import java.util.List;
 
 import com.gs.obevocomparer.sort.SortedGroupIterator;
 import com.gs.obevocomparer.util.TestUtil;
-import org.apache.log4j.Level;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -101,7 +100,6 @@ public class SortedGroupIteratorTest {
         this.assertGroup(5, 1, iter.next());
 
         Assert.assertFalse(iter.hasNext());
-        TestUtil.assertLogged(Level.WARN, "Objects not in sorted order - 3 precedes 2 but is greater");
     }
 
     @Test

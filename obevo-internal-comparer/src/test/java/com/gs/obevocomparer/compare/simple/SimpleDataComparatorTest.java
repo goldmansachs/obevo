@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.Date;
 
 import com.gs.obevocomparer.util.TestUtil;
-import org.apache.log4j.Level;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -179,16 +178,10 @@ public class SimpleDataComparatorTest {
         };
 
         org.junit.Assert.assertFalse(comparator.compareValues(obj1, obj2));
-        TestUtil.assertLogged(Level.DEBUG,
-                "Comparing value abc of type com.gs.obevocomparer.compare.simple.SimpleDataComparatorTest$1 " +
-                        "to value def of different type com.gs.obevocomparer.compare.simple.SimpleDataComparatorTest$2");
 
         TestUtil.clearLogged();
 
         org.junit.Assert.assertTrue(comparator.compareKeyValues(obj1, obj2) < 0);
-        TestUtil.assertLogged(Level.DEBUG,
-                "Comparing toString() methods for value abc of type com.gs.obevocomparer.compare.simple.SimpleDataComparatorTest$1 " +
-                        "to value def of different type com.gs.obevocomparer.compare.simple.SimpleDataComparatorTest$2");
 
         obj1 = Arrays.asList(1, 2, 3);
         obj2 = Arrays.asList(1, 2, 3);
