@@ -27,13 +27,14 @@ This product depends on (links to) the following software:
   Eclipse Collections Main Library under Eclipse Public License - v 1.0
   FreeMarker under Apache License, Version 2.0
   h2 under EPL 1.0
+  ICU4J under Unicode/ICU License
+  ICU4J Charset Provider under Unicode/ICU License
   IntelliJ IDEA Annotations under The Apache Software License, Version 2.0
   JCL 1.1.1 implemented over SLF4J under MIT License
   JGraphT - Core under Eclipse Public License (EPL) 1.0
   JGraphT - I/O under GNU Lesser General Public License Version 2.1, February 1999 or Eclipse Public License (EPL) 2.0
   JHeaps under Apache License, Version 2.0
   Joda time under Apache 2
-  juniversalchardet under Mozilla Public License 1.1 (MPL 1.1)
   obevo-core under The Apache License, Version 2.0
   obevo-db under The Apache License, Version 2.0
   obevo-dbmetadata-impl under The Apache License, Version 2.0

@@ -25,5 +25,8 @@ import java.nio.charset.Charset;
  * Instances to this class should be accessed via {@link CharsetStrategyFactory}.
  */
 public interface CharsetStrategy {
+    /**
+     * Detect the charset of some input bytes, or returns null if unable to detect.
+     */
     Charset determineCharset(byte[] bytes);
 }

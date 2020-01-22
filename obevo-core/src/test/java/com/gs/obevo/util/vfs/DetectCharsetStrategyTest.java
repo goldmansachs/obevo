@@ -28,8 +28,12 @@ import static org.junit.Assert.assertNotEquals;
  * Tests around reading files, including with encodings.
  *
  * Test writing tip: to create a file w/ a UTF BOM, use Sublime.
+ *
+ * We have tests with and without BOMs as the original parsing library we used (juniversalchardet) could not handle
+ * parsing a string without a BOM. We have since moved to use icu4j, which can detect the encoding even without the BOM
+ * character.
  */
-public class FileObjectTest {
+public class DetectCharsetStrategyTest {
 
     @Test
     public void utf8BomTest() {
@@ -59,7 +63,7 @@ public class FileObjectTest {
     public void utf8NoBomTest() {
         FileObject fileObject = FileRetrievalMode.CLASSPATH.resolveSingleFileObject("vfs/FileObject/utf8regular.txt");
 
-        assertEquals(null, fileObject.getDetectedCharset());  // without a BOM, the CharsetDetector won't know the charset
+        assertEquals(StandardCharsets.ISO_8859_1, fileObject.getDetectedCharset());
         assertEquals("abcdeNoBom", fileObject.getStringContent(CharsetStrategyFactory.getCharsetStrategy(StandardCharsets.UTF_8)));
     }
 
@@ -67,7 +71,7 @@ public class FileObjectTest {
     public void utf16LENoBomTest() {
         FileObject fileObject = FileRetrievalMode.CLASSPATH.resolveSingleFileObject("vfs/FileObject/utf16LE.nobom.txt");
 
-        assertEquals(null, fileObject.getDetectedCharset());  // without a BOM, the CharsetDetector won't know the charset
+        assertEquals(StandardCharsets.UTF_16LE, fileObject.getDetectedCharset());
         assertEquals("abcde16LENoBom", fileObject.getStringContent(CharsetStrategyFactory.getCharsetStrategy(StandardCharsets.UTF_16LE)));
     }
 
@@ -75,7 +79,7 @@ public class FileObjectTest {
     public void utf16BENoBomTest() {
         FileObject fileObject = FileRetrievalMode.CLASSPATH.resolveSingleFileObject("vfs/FileObject/utf16BE.nobom.txt");
 
-        assertEquals(null, fileObject.getDetectedCharset());  // without a BOM, the CharsetDetector won't know the charset
+        assertEquals(StandardCharsets.UTF_16BE, fileObject.getDetectedCharset());
         assertEquals("abcde16BE", fileObject.getStringContent(CharsetStrategyFactory.getCharsetStrategy(StandardCharsets.UTF_16BE)));
     }
 

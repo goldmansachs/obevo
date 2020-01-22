@@ -28,13 +28,14 @@ This product depends on (links to) the following software:
   FreeMarker under Apache License, Version 2.0
   h2 under EPL 1.0
   HyperSQL Database under HSQLDB License, a BSD open source license
+  ICU4J under Unicode/ICU License
+  ICU4J Charset Provider under Unicode/ICU License
   IntelliJ IDEA Annotations under The Apache Software License, Version 2.0
   JCL 1.1.1 implemented over SLF4J under MIT License
   JGraphT - Core under Eclipse Public License (EPL) 1.0
   JGraphT - I/O under GNU Lesser General Public License Version 2.1, February 1999 or Eclipse Public License (EPL) 2.0
   JHeaps under Apache License, Version 2.0
   Joda time under Apache 2
-  juniversalchardet under Mozilla Public License 1.1 (MPL 1.1)
   Logback Classic Module under Eclipse Public License - v 1.0 or GNU Lesser General Public License
   Logback Core Module under Eclipse Public License - v 1.0 or GNU Lesser General Public License
   Microsoft JDBC Driver for SQL Server under MIT License

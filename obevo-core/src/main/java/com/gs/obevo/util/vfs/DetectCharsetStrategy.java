@@ -15,37 +15,26 @@
  */
 package com.gs.obevo.util.vfs;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.charset.Charset;
 
-import org.mozilla.universalchardet.UniversalDetector;
+import com.ibm.icu.text.CharsetDetector;
+import com.ibm.icu.text.CharsetMatch;
 
 /**
- * Detect the charset of some input bytes, or returns null if unable to detect.
- * Leverages the Mozilla universalchardet library: https://code.google.com/archive/p/juniversalchardet/
+ * Charset detector using the icu4j library.
  */
 class DetectCharsetStrategy implements CharsetStrategy {
-    private static final ThreadLocal<UniversalDetector> charsetDetector = new ThreadLocal<UniversalDetector>() {
-        @Override
-        protected UniversalDetector initialValue() {
-            return new UniversalDetector(null);
-        }
-    };
-
     @Override
     public Charset determineCharset(byte[] bytes) {
-        UniversalDetector detector = charsetDetector.get();
-        try {
-            detector.handleData(bytes, 0, bytes.length);
-            detector.dataEnd();
-
-            String encoding = detector.getDetectedCharset();
-            if (encoding != null) {
-                return Charset.forName(encoding);
-            }
-
+        try (ByteArrayInputStream input = new ByteArrayInputStream(bytes)) {
+            CharsetDetector cd = new CharsetDetector();
+            cd.setText(input);
+            CharsetMatch cm = cd.detect();
+            return Charset.forName(cm.getName());
+        } catch (IOException e) {
             return null;
-        } finally {
-            detector.reset();
         }
     }
 }
