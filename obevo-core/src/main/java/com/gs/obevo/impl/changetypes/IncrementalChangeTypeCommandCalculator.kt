@@ -23,12 +23,16 @@ import com.gs.obevo.api.platform.ChangePair
 import com.gs.obevo.api.platform.ChangeType
 import com.gs.obevo.api.platform.ChangeTypeCommandCalculator
 import com.gs.obevo.impl.changecalc.ChangeCommandFactory
-import com.gs.obevo.impl.command.*
+import com.gs.obevo.impl.command.AlreadyDroppedTableWarning
+import com.gs.obevo.impl.command.BaselineChangeCommand
+import com.gs.obevo.impl.command.HashMismatchWarning
+import com.gs.obevo.impl.command.IncompleteBaselineWarning
+import com.gs.obevo.impl.command.ParallelDeployChangeCommand
+import com.gs.obevo.impl.command.UnmanageChangeCommand
 import com.gs.obevo.util.DAStringUtil
 import org.apache.commons.lang3.ObjectUtils
 import org.apache.commons.lang3.StringUtils
 import org.eclipse.collections.api.RichIterable
-import org.eclipse.collections.api.block.procedure.Procedure
 import org.eclipse.collections.api.list.ImmutableList
 import org.eclipse.collections.api.list.ListIterable
 import org.eclipse.collections.api.list.MutableList
@@ -54,8 +58,8 @@ class IncrementalChangeTypeCommandCalculator internal constructor(private val nu
 
         val dropObjectKeys = getDroppedTableChangesThatAreAlreadyRemoved(changePairs)
 
-        val dropObjectPartition = changePairs.partition { it -> dropObjectKeys.contains(it.objectKey) }
-        changeset.addAll(dropObjectPartition.selected.map { AlreadyDroppedTableWarning(it.sourceChange) })
+        val dropObjectPartition = changePairs.partition { dropObjectKeys.contains(it.objectKey) }
+        changeset.addAll(dropObjectPartition.selected.map { AlreadyDroppedTableWarning(it.sourceChange!!) })
 
         val deployChanges = Lists.mutable.empty<ChangeIncremental>()
         val newBaselines = Lists.mutable.empty<ChangeIncremental>()

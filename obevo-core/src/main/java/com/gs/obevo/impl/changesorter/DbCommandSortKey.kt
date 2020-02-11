@@ -20,6 +20,7 @@ import com.gs.obevo.impl.ExecuteChangeCommand
 import com.gs.obevo.impl.graph.SortableDependency
 import com.gs.obevo.impl.graph.SortableDependencyGroup
 import org.eclipse.collections.api.set.ImmutableSet
+import org.eclipse.collections.impl.factory.Sets
 
 /**
  * Represents a node in the graph to be sorted.
@@ -30,13 +31,13 @@ internal class DbCommandSortKey(val changeCommand: ExecuteChangeCommand) : Sorta
     var order: Int = 0
 
     init {
-        val candidateChange = changeCommand.changes.first
+        val candidateChange = changeCommand.changes.first()
         this.changeType = candidateChange.changeType
         this.objectName = candidateChange.objectName
     }
 
     override fun getComponents(): ImmutableSet<SortableDependency> {
-        return changeCommand.changes.toSet().toImmutable() as ImmutableSet<SortableDependency>
+        return Sets.immutable.ofAll(changeCommand.changes.toSet())
     }
 
     override fun toString(): String {

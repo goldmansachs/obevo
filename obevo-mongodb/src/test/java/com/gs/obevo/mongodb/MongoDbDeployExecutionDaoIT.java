@@ -22,6 +22,7 @@ import com.gs.obevo.api.appdata.DeployExecution;
 import com.gs.obevo.api.appdata.DeployExecutionAttribute;
 import com.gs.obevo.api.appdata.DeployExecutionImpl;
 import com.gs.obevo.api.appdata.PhysicalSchema;
+import com.gs.obevo.api.appdata.Schema;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.mongodb.api.appdata.MongoDbEnvironment;
 import com.gs.obevo.mongodb.impl.MongoClientFactory;
@@ -59,17 +60,15 @@ public class MongoDbDeployExecutionDaoIT {
         when(platform.getChangeType(Mockito.anyString())).thenReturn(changeType);
         when(platform.convertDbObjectName()).thenReturn(StringFunctions.toUpperCase());
 
-        MongoDbEnvironment env = mock(MongoDbEnvironment.class);
-        when(env.getPlatform()).thenReturn(platform);
-        when(env.getPhysicalSchemas()).thenReturn(Sets.immutable.of(new PhysicalSchema("mydb")));
-        when(env.getPhysicalSchema("schema")).thenReturn(new PhysicalSchema("mydb"));
+        Schema schema = new Schema("mydb");
+
+        MongoDbEnvironment env = new MongoDbEnvironment();
+        env.setPlatform(platform);
+        env.setSchemas(Sets.immutable.of(schema));
 
         MongoDbDeployExecutionDao deployExecDao = new MongoDbDeployExecutionDao(mongoClient, env);
 
-        DeployExecutionImpl exec = new DeployExecutionImpl("requester", "executor", "schema", "1.0.0", new Timestamp(new Date().getTime()), false, false, "1.0.0", "reason", Sets.immutable.<DeployExecutionAttribute>empty());
-
-        when(env.getPhysicalSchema("mydb")).thenReturn(new PhysicalSchema("mydb"));
-
+        DeployExecutionImpl exec = new DeployExecutionImpl("requester", "executor", schema.getName(), "1.0.0", new Timestamp(new Date().getTime()), false, false, "1.0.0", "reason", Sets.immutable.<DeployExecutionAttribute>empty());
         deployExecDao.persistNew(exec, new PhysicalSchema("mydb"));
 
         ImmutableCollection<DeployExecution> execs = deployExecDao.getDeployExecutions("mydb");

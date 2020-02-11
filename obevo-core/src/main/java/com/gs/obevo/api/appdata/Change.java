@@ -69,6 +69,7 @@ public abstract class Change implements SortableDependency, SortableDependencyGr
 
     private ChangeInput changeInput;
     private SetIterable<Change> dependentChanges;
+    private DeployExecution deployExecution;
 
     /**
      * @deprecated replace with {@link #getChangeInput()}
@@ -377,5 +378,13 @@ public abstract class Change implements SortableDependency, SortableDependencyGr
 
     public SetIterable<Change> getDependentChanges() {
         return dependentChanges;
+    }
+
+    public DeployExecution getDeployExecution() {
+        return deployExecution;
+    }
+
+    public void setDeployExecution(DeployExecution deployExecution) {
+        this.deployExecution = deployExecution;
     }
 }

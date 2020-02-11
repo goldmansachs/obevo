@@ -70,7 +70,7 @@ public class MongoDbDeployerAppContext extends AbstractDeployerAppContext<MongoD
 
     @Override
     protected ChangeAuditDao getArtifactDeployerDao() {
-        return new MongoDbChangeAuditDao(getMongoClient(), env, env.getPlatform(), credential.getUsername());
+        return new MongoDbChangeAuditDao(getMongoClient(), env, env.getPlatform(), credential.getUsername(), getDeployExecutionDao());
     }
 
     private MongoClient getMongoClient() {

@@ -296,6 +296,10 @@ public class Environment<T extends Platform> {
         this.dbSchemaSuffix = (null == dbSchemaSuffix) ? "" : dbSchemaSuffix;
     }
 
+    public PhysicalSchema getPhysicalSchema(Schema schema) {
+        return getPhysicalSchema(schema.getName());
+    }
+
     public PhysicalSchema getPhysicalSchema(String schema) {
         // do not append the suffix from the getDeployer metadata if an override is specified
         String prefix = Environment.this.schemaNameOverrides.containsKey(schema) ? "" : getDbSchemaPrefix();
@@ -305,31 +309,11 @@ public class Environment<T extends Platform> {
     }
 
     public ImmutableSet<PhysicalSchema> getPhysicalSchemas() {
-        return this.getSchemas().collect(new Function<Schema, String>() {
-            @Override
-            public String valueOf(Schema schema1) {
-                return schema1.getName();
-            }
-        }).collect(new Function<String, PhysicalSchema>() {
-            @Override
-            public PhysicalSchema valueOf(String schema) {
-                return Environment.this.getPhysicalSchema(schema);
-            }
-        });
+        return this.getSchemas().collect(Schema::getName).collect(this::getPhysicalSchema);
     }
 
     public ImmutableSet<PhysicalSchema> getAllPhysicalSchemas() {
-        return this.getAllSchemas().collect(new Function<Schema, String>() {
-            @Override
-            public String valueOf(Schema schema1) {
-                return schema1.getName();
-            }
-        }).collect(new Function<String, PhysicalSchema>() {
-            @Override
-            public PhysicalSchema valueOf(String schema) {
-                return Environment.this.getPhysicalSchema(schema);
-            }
-        });
+        return this.getAllSchemas().collect(Schema::getName).collect(this::getPhysicalSchema);
     }
 
     public void setSchemaNameOverrides(ImmutableMap<String, String> schemaNameOverrides) {

@@ -248,9 +248,7 @@
         </module>
 -->
 
-        <module name="MissingDeprecated">
-            <property name="skipNoJavadoc" value="true" />
-        </module>
+        <module name="MissingDeprecated" />
 
         <module name="AnnotationUseStyle" />
 

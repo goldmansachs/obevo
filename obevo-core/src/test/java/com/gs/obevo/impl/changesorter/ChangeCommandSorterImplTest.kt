@@ -23,7 +23,6 @@ import com.gs.obevo.api.platform.Platform
 import com.gs.obevo.impl.ExecuteChangeCommand
 import org.eclipse.collections.api.set.ImmutableSet
 import org.eclipse.collections.impl.block.factory.Functions
-import org.eclipse.collections.impl.factory.Lists
 import org.eclipse.collections.impl.factory.Sets
 import org.hamcrest.Matchers
 import org.junit.Assert.assertThat
@@ -109,7 +108,7 @@ class ChangeCommandSorterImplTest {
 
         val command = mock(ExecuteChangeCommand::class.java)
         `when`(command.isDrop).thenReturn(false)
-        `when`(command.changes).thenReturn(Lists.immutable.of(change))
+        `when`(command.changes).thenReturn(listOf(change))
 
         return command
     }

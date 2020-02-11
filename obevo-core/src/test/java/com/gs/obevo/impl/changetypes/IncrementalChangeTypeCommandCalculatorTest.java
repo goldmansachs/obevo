@@ -36,6 +36,7 @@ import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.ListIterable;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Sets;
+import org.eclipse.collections.impl.list.mutable.ListAdapter;
 import org.eclipse.collections.impl.test.Verify;
 import org.junit.Before;
 import org.junit.Test;
@@ -298,13 +299,8 @@ public class IncrementalChangeTypeCommandCalculatorTest {
     }
 
     static Predicate<ChangeCommand> assertValue(final Class expectedClass, final Change expectedArtifact) {
-        return new Predicate<ChangeCommand>() {
-            @Override
-            public boolean accept(ChangeCommand command) {
-                return expectedClass.isAssignableFrom(command.getClass())
-                        && expectedArtifact.getObjectName().equals(command.getChanges().getFirst().getObjectName())
-                        && expectedArtifact.getChangeName().equals(command.getChanges().getFirst().getChangeName());
-            }
-        };
+        return command -> expectedClass.isAssignableFrom(command.getClass())
+                && expectedArtifact.getObjectName().equals(ListAdapter.adapt(command.getChanges()).getFirst().getObjectName())
+                && expectedArtifact.getChangeName().equals(ListAdapter.adapt(command.getChanges()).getFirst().getChangeName());
     }
 }

@@ -445,18 +445,18 @@ class MainDeployer<P : Platform, E : Environment<P>>(
         val failedChangeKeys = Sets.mutable.empty<ChangeKey>()  // to handle all other cases; should move the CSV case into this one
 
         for (auditChangeCommand in artifactsToProcess.auditChanges) {
-            auditChangeCommand.markAuditTable(changeTypeBehaviorRegistry, this.artifactDeployerDao, executionsBySchema.get(auditChangeCommand.schema))
+            auditChangeCommand.markAuditTable(changeTypeBehaviorRegistry, this.artifactDeployerDao, executionsBySchema.getValue(auditChangeCommand.schema))
         }
 
         for (changeCommand in artifactsToProcess.inserts) {
-            val previousFailedObjects = failedObjectNames.intersect(changeCommand.changes.toSet().collect { change2 -> change2.dbObjectKey })
-            if (previousFailedObjects.notEmpty()) {
+            val previousFailedObjects = failedObjectNames.intersect(changeCommand.changes.toSet().map { it.dbObjectKey })
+            if (previousFailedObjects.isNotEmpty()) {
                 // We skip subsequent changes in objects that failed as we don't any unexpected activities to happen on
                 // a particular DB object
                 // (e.g. if one change relied on a previous one, and the previous one failed; what if something goes bad
                 // if the first one isn't executed?)
                 LOG.info("Skipping artifact [{}] as these objects previously failed deploying: {}",
-                        changeCommand.commandDescription, previousFailedObjects.makeString(", "))
+                        changeCommand.commandDescription, previousFailedObjects.joinToString(", "))
                 continue
             }
             val dependencyChangeKeys = changeCommand.changes.flatMap { it.dependentChanges ?: Sets.mutable.empty() }.map { it.changeKey }
@@ -479,7 +479,7 @@ class MainDeployer<P : Platform, E : Environment<P>>(
 
             try {
                 deployStrategy.deploy(changeTypeBehaviorRegistry, changeCommand, cec)
-                changeCommand.markAuditTable(changeTypeBehaviorRegistry, this.artifactDeployerDao, executionsBySchema.get(changeCommand.schema))
+                changeCommand.markAuditTable(changeTypeBehaviorRegistry, this.artifactDeployerDao, executionsBySchema.getValue(changeCommand.schema))
 
                 changeStopWatch.stop()
                 val runtimeSeconds = TimeUnit.MILLISECONDS.toSeconds(changeStopWatch.time)
@@ -507,8 +507,8 @@ class MainDeployer<P : Platform, E : Environment<P>>(
                 LOG.info("We will continue and fail the process at the end. This was the exception: " + ExceptionUtils.getStackTrace(exc))
                 failedChanges.add(FailedChange(changeCommand, exc))
 
-                failedObjectNames.withAll(changeCommand.changes.collect { it.dbObjectKey })
-                failedChangeKeys.withAll(changeCommand.changes.collect { it.changeKey })
+                failedObjectNames.withAll(changeCommand.changes.map { it.dbObjectKey })
+                failedChangeKeys.withAll(changeCommand.changes.map{ it.changeKey })
             }
 
         }

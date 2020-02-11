@@ -36,7 +36,6 @@ public class MongoDbDeployIT {
     public void setup() {
         MongoDatabase mydb = MongoClientFactory.getInstance().getMongoClient(MongoDbTestHelper.HOST, MongoDbTestHelper.PORT).getDatabase("mydb");
         mydb.getCollection("ARTIFACTDEPLOYMENT").drop();
-        mydb.getCollection("ARTIFACTDEPLOYMENT").drop();
         mydb.getCollection("ARTIFACTEXECUTION").drop();
     }
 

@@ -20,16 +20,17 @@ import java.util.Date;
 
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.ChangeIncremental;
-import com.gs.obevo.api.appdata.DeployExecutionAttribute;
 import com.gs.obevo.api.appdata.DeployExecutionImpl;
-import com.gs.obevo.api.appdata.PhysicalSchema;
+import com.gs.obevo.api.appdata.Schema;
 import com.gs.obevo.api.platform.ChangeType;
-import com.gs.obevo.api.platform.Platform;
 import com.gs.obevo.mongodb.api.appdata.MongoDbEnvironment;
 import com.gs.obevo.mongodb.impl.MongoClientFactory;
 import com.gs.obevo.mongodb.impl.MongoDbChangeAuditDao;
+import com.gs.obevo.mongodb.impl.MongoDbDeployExecutionDao;
+import com.gs.obevo.mongodb.impl.MongoDbPlatform;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
+import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.impl.factory.Sets;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +48,7 @@ public class MongoDbChangeAuditDaoIT {
         this.mongoClient = MongoClientFactory.getInstance().getMongoClient(MongoDbTestHelper.HOST, MongoDbTestHelper.PORT);
         MongoDatabase mydb = mongoClient.getDatabase("mydb");
         mydb.getCollection("ARTIFACTDEPLOYMENT").drop();
-        mydb.getCollection("ARTIFACTDEPLOYMENT").drop();
+        mydb.getCollection("ARTIFACTEXECUTION").drop();
     }
 
     @Test
@@ -55,21 +56,34 @@ public class MongoDbChangeAuditDaoIT {
         ChangeType changeType = mock(ChangeType.class);
         when(changeType.getName()).thenReturn("type");
 
-        Platform platform = mock(Platform.class);
+        MongoDbPlatform platform = mock(MongoDbPlatform.class);
         when(platform.getChangeType(Mockito.anyString())).thenReturn(changeType);
+        when(platform.convertDbObjectName()).thenReturn(s -> s);
 
         MongoDbEnvironment env = mock(MongoDbEnvironment.class);
-        when(env.getPhysicalSchema("mydb")).thenReturn(new PhysicalSchema("mydb"));
-        when(env.getPhysicalSchemas()).thenReturn(Sets.immutable.of(new PhysicalSchema("mydb")));
+        env = new MongoDbEnvironment();
+        Schema schema = new Schema("mydb");
+        env.setSchemas(Sets.immutable.of(schema));
+        env.setPlatform(platform);
 
-        MongoDbChangeAuditDao changeAuditDao = new MongoDbChangeAuditDao(mongoClient, env, platform, "test");
+        MongoDbDeployExecutionDao deployExecutionDao = new MongoDbDeployExecutionDao(mongoClient, env);
 
-        DeployExecutionImpl exec = new DeployExecutionImpl("requester", "executor", "schema", "1.0.0", new Timestamp(new Date().getTime()), false, false, "1.0.0", "reason", Sets.immutable.<DeployExecutionAttribute>empty());
-        exec.setId(1L);
+        // test initial persistence
+        deployExecutionDao.persistNew(new DeployExecutionImpl("requester", "executor", schema.getName(), "1.0.0", new Timestamp(new Date().getTime()), false, false, "1.0.0", "reason", Sets.immutable.empty()), env.getPhysicalSchema(schema));
+        // do a second deployment to verify incrementing logic
+        DeployExecutionImpl exec2 = new DeployExecutionImpl("requester", "executor", schema.getName(), "1.0.0", new Timestamp(new Date().getTime()), false, false, "2.0.0", "reason", Sets.immutable.empty());
+        deployExecutionDao.persistNew(exec2, env.getPhysicalSchema(schema));
+
+        MongoDbChangeAuditDao changeAuditDao = new MongoDbChangeAuditDao(mongoClient, env, platform, "test", deployExecutionDao);
+
 
         Change change = new ChangeIncremental(changeType, "mydb", "obj1", "c1", 0, "hash", "content");
 
-        changeAuditDao.insertNewChange(change, exec);
-        assertEquals(1, changeAuditDao.getDeployedChanges().size());
+        changeAuditDao.insertNewChange(change, exec2);
+        ImmutableList<Change> deployedChanges = changeAuditDao.getDeployedChanges();
+        assertEquals(1, deployedChanges.size());
+        assertEquals(2, deployedChanges.get(0).getDeployExecution().getId());
+        assertEquals("2.0.0", deployedChanges.get(0).getDeployExecution().getProductVersion());
+
     }
 }
