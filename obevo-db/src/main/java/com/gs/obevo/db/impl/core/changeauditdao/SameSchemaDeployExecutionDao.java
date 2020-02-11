@@ -345,11 +345,8 @@ public class SameSchemaDeployExecutionDao implements DeployExecutionDao {
 
     @Override
     public ImmutableCollection<DeployExecution> getDeployExecutions(final String schema) {
-        return sqlExecutor.executeWithinContext(env.getPhysicalSchema(schema), new ThrowingFunction<Connection, ImmutableCollection<DeployExecution>>() {
-            @Override
-            public ImmutableCollection<DeployExecution> safeValueOf(Connection conn) throws Exception {
-                return getDeployExecutions(conn, schema, null);
-            }
+        return sqlExecutor.executeWithinContext(env.getPhysicalSchema(schema), conn -> {
+            return getDeployExecutions(conn, schema, null);
         });
     }
 

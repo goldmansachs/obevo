@@ -68,6 +68,7 @@ public abstract class JdbcDataSourceFactory implements DataSourceFactory {
             Credential credential, int numThreads, ImmutableList<String> initSqls, Properties extraConnectionProperties) {
         BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName(driverClass.getName());
+        // TODO validate non-null host name, notably for postgresl jdbc url
         dataSource.setUrl(url);
         dataSource.setUsername(credential.getUsername());
         dataSource.setPassword(credential.getPassword());

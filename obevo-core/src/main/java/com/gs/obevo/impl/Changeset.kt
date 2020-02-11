@@ -53,6 +53,6 @@ class Changeset(
          * By default, we will always defer those predicates marked w/ the changeset attribute as the existence of that
          * indicates something that may not be good to run alongside a regular release.
          */
-        private val DEFAULT_DEFERRED_PREDICATE: Predicate<in ExecuteChangeCommand> = Predicate { command -> command.changes.anySatisfy { it.changeset == null } }
+        private val DEFAULT_DEFERRED_PREDICATE: Predicate<in ExecuteChangeCommand> = Predicate { command -> command.changes.any { it.changeset == null } }
     }
 }

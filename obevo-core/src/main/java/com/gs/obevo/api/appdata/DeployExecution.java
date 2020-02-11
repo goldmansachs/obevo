@@ -45,4 +45,8 @@ public interface DeployExecution {
     String getProductVersion();
 
     ImmutableSet<DeployExecutionAttribute> getAttributes();
+
+    default String getDisplayString() {
+        return String.format("ID=%s;Version=%s;Time=%s", getId(), getProductVersion(), getDeployTime());
+    }
 }

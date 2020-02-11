@@ -33,7 +33,7 @@
     <properties>
         <jacoco.minCoverage>0.50</jacoco.minCoverage>
         <mongo.driver.version>3.1.1</mongo.driver.version>
-        <mongo.version>4.0.14</mongo.version>
+        <mongo.version>4.2.3</mongo.version>
     </properties>
 
     <dependencies>

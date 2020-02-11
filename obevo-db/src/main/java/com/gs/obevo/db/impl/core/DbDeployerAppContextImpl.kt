@@ -19,7 +19,10 @@ import com.gs.obevo.api.appdata.Change
 import com.gs.obevo.api.appdata.ChangeInput
 import com.gs.obevo.api.appdata.ChangeKey
 import com.gs.obevo.api.appdata.doc.TextMarkupDocumentSection
-import com.gs.obevo.api.platform.*
+import com.gs.obevo.api.platform.ChangeAuditDao
+import com.gs.obevo.api.platform.ChangeType
+import com.gs.obevo.api.platform.FileSourceContext
+import com.gs.obevo.api.platform.MainDeployerArgs
 import com.gs.obevo.db.api.appdata.DbEnvironment
 import com.gs.obevo.db.api.platform.DbChangeType
 import com.gs.obevo.db.api.platform.DbDeployerAppContext
@@ -27,7 +30,12 @@ import com.gs.obevo.db.api.platform.DbPlatform
 import com.gs.obevo.db.impl.core.changeauditdao.NoOpChangeAuditDao
 import com.gs.obevo.db.impl.core.changeauditdao.SameSchemaChangeAuditDao
 import com.gs.obevo.db.impl.core.changeauditdao.SameSchemaDeployExecutionDao
-import com.gs.obevo.db.impl.core.changetypes.*
+import com.gs.obevo.db.impl.core.changetypes.CsvStaticDataDeployer
+import com.gs.obevo.db.impl.core.changetypes.DbSimpleArtifactDeployer
+import com.gs.obevo.db.impl.core.changetypes.GrantChangeParser
+import com.gs.obevo.db.impl.core.changetypes.IncrementalDbChangeTypeBehavior
+import com.gs.obevo.db.impl.core.changetypes.RerunnableDbChangeTypeBehavior
+import com.gs.obevo.db.impl.core.changetypes.StaticDataChangeTypeBehavior
 import com.gs.obevo.db.impl.core.checksum.DbChecksumDao
 import com.gs.obevo.db.impl.core.checksum.DbChecksumManager
 import com.gs.obevo.db.impl.core.checksum.DbChecksumManagerImpl
@@ -274,7 +282,7 @@ abstract class DbDeployerAppContextImpl : AbstractDeployerAppContext<DbEnvironme
         }
     }
 
-    override fun getDeployExecutionDao(): DeployExecutionDao {
+    override fun getDeployExecutionDao(): SameSchemaDeployExecutionDao {
         return this.singleton("deployExecutionDao") {
             SameSchemaDeployExecutionDao(
                     sqlExecutor,

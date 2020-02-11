@@ -37,14 +37,14 @@ then
     docker rm $OLD_CONTAINER_ID
 fi
 
-echo "MySQL container creation started"
+echo "MongoDB container creation started"
 
 #docker run -e "MYSQL_ROOT_PASSWORD=$INSTANCE_PASSWORD" \
 #   -p $INSTANCE_PORT:$INSTANCE_PORT --name $CONTAINER_NAME \
 #   -e MYSQL_DATABASE=$INSTANCE_DBNAME \
 #   -d $CONTAINER_IMAGE
 
-docker run -d -p 27017-27019:27017-27019 --name $CONTAINER_NAME $CONTAINER_IMAGE
+docker run -d -p 27017:27017 --name $CONTAINER_NAME $CONTAINER_IMAGE
 
-echo "MySQL container created"
+echo "MongoDB container created"
 

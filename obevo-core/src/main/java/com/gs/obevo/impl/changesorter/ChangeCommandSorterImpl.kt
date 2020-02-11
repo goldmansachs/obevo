@@ -70,8 +70,8 @@ class ChangeCommandSorterImpl(
         val changeToSortKeyMap = CollectionAdapter.wrapList(addCommands).groupByEach { it.changeCommand.changes };
         val addGraph = enricher.createSimpleDependencyGraph(addCommands, {
             it.changeCommand.changes
-                    .flatCollect { it.dependentChanges ?: Sets.mutable.empty()}
-                    .flatCollect(changeToSortKeyMap::get)
+                    .flatMap { it.dependentChanges ?: Sets.immutable.empty()}
+                    .flatMap(changeToSortKeyMap::get)
         })
 
         val addChanges = graphSorter.sortChanges(addGraph, SortableDependencyGroup.GRAPH_SORTER_COMPARATOR)
@@ -93,10 +93,9 @@ class ChangeCommandSorterImpl(
         if (dialect.isDropOrderRequired) {
             val changeToSortKeyMap = CollectionAdapter.wrapList(rerunnableDrops).groupByEach { it.changeCommand.changes };
             val addGraph = enricher.createSimpleDependencyGraph(rerunnableDrops, {
-                it.changeCommand.changes.first
                 it.changeCommand.changes
-                        .flatCollect { it.dependentChanges ?: Sets.mutable.empty()}
-                        .flatCollect(changeToSortKeyMap::get)
+                        .flatMap { it.dependentChanges ?: Sets.mutable.empty()}
+                        .flatMap(changeToSortKeyMap::get)
             })
 
             val addChanges = graphSorter.sortChanges(addGraph, SortableDependencyGroup.GRAPH_SORTER_COMPARATOR)
@@ -122,10 +121,10 @@ class ChangeCommandSorterImpl(
         // Hence, we will still rely on the "changeOrder" attribute here as a fallback for the order
         val sortedDataCommands = dataCommands.sortedBy { dbCommandSortKey ->
             val changes = dbCommandSortKey.changeCommand.changes
-            if (changes.isEmpty || changes.size() > 1) {
+            if (changes.isEmpty() || changes.size > 1) {
                 Change.DEFAULT_CHANGE_ORDER
             } else {
-                changes.first.order
+                changes.first().order
             }
         }
 

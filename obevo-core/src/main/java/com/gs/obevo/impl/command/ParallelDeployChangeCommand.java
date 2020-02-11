@@ -15,16 +15,16 @@
  */
 package com.gs.obevo.impl.command;
 
+import java.util.List;
+
 import com.gs.obevo.api.appdata.Change;
 import com.gs.obevo.api.appdata.DeployExecution;
 import com.gs.obevo.api.platform.ChangeAuditDao;
 import com.gs.obevo.api.platform.CommandExecutionContext;
 import com.gs.obevo.impl.ChangeTypeBehaviorRegistry;
 import com.gs.obevo.impl.ExecuteChangeCommand;
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.collection.ImmutableCollection;
-import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.impl.parallel.ParallelIterate;
 
 public class ParallelDeployChangeCommand implements ExecuteChangeCommand {
@@ -74,17 +74,12 @@ public class ParallelDeployChangeCommand implements ExecuteChangeCommand {
     }
 
     @Override
-    public ImmutableList<Change> getChanges() {
-        return (ImmutableList<Change>) changes.toList().toImmutable();
+    public List<Change> getChanges() {
+        return (List<Change>) changes.toList();
     }
 
     @Override
     public String getCommandDescription() {
-        return "Parallel set of changes:\n" + changes.collect(new Function<Change, String>() {
-            @Override
-            public String valueOf(Change change) {
-                return change.getDisplayString();
-            }
-        }).makeString("\n");
+        return "Parallel set of changes:\n" + changes.collect(Change::getDisplayString).makeString("\n");
     }
 }

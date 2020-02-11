@@ -19,7 +19,6 @@ import java.util.Comparator;
 
 import com.gs.obevo.api.appdata.ChangeKey;
 import com.gs.obevo.api.appdata.CodeDependency;
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.block.factory.Comparators;
 
@@ -45,29 +44,9 @@ public interface SortableDependency {
      * as friendly to read as possible.
      */
     Comparator<SortableDependency> GRAPH_SORTER_COMPARATOR = Comparators.chain(
-            Comparators.fromFunctions(new Function<SortableDependency, Integer>() {
-                @Override
-                public Integer valueOf(SortableDependency sortableDependency) {
-                    return sortableDependency.getChangeKey().getObjectKey().getChangeType().getDeployOrderPriority();
-                }
-            }),
-            Comparators.fromFunctions(new Function<SortableDependency, String>() {
-                @Override
-                public String valueOf(SortableDependency sortableDependency) {
-                    return sortableDependency.getChangeKey().getObjectKey().getSchema();
-                }
-            }),
-            Comparators.fromFunctions(new Function<SortableDependency, String>() {
-                @Override
-                public String valueOf(SortableDependency sortableDependency) {
-                    return sortableDependency.getChangeKey().getObjectKey().getObjectName();
-                }
-            }),
-            Comparators.fromFunctions(new Function<SortableDependency, Integer>() {
-                @Override
-                public Integer valueOf(SortableDependency sortableDependency) {
-                    return sortableDependency.getOrderWithinObject();
-                }
-            })
+            Comparators.fromFunctions(sortableDependency -> sortableDependency.getChangeKey().getObjectKey().getChangeType().getDeployOrderPriority()),
+            Comparators.fromFunctions(sortableDependency -> sortableDependency.getChangeKey().getObjectKey().getSchema()),
+            Comparators.fromFunctions(sortableDependency -> sortableDependency.getChangeKey().getObjectKey().getObjectName()),
+            Comparators.fromFunctions(sortableDependency -> sortableDependency.getOrderWithinObject())
     );
 }
