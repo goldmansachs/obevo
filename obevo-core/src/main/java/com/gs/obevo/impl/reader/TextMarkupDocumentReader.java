@@ -16,6 +16,7 @@
 package com.gs.obevo.impl.reader;
 
 import java.util.List;
+import java.util.Objects;
 
 import com.gs.obevo.api.appdata.doc.TextMarkupDocument;
 import com.gs.obevo.api.appdata.doc.TextMarkupDocumentSection;
@@ -25,7 +26,6 @@ import com.gs.obevo.db.sqlparser.textmarkup.Token;
 import com.gs.obevo.impl.text.CommentRemover;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.collections.api.block.function.Function;
-import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.ImmutableMap;
@@ -72,16 +72,12 @@ public class TextMarkupDocumentReader {
         ImmutableList<TextMarkupDocumentSection> textMarkupDocumentSections = this.parseString(text, this.firstLevelElements, true, "////");
 
         if (otherSection != null) {
-            TextMarkupDocumentSection thisSection = textMarkupDocumentSections.detect(new Predicate<TextMarkupDocumentSection>() {
-                @Override
-                public boolean accept(TextMarkupDocumentSection it) {
-                    return it.getName().equals(otherSection.getName());
-                }
-            });
+            TextMarkupDocumentSection thisSection = textMarkupDocumentSections.detect(it -> Objects.equals(it.getName(), otherSection.getName()));
             if (thisSection != null) {
                 thisSection.mergeAttributes(otherSection);
             } else {
-                textMarkupDocumentSections = textMarkupDocumentSections.newWith(otherSection);
+                // ensure that the "otherSection" for the package metadata is inserted first to respect the RerunnableObjectFile syntax
+                textMarkupDocumentSections = Lists.mutable.of(otherSection).withAll(textMarkupDocumentSections).toImmutable();
             }
         }
 
@@ -95,15 +91,10 @@ public class TextMarkupDocumentReader {
         MutableList<TextMarkupDocumentSection> sections = outerSections.flatCollect(new ConvertOuterSectionToTextSection(recurse, elementPrefix));
 
         // remove any blank sections
-        return sections.toImmutable().reject(new Predicate<TextMarkupDocumentSection>() {
-            @Override
-            public boolean accept(TextMarkupDocumentSection each) {
-                return recurse && each.getName() == null
-                        && (StringUtils.isBlank(each.getContent())
-                        || StringUtils.isBlank(CommentRemover.removeComments(each.getContent(), "removing on markup document reader"))  // need comments in a separate clause as CommentRemover returns a "null" string on null; will fix eventually
-                );
-            }
-        });
+        return sections.toImmutable().reject(each -> recurse
+                && each.getName() == null
+                && (StringUtils.isBlank(each.getContent()) || StringUtils.isBlank(CommentRemover.removeComments(each.getContent(), "removing on markup document reader"))  // need comments in a separate clause as CommentRemover returns a "null" string on null; will fix eventually
+        ));
     }
 
     private MutableList<Pair<String, String>> splitIntoMainSections(String text, ImmutableList<String> elementsToCheck, String elementPrefix) {

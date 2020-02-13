@@ -16,8 +16,6 @@
 package com.gs.obevo.api.appdata.doc;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.eclipse.collections.api.block.predicate.Predicate;
-import org.eclipse.collections.api.block.predicate.Predicate2;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.map.ImmutableMap;
 import org.eclipse.collections.api.set.ImmutableSet;
@@ -92,25 +90,17 @@ public class TextMarkupDocumentSection {
         this.toggles = toggles;
     }
 
+    /**
+     * Add attributes from the "other" TextMarkupDocumentSection that do not already have a value in "this" TextMarkupDocumentSection.
+     */
     public void mergeAttributes(TextMarkupDocumentSection other) {
         if (other == null) {
             return;
         }
-        this.attrs = this.attrs.toMap()
-                .withAllKeyValues(other.attrs.select(new Predicate2<String, String>() {
-                    @Override
-                    public boolean accept(String key, String value) {
-                        return !TextMarkupDocumentSection.this.attrs.contains(key);
-                    }
-                }).keyValuesView())
-                .toImmutable();
+        this.attrs = this.attrs.newWithAllKeyValues(
+                other.attrs.reject((otherKey, otherValue) -> this.attrs.containsKey(otherKey)).keyValuesView());
 
-        this.toggles = this.toggles.newWithAll(other.toggles.select(new Predicate<String>() {
-            @Override
-            public boolean accept(String key) {
-                return !TextMarkupDocumentSection.this.toggles.contains(key);
-            }
-        }));
+        this.toggles = this.toggles.newWithAll(other.toggles.select(key -> !toggles.contains(key)));
     }
 
     @Override
