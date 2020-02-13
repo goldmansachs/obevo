@@ -15,10 +15,11 @@
  */
 package com.gs.obevo.impl.reader;
 
+import java.util.Objects;
+
 import com.gs.obevo.api.appdata.doc.TextMarkupDocument;
 import com.gs.obevo.api.appdata.doc.TextMarkupDocumentSection;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.map.MutableMap;
@@ -39,14 +40,8 @@ class TextMarkupDocumentReaderOld {
 
     public TextMarkupDocument parseString(String text, final TextMarkupDocumentSection otherSection) {
         ImmutableList<TextMarkupDocumentSection> textMarkupDocumentSections = this.parseString(text, this.firstLevelElements, true, "////");
-
         if (otherSection != null) {
-            TextMarkupDocumentSection thisSection = textMarkupDocumentSections.detect(new Predicate<TextMarkupDocumentSection>() {
-                @Override
-                public boolean accept(TextMarkupDocumentSection it) {
-                    return it.getName().equals(otherSection.getName());
-                }
-            });
+            TextMarkupDocumentSection thisSection = textMarkupDocumentSections.detect(it -> Objects.equals(it.getName(), otherSection.getName()));
             if (thisSection != null) {
                 thisSection.mergeAttributes(otherSection);
             } else {

@@ -20,10 +20,9 @@ import java.util.Collection;
 
 import com.gs.obevo.api.appdata.doc.TextMarkupDocument;
 import com.gs.obevo.api.appdata.doc.TextMarkupDocumentSection;
-import org.eclipse.collections.api.block.procedure.Procedure2;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.map.ImmutableMap;
-import org.eclipse.collections.api.map.MutableMap;
+import org.eclipse.collections.api.map.MapIterable;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.api.tuple.Pair;
@@ -93,6 +92,18 @@ public class TextMarkupDocumentReaderTest {
         );
 
         verifyRegular(doc);
+    }
+
+    @Test
+    public void testPackageMetadataWithMetaInOriginal() {
+        TextMarkupDocumentSection packageMetaSection = new TextMarkupDocumentSection(TextMarkupDocumentReader.TAG_METADATA, null, Maps.immutable.of("k1", "v1", "k2ToOverride", "v2Original"));
+        TextMarkupDocument doc = textMarkupDocumentReader.parseString(
+                "//// " + TextMarkupDocumentReader.TAG_METADATA + " k2ToOverride=v2Overriden k3=newv3\r\n" +
+                        "content"
+                , packageMetaSection
+        );
+
+        assertSection(doc.getSections().get(0), TextMarkupDocumentReader.TAG_METADATA, null, Maps.immutable.of("k1", "v1", "k2ToOverride", "v2Overriden", "k3", "newv3"));
     }
 
     @Test
@@ -203,20 +214,15 @@ public class TextMarkupDocumentReaderTest {
     }
 
     private void assertSection(TextMarkupDocumentSection section, String name, String content,
-            MutableMap<String, String> attrs) {
+            MapIterable<String, String> attrs) {
         this.assertSection(section, name, content, attrs, UnifiedSet.<String>newSet());
     }
 
     private void assertSection(final TextMarkupDocumentSection section, String name, String content,
-            MutableMap<String, String> attrs, MutableSet<String> toggles) {
+            MapIterable<String, String> attrs, MutableSet<String> toggles) {
         assertEquals(name, section.getName());
         assertEquals(content, section.getContent());
-        attrs.forEachKeyValue(new Procedure2<String, String>() {
-            @Override
-            public void value(String key, String value) {
-                assertEquals(value, section.getAttr(key));
-            }
-        });
+        attrs.forEachKeyValue((key, value) -> assertEquals(value, section.getAttr(key)));
         for (String toggle : toggles) {
             assertTrue("Finding toggle " + toggle, section.isTogglePresent(toggle));
         }

@@ -137,7 +137,7 @@ class RerunnableChangeParser(backwardsCompatibleMode: Boolean, deployMetricsColl
             throw IllegalArgumentException("Only allowed 1 content section and at most 1 of these [$allowedSectionString]; instead, found these disallowed sections: $disallowedSections")
         }
 
-        val sectionNames = docSections.collect { section -> section.name }
+        val sectionNames = docSections.collect { it.name }
         val duplicateSections = sectionNames.toBag().selectByOccurrences(IntPredicates.greaterThan(1))
         if (duplicateSections.notEmpty()) {
             throw IllegalArgumentException("Only allowed 1 content section and at most 1 of these [" + allowedSectionString + "]; instead, found these extra sections instances: " + duplicateSections.toSet())
