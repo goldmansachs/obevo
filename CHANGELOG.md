@@ -1,7 +1,22 @@
 # Change Log
 
-## 8.0.0
+## 8.0.1
 
+### Functionality Improvements
+
+#161: Hash mismatch error message should show the version name of the object
+
+### Technical Improvements
+
+### Bug Fixes
+
+#263: Correct and clarify the graph cycle error message
+
+
+#264: NPE caused when package-info.txt file w/ METADATA section exists in staticdata (data) folder
+Correcting error messages on graph cycles for complex databases
+
+## 8.0.0
 ### Functionality Improvements
 #111: Preventing concurrent deploys against a given schema
 
