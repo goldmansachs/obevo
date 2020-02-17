@@ -25,6 +25,7 @@ import org.jgrapht.Graph
 import org.jgrapht.alg.cycle.HawickJamesSimpleCycles
 import org.jgrapht.graph.AsSubgraph
 import org.jgrapht.graph.DefaultEdge
+import org.jgrapht.graph.EdgeReversedGraph
 
 /**
  * Utility class to work w/ graphs in the JGraphT library. There are a couple usages that need syntax sugar...
@@ -42,18 +43,19 @@ object GraphUtil {
 
     @JvmStatic
     fun <T> validateNoCycles(graph: Graph<T, DefaultEdge>) {
-        validateNoCycles(graph, { it.toString() }, DefaultEdge::toString)
+        validateNoCycles(graph, { v, _, _ -> v.toString() }, DefaultEdge::toString)
     }
 
+
     @JvmStatic
-    fun <T, E> validateNoCycles(graph: Graph<T, E>, vertexToString: Function1<in T, String>, edgeToString: Function1<in E, String>) {
+    fun <T, E> validateNoCycles(graph: Graph<T, E>, vertexToString: VertexToString<in T, in E>, edgeToString: Function1<in E, String>) {
         val simpleCycles = HawickJamesSimpleCycles(graph)
         val cycleComponents = simpleCycles.findSimpleCycles()
         cycleComponents.zipWithNext()
 
         if (cycleComponents.isNotEmpty()) {
             val cycleMessages = cycleComponents.mapIndexed { cycleCounter, cycleComponent ->
-                val subgraph = AsSubgraph(graph, cycleComponent.toSet())
+                val subgraph = EdgeReversedGraph(AsSubgraph(graph, cycleComponent.toSet()))
                 val visitedVertices = mutableSetOf<T>()
 
                 val sb = StringBuilder()
@@ -65,7 +67,7 @@ object GraphUtil {
                 while (walkIterator.hasNext()) {
                     val nextEdge = walkIterator.nextEdge()
                     val nextVertex = nextEdge.first
-                    sb.append("\n    " + vertexToString(prevVertex) + " ===> " + vertexToString(nextVertex) + "   (" + edgeToString(nextEdge.second) + " dependency)")
+                    sb.append("\n    " + vertexToString(prevVertex, false, nextEdge.second) + " == depends on ==> " + vertexToString(nextVertex, true, nextEdge.second) + "   (" + edgeToString(nextEdge.second) + " dependency)")
                     if (!visitedVertices.contains(nextVertex)) {
                         visitedVertices.add(nextVertex)
                     } else {
@@ -87,7 +89,9 @@ object GraphUtil {
                             "Changes are marked as [objectName.changeName]\n" +
                             "\n" +
                             "Overview of dependency types:\n" +
-                            " * DISCOVERED: dependencies found through the text code analysis. These are the likeliest candidates for causing cycles, and you should use excludeDependencies if appropriate on this\n" +
+                            " * DISCOVERED: dependencies found through the text code analysis.\n" +
+                            "       These are the likeliest candidates for causing cycles.\n" +
+                            "       Use excludeDependencies on the object name (not the change name) if needed on this\n" +
                             " * EXPLICIT: user-defined dependencies set via the includeDependencies or dependencies attributes\n" +
                             " * IMPLICIT: implied change dependencies determined by the order within incremental table changes\n" +
                             "\n" +
@@ -95,3 +99,5 @@ object GraphUtil {
         }
     }
 }
+
+typealias VertexToString<T, E> = (vertex: T, target: Boolean, edge: E) -> String

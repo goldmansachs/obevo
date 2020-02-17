@@ -38,7 +38,7 @@ class GraphEnricherImpl(private val convertDbObjectName: Function1<String, Strin
 
         changeIndexes.forEach { changeIndex -> inputs.forEach(changeIndex::add) }
 
-        val graph = DefaultDirectedGraph<T, DefaultEdge>(DefaultEdge::class.java)
+        val graph = DefaultDirectedGraph<T, DependencyEdge>(DependencyEdge::class.java)
 
         // First - add the core objects to the graph
         inputs.forEach { graph.addVertex(it) }
@@ -97,10 +97,20 @@ class GraphEnricherImpl(private val convertDbObjectName: Function1<String, Strin
 
         // validate
         GraphUtil.validateNoCycles(graph,
-                { t -> t.components.collect { sortableDependency -> "[" + sortableDependency.changeKey.objectKey.objectName + "." + sortableDependency.changeKey.changeName + "]" }.makeString(", ") },
-                { dependencyEdge -> (dependencyEdge as DependencyEdge).edgeType.name })
+                { vertex, target, edge ->
+                    vertex.components
+                            .map { sortableDependency ->
+                                val name = if (target && edge.edgeType == CodeDependencyType.DISCOVERED)
+                                    sortableDependency.changeKey.objectKey.objectName
+                                else sortableDependency.changeKey.objectKey.objectName + "." + sortableDependency.changeKey.changeName
+                                "[$name]"
+                            }
+                            .joinToString(", ")
+                },
+                { dependencyEdge -> dependencyEdge.edgeType.name }
+        )
 
-        return graph
+        return graph as Graph<T, DefaultEdge>
     }
 
     override fun <T> createSimpleDependencyGraph(inputs: Iterable<T>, edgesFunction: Function1<T, Iterable<T>>): Graph<T, DefaultEdge> {

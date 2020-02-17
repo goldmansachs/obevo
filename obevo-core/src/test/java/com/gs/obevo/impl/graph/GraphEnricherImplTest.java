@@ -21,10 +21,8 @@ import com.gs.obevo.api.appdata.CodeDependencyType;
 import com.gs.obevo.api.appdata.ObjectKey;
 import com.gs.obevo.api.platform.ChangeType;
 import org.eclipse.collections.api.RichIterable;
-import org.eclipse.collections.api.block.function.Function2;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.block.factory.Functions;
-import org.eclipse.collections.impl.block.factory.StringFunctions;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Sets;
 import org.jgrapht.Graph;
@@ -216,7 +214,7 @@ public class GraphEnricherImplTest {
         this.enricher = new GraphEnricherImpl(Functions.getStringPassThru()::valueOf);
 
         SortableDependencyGroup sch1Obj1C1 = newChange(schema1, type1, "obj1", "c1", 0, null);
-        SortableDependencyGroup sch1Obj1C2 = newChange(schema1, type1, "obj1", "c2", 1, Sets.immutable.<String>with("obj2"));
+        SortableDependencyGroup sch1Obj1C2 = newChangeWithDependency(schema1, type1, "obj1", "c2", 1, Sets.immutable.of(new CodeDependency("obj2", CodeDependencyType.DISCOVERED)));
         SortableDependencyGroup sch1Obj1C3 = newChange(schema1, type1, "obj1", "c3", 2, null);
         SortableDependencyGroup sch1Obj2C1 = newChange(schema1, type1, "obj2", "c1", 0, null);
         SortableDependencyGroup sch1Obj2C2 = newChange(schema1, type1, "obj2", "c2", 1, null);
@@ -230,6 +228,8 @@ public class GraphEnricherImplTest {
         } catch (IllegalArgumentException exc) {
             exc.printStackTrace();
             assertThat(exc.getMessage(), containsString("Found cycles"));
+            // verify that we print a legible error message for discovered dependencies
+            assertThat(exc.getMessage(), containsString("[obj1.c2] == depends on ==> [obj2]   (DISCOVERED dependency)"));
         }
     }
 
@@ -247,6 +247,11 @@ public class GraphEnricherImplTest {
     }
 
     private SortableDependencyGroup newChange(String schema, String changeTypeName, String objectName, String changeName, int orderWithinObject, ImmutableSet<String> dependencies) {
+        ImmutableSet<CodeDependency> codeDependencies = dependencies == null ? null : dependencies.collectWith(CodeDependency::new, CodeDependencyType.EXPLICIT);
+        return newChangeWithDependency(schema, changeTypeName, objectName, changeName, orderWithinObject, codeDependencies);
+    }
+
+    private SortableDependencyGroup newChangeWithDependency(String schema, String changeTypeName, String objectName, String changeName, int orderWithinObject, ImmutableSet<CodeDependency> dependencies) {
         ChangeType changeType = mock(ChangeType.class);
         when(changeType.getName()).thenReturn(changeTypeName);
         when(changeType.isRerunnable()).thenReturn(true);
@@ -255,12 +260,7 @@ public class GraphEnricherImplTest {
         ObjectKey key = new ObjectKey(schema, objectName, changeType);
         when(sort.getChangeKey()).thenReturn(new ChangeKey(key, changeName));
         if (dependencies != null) {
-            when(sort.getCodeDependencies()).thenReturn(dependencies.collectWith(new Function2<String, CodeDependencyType, CodeDependency>() {
-                @Override
-                public CodeDependency value(String target, CodeDependencyType codeDependencyType) {
-                    return new CodeDependency(target, codeDependencyType);
-                }
-            }, CodeDependencyType.EXPLICIT));
+            when(sort.getCodeDependencies()).thenReturn(dependencies);
         }
         when(sort.getOrderWithinObject()).thenReturn(orderWithinObject);
 
