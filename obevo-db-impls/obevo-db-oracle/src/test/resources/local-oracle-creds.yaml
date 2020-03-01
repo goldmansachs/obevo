@@ -35,9 +35,7 @@ environments:
     driverClass: oracle.jdbc.OracleDriver
     cleanBuildAllowed: true
     forceEnvInfraSetup: true
-    # We connect using the PDB service name, not the default container
-#    jdbcUrl: jdbc:oracle:thin:@localhost:1521/ORCLPDB1.localdomain  # only for Docker setup, which isn't working yet
-    jdbcUrl: jdbc:oracle:thin:@localhost:1521/ORCLPDB1
+    jdbcUrl: jdbc:oracle:thin:@localhost:1521/ORCLPDB1.localdomain
     defaultUserId: deploydba
     defaultPassword: MyPassword
     serverDirectories:
