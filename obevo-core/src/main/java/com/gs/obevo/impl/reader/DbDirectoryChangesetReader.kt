@@ -82,6 +82,7 @@ class DbDirectoryChangesetReader : FileSourceContext {
         Validate.notEmpty(envSchemas.castToSet(), "Environment must have schemas populated")
 
         for (sourceDir in fileSourceParams.files) {
+            LOG.info("Reading files from {}", sourceDir)
             for (schemaDir in sourceDir.findFiles(BasicFileSelector(and(vcsAware(), directory()), false))) {
                 val schema = schemaDir.name.baseName
 

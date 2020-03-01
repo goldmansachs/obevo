@@ -38,6 +38,10 @@ db:
       class: com.gs.obevo.db.impl.platforms.redshift.RedshiftDbPlatform
       dbMetadataManager:
         class: com.gs.obevo.dbmetadata.impl.dialects.RedshiftDbMetadataManager
+    MEMSQL:
+      class: com.gs.obevo.db.impl.platforms.memsql.MemSqlDbPlatform
+      dbMetadataManager:
+        class: com.gs.obevo.dbmetadata.impl.dialects.MemSqlDbMetadataManager
     MSSQL:
       class: com.gs.obevo.db.impl.platforms.mssql.MsSqlDbPlatform
       dbMetadataManager:

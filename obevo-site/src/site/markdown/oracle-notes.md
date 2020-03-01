@@ -68,3 +68,28 @@ To leverage this feature:
 
 1. Use the -forceEnvSetup parameter at the command line.
 2. Specify the property forceEnvSetup="true" in your dbEnvironment to have this be a default setting, and then execute a deploy.
+
+
+## Statement Terminator
+
+In Oracle, statements can be terminated using semicolon ''';''' and slash '''/'''.
+
+However, within Obevo these cannot be used to separate multiple lines within a single //// CHANGE block or rerunnable file.
+The reason is that the JDBC APIs are typically only allowed to execute a single SQL command within a JDBC statement (see
+[link](https://stackoverflow.com/questions/18941539/is-the-semicolon-necessary-in-sql) for reference. Though other DBMS
+platforms and drivers could be more lenient for this, Oracle is not.
+
+Hence, we typically recommend using the default GO splitter to split multiple statements within a block if needed.
+
+Note that you can still use a single semicolon or slash to end a statement, even if followed by a GO. (Most notably,
+to end a PL/SQL begin/end block with a slash, since the block may contain multiple semicolons).
+
+We have no plans to support this within JDBC itself, given the non-trivial nature of building our own parser of Oracle code.
+Having said that, it may be an option in the future to have SQL executions done via SQL*Plus command line, though not in
+the near future.
+
+
+
+## TODO JDBC Driver Setup
+new stuff
+https://blogs.oracle.com/dev2dev/get-oracle-jdbc-drivers-from-the-oracle-maven-repo-netbeans-eclipse-intellij

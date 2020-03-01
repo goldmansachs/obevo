@@ -56,6 +56,7 @@
     <orderEntry type="library" name="Maven: com.h2database:h2:1.4.187" level="project" />
     <orderEntry type="module" module-name="obevo-db-hsql" />
     <orderEntry type="library" name="Maven: org.hsqldb:hsqldb:2.3.4" level="project" />
+    <orderEntry type="module" module-name="obevo-db-memsql" />
     <orderEntry type="module" module-name="obevo-db-mssql" />
     <orderEntry type="library" name="Maven: com.microsoft.sqlserver:mssql-jdbc:6.1.0.jre7" level="project" />
     <orderEntry type="module" module-name="obevo-db-mysql" />

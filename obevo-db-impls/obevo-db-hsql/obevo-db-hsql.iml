@@ -74,6 +74,8 @@
     <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-oracle:14.16.04-java7" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-sqlserver:14.16.04-java7" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-db2:14.16.04-java7" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: us.fatehi:schemacrawler-mysql:14.16.04-java7" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: mysql:mysql-connector-java:6.0.6" level="project" />
     <orderEntry type="library" name="Maven: org.hsqldb:hsqldb:2.3.4" level="project" />
     <orderEntry type="module" module-name="obevo-db-internal-test-helper" scope="TEST" />
     <orderEntry type="module" module-name="obevo-core" scope="TEST" production-on-test="" />
