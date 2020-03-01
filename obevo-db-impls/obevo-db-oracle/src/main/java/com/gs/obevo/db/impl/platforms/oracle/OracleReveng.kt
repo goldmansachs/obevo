@@ -185,13 +185,15 @@ LEFT JOIN DBA_TABLES tab ON obj.OBJECT_TYPE = 'TABLE' AND obj.OWNER = tab.OWNER 
 LEFT JOIN MY_CONSTRAINT_INDICES conind ON obj.OBJECT_TYPE = 'INDEX' AND obj.OWNER = conind.INDEX_OWNER AND obj.OBJECT_NAME = conind.INDEX_NAME
 WHERE obj.OWNER = '${schema}'
     AND obj.GENERATED = 'N'  -- do not include generated objects
-    AND obj.OBJECT_TYPE NOT IN ('PACKAGE BODY', 'LOB', 'TABLE PARTITION', 'DATABASE LINK')
+    AND obj.OBJECT_TYPE NOT IN ('PACKAGE BODY', 'LOB', 'TABLE PARTITION', 'DATABASE LINK', 'INDEX PARTITION')
     AND obj.OBJECT_NAME NOT LIKE 'MLOG${'$'}%' AND obj.OBJECT_NAME NOT LIKE 'RUPD${'$'}%'  -- exclude the helper tables for materialized views
     AND obj.OBJECT_NAME NOT LIKE 'SYS_%'  -- exclude other system tables
     AND conind.INDEX_OWNER IS NULL  -- exclude primary keys created as unique indexes, as the CREATE TABLE already includes it; SQL logic is purely in the join above
     AND (tab.NESTED is null OR tab.NESTED = 'NO')
     ${objectClause}
 """
+        // INDEX PARTITION exclusion was suggested by user - see Github issue #246
+        // Unable to test yet in our Docker instance - see comments in PARTITIONED_TAB.sql file in test
     }
 
     private fun queryComments(jdbc: JdbcHelper, conn: Connection, schema: String): MutableList<MutableMap<String, Any>> {
