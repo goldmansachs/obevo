@@ -12,6 +12,7 @@
       <module fileurl="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-hsql/obevo-db-hsql.iml" filepath="$PROJECT_DIR$/obevo-db-impls/obevo-db-hsql/obevo-db-hsql.iml" />
       <module fileurl="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-impls.iml" filepath="$PROJECT_DIR$/obevo-db-impls/obevo-db-impls.iml" />
       <module fileurl="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-internal-test-helper/obevo-db-internal-test-helper.iml" filepath="$PROJECT_DIR$/obevo-db-impls/obevo-db-internal-test-helper/obevo-db-internal-test-helper.iml" />
+      <module fileurl="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-memsql/obevo-db-memsql.iml" filepath="$PROJECT_DIR$/obevo-db-impls/obevo-db-memsql/obevo-db-memsql.iml" />
       <module fileurl="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-mssql/obevo-db-mssql.iml" filepath="$PROJECT_DIR$/obevo-db-impls/obevo-db-mssql/obevo-db-mssql.iml" />
       <module fileurl="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-mysql/obevo-db-mysql.iml" filepath="$PROJECT_DIR$/obevo-db-impls/obevo-db-mysql/obevo-db-mysql.iml" />
       <module fileurl="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-oracle/obevo-db-oracle.iml" filepath="$PROJECT_DIR$/obevo-db-impls/obevo-db-oracle/obevo-db-oracle.iml" />

@@ -38,4 +38,13 @@ public class GroupBreak extends AbstractBreak {
     public int getGroupId() {
         return this.groupId;
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("GroupBreak{");
+        sb.append("fields=").append(fields);
+        sb.append(", groupId=").append(groupId);
+        sb.append('}');
+        return sb.toString();
+    }
 }

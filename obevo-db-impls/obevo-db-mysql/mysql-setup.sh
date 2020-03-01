@@ -22,8 +22,6 @@ DB_VERSION=$1
 
 INSTANCE_PORT=3306
 INSTANCE_DBNAME="dbdeploy"
-INSTANCE_SCHEMAS="dbdeploy03 dbdeploy01 dbdeploy02"
-INSTANCE_USERID="root"  # note - this user ID is hardcoded by the container
 INSTANCE_PASSWORD="Deploybuilddb0!"
 
 CONTAINER_IMAGE="mysql:$DB_VERSION"

@@ -33,7 +33,6 @@ then
     docker rm $OLD_CONTAINER_ID
 fi
 
-#docker run --name $CONTAINER_NAME --restart always -d -it -p 1521:1521 -p 5500:5500 -e DB_SID=ORCLCDB -e DB_PDB=ORCLPDB1 -eUSE_SID_AS_SERVICE_listener=on -eUSE_SID_AS_SERVICE_ORCLPDB1=on store/oracle/database-enterprise:12.2.0.1
 docker run --name $CONTAINER_NAME --restart always -d -it -p 1521:1521 -p 5500:5500 -e DB_SID=ORCLCDB -e DB_PDB=ORCLPDB1 -eUSE_SID_AS_SERVICE_listener=on -eUSE_SID_AS_SERVICE_ORCLPDB1=on store/oracle/database-enterprise:12.2.0.1-slim
 
 ## TODO: automate the subsequent schema creation process; need to figure out how to execute sqlplus from this script easily
@@ -42,6 +41,3 @@ docker run --name $CONTAINER_NAME --restart always -d -it -p 1521:1521 -p 5500:5
 #docker exec -it $CONTAINER_NAME bash
 #/u01/app/oracle/product/12.2.0/dbhome_1/bin/sqlplus sys/Oradoc_db1 as sysdba
 # run the commands in oracle-init.sql
-
-# TODO Docker is having issues; go w/ Vagrant and VirtualBox setup
-#https://github.com/oracle/vagrant-boxes/tree/master/OracleDatabase/12.2.0.1

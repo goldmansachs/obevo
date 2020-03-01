@@ -6,35 +6,36 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="obevo-cli" />
-        <module name="obevo-core" />
-        <module name="obevo-db" />
-        <module name="obevo-db-client-alldbs" />
-        <module name="obevo-db-db2" />
-        <module name="obevo-db-h2" />
         <module name="obevo-db-hsql" />
-        <module name="obevo-db-internal-test-helper" />
-        <module name="obevo-db-mssql" />
+        <module name="obevo-db-client-alldbs" />
+        <module name="obevo-core" />
         <module name="obevo-db-mysql" />
-        <module name="obevo-db-oracle" />
-        <module name="obevo-db-postgresql" />
-        <module name="obevo-db-scenario-tests" />
-        <module name="obevo-db-sybase-ase" />
-        <module name="obevo-db-sybase-iq" />
-        <module name="obevo-db-unittest-util" />
-        <module name="obevo-dbmetadata-impl" />
-        <module name="obevo-hibernate-util" />
         <module name="obevo-hibernate3-util" />
-        <module name="obevo-hibernate4-util" />
-        <module name="obevo-hibernate5-util" />
-        <module name="obevo-internal-comparer" />
-        <module name="obevo-internal-test-client-01" />
         <module name="obevo-internal-test-client-02" />
-        <module name="obevo-internal-test-util" />
-        <module name="obevo-maven-plugin" />
-        <module name="obevo-mongodb" />
+        <module name="obevo-internal-test-client-01" />
+        <module name="obevo-db-memsql" />
+        <module name="obevo-db-sybase-iq" />
+        <module name="obevo-cli" />
+        <module name="obevo-db-postgresql" />
         <module name="obevo-reladomo-util" />
+        <module name="obevo-db" />
+        <module name="obevo-internal-test-util" />
+        <module name="obevo-internal-comparer" />
+        <module name="obevo-hibernate5-util" />
+        <module name="obevo-dbmetadata-impl" />
+        <module name="obevo-db-unittest-util" />
+        <module name="obevo-hibernate-util" />
+        <module name="obevo-db-scenario-tests" />
         <module name="obevo-site" />
+        <module name="obevo-db-oracle" />
+        <module name="obevo-db-db2" />
+        <module name="obevo-maven-plugin" />
+        <module name="obevo-db-mssql" />
+        <module name="obevo-mongodb" />
+        <module name="obevo-hibernate4-util" />
+        <module name="obevo-db-sybase-ase" />
+        <module name="obevo-db-h2" />
+        <module name="obevo-db-internal-test-helper" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -48,6 +49,7 @@
       <module name="obevo-db-hsql" target="1.8" />
       <module name="obevo-db-impls" target="1.8" />
       <module name="obevo-db-internal-test-helper" target="1.8" />
+      <module name="obevo-db-memsql" target="1.8" />
       <module name="obevo-db-mssql" target="1.8" />
       <module name="obevo-db-mysql" target="1.8" />
       <module name="obevo-db-oracle" target="1.8" />

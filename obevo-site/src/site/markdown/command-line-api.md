@@ -26,7 +26,11 @@ $OBEVO_PATH/bin/deploy.sh <COMMAND> -arg1 arg -arg2 arg etc
 or if run via Docker:
 
 ```
-docker run shantstepanian/obevo <COMMAND> -arg1 arg -arg2 arg etc
+docker run --rm -it --mount type=bind,source="$SOURCEPATH",target=/mysourcepath,readonly shantstepanian/obevo <COMMAND> -arg1 arg -arg2 arg etc
+
+SOURCEPATH=/Users/shantstepanian/IdeaProjects/obevo/obevo-db-impls/obevo-db-h2/src/test/resources/platforms/h2/step1
+docker run --rm -it --mount type=bind,source="$SOURCEPATH",target=/mysourcepath,readonly shantstepanian/obevo DEPLOY -sourcePath /mysourcepath
+docker run --rm -it -v "$SOURCEPATH",/mysourcepath shantstepanian/obevo DEPLOY -sourcePath /mysourcepath
 ```
 
 where &lt;COMMAND&gt; is one of the following:

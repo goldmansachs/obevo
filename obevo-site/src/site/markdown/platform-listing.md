@@ -22,15 +22,19 @@ The acronyms are used for command-line arguments and configurations; they will b
 
 Follow the links on the left to see details on using Obevo for each implementation.
 
-|Platform|Acronym|Module|
-|--------|-------|------|
-|[IBM DB2](https://www.ibm.com/db2)|DB2|obevo-db-db2|
-|[H2 Database](http://www.h2database.com)|H2|obevo-db-h2|
-|[HyperSQL (HSQLDB)](http://hsqldb.org)|HSQL|obevo-db-h2|
-|[Oracle](https://www.oracle.com/database/index.html)|ORACLE|obevo-db-oracle|
-|[PostgreSQL](https://www.postgresql.org)|POSTGRESQL|obevo-db-postgresql|
-|[Amazon Redshift](https://aws.amazon.com/redshift/)|REDSHIFT|obevo-db-postgresql (same as PostgreSQL)|
-|[Microsoft SQL Server](https://www.microsoft.com/en-us/sql-server)|MSSQL|obevo-db-mssql|
-|[Sybase ASE / SAP ASE](https://www.sap.com/products/sybase-ase.html)|SYBASE_ASE|obevo-db-sybase-ase|
-|[Sybase IQ / SAP IQ](https://www.sap.com/products/sybase-iq-big-data-management.html)|SYBASE_IQ|obevo-db-sybase-iq|
-|[MongoDB](https://www.mongodb.com)|MONGODB|obevo-mongodb|
+|Platform|Acronym|Module|Examples|
+|--------|-------|------|--------|
+|[IBM DB2](https://www.ibm.com/db2)|DB2|obevo-db-db2||
+|[H2 Database](http://www.h2database.com)|H2|obevo-db-h2||
+|[HyperSQL (HSQLDB)](http://hsqldb.org)|HSQL|obevo-db-h2||
+|[Oracle](https://www.oracle.com/database/index.html)|ORACLE|obevo-db-oracle|https://github.com/goldmansachs/obevo/blob/master/obevo-db-impls/obevo-db-oracle/src/test/resources/platforms/oracle/example1/|
+|[PostgreSQL](https://www.postgresql.org)|POSTGRESQL|obevo-db-postgresql||
+|[Amazon Redshift](https://aws.amazon.com/redshift/)|REDSHIFT|obevo-db-postgresql (same as PostgreSQL)||
+|[Microsoft SQL Server](https://www.microsoft.com/en-us/sql-server)|MSSQL|obevo-db-mssql||
+|[Sybase ASE / SAP ASE](https://www.sap.com/products/sybase-ase.html)|SYBASE_ASE|obevo-db-sybase-ase||
+|[Sybase IQ / SAP IQ](https://www.sap.com/products/sybase-iq-big-data-management.html)|SYBASE_IQ|obevo-db-sybase-iq||
+|[MongoDB](https://www.mongodb.com)|MONGODB|obevo-mongodb||
+
+<!--
+ges</a> can also support jumping to the implementation of a symbol by pressing <span class="dynamic-keybinding" data-osx="⌘F12" data-win="Ctrl+F12" data-linux="Ctrl+F12"><span class="keybinding">⌘F12</span> 
+-->
