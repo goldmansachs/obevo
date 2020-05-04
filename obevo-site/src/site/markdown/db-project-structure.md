@@ -726,7 +726,15 @@ COLUMN_ID, COLUMN_NAME, ADD_TIME
 
 Just define a CSV file (quotes are supported, as is changing the comma
 delimiter and null token) with the first row as the column names, and
-you are set
+you are set.
+
+By default, as shown above, the literal `null` (without surrounding quotes)
+is interpreted as the null value. If you wish to modify that, you can
+do so using the `nullToken` property in the `METADATA` header as follows:
+
+```
+//// METADATA nullToken="myNullToken"
+```
 
 If a change is done on the table, Obevo will only deploy the incremental
 change (it will compare the full dataset in the db table vs. the file
