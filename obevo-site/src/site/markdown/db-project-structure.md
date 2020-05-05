@@ -736,9 +736,6 @@ do so using the `nullToken` property in the `METADATA` header as follows:
 //// METADATA nullToken="myNullToken"
 ```
 
-When providing the null token in the CSV content, whether the default or custom, 
-it should not have surrounding quotes.
-
 If a change is done on the table, Obevo will only deploy the incremental
 change (it will compare the full dataset in the db table vs. the file
 and apply the appropriate insert/update/delete)
