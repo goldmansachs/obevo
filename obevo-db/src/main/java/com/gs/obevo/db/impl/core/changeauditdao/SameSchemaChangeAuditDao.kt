@@ -290,7 +290,7 @@ class SameSchemaChangeAuditDao(private val env: DbEnvironment, private val sqlEx
 
                     artf.timeInserted = env.platform.getTimestampValue(resultSet[convertDbObjectName.valueOf(timeInsertedColumn)])
                     artf.timeUpdated = env.platform.getTimestampValue(resultSet[convertDbObjectName.valueOf(timeUpdatedColumn)])
-                    artf.deployExecution = deployExecutionsById[resultSet[updateDeployExecutionIdColumn] as Long]
+                    artf.deployExecution = deployExecutionsById[env.platform.getLongValue(resultSet[updateDeployExecutionIdColumn])]
 
                     // for backward compatibility, make sure the ROLLBACKCONTENT column exists
                     if (artifactTable.getColumn(rollbackContentColumn) != null) {
