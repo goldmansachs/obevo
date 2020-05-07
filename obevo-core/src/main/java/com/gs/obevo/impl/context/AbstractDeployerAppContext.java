@@ -246,7 +246,7 @@ public abstract class AbstractDeployerAppContext<E extends Environment, Self ext
 
     protected abstract FileSourceContext getDefaultFileSourceContext();
 
-    protected DeployerPlugin getDeployerPlugin() {
+    protected DeployerPlugin<?> getDeployerPlugin() {
         return new DefaultDeployerPlugin();
     }
 

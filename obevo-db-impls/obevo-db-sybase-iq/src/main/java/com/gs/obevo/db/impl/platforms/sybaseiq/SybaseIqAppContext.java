@@ -15,6 +15,9 @@
  */
 package com.gs.obevo.db.impl.platforms.sybaseiq;
 
+import java.io.File;
+import java.util.Optional;
+
 import com.gs.obevo.db.api.platform.SqlExecutor;
 import com.gs.obevo.db.impl.core.DbDeployerAppContextImpl;
 import com.gs.obevo.db.impl.core.changetypes.CsvStaticDataDeployer;
@@ -22,6 +25,7 @@ import com.gs.obevo.db.impl.core.jdbc.DataSourceFactory;
 import com.gs.obevo.db.impl.platforms.sybaseiq.iqload.IqBulkLoadCsvStaticDataDeployer;
 import com.gs.obevo.db.impl.platforms.sybaseiq.iqload.IqLoadMode;
 import com.gs.obevo.impl.PostDeployAction;
+import com.gs.obevo.util.FileUtilsCobra;
 import org.apache.commons.lang3.SystemUtils;
 import org.eclipse.collections.api.block.function.Function0;
 import org.slf4j.Logger;
@@ -48,8 +52,10 @@ public class SybaseIqAppContext extends DbDeployerAppContextImpl {
         if (getIqDataSource().isIqClientLoadSupported()) {
             LOG.info("Using IQ Client load mechanism for IQ CSV Loads");
             IqLoadMode iqLoadMode = SystemUtils.IS_OS_WINDOWS ? IqLoadMode.IQ_CLIENT_WINDOWS : IqLoadMode.IQ_CLIENT;
+            File workDir = Optional.ofNullable(this.getWorkDir())
+                    .orElseGet(() -> FileUtilsCobra.createTempDir(SystemUtils.USER_NAME + "-obevo"));
             return new IqBulkLoadCsvStaticDataDeployer(this.env, this.getSqlExecutor(), this.getIqDataSource(),
-                    this.getDbMetadataManager(), this.env.getPlatform(), iqLoadMode, this.getWorkDir());
+                    this.getDbMetadataManager(), this.env.getPlatform(), iqLoadMode, workDir);
         } else {
             LOG.info("Using the default SQL insert/update/delete statements for IQ CSV Loads");
             return super.getCsvStaticDataLoader();
