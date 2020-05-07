@@ -17,21 +17,13 @@ environments:
   environment:
   - name: testdefault
     type: MEMSQL
-    metaschema: dbdeploy03
-    sourcePath: platforms/postgresql/example1/step${stepNumber}
+    metaschema: metaschema
+    sourcePath: platforms/postgresql/step${stepNumber}
     schemas:
       schema:
-      - name: schema1
-      - name: schema2
-      - name: schema3
-    schemaOverrides:
-      schemaOverride:
-      - schema: schema1
-        overrideValue: dbdeploy01
-      - schema: schema2
-        overrideValue: dbdeploy02
-      - schema: schema3
-        overrideValue: dbdeploy03
+      - name: dbdeploy01
+      - name: dbdeploy02
+      - name: metaschema
     driverClass: org.postgresql.Driver
     cleanBuildAllowed: true
     forceEnvInfraSetup: true
@@ -45,7 +37,3 @@ environments:
     extensions:
       extension:
       - name: uuid-ossp
-
-#    jdbcUrl: jdbc:postgresql://dbdeploy-postgres-9-6.cck7fvo3o8pf.us-east-1.rds.amazonaws.com:5432/DBDEPLOY
-#    defaultUserId: deploybuilddbo
-#    defaultPassword: deploybuilddb0

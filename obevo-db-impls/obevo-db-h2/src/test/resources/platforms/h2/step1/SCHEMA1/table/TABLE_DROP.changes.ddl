@@ -1,8 +1,0 @@
-//// CHANGE name=chng1
-CREATE TABLE TABLE_DROP (
-	ID INT NOT NULL,
-    PRIMARY KEY (ID)
-)
-GO
-
-//// CHANGE DROP_TABLE name=drop

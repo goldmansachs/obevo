@@ -17,15 +17,12 @@ environments:
   environment:
   - name: v13
     type: SYBASE_ASE
-    metaschema: dbdeploy03
+    metaschema: metaschema
     sourcePath: platforms/sybasease/step${stepNumber}
     schemas:
       schema:
-      - name: oats
-    schemaOverrides:
-      schemaOverride:
-      - schema: oats
-        overrideValue: dbdeploy01
+      - name: dbdeploy01
+      - name: metaschema
     driverClass: com.sybase.jdbc4.jdbc.SybDriver
     cleanBuildAllowed: true
     jdbcUrl: jdbc:sybase:Tds:192.168.1.177:5000
@@ -33,15 +30,18 @@ environments:
     defaultPassword: deploy123
   - name: v13_schema
     type: SYBASE_ASE
-    metaschema: dbdeploy03.schema3
+    metaschema: metaschema.subschema
     sourcePath: platforms/sybasease/step${stepNumber}
     schemas:
       schema:
-      - name: oats
+      - name: dbdeploy01
+      - name: metaschema
     schemaOverrides:
       schemaOverride:
-      - schema: oats
-        overrideValue: dbdeploy01.schema1
+      - schema: dbdeploy01
+        overrideValue: dbdeploy01.subschema1
+      - schema: metaschema
+        overrideValue: metaschema.subschema
     driverClass: com.sybase.jdbc4.jdbc.SybDriver
     cleanBuildAllowed: true
     jdbcUrl: jdbc:sybase:Tds:192.168.1.177:5000

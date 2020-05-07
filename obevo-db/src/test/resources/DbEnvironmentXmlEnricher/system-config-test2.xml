@@ -19,7 +19,7 @@
     autoInitEnabled="false"
 >
     <schemas>
-        <schema name="DEPLOY_TRACKER" />
+        <schema name="MYSCHEMA" />
     </schemas>
     <environments>
         <dbEnvironment name="test1" type="DEV" cleanBuildAllowed="true" dbHost="myhost1.me.com"

@@ -67,7 +67,7 @@ public class OracleDeployIT {
 
         Connection conn = ds.getConnection();
         try {
-            List<Map<String, Object>> results = jdbc.queryForList(conn, "select * from " + dbDeployerAppContext.getEnvironment().getPhysicalSchema("schema1") + ".TABLE_A order by a_id");
+            List<Map<String, Object>> results = jdbc.queryForList(conn, "select * from " + dbDeployerAppContext.getEnvironment().getPhysicalSchema("dbdeploy01") + ".TABLE_A order by a_id");
             assertEquals(3, results.size());
             this.validateResults(results.get(0), 2, 3, "fasdfasd", "2013-02-02 11:11:11.65432", 9);
             this.validateResults(results.get(1), 3, 4, "ABC", null, 9);

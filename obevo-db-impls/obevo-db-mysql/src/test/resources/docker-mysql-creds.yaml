@@ -17,22 +17,14 @@ environments:
   environment:
   - name: testdefault
     type: MYSQL
-    metaschema: dbdeploy03
-    sourcePath: platforms/mysql/example1/step${stepNumber}
+    metaschema: metaschema
+    sourcePath: platforms/mysql/step${stepNumber}
     # NOTE - all these files are in PostgreSQL dialect; these files were just copied over. Please correct and edit
     schemas:
       schema:
-      - name: schema1
-      - name: schema2
-      - name: schema3
-    schemaOverrides:
-      schemaOverride:
-      - schema: schema1
-        overrideValue: dbdeploy01
-      - schema: schema2
-        overrideValue: dbdeploy02
-      - schema: schema3
-        overrideValue: dbdeploy03
+      - name: dbdeploy01
+      - name: dbdeploy02
+      - name: metaschema
     driverClass: com.mysql.cj.jdbc.Driver
     cleanBuildAllowed: true
     forceEnvInfraSetup: true

@@ -17,21 +17,13 @@ environments:
   environment:
   - name: default
     type: REDSHIFT
-    metaschema: dbdeploy03
-    sourcePath: platforms/postgresql/example1/step${stepNumber}
+    metaschema: metaschema
+    sourcePath: platforms/postgresql/step${stepNumber}
     schemas:
       schema:
-      - name: schema1
-      - name: schema2
-      - name: schema3
-    schemaOverrides:
-      schemaOverride:
-      - schema: schema1
-        overrideValue: dbdeploy01
-      - schema: schema2
-        overrideValue: dbdeploy02
-      - schema: schema3
-        overrideValue: dbdeploy03
+      - name: dbdeploy01
+      - name: dbdeploy02
+      - name: metaschema
     driverClass: com.amazon.redshift.jdbc4.Driver
     cleanBuildAllowed: true
     forceEnvInfraSetup: true

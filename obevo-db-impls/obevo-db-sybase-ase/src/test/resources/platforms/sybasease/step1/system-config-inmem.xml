@@ -17,7 +17,7 @@
 -->
 <dbSystemConfig type="SYBASE_ASE" sourceDirs="platforms/sybasease/step1">
     <schemas>
-        <schema name="oats" />
+        <schema name="dbdeploy01" />
     </schemas>
     <environments>
         <dbEnvironment name="unittest-h2" type="DEV" cleanBuildAllowed="true" />

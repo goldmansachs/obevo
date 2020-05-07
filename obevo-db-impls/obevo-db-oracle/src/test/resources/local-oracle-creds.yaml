@@ -17,21 +17,13 @@ environments:
   environment:
   - name: test_v12_1
     type: ORACLE
-    metaschema: DBDEPLOY03
-    sourcePath: platforms/oracle/example1/step${stepNumber}
+    metaschema: metaschema
+    sourcePath: platforms/oracle/step${stepNumber}
     schemas:
       schema:
-      - name: schema1
-      - name: schema2
-      - name: schema3
-    schemaOverrides:
-      schemaOverride:
-      - schema: schema1
-        overrideValue: DBDEPLOY01
-      - schema: schema2
-        overrideValue: DBDEPLOY02
-      - schema: schema3
-        overrideValue: DBDEPLOY03
+      - name: dbdeploy01
+      - name: dbdeploy02
+      - name: metaschema
     driverClass: oracle.jdbc.OracleDriver
     cleanBuildAllowed: true
     forceEnvInfraSetup: true

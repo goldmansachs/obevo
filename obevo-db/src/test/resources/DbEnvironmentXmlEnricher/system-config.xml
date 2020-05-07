@@ -88,7 +88,7 @@
     </extensions>
     <environments>
         <dbEnvironment name="test1" type="DEV" cleanBuildAllowed="true" dbHost="host" dbPort="123" dbServer="dbServ"
-            dbDataSourceName="dbSrc" dbSchemaPrefix="pref" dbSchemaSuffix="suff" defaultUserId="defId"
+            dbDataSourceName="dbSrc" dbSchemaPrefix="pref1" dbSchemaSuffix="suff1" defaultUserId="defId"
             defaultPassword="defPass" persistToFile="true" disableAuditTracking="true" jdbcUrl="url"
             defaultTablespace="defTab" checksumDetectionEnabled="true"
             sourceDirs="toBeIgnored" acceptedExtensions="toBeIgnored" dataDelimiter="toBeIgnored" nullToken="toBeIgnored"

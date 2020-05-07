@@ -1,5 +1,18 @@
 # Change Log
 
+## 8.1.1
+
+### Bug Fixes
+
+#161: Bug fix for the hash mismatch code in Sybase ASE
+
+Sybase IQ: fixing bulk data upload for ODBC drivers
+
+### Technical Improvements
+
+Standardizing the test directories for easier consumption by downstream distributions
+
+
 ## 8.1.0
 
 ### Functionality Improvements

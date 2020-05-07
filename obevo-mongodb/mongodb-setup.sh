@@ -20,12 +20,6 @@ set -x
 
 DB_VERSION=$1
 
-#INSTANCE_PORT=3306
-#INSTANCE_DBNAME="dbdeploy"
-#INSTANCE_SCHEMAS="dbdeploy03 dbdeploy01 dbdeploy02"
-#INSTANCE_USERID="root"  # note - this user ID is hardcoded by the container
-#INSTANCE_PASSWORD="Deploybuilddb0!"
-
 CONTAINER_IMAGE="mongo:$DB_VERSION"
 CONTAINER_NAME=obevo-mongodb-instance
 
@@ -38,11 +32,6 @@ then
 fi
 
 echo "MongoDB container creation started"
-
-#docker run -e "MYSQL_ROOT_PASSWORD=$INSTANCE_PASSWORD" \
-#   -p $INSTANCE_PORT:$INSTANCE_PORT --name $CONTAINER_NAME \
-#   -e MYSQL_DATABASE=$INSTANCE_DBNAME \
-#   -d $CONTAINER_IMAGE
 
 docker run -d -p 27017:27017 --name $CONTAINER_NAME $CONTAINER_IMAGE
 

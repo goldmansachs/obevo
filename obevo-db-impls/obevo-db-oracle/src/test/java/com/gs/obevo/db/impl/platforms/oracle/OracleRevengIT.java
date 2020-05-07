@@ -73,7 +73,7 @@ public class OracleRevengIT {
 
             AquaRevengArgs args = new AquaRevengArgs();
             args.setOutputPath(outputDir);
-            args.setDbSchema(env.getPhysicalSchema("schema1").getPhysicalName());
+            args.setDbSchema(env.getPhysicalSchema("dbdeploy01").getPhysicalName());
             args.setGenerateBaseline(false);
             args.setJdbcUrl(env.getJdbcUrl());
             args.setUsername(env.getDefaultUserId());
