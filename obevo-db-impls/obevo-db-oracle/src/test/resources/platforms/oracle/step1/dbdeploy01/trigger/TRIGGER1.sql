@@ -1,0 +1,10 @@
+CREATE OR REPLACE EDITIONABLE TRIGGER ${dbdeploy01_physicalName}.TRIGGER1
+AFTER LOGON
+ON ${dbdeploy01_physicalName}.schema
+--ON database
+DECLARE
+BEGIN
+EXECUTE IMMEDIATE 'ALTER SESSION SET CURRENT_SCHEMA=${dbdeploy01_physicalName}';
+END
+/
+ALTER TRIGGER ${dbdeploy01_physicalName}.TRIGGER1 ENABLE

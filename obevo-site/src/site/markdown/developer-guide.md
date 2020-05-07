@@ -76,7 +76,7 @@ Also add your project as a dependency to the obevo-db-client-all-dbs module.
 
 Add entry to default.yaml in com.gs.obevo.db.confg in obevo-db
 
-Rename platform name accordingly in <YourPlatform>DbPlatform
+Rename platform name accordingly in &lt;YourPlatform&gt;DbPlatform
 
 #### 2. Setup a test database
 
@@ -110,15 +110,15 @@ Your own method:
 Obevo will run tests against actual DBMSs that have schemas dedicated to Obevo.
 Get a schema to facilitate your testing
 
-As a convention, name your schemas as dbdeploy01, dbdeploy02, dbdeploy03.
+As a convention, name your schemas as dbdeploy01, dbdeploy02, dbdeploymeta.
 * dbdeploy01 and dbdeploy02 are typically for testing your deployments
-* dbdeploy03 is for the metadata API tests
+* dbdeploymeta is for the metadata API tests
 
 #### 5. Setup your initial test files
 
 First, update the docker-*-creds.yaml file accordingly to the DB you just setup
 
-Next, under platforms.<yourplatform>.example1.step1, let's start simple with just the table (rename the other folders
+Next, under platforms.&lt;yourplatform&gt;.example1.step1, let's start simple with just the table (rename the other folders
 for now)
 
 #### 6. Implement the classes required to do a basic incremental deployment for simple objects like tables
@@ -129,13 +129,13 @@ First, remove / comment the optional classes:
 * TranslationDialect classes
 
 The main classes you will need to implement:
-* <PlatformName>DbPlatform
-* <PlatformName>AppContext
-* <PlatformName>EnvironmentInfraSetup
+* &lt;PlatformName&gt;DbPlatform
+* &lt;PlatformName&gt;AppContext
+* &lt;PlatformName&gt;EnvironmentInfraSetup
    * add code for programmatically creating schemas/groups/users, etc
-* <PlatformName>JdbcDataSourceFactory
+* &lt;PlatformName&gt;JdbcDataSourceFactory
    * add the semantics for generating jdbc urls
-* <PlatformName>SqlExecutor
+* &lt;PlatformName&gt;SqlExecutor
    * here you will add the commands to switch between schemas
 
 Also implement a DbMetadataDialect for your new implementation in obevo-db-metadata-manager-impl

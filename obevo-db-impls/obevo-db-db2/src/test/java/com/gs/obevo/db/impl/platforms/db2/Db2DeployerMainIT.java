@@ -111,7 +111,7 @@ public class Db2DeployerMainIT {
             ;
         }
 
-        String schema1 = "DEPLOY_TRACKER";
+        String schema1 = "DBDEPLOY01";
         MutableList<DeployExecution> executions = dbDeployerAppContext.getDeployExecutionDao().getDeployExecutions(schema1).toSortedListBy(new Function<DeployExecution, Long>() {
             @Override
             public Long valueOf(DeployExecution deployExecution) {
@@ -129,7 +129,7 @@ public class Db2DeployerMainIT {
         JdbcHelper db2JdbcTemplate = new JdbcHelper();
 
         // Assert the columns which are available in table TEST_TABLE
-        String schema = dbDeployerAppContext.getEnvironment().getPhysicalSchema("DEPLOY_TRACKER").getPhysicalName();
+        String schema = dbDeployerAppContext.getEnvironment().getPhysicalSchema("DBDEPLOY01").getPhysicalName();
         String columnListSql = "select colname from syscat.COLUMNS where tabschema = '" + schema + "' AND tabname = 'TABLE_D'";
         Connection conn = ds.getConnection();
         try {

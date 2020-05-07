@@ -1,0 +1,7 @@
+//// METADATA updateTimeColumn="timeUpdated"
+idField,stringField,myBooleanCol,stringDateField,dateTimeField,tinyIntCol,textField
+1,"str1",0,"2014-01-01","2014-01-01 12:12:12",1,"text1"
+3,"str3Changed",0,"2014-01-01","2014-01-01 12:12:12",3,"text3change"
+4,"str4",0,"2014-01-01","2014-01-01 12:12:12",4,"text4"
+5,"str5",0,"2014-01-01","2014-01-01 12:12:12",5,"text5"
+6,"str6",0,"2014-01-01","2014-01-01 12:12:12",6,"text6"

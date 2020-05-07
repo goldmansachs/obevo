@@ -17,8 +17,8 @@
 -->
 <dbSystemConfig type="H2" dataDelimiter="^" nullToken="(null)">
     <schemas>
-        <schema name="SCHEMA1" />
-        <schema name="SCHEMA2" />
+        <schema name="DBDEPLOY01" />
+        <schema name="DBDEPLOY02" />
     </schemas>
     <groups>
         <group name="GROUP1" />
@@ -34,7 +34,7 @@
             defaultUserId="sa"
             defaultPassword="">
             <schemaOverrides>
-                <schemaOverride schema="SCHEMA1" overrideValue="bogusSchema" />
+                <schemaOverride schema="DBDEPLOY01" overrideValue="bogusSchema" />
             </schemaOverrides>
         </dbEnvironment>
     </environments>

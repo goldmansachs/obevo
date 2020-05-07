@@ -25,7 +25,7 @@ public class PostgreSqlInMemConversionTest {
     @Test
     public void testInMemoryHsql() {
         DbDeployerAppContext context = UnitTestDbBuilder.newBuilder()
-                .setSourcePath("platforms/postgresql/example1/step1/system-config-inmem.xml")
+                .setSourcePath("platforms/postgresql/step1/system-config-inmem.xml")
                 .setReferenceEnvName("unittestrefhsql")
                 .setDbPlatform(new HsqlDbPlatform())
                 .setDbServer("mydb2testHsql")
@@ -40,7 +40,7 @@ public class PostgreSqlInMemConversionTest {
 //    @Test
 //    public void testInMemoryH2() {
 //        DbDeployerAppContext context = UnitTestDbBuilder.newBuilder()
-//                .setSourcePath("platforms/postgresql/example1/step1/system-config-inmem.xml")
+//                .setSourcePath("platforms/postgresql/step1/system-config-inmem.xml")
 //                .setReferenceEnvName("unittestrefh2")
 //                .setDbPlatform(new H2DbPlatform())
 //                .setDbServer("mydb2testH2")

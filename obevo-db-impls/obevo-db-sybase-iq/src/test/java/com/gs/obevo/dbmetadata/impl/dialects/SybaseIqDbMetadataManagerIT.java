@@ -73,12 +73,12 @@ public class SybaseIqDbMetadataManagerIT extends AbstractDbMetadataManagerIT {
 
     @Override
     protected String get_VIEW1() {
-        return "create view dbdeploy03.VIEW1 as select * from dbdeploy03.METADATA_TEST_TABLE -- my comment";
+        return "create view " + getSchemaName() + ".VIEW1 as select * from " + getSchemaName() + ".METADATA_TEST_TABLE -- my comment";
     }
 
     @Override
     protected String get_INVALID_VIEW() {
-        return "create view dbdeploy03.INVALID_VIEW as select * from dbdeploy03.INVALID_TABLE";
+        return "create view " + getSchemaName() + ".INVALID_VIEW as select * from " + getSchemaName() + ".INVALID_TABLE";
     }
 
     public static String createIqUrl(String host, int port) {

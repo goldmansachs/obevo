@@ -14,7 +14,7 @@
     <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-db2/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-h2" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-h2/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-h2/src/test/resources/platforms/h2/step1/SCHEMA1/table/TABLE_A.changes.ddl" charset="UTF-16" />
+    <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-h2/src/test/resources/platforms/h2/step1/DBDEPLOY01/table/TABLE_A.changes.ddl" charset="UTF-16" />
     <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-hsql" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-hsql/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/obevo-db-impls/obevo-db-internal-test-helper" charset="UTF-8" />

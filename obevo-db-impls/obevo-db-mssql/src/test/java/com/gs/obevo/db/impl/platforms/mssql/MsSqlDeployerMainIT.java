@@ -54,7 +54,7 @@ public class MsSqlDeployerMainIT {
                 .cleanEnvironment()
                 .deploy();
 
-        String physicalSchemaStr = step1Context.getEnvironment().getPlatform().getSchemaPrefix(step1Context.getEnvironment().getPhysicalSchema("oats"));
+        String physicalSchemaStr = step1Context.getEnvironment().getPlatform().getSchemaPrefix(step1Context.getEnvironment().getPhysicalSchema("dbdeploy01"));
         this.validateStep1(step1Context.getDataSource(), physicalSchemaStr, new JdbcHelper());
 
         DbDeployerAppContext step2Context = getAppContext.valueOf(2);

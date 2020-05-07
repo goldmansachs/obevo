@@ -41,7 +41,7 @@ public class HsqlDeployerTest {
 
     @Test
     public void testDeploy() throws Exception {
-        DbEnvironment env = Obevo.readEnvironment("./src/test/resources/platforms/hsql");
+        DbEnvironment env = Obevo.readEnvironment("./src/test/resources/platforms/hsql/step1");
         DbDeployerAppContext context = env.buildAppContext("sa", "");
 
         context.setupEnvInfra();
@@ -56,9 +56,9 @@ public class HsqlDeployerTest {
         int result;
         Connection conn = context.getDataSource().getConnection();
         try {
-            result = this.jdbc.queryForInt(conn, "select count(*) from SCHEMA1.TABLE_A");
+            result = this.jdbc.queryForInt(conn, "select count(*) from DBDEPLOY01.TABLE_A");
             assertEquals(3, result);
-            result = this.jdbc.queryForInt(conn, "select count(*) from SCHEMA1.VIEW1");
+            result = this.jdbc.queryForInt(conn, "select count(*) from DBDEPLOY01.VIEW1");
             assertEquals(3, result);
             // String columnListSql =
             // "select name from syscolumns where id in (select id from sysobjects where name = 'TEST_TABLE')";
@@ -70,7 +70,7 @@ public class HsqlDeployerTest {
 
         // Test out reverse engineering
         AquaRevengArgs args = new AquaRevengArgs();
-        args.setDbSchema("SCHEMA1");
+        args.setDbSchema("DBDEPLOY01");
         args.setGenerateBaseline(false);
         //args.setJdbcUrl("jdbc:hsqldb:hsql://localhost:9092/myserver");
         args.setJdbcUrl(env.getJdbcUrl());
@@ -89,7 +89,7 @@ public class HsqlDeployerTest {
         DbDeployerAppContext context = UnitTestDbBuilder.newBuilder()
                 .setEnvName("test2")
                 .setDbPlatform(new HsqlDbPlatform())
-                .setSourcePath("platforms/hsql")
+                .setSourcePath("platforms/hsql/step1")
                 .setDbServer("HsqlCustomName")
                 .buildContext();
         context.setupEnvInfra();
@@ -105,9 +105,9 @@ public class HsqlDeployerTest {
         this.setup();
         Connection conn = context.getDataSource().getConnection();
         try {
-            result = this.jdbc.queryForInt(conn, "select count(*) from SCHEMA1.TABLE_A");
+            result = this.jdbc.queryForInt(conn, "select count(*) from DBDEPLOY01.TABLE_A");
             assertEquals(3, result);
-            result = this.jdbc.queryForInt(conn, "select count(*) from SCHEMA1.VIEW1");
+            result = this.jdbc.queryForInt(conn, "select count(*) from DBDEPLOY01.VIEW1");
             assertEquals(3, result);
         } finally {
             DbUtils.closeQuietly(conn);

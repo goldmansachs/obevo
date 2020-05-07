@@ -20,10 +20,10 @@ environments:
     defaultUserId: sa
     defaultPassword: ""
     driverClass: org.hsqldb.jdbc.JDBCDriver
-    metaschema: SCHEMA2
+    metaschema: DBDEPLOY02
     type: HSQL
     schemas:
       schema:
-      - name: SCHEMA1
-      - name: SCHEMA2
-    sourcePath: platforms/hsql
+      - name: DBDEPLOY01
+      - name: DBDEPLOY02
+    sourcePath: platforms/hsql/step1

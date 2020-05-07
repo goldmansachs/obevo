@@ -17,7 +17,7 @@
 -->
 <dbSystemConfig type="DB2" sourceDirs="platforms/db2/step3">
     <schemas>
-        <schema name="DEPLOY_TRACKER" />
+        <schema name="DBDEPLOY01" />
     </schemas>
     <environments>
         <dbEnvironment name="unittestrefh2" cleanBuildAllowed="true" />

@@ -91,7 +91,7 @@ environments:
     cleanBuildAllowed: 'true'
     dbDataSourceName: dbSrc
     dbPort: '123'
-    dbSchemaPrefix: pref
+    dbSchemaPrefix: pref1
     auditTableSql: |-
       env specific
 
@@ -100,7 +100,7 @@ environments:
     defaultTablespace: defTab
     jdbcUrl: url
     includeSchemas: SCHEMA1,SCHEMA2
-    dbSchemaSuffix: suff
+    dbSchemaSuffix: suff1
     tokens:
       token:
       - value: val

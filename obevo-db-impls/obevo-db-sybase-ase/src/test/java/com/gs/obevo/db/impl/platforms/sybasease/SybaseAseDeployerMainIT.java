@@ -69,7 +69,7 @@ public class SybaseAseDeployerMainIT {
                 .setupEnvInfra()
                 .deploy(args1);
 
-        String schema = "oats";
+        String schema = "dbdeploy01";
         PhysicalSchema physicalSchema = context1.getEnvironment().getPhysicalSchema(schema);
         String schemaPrefix = context1.getEnvironment().getPlatform().getSchemaPrefix(physicalSchema);
 

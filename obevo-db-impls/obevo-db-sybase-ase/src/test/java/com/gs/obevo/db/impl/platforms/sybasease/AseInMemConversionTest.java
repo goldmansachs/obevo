@@ -52,7 +52,7 @@ public class AseInMemConversionTest {
 
         JdbcHelper jdbc = new JdbcHelper();
 
-        String schemaPrefix = dbEnv.getPlatform().getSchemaPrefix(dbEnv.getPhysicalSchema("oats"));
+        String schemaPrefix = dbEnv.getPlatform().getSchemaPrefix(dbEnv.getPhysicalSchema("dbdeploy01"));
         SybaseAseDeployerMainIT.validateStep1(ds, jdbc, schemaPrefix);
 
         UnitTestDbBuilder.newBuilder()
@@ -85,7 +85,7 @@ public class AseInMemConversionTest {
         );
 
         JdbcHelper jdbc = new JdbcHelper();
-        String schemaPrefix = dbEnv.getPlatform().getSchemaPrefix(dbEnv.getPhysicalSchema("oats"));
+        String schemaPrefix = dbEnv.getPlatform().getSchemaPrefix(dbEnv.getPhysicalSchema("dbdeploy01"));
         SybaseAseDeployerMainIT.validateStep1(ds, jdbc, schemaPrefix);
 
         UnitTestDbBuilder.newBuilder()

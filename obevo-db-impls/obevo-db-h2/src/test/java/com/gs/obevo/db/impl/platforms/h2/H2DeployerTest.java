@@ -74,10 +74,10 @@ public class H2DeployerTest {
         dbEnv.setSourceDirs(Lists.mutable.with(FileRetrievalMode.FILE_SYSTEM.resolveSingleFileObject("./src/test/resources/platforms/h2/step1")));
         dbEnv.setName("test");
         dbEnv.setPlatform(new H2DbPlatform());
-        dbEnv.setSchemas(Sets.immutable.with(new Schema("SCHEMA1"), new Schema("SCHEMA2")));
+        dbEnv.setSchemas(Sets.immutable.with(new Schema("DBDEPLOY01"), new Schema("DBDEPLOY02")));
         dbEnv.setDbServer("BLAH");
 
-        dbEnv.setSchemaNameOverrides(Maps.immutable.with("SCHEMA1", "bogusSchema"));
+        dbEnv.setSchemaNameOverrides(Maps.immutable.with("DBDEPLOY01", "bogusSchema"));
         dbEnv.setNullToken("(null)");
         dbEnv.setDataDelimiter('^');
         dbEnv.setCleanBuildAllowed(true);
@@ -229,7 +229,7 @@ public class H2DeployerTest {
         int result;
         this.conn = dbDeployerAppContext.getDataSource().getConnection();
         result = this.jdbc
-                .queryForInt(conn, "select count(p.*) from bogusSchema.TABLE_C a, SCHEMA2.PRODUCT p where a.PRODUCT_ID = p.PRODUCT_ID ");
+                .queryForInt(conn, "select count(p.*) from bogusSchema.TABLE_C a, DBDEPLOY02.PRODUCT p where a.PRODUCT_ID = p.PRODUCT_ID ");
         assertEquals(3, result);
     }
 

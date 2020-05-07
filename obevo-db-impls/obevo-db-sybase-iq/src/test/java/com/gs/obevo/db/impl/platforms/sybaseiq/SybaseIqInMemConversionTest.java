@@ -29,7 +29,7 @@ public class SybaseIqInMemConversionTest {
     @Test
     public void testH2Conversion() {
         DbDeployerAppContext builder = UnitTestDbBuilder.newBuilder()
-                .setSourcePath("platforms/sybaseiq/system-config-inmem.xml")
+                .setSourcePath("platforms/sybaseiq/step1/system-config-inmem.xml")
                 .setReferenceEnvName("h2test")
                 .setDbPlatform(new H2DbPlatform())
                 .setDbServer("iqh2test")
@@ -41,7 +41,7 @@ public class SybaseIqInMemConversionTest {
     @Test
     public void testHsqlConversion() {
         DbDeployerAppContext builder = UnitTestDbBuilder.newBuilder()
-                .setSourcePath("platforms/sybaseiq/system-config-inmem.xml")
+                .setSourcePath("platforms/sybaseiq/step1/system-config-inmem.xml")
                 .setReferenceEnvName("hsqltest")
                 .setDbPlatform(new H2DbPlatform())
                 .setDbServer("iqhsqltest")

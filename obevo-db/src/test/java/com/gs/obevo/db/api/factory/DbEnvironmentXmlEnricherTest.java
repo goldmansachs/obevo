@@ -271,7 +271,7 @@ public class DbEnvironmentXmlEnricherTest {
         assertEquals("MYPREFIX_SCHEMA1", env4.getPhysicalSchema("SCHEMA1").getPhysicalName());
         assertEquals("MYPREFIX_SCHEMA4_RO", env4.getPhysicalSchema("SCHEMA4_RO").getPhysicalName());
 
-        assertEquals(Sets.mutable.with("overriden_SCHEMA1", "prefSCHEMA2suff"), env1.getPhysicalSchemas().collect(new Function<PhysicalSchema, String>() {
+        assertEquals(Sets.mutable.with("overriden_SCHEMA1", "pref1SCHEMA2suff1"), env1.getPhysicalSchemas().collect(new Function<PhysicalSchema, String>() {
             @Override
             public String valueOf(PhysicalSchema physicalSchema7) {
                 return physicalSchema7.getPhysicalName();
@@ -295,7 +295,7 @@ public class DbEnvironmentXmlEnricherTest {
                 return physicalSchema4.getPhysicalName();
             }
         }));
-        assertEquals(Sets.mutable.with("overriden_SCHEMA1", "prefSCHEMA2suff"), env1.getAllPhysicalSchemas().collect(new Function<PhysicalSchema, String>() {
+        assertEquals(Sets.mutable.with("overriden_SCHEMA1", "pref1SCHEMA2suff1"), env1.getAllPhysicalSchemas().collect(new Function<PhysicalSchema, String>() {
             @Override
             public String valueOf(PhysicalSchema physicalSchema3) {
                 return physicalSchema3.getPhysicalName();
@@ -332,8 +332,8 @@ public class DbEnvironmentXmlEnricherTest {
         assertEquals(123, env1.getDbPort());
         assertEquals("dbServ", env1.getDbServer());
         assertEquals("dbSrc", env1.getDbDataSourceName());
-        assertEquals("pref", env1.getDbSchemaPrefix());
-        assertEquals("suff", env1.getDbSchemaSuffix());
+        assertEquals("pref1", env1.getDbSchemaPrefix());
+        assertEquals("suff1", env1.getDbSchemaSuffix());
         assertEquals("url", env1.getJdbcUrl());
         assertTrue(env1.isPersistToFile());
         assertTrue(env1.isDisableAuditTracking());
@@ -392,14 +392,9 @@ public class DbEnvironmentXmlEnricherTest {
             }
         }, "test1"));
 
-        Schema schema = env1.getSchemas().detect(new Predicate<Schema>() {
-            @Override
-            public boolean accept(Schema it) {
-                return it.getName().equals("DEPLOY_TRACKER");
-            }
-        });
+        Schema schema = env1.getSchemas().detect(it -> it.getName().equals("MYSCHEMA"));
         assertTrue(schema.getObjectExclusionPredicateBuilder().getObjectNamesByType().isEmpty());
-        assertEquals("DEPLOY_TRACKER", env1.getPhysicalSchema("DEPLOY_TRACKER").getPhysicalName());
+        assertEquals("MYSCHEMA", env1.getPhysicalSchema("MYSCHEMA").getPhysicalName());
 
         assertEquals(Lists.mutable.of(
                 FileRetrievalMode.FILE_SYSTEM.resolveSingleFileObject("src/test/resources/DbEnvironmentXmlEnricher")

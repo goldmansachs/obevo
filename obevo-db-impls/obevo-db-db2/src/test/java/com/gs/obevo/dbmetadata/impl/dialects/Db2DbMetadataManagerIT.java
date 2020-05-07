@@ -46,7 +46,7 @@ public class Db2DbMetadataManagerIT extends AbstractDbMetadataManagerIT {
     }
 
     protected void setCurrentSchema(QueryRunner jdbc) throws Exception {
-        jdbc.update("SET CURRENT PATH " + "SYSIBM,SYSFUN,SYSPROC,SYSIBMADM,DBDEPLOY03");
+        jdbc.update("SET CURRENT PATH " + "SYSIBM,SYSFUN,SYSPROC,SYSIBMADM,METASCHEMA");
         jdbc.update("SET SCHEMA " + getSchemaName());
     }
 

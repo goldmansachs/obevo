@@ -21,11 +21,11 @@ environments:
     sourcePath: platforms/db2/step${stepNumber}
     schemas:
       schema:
-      - name: DEPLOY_TRACKER
+      - name: DBDEPLOY01
       - name: SCHEMA_ONLY_FOR_SETUP
     schemaOverrides:
       schemaOverride:
-      - schema: DEPLOY_TRACKER
+      - schema: DBDEPLOY01
         overrideValue: DBDEPLOY01
       - schema: SCHEMA_ONLY_FOR_SETUP   # setting this up so that we can have the metaschema setup as well. ParamReader class needs improvement to avoid this hack
         overrideValue: DBDEPLOY03
