@@ -15,6 +15,7 @@
  */
 package com.gs.obevo.dbmetadata.impl.dialects;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -56,8 +57,9 @@ import org.eclipse.collections.impl.list.mutable.ListAdapter;
 import schemacrawler.schema.Catalog;
 import schemacrawler.schema.RoutineType;
 import schemacrawler.schema.Schema;
-import schemacrawler.schemacrawler.DatabaseSpecificOverrideOptionsBuilder;
-import schemacrawler.schemacrawler.SchemaCrawlerOptions;
+import schemacrawler.schemacrawler.LimitOptionsBuilderFixed;
+import schemacrawler.schemacrawler.SchemaInfoLevelBuilder;
+import schemacrawler.schemacrawler.SchemaRetrievalOptionsBuilder;
 
 /**
  * Metadata dialect for Sybase ASE.
@@ -74,18 +76,22 @@ import schemacrawler.schemacrawler.SchemaCrawlerOptions;
  */
 public class SybaseAseMetadataDialect extends AbstractMetadataDialect {
     @Override
-    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema, boolean searchAllTables) {
-        return new DatabaseSpecificOverrideOptionsBuilder();
+    public SchemaRetrievalOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema, boolean searchAllTables) throws IOException {
+        // no implementation is available in SchemaCrawler; hence, we start with a blank implementation
+        return SchemaRetrievalOptionsBuilder.builder();
     }
 
     @Override
-    public void customEdits(SchemaCrawlerOptions options, Connection conn) {
-        options.getSchemaInfoLevel().setRetrieveDatabaseInfo(false);  // Fails for Sybase when connections are retrieved using Sybase's native JDBC pools
-
+    public void updateLimitOptionsBuilder(LimitOptionsBuilderFixed options) {
         // Sybase driver supports SP metadata, but not functions. As a result, we must disable SchemaCrawler's own
         // lookups entirely and use our own query. (SchemaCrawler's inherent behavior for the SQL only adds to existing
         // routine data, not loading in entire new ones).
-        options.setRoutineTypes(Lists.mutable.<RoutineType>empty());
+        options.routineTypes(Lists.mutable.<RoutineType>empty());
+    }
+
+    @Override
+    public void updateSchemaInfoLevelBuilder(SchemaInfoLevelBuilder schemaInfoLevelBuilder) {
+        schemaInfoLevelBuilder.setRetrieveDatabaseInfo(false);  // Fails for Sybase when connections are retrieved using Sybase's native JDBC pools
     }
 
     @Override

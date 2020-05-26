@@ -402,7 +402,7 @@ differences, plus detailed reports for cases where content exists in
 either side of a comparison, but there are differences)
 
 ```
-j:\cc\obevo\bin\deploy.bat DBDATACOMPARE -configFile H:\mydir\costarRepoComparisonConfig.properties -outputDir H:\mycomparisons\
+h:\obevo\bin\deploy.bat DBDATACOMPARE -configFile H:\mydir\dbComparisonConfigExample.properties -outputDir H:\mycomparisons\
 ```
 
 Config File Example:

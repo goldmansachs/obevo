@@ -16,11 +16,11 @@
 package com.gs.obevo.dbmetadata.impl;
 
 import com.gs.obevo.dbmetadata.api.DaPrimaryKey;
-import schemacrawler.schema.Index;
+import schemacrawler.schema.PrimaryKey;
 
 public class DaPrimaryKeyImpl extends DaIndexImpl implements DaPrimaryKey {
-    public DaPrimaryKeyImpl(Index index, SchemaStrategy schemaStrategy) {
-        super(index, schemaStrategy, null);
+    public DaPrimaryKeyImpl(PrimaryKey pk, SchemaStrategy schemaStrategy) {
+        super(pk, schemaStrategy, null);
     }
 
     @Override

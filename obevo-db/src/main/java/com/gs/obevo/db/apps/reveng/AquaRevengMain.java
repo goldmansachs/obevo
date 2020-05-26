@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.gs.obevo.api.appdata.PhysicalSchema;
 import com.gs.obevo.api.appdata.Schema;
 import com.gs.obevo.api.platform.ChangeType;
 import com.gs.obevo.api.platform.Platform;
@@ -125,7 +126,7 @@ public class AquaRevengMain {
             final DbDeployerAppContext ctxt = env.getAppContextBuilder().setCredential(credential).setWorkDir(workDir).buildDbContext();
 
             // Aqua Data Studio can't extract ASE rule bindings, so we do it ourselves
-            DaCatalog database = ctxt.getDbMetadataManager().getDatabase(args.getDbSchema(), new DaSchemaInfoLevel().setRetrieveRuleBindings(true), false, false);
+            DaCatalog database = ctxt.getDbMetadataManager().getDatabase(new PhysicalSchema(args.getDbSchema()), new DaSchemaInfoLevel().setRetrieveRuleBindings(true), false, false);
             ImmutableCollection<RuleBinding> ruleBindings = database.getRuleBindings();
 
             this.ruleBindingMap = ruleBindings.groupBy(RuleBinding.TO_OBJECT);

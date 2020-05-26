@@ -16,46 +16,14 @@
 package com.gs.obevo.dbmetadata.api;
 
 import org.eclipse.collections.api.block.function.Function;
-import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.list.ImmutableList;
 
 public interface DaIndex extends DaNamedObject {
-    Predicate<DaIndex> IS_UNIQUE = new Predicate<DaIndex>() {
-        @Override
-        public boolean accept(DaIndex each) {
-            return each.isUnique();
-        }
-    };
-    Function<DaIndex, DaIndexType> TO_INDEX_TYPE = new Function<DaIndex, DaIndexType>() {
-        @Override
-        public DaIndexType valueOf(DaIndex object) {
-            return object.getIndexType();
-        }
-    };
-    Function<DaIndex, String> TO_COLUMN_STRING = new Function<DaIndex, String>() {
-        @Override
-        public String valueOf(DaIndex object) {
-            return object.getColumns().collect(TO_NAME).toSortedList().makeString(",");
-        }
-    };
-    Function<DaIndex, Boolean> TO_UNIQUE = new Function<DaIndex, Boolean>() {
-        @Override
-        public Boolean valueOf(DaIndex object) {
-            return object.isUnique();
-        }
-    };
-    Function<DaIndex, ImmutableList<DaColumn>> TO_COLUMNS = new Function<DaIndex, ImmutableList<DaColumn>>() {
-        @Override
-        public ImmutableList<DaColumn> valueOf(DaIndex object) {
-            return object.getColumns();
-        }
-    };
-    Function<DaIndex, Boolean> TO_PK = new Function<DaIndex, Boolean>() {
-        @Override
-        public Boolean valueOf(DaIndex object) {
-            return object instanceof DaPrimaryKey;
-        }
-    };
+    Function<DaIndex, DaIndexType> TO_INDEX_TYPE = DaIndex::getIndexType;
+    Function<DaIndex, String> TO_COLUMN_STRING = object -> object.getColumns().collect(TO_NAME).toSortedList().makeString(",");
+    Function<DaIndex, Boolean> TO_UNIQUE = DaIndex::isUnique;
+    Function<DaIndex, ImmutableList<DaColumn>> TO_COLUMNS = DaIndex::getColumns;
+    Function<DaIndex, Boolean> TO_PK = object -> object instanceof DaPrimaryKey;
 
     boolean isUnique();
 

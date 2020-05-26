@@ -36,7 +36,7 @@ public class H2JdbcDataSourceFactory extends JdbcDataSourceFactory {
     @Override
     protected String createUrl(DbEnvironment env) {
         if (env.getDbServer() == null) {
-            throw new IllegalArgumentException("Neither server name nor raw URL was defined for this environment"
+            throw new IllegalArgumentException("Neither dbServer nor jdbcUrl was defined for this environment"
                     + env.getName());
         } else {
             String url = getUrl(env.getDbServer(), env.isPersistToFile());

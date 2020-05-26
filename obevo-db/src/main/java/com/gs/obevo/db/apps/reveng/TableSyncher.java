@@ -234,12 +234,12 @@ generate merges against the ideal table (if possible - change may be incompatibl
                 if (indices.size() == 1) {
                     return indices.getFirst();
                 }
-                DaIndex candidate = indices.detect(DaIndex.IS_UNIQUE);
+                DaIndex candidate = indices.detect(DaIndex::isUnique);
                 if (candidate != null) {
                     return candidate;
                 }
 
-                candidate = indices.detect(Predicates.attributeEqual(DaIndex.TO_INDEX_TYPE, DaIndexType.CLUSTERED));
+                candidate = indices.detect(Predicates.attributeEqual(DaIndex::getIndexType, DaIndexType.CLUSTERED));
                 if (candidate != null) {
                     return candidate;
                 }

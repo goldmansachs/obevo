@@ -50,7 +50,7 @@ This product depends on (links to) the following software:
   SchemaCrawler for MySQL under Eclipse Public License - v 1.0
   SchemaCrawler for Oracle under Eclipse Public License - v 1.0
   SchemaCrawler for PostgreSQL under Eclipse Public License - v 1.0
-  SchemaCrawler for Sybase IQ under Eclipse Public License - v 1.0
+  SchemaCrawler for SAP IQ under Eclipse Public License - v 1.0
   SLF4J API Module under MIT License
   SnakeYAML under Apache License, Version 2.0
 

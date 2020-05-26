@@ -32,7 +32,8 @@ Feel free to reach out to us if you'd like to apply our core algorithm onto a ne
 |:---|
 |[Documentation](https://goldmansachs.github.io/obevo/)|
 |[Quickstart Examples](https://github.com/goldmansachs/obevo-kata) (Setup a new database or Onboard an existing database)|
-|[NY JavaSIG Presentation](Obevo_Javasig.pdf)|
+|[NY JavaSIG Presentation - Slides with animations (preferred)](https://docs.google.com/presentation/d/1oe_jjS7VwziLMjX9feCquGAx1FFRIiLek8hpccoll48)|
+|[NY JavaSIG Presentation - PDF](Obevo_Javasig.pdf)|
 |[InfoQ Publication - Introducing Obevo: Get Your Database SDLC under Control](https://www.infoq.com/articles/Obevo-Introduction)|
 
 |APIs|Build Integration|
