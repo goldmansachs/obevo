@@ -32,29 +32,10 @@ public interface DbMetadataManager {
      * configured via the parameters.
      *
      * @throws IllegalArgumentException if the schema does not exist
-     * @deprecated Use the PhysicalSchema overload: {@link #getDatabase(PhysicalSchema, DaSchemaInfoLevel, boolean, boolean)}.
-     */
-    @Deprecated
-    DaCatalog getDatabase(String physicalSchema, DaSchemaInfoLevel schemaInfoLevel, boolean searchAllTables,
-            boolean searchAllRoutines);
-
-    /**
-     * Returns the metadata for a whole catalog. Info level (e.g. for specific object types or for detail-level) can be
-     * configured via the parameters.
-     *
-     * @throws IllegalArgumentException if the schema does not exist
      * @since 6.4.0
      */
     DaCatalog getDatabase(PhysicalSchema physicalSchema, DaSchemaInfoLevel schemaInfoLevel, boolean searchAllTables,
             boolean searchAllRoutines);
-
-    /**
-     * Returns a DaCatalog reference if that catalog exists - this serves as a quick "exists" check on that catalog.
-     *
-     * @deprecated Use {@link #getDatabaseOptional(String)}, as it is more clearly named.
-     */
-    @Deprecated
-    DaCatalog getDatabase(String physicalSchema);
 
     /**
      * Returns a DaCatalog reference if that catalog exists - this serves as a quick "exists" check on that catalog.
@@ -73,22 +54,6 @@ public interface DbMetadataManager {
     /**
      * Retrieves the metadata for the requested table.
      *
-     * @deprecated Use the PhysicalSchema overload {@link #getTableInfo(PhysicalSchema, String)}
-     */
-    @Deprecated
-    DaTable getTableInfo(String physicalSchema, String tableName);
-
-    /**
-     * Retrieves the metadata for the requested table.
-     *
-     * @deprecated Use the PhysicalSchema overload {@link #getTableInfo(PhysicalSchema, String, DaSchemaInfoLevel)}
-     */
-    @Deprecated
-    DaTable getTableInfo(String physicalSchema, String tableName, DaSchemaInfoLevel schemaInfoLevel);
-
-    /**
-     * Retrieves the metadata for the requested table.
-     *
      * @since 6.4.0
      */
     DaTable getTableInfo(PhysicalSchema physicalSchema, String tableName);
@@ -99,22 +64,6 @@ public interface DbMetadataManager {
      * @since 6.4.0
      */
     DaTable getTableInfo(PhysicalSchema physicalSchema, String tableName, DaSchemaInfoLevel schemaInfoLevel);
-
-    /**
-     * Retrieves the metadata for the requested routine.
-     *
-     * @deprecated Use the PhysicalSchema overload {@link #getRoutineInfo(PhysicalSchema, String)}
-     */
-    @Deprecated
-    ImmutableCollection<DaRoutine> getProcedureInfo(String physicalSchema, String procedureName);
-
-    /**
-     * Retrieves the metadata for the requested routine.
-     *
-     * @deprecated Use the PhysicalSchema overload {@link #getRoutineInfo(PhysicalSchema, String, DaSchemaInfoLevel)}
-     */
-    @Deprecated
-    ImmutableCollection<DaRoutine> getProcedureInfo(String physicalSchema, String procedureName, DaSchemaInfoLevel schemaInfoLevel);
 
     /**
      * Retrieves the metadata for the requested routine.

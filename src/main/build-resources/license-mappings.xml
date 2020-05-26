@@ -83,6 +83,12 @@
     </artifact>
     <artifact>
         <groupId>us.fatehi</groupId>
+        <artifactId>schemacrawler-mysql</artifactId>
+        <version type="regex">.*</version>
+        <license>Eclipse Public License - v 1.0</license>
+    </artifact>
+    <artifact>
+        <groupId>us.fatehi</groupId>
         <artifactId>schemacrawler-oracle</artifactId>
         <version type="regex">.*</version>
         <license>Eclipse Public License - v 1.0</license>
@@ -90,19 +96,25 @@
     <artifact>
         <groupId>us.fatehi</groupId>
         <artifactId>schemacrawler-sqlserver</artifactId>
-        <version versionType="string">14.15.02</version>
+        <version type="regex">.*</version>
         <license>Eclipse Public License - v 1.0</license>
     </artifact>
     <artifact>
         <groupId>us.fatehi</groupId>
         <artifactId>schemacrawler-hsqldb</artifactId>
-        <version versionType="string">14.15.02</version>
+        <version type="regex">.*</version>
         <license>Eclipse Public License - v 1.0</license>
     </artifact>
     <artifact>
         <groupId>us.fatehi</groupId>
         <artifactId>schemacrawler-db2</artifactId>
-        <version versionType="string">14.15.02</version>
+        <version type="regex">.*</version>
+        <license>Eclipse Public License - v 1.0</license>
+    </artifact>
+    <artifact>
+        <groupId>us.fatehi</groupId>
+        <artifactId>schemacrawler-sapiq</artifactId>
+        <version type="regex">.*</version>
         <license>Eclipse Public License - v 1.0</license>
     </artifact>
 

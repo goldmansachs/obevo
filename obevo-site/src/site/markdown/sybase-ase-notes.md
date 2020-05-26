@@ -50,7 +50,7 @@ intended as an identifier, the likely case is that it was intended as a string. 
 SP was originally deployed via isqlto help your decision)if you do the reverse-engineering steps above,
 
 ### Temp Tables as Input to Stored Procedures
-In Costar, we've had some cases where a stored procedure required a temp table to be populated for
+We have see some cases where a stored procedure required a temp table to be populated for
 running the stored procedure. However, to create the SP, we need the temp table created in the first place
 
 To do this, you can do this in the sp sql file itself, but just remember to add the temp table

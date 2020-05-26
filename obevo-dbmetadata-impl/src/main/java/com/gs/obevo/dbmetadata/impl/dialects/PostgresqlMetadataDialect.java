@@ -31,38 +31,37 @@ import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
+import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.block.factory.StringFunctions;
 import org.eclipse.collections.impl.factory.Lists;
+import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.list.mutable.ListAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import schemacrawler.schema.RoutineType;
-import schemacrawler.schemacrawler.DatabaseSpecificOverrideOptionsBuilder;
-import schemacrawler.schemacrawler.SchemaCrawlerOptions;
+import schemacrawler.schemacrawler.InformationSchemaKey;
+import schemacrawler.schemacrawler.LimitOptionsBuilderFixed;
 
 public class PostgresqlMetadataDialect extends AbstractMetadataDialect {
     private static final Logger LOG = LoggerFactory.getLogger(OracleMetadataDialect.class);
 
     @Override
-    public void customEdits(SchemaCrawlerOptions options, Connection conn) {
+    public void updateLimitOptionsBuilder(LimitOptionsBuilderFixed options) {
         // postgresql only supports FUNCTIONs in its syntax, not PROCEDUREs. However, the metadata still comes
         // back as procedure. We override the metadata value using the getRoutineOverrideValue method.
-        options.setRoutineTypes(Lists.immutable.with(RoutineType.procedure).castToList());
+        options.routineTypes(Lists.immutable.with(RoutineType.procedure).castToList());
     }
 
     @Override
-    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema, boolean searchAllTables) {
-        DatabaseSpecificOverrideOptionsBuilder dbSpecificOptionsBuilder = super.getDbSpecificOptionsBuilder(conn, physicalSchema, searchAllTables);
-
+    public MutableMap<InformationSchemaKey, String> getInfoSchemaSqlOverrides(PhysicalSchema physicalSchema) {
         String sequenceSql = getSequenceSql(physicalSchema);
         if (sequenceSql != null) {
-            // if null, then setting the sequences object to null won't help either
-            dbSpecificOptionsBuilder.withInformationSchemaViews().withSequencesSql(sequenceSql);
+            return Maps.mutable.of(InformationSchemaKey.SEQUENCES, sequenceSql);
+        } else {
+            return null;
         }
-
-        return dbSpecificOptionsBuilder;
     }
 
     /**

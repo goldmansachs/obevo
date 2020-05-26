@@ -31,20 +31,23 @@ import com.gs.obevo.dbmetadata.impl.DaRoutinePojoImpl;
 import org.apache.commons.dbutils.handlers.ColumnListHandler;
 import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.apache.commons.io.IOUtils;
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
+import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.block.factory.StringFunctions;
 import org.eclipse.collections.impl.factory.Lists;
+import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.list.mutable.ListAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import schemacrawler.crawl.MetadataRetrievalStrategy;
 import schemacrawler.schema.RoutineType;
-import schemacrawler.schemacrawler.DatabaseSpecificOverrideOptionsBuilder;
-import schemacrawler.schemacrawler.SchemaCrawlerOptions;
+import schemacrawler.schemacrawler.InformationSchemaKey;
+import schemacrawler.schemacrawler.LimitOptionsBuilderFixed;
+import schemacrawler.schemacrawler.MetadataRetrievalStrategy;
+import schemacrawler.schemacrawler.SchemaInfoMetadataRetrievalStrategy;
+import schemacrawler.schemacrawler.SchemaRetrievalOptionsBuilder;
 
 public class Db2MetadataDialect extends AbstractMetadataDialect {
     private static final Logger LOG = LoggerFactory.getLogger(Db2MetadataDialect.class);
@@ -73,32 +76,33 @@ public class Db2MetadataDialect extends AbstractMetadataDialect {
             }
         }
 
-        return maps.collect(new Function<Map<String, Object>, DaRoutine>() {
-            @Override
-            public DaRoutine valueOf(Map<String, Object> map) {
-                return new DaRoutinePojoImpl(
-                        (String) map.get("ROUTINENAME"),
-                        schema,
-                        DaRoutineType.function,
-                        (String) map.get("SPECIFICNAME"),
-                        clobToString((Clob) map.get("TEXT"))
-                );
-            }
-        });
+        return maps.collect(map -> new DaRoutinePojoImpl(
+                (String) map.get("ROUTINENAME"),
+                schema,
+                DaRoutineType.function,
+                (String) map.get("SPECIFICNAME"),
+                clobToString((Clob) map.get("TEXT"))
+        ));
     }
 
+
     @Override
-    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema, boolean searchAllTables) {
-        DatabaseSpecificOverrideOptionsBuilder dbSpecificOptionsBuilder = super.getDbSpecificOptionsBuilder(conn, physicalSchema, searchAllTables);
+    public SchemaRetrievalOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema, boolean searchAllTables) throws IOException {
+        SchemaRetrievalOptionsBuilder dbSpecificOptionsBuilder = super.getDbSpecificOptionsBuilder(conn, physicalSchema, searchAllTables);
 
         if (!searchAllTables) {
             // the default schemacrawler logic is optimized to search for all tables in DB2. But it is very slow for single-table lookups
             // See the original logic in the class DB2DatabaseConnector.
-            dbSpecificOptionsBuilder.withTableColumnRetrievalStrategy(MetadataRetrievalStrategy.metadata);
+            dbSpecificOptionsBuilder.with(SchemaInfoMetadataRetrievalStrategy.tableColumnsRetrievalStrategy, MetadataRetrievalStrategy.metadata);
         }
 
+        return dbSpecificOptionsBuilder;
+    }
+
+    @Override
+    public MutableMap<InformationSchemaKey, String> getInfoSchemaSqlOverrides(PhysicalSchema physicalSchema) {
         // the SQL in SchemaCrawler does not define the VALID column, so we add it here
-        String sql = "SELECT " +
+        String viewSql = "SELECT " +
                 "  NULLIF(1, 1) " +
                 "    AS TABLE_CATALOG, " +
                 "  STRIP(SYSCAT.VIEWS.VIEWSCHEMA) " +
@@ -111,8 +115,8 @@ public class Db2MetadataDialect extends AbstractMetadataDialect {
                 "    AS CHECK_OPTION, " +
                 "  CASE WHEN STRIP(SYSCAT.VIEWS.READONLY) = 'Y' THEN 'NO' ELSE 'YES' END " +
                 "    AS IS_UPDATABLE " +
-                        ", " +
-                        "  VALID   " +
+                ", " +
+                "  VALID   " +
                 "FROM " +
                 "  SYSCAT.VIEWS " +
                 "WHERE VIEWSCHEMA = '" + physicalSchema.getPhysicalName() + "' " +
@@ -121,43 +125,42 @@ public class Db2MetadataDialect extends AbstractMetadataDialect {
                 "  SYSCAT.VIEWS.VIEWNAME, " +
                 "  SYSCAT.VIEWS.SEQNO " +
                 "WITH UR   ";
-        dbSpecificOptionsBuilder.withInformationSchemaViews().withViewsSql(
-                sql
-        );
 
         // SEQTYPE <> 'I' is for identity columns; we don't want that when pulling user defined sequences
-        dbSpecificOptionsBuilder.withInformationSchemaViews().withSequencesSql(
-                "SELECT\n" +
-                        "  NULLIF(1, 1)\n" +
-                        "    AS SEQUENCE_CATALOG,\n" +
-                        "  STRIP(SYSCAT.SEQUENCES.SEQSCHEMA)\n" +
-                        "    AS SEQUENCE_SCHEMA,\n" +
-                        "  STRIP(SYSCAT.SEQUENCES.SEQNAME)\n" +
-                        "    AS SEQUENCE_NAME,\n" +
-                        "  INCREMENT,\n" +
-                        "  MINVALUE AS MINIMUM_VALUE,\n" +
-                        "  MAXVALUE AS MAXIMUM_VALUE,\n" +
-                        "  CASE WHEN CYCLE = 'Y' THEN 'YES' ELSE 'NO' END AS CYCLE_OPTION,\n" +
-                        "  SEQID,\n" +
-                        "  SEQTYPE,\n" +
-                        "  START,\n" +
-                        "  NEXTCACHEFIRSTVALUE,\n" +
-                        "  CACHE,\n" +
-                        "  ORDER,\n" +
-                        "  CREATE_TIME,\n" +
-                        "  ALTER_TIME,\n" +
-                        "  REMARKS\n" +
-                        "FROM\n" +
-                        "  SYSCAT.SEQUENCES\n" +
-                        "WHERE SEQSCHEMA = '" + physicalSchema.getPhysicalName() + "' AND SEQTYPE <> 'I'\n" +
-                        //"  SYSCAT.SEQUENCES.ORIGIN = 'U'\n" +
-                        "ORDER BY\n" +
-                        "  SYSCAT.SEQUENCES.SEQSCHEMA,\n" +
-                        "  SYSCAT.SEQUENCES.SEQNAME\n" +
-                        "WITH UR\n"
-        );
+        String sequencesSql = "SELECT\n" +
+                "  NULLIF(1, 1)\n" +
+                "    AS SEQUENCE_CATALOG,\n" +
+                "  STRIP(SYSCAT.SEQUENCES.SEQSCHEMA)\n" +
+                "    AS SEQUENCE_SCHEMA,\n" +
+                "  STRIP(SYSCAT.SEQUENCES.SEQNAME)\n" +
+                "    AS SEQUENCE_NAME,\n" +
+                "  INCREMENT,\n" +
+                "  MINVALUE AS MINIMUM_VALUE,\n" +
+                "  MAXVALUE AS MAXIMUM_VALUE,\n" +
+                "  CASE WHEN CYCLE = 'Y' THEN 'YES' ELSE 'NO' END AS CYCLE_OPTION,\n" +
+                "  SEQID,\n" +
+                "  SEQTYPE,\n" +
+                "  START,\n" +
+                "  NEXTCACHEFIRSTVALUE,\n" +
+                "  CACHE,\n" +
+                "  ORDER,\n" +
+                "  CREATE_TIME,\n" +
+                "  ALTER_TIME,\n" +
+                "  REMARKS\n" +
+                "FROM\n" +
+                "  SYSCAT.SEQUENCES\n" +
+                "WHERE SEQSCHEMA = '" + physicalSchema.getPhysicalName() + "' AND SEQTYPE <> 'I'\n" +
 
-        return dbSpecificOptionsBuilder;
+                //"  SYSCAT.SEQUENCES.ORIGIN = 'U'\n" +
+                "ORDER BY\n" +
+                "  SYSCAT.SEQUENCES.SEQSCHEMA,\n" +
+                "  SYSCAT.SEQUENCES.SEQNAME\n" +
+                "WITH UR\n";
+
+        return Maps.mutable.of(
+                InformationSchemaKey.VIEWS, viewSql,
+                InformationSchemaKey.SEQUENCES, sequencesSql
+        );
     }
 
     private String clobToString(Clob clob) {
@@ -178,11 +181,11 @@ public class Db2MetadataDialect extends AbstractMetadataDialect {
     }
 
     @Override
-    public void customEdits(SchemaCrawlerOptions options, Connection conn) {
-        super.customEdits(options, conn);
+    public void updateLimitOptionsBuilder(LimitOptionsBuilderFixed options) {
+        super.updateLimitOptionsBuilder(options);
 
         // DB2 driver doesn't support function lookups; hence, we limit it here to avoid the error message and use the searchExtraRoutines method instead to pull them in.
-        options.setRoutineTypes(Lists.immutable.with(RoutineType.procedure).castToList());
+        options.routineTypes(Lists.immutable.with(RoutineType.procedure).castToList());
     }
 
     @Override

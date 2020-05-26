@@ -15,6 +15,7 @@
  */
 package com.gs.obevo.dbmetadata.impl;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -29,27 +30,42 @@ import com.gs.obevo.dbmetadata.api.DaSchema;
 import com.gs.obevo.dbmetadata.api.DaUserType;
 import com.gs.obevo.dbmetadata.api.RuleBinding;
 import org.eclipse.collections.api.collection.ImmutableCollection;
+import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.set.ImmutableSet;
 import schemacrawler.schema.Catalog;
 import schemacrawler.schema.Schema;
-import schemacrawler.schemacrawler.DatabaseSpecificOverrideOptionsBuilder;
-import schemacrawler.schemacrawler.SchemaCrawlerOptions;
+import schemacrawler.schemacrawler.InformationSchemaKey;
+import schemacrawler.schemacrawler.LimitOptionsBuilderFixed;
+import schemacrawler.schemacrawler.SchemaInfoLevelBuilder;
+import schemacrawler.schemacrawler.SchemaRetrievalOptionsBuilder;
 
 public interface DbMetadataDialect {
-    DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema, boolean searchAllTables);
+    SchemaRetrievalOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema, boolean searchAllTables) throws IOException;
 
     /**
-     * Initializes the metadata class and the incoming options variable.
-     *
-     * @param options The options object to be edited.
-     * @param conn The connection to use to help w/ seting the options. Optional to use
+     * Modifies the given LimitOptionsBuilder variable (i.e. which kinds of objects to fetch) with options specific to
+     * this DB dialect.
      */
-    void customEdits(SchemaCrawlerOptions options, Connection conn);
+    default void updateLimitOptionsBuilder(LimitOptionsBuilderFixed options) {
+    }
+
+    /**
+     * Modifies the given SchemaInfoLevelBuilder variable (i.e. the fields to fetch) with options specific to this DB
+     * dialect.
+     * @param schemaInfoLevelBuilder
+     */
+    default void updateSchemaInfoLevelBuilder(SchemaInfoLevelBuilder schemaInfoLevelBuilder) {
+    }
+
+    default MutableMap<InformationSchemaKey, String> getInfoSchemaSqlOverrides(PhysicalSchema physicalSchema) {
+        return null;
+    }
 
     /**
      * Sets the schema on the connection. This is needed prior to the schemacrawler calls for some DBMS types.
      */
-    void setSchemaOnConnection(Connection conn, PhysicalSchema physicalSchema);
+    default void setSchemaOnConnection(Connection conn, PhysicalSchema physicalSchema) {
+    }
 
     String getSchemaExpression(PhysicalSchema physicalSchema);
 

@@ -13,18 +13,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.gs.obevo.impl;
+package com.gs.obevo.impl
 
-import com.gs.obevo.api.platform.CommandExecutionContext;
+import com.gs.obevo.api.platform.CommandExecutionContext
 
 /**
  * Strategy interface for controlling how change deployments should get done, notably around whether certain differences
  * are allowed or whether to execute them.
  */
-public interface DeployStrategy {
-    String getDeployVerbMessage();
-
-    void deploy(ChangeTypeBehaviorRegistry changeTypeBehaviorRegistry, ExecuteChangeCommand changeCommand, CommandExecutionContext cec);
-
-    boolean isInitAllowedOnHashExceptions();
+interface DeployStrategy {
+    val deployVerbMessage: String
+    fun deploy(changeTypeBehaviorRegistry: ChangeTypeBehaviorRegistry, changeCommand: ExecuteChangeCommand, cec: CommandExecutionContext)
+    val isInitAllowedOnHashExceptions: Boolean
 }

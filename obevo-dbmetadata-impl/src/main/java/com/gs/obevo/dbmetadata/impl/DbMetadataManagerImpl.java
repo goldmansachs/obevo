@@ -15,6 +15,7 @@
  */
 package com.gs.obevo.dbmetadata.impl;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Objects;
@@ -39,24 +40,28 @@ import com.gs.obevo.dbmetadata.api.DbMetadataManager;
 import com.gs.obevo.dbmetadata.api.RuleBinding;
 import com.gs.obevo.util.VisibleForTesting;
 import org.apache.commons.lang3.Validate;
-import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.collection.ImmutableCollection;
+import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.multimap.Multimap;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.factory.Lists;
+import org.eclipse.collections.impl.tuple.Tuples;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import schemacrawler.crawl.SchemaCrawler;
+import schemacrawler.inclusionrule.ExcludeAll;
+import schemacrawler.inclusionrule.IncludeAll;
+import schemacrawler.inclusionrule.RegularExpressionInclusionRule;
 import schemacrawler.schema.Catalog;
 import schemacrawler.schema.Schema;
-import schemacrawler.schemacrawler.DatabaseSpecificOverrideOptions;
-import schemacrawler.schemacrawler.DatabaseSpecificOverrideOptionsBuilder;
-import schemacrawler.schemacrawler.ExcludeAll;
-import schemacrawler.schemacrawler.IncludeAll;
-import schemacrawler.schemacrawler.RegularExpressionInclusionRule;
+import schemacrawler.schemacrawler.InformationSchemaKey;
+import schemacrawler.schemacrawler.LimitOptionsBuilderFixed;
+import schemacrawler.schemacrawler.LoadOptionsBuilder;
 import schemacrawler.schemacrawler.SchemaCrawlerException;
-import schemacrawler.schemacrawler.SchemaCrawlerOptions;
-import schemacrawler.schemacrawler.SchemaInfoLevel;
+import schemacrawler.schemacrawler.SchemaCrawlerOptionsBuilder;
+import schemacrawler.schemacrawler.SchemaInfoLevelBuilder;
+import schemacrawler.schemacrawler.SchemaRetrievalOptions;
+import schemacrawler.schemacrawler.SchemaRetrievalOptionsBuilder;
 
 public class DbMetadataManagerImpl implements DbMetadataManager {
     private static final Logger LOG = LoggerFactory.getLogger(DbMetadataManagerImpl.class);
@@ -80,13 +85,6 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
     @Override
     public void setDataSource(DataSource ds) {
         this.ds = ds;
-    }
-
-    @Override
-    @Deprecated
-    public DaCatalog getDatabase(String physicalSchema, DaSchemaInfoLevel schemaInfoLevel, boolean searchAllTables,
-            boolean searchAllRoutines) {
-        return this.getDatabase(new PhysicalSchema(physicalSchema), schemaInfoLevel, searchAllTables, searchAllRoutines);
     }
 
     @Override
@@ -117,35 +115,60 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
         try (Connection conn = this.ds.getConnection()) {
             this.dbMetadataDialect.setSchemaOnConnection(conn, physicalSchema);
 
-            SchemaCrawlerOptions options = new SchemaCrawlerOptions();
+            SchemaCrawlerOptionsBuilder options = SchemaCrawlerOptionsBuilder.builder();
+
             // Set what details are required in the schema - this affects the time taken to crawl the schema
             // Standard works for our use cases (e.g. columns, indices, pks)
-            options.setSchemaInfoLevel(toInfoLevel(schemaInfoLevel));
+            SchemaInfoLevelBuilder schemaInfoLevelBuilder = toInfoLevelBuilder(schemaInfoLevel);
+            this.dbMetadataDialect.updateSchemaInfoLevelBuilder(schemaInfoLevelBuilder);
+            options.withLoadOptions(LoadOptionsBuilder.builder().withSchemaInfoLevel(schemaInfoLevelBuilder.toOptions()).toOptions());
 
-            DatabaseSpecificOverrideOptionsBuilder dbSpecificOptionsBuilder = dbMetadataDialect.getDbSpecificOptionsBuilder(conn, physicalSchema, searchAllTables);
-            DatabaseSpecificOverrideOptions dbSpecificOptions = dbSpecificOptionsBuilder.toOptions();
-            this.enrichSchemaCrawlerOptions(conn, options, physicalSchema, tableName, procedureName);
+            SchemaRetrievalOptionsBuilder dbSpecificOptionsBuilder = dbMetadataDialect.getDbSpecificOptionsBuilder(conn, physicalSchema, searchAllTables);
+            MutableMap<InformationSchemaKey, String> infoSchemaSqlOverrides = dbMetadataDialect.getInfoSchemaSqlOverrides(physicalSchema);
+            if (infoSchemaSqlOverrides != null) {
+                MutableMap<String, String> convertedInfoSchemaSqlOverrides = infoSchemaSqlOverrides.collect((key, value) -> Tuples.pair(key.getLookupKey(), value));
+                dbSpecificOptionsBuilder.withInformationSchemaViews(convertedInfoSchemaSqlOverrides);
+            }
+            SchemaRetrievalOptions dbSpecificOptions = dbSpecificOptionsBuilder.toOptions();
 
-            if (tableName == null && procedureName != null && !searchAllTables) {
-                options.setTableInclusionRule(new ExcludeAll());
+            LimitOptionsBuilderFixed limitOptions = LimitOptionsBuilderFixed.builder();
+            this.dbMetadataDialect.updateLimitOptionsBuilder(limitOptions);
+
+            String schemaExpression = Objects.requireNonNull(this.dbMetadataDialect.getSchemaExpression(physicalSchema), "Schema expression was not returned for schema " + physicalSchema + " by " + dbMetadataDialect);
+            limitOptions.includeSchemas(new RegularExpressionInclusionRule(schemaExpression));
+
+            if (tableName != null) {
+                limitOptions.includeTables(new RegularExpressionInclusionRule(this.dbMetadataDialect.getTableExpression(physicalSchema, tableName)));
+            } else if (searchAllTables) {
+                limitOptions.includeTables(new IncludeAll());
+            } else {
+                limitOptions.includeTables(new ExcludeAll());
             }
-            if (procedureName == null && tableName != null && !searchAllProcedures) {
-                options.setRoutineInclusionRule(new ExcludeAll());
+
+            if (procedureName != null) {
+                limitOptions.includeRoutines(new RegularExpressionInclusionRule(this.dbMetadataDialect.getRoutineExpression(physicalSchema, procedureName)));
+            } else if (searchAllProcedures) {
+                limitOptions.includeRoutines(new IncludeAll());
+            } else {
+                limitOptions.includeRoutines(new ExcludeAll());
             }
+
             if (schemaInfoLevel.isRetrieveSequences()) {
-                options.setSequenceInclusionRule(new IncludeAll());
+                limitOptions.includeSequences(new IncludeAll());
             }
             if (schemaInfoLevel.isRetrieveSynonyms()) {
-                options.setSynonymInclusionRule(new IncludeAll());
+                limitOptions.includeSynonyms(new IncludeAll());
             }
+
+            options.withLimitOptions(limitOptions.toOptions());
 
             LOG.debug("Starting query for DB metadata for {}/{}/{}/{}", tableName, procedureName,
                     searchAllTables ? "searching all tables" : "", searchAllProcedures ? "searching all procedures" : "");
 
             final Catalog database;
             try {
-                final SchemaCrawler schemaCrawler = new SchemaCrawler(conn, dbSpecificOptions);
-                database = schemaCrawler.crawl(options);
+                final SchemaCrawler schemaCrawler = new SchemaCrawler(conn, dbSpecificOptions, options.toOptions());
+                database = schemaCrawler.crawl();
             } catch (SchemaCrawlerException e) {
                 throw new IllegalArgumentException("Could not lookup schema " + physicalSchema + ": " + e.getMessage(), e);
             }
@@ -167,41 +190,36 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
 
             ImmutableCollection<ExtraIndexInfo> extraConstraintIndices = schemaInfoLevel.isRetrieveTableCheckConstraints()
                     ? dbMetadataDialect.searchExtraConstraintIndices(schema, tableName, conn)
-                    : Lists.immutable.<ExtraIndexInfo>empty();
-            Multimap<String, ExtraIndexInfo> constraintIndices = extraConstraintIndices.groupBy(new Function<ExtraIndexInfo, String>() {
-                @Override
-                public String valueOf(ExtraIndexInfo object) {
-                    return object.getTableName();
-                }
-            });
+                    : Lists.immutable.empty();
+            Multimap<String, ExtraIndexInfo> constraintIndices = extraConstraintIndices.groupBy(ExtraIndexInfo::getTableName);
 
             ImmutableCollection<ExtraRerunnableInfo> extraViewInfo = schemaInfoLevel.isRetrieveViewDetails()
                     ? dbMetadataDialect.searchExtraViewInfo(schema, tableName, conn)
-                    : Lists.immutable.<ExtraRerunnableInfo>empty();
+                    : Lists.immutable.empty();
 
             DaRoutineType routineOverrideValue = dbMetadataDialect.getRoutineOverrideValue();
 
             ImmutableCollection<RuleBinding> ruleBindings = schemaInfoLevel.isRetrieveRuleBindings()
                     ? dbMetadataDialect.getRuleBindings(schema, conn)
-                    : Lists.immutable.<RuleBinding>empty();
+                    : Lists.immutable.empty();
             ImmutableCollection<DaRule> rules = schemaInfoLevel.isRetrieveRules()
                     ? dbMetadataDialect.searchRules(schema, conn)
-                    : Lists.immutable.<DaRule>empty();
+                    : Lists.immutable.empty();
             ImmutableCollection<DaUserType> userTypes = schemaInfoLevel.isRetrieveUserDefinedColumnDataTypes()
                     ? dbMetadataDialect.searchUserTypes(schema, conn)
-                    : Lists.immutable.<DaUserType>empty();
+                    : Lists.immutable.empty();
             ImmutableCollection<DaPackage> packages = schemaInfoLevel.isRetrieveRoutines()
                     ? dbMetadataDialect.searchPackages(schema, procedureName, conn)
-                    : Lists.immutable.<DaPackage>empty();
+                    : Lists.immutable.empty();
 
             return new DaCatalogImpl(database, schemaStrategy, userTypes, rules, ruleBindings, extraRoutines, constraintIndices, extraViewInfo, routineOverrideValue, packages);
-        } catch (SQLException e) {
+        } catch (SQLException | IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private SchemaInfoLevel toInfoLevel(DaSchemaInfoLevel schemaInfoLevel) {
-        SchemaInfoLevel otherInfoLevel = new SchemaInfoLevel();
+    private SchemaInfoLevelBuilder toInfoLevelBuilder(DaSchemaInfoLevel schemaInfoLevel) {
+        SchemaInfoLevelBuilder otherInfoLevel = SchemaInfoLevelBuilder.builder();
 
         otherInfoLevel.setRetrieveDatabaseInfo(true);
         //otherInfoLevel.setRetrieveJdbcDriverInfo(false);  // would prefer to add this back due to issues w/ Sybase ASE; requires followup w/ SchemaCrawler team
@@ -227,7 +245,7 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
         // routines
         otherInfoLevel.setRetrieveRoutines(schemaInfoLevel.isRetrieveRoutines());
         otherInfoLevel.setRetrieveRoutineInformation(schemaInfoLevel.isRetrieveRoutineDetails());
-        otherInfoLevel.setRetrieveRoutineColumns(schemaInfoLevel.isRetrieveRoutineDetails());
+//        otherInfoLevel.setRetrieveRoutineColumns(schemaInfoLevel.isRetrieveRoutineDetails());  // deprecated in SchemaCrawler 16
 
         // sequences
         otherInfoLevel.setRetrieveSequenceInformation(schemaInfoLevel.isRetrieveSequences());
@@ -250,12 +268,6 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
     }
 
     @Override
-    public DaCatalog getDatabase(String physicalSchema) {
-        return getDatabaseOptional(physicalSchema);
-    }
-
-    @Override
-    @Deprecated
     public DaCatalog getDatabaseOptional(String physicalSchema) {
         return getDatabaseOptional(new PhysicalSchema(physicalSchema));
     }
@@ -270,20 +282,8 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
     }
 
     @Override
-    @Deprecated
-    public DaTable getTableInfo(String physicalSchema, String tableName) {
-        return this.getTableInfo(new PhysicalSchema(physicalSchema), tableName);
-    }
-
-    @Override
     public DaTable getTableInfo(PhysicalSchema physicalSchema, String tableName) {
         return this.getTableInfo(physicalSchema, tableName, new DaSchemaInfoLevel().setRetrieveTables(true));
-    }
-
-    @Override
-    @Deprecated
-    public DaTable getTableInfo(String physicalSchema, String tableName, DaSchemaInfoLevel schemaInfoLevel) {
-        return this.getTableInfo(new PhysicalSchema(physicalSchema), tableName, schemaInfoLevel);
     }
 
     @Override
@@ -302,20 +302,8 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
     }
 
     @Override
-    @Deprecated
-    public ImmutableCollection<DaRoutine> getProcedureInfo(String physicalSchema, String procedureName) {
-        return getRoutineInfo(new PhysicalSchema(physicalSchema), procedureName);
-    }
-
-    @Override
     public ImmutableCollection<DaRoutine> getRoutineInfo(PhysicalSchema physicalSchema, String routineName) {
         return getRoutineInfo(physicalSchema, routineName, new DaSchemaInfoLevel().setRetrieveRoutineDetails(true));
-    }
-
-    @Override
-    @Deprecated
-    public ImmutableCollection<DaRoutine> getProcedureInfo(String physicalSchema, String procedureName, DaSchemaInfoLevel schemaInfoLevel) {
-        return getRoutineInfo(new PhysicalSchema(physicalSchema), procedureName, schemaInfoLevel);
     }
 
     @Override
@@ -358,20 +346,6 @@ public class DbMetadataManagerImpl implements DbMetadataManager {
             return this.dbMetadataDialect.getExtensionsOptional(conn);
         } catch (SQLException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    private void enrichSchemaCrawlerOptions(Connection conn, SchemaCrawlerOptions options, PhysicalSchema physicalSchema, String tableName,
-            String procedureName) {
-        this.dbMetadataDialect.customEdits(options, conn);
-
-        String schemaExpression = Objects.requireNonNull(this.dbMetadataDialect.getSchemaExpression(physicalSchema), "Schema expression was not returned for schema " + physicalSchema + " by " + dbMetadataDialect);
-        options.setSchemaInclusionRule(new RegularExpressionInclusionRule(schemaExpression));
-        if (tableName != null) {
-            options.setTableInclusionRule(new RegularExpressionInclusionRule(this.dbMetadataDialect.getTableExpression(physicalSchema, tableName)));
-        }
-        if (procedureName != null) {
-            options.setRoutineInclusionRule(new RegularExpressionInclusionRule(this.dbMetadataDialect.getRoutineExpression(physicalSchema, procedureName)));
         }
     }
 }

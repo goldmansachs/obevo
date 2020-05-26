@@ -15,6 +15,8 @@
  */
 package com.gs.obevo.dbmetadata.impl;
 
+import java.util.List;
+
 import com.gs.obevo.dbmetadata.api.DaColumn;
 import com.gs.obevo.dbmetadata.api.DaIndex;
 import com.gs.obevo.dbmetadata.api.DaIndexType;
@@ -25,55 +27,53 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.impl.list.mutable.ListAdapter;
+import schemacrawler.schema.Column;
+import schemacrawler.schema.DependantObject;
 import schemacrawler.schema.Index;
-import schemacrawler.schema.IndexColumn;
-import schemacrawler.schema.IndexType;
+import schemacrawler.schema.PrimaryKey;
+import schemacrawler.schema.Table;
+
+import static schemacrawler.schema.IndexType.clustered;
 
 public class DaIndexImpl implements DaIndex {
-    private final Index index;
-    private final ExtraIndexInfo extraIndexInfo;
+    private final DependantObject<Table> index;
+    private final ImmutableList<DaColumn> columns;
+    private final boolean unique;
+    private final DaIndexType indexType;
     private final SchemaStrategy schemaStrategy;
 
     public DaIndexImpl(Index index, SchemaStrategy schemaStrategy, ExtraIndexInfo extraIndexInfo) {
+        this(index, index.getColumns(), schemaStrategy, index.isUnique(), getIndexType(index, extraIndexInfo));
+    }
+
+    public DaIndexImpl(PrimaryKey index, SchemaStrategy schemaStrategy, ExtraIndexInfo extraIndexInfo) {
+        this(index, index.getColumns(), schemaStrategy, true, DaIndexType.OTHER);
+    }
+
+    private DaIndexImpl(DependantObject<Table> index, List<? extends Column> columns, SchemaStrategy schemaStrategy, boolean unique, DaIndexType indexType) {
         this.index = Validate.notNull(index);
+        Validate.notNull(schemaStrategy);
+        this.columns = ListAdapter.adapt(columns)
+                .collect((Function<Column, DaColumn>) object -> new DaColumnImpl(object, schemaStrategy))
+                .toImmutable();
         this.schemaStrategy = Validate.notNull(schemaStrategy);
-        this.extraIndexInfo = extraIndexInfo;
+        this.unique = unique;
+        this.indexType = indexType;
     }
 
     @Override
     public boolean isUnique() {
-        return index.isUnique();
+        return unique;
     }
 
     @Override
     public ImmutableList<DaColumn> getColumns() {
-        try {
-            return ListAdapter.adapt(index.getColumns())
-                    .collect(new Function<IndexColumn, DaColumn>() {
-                        @Override
-                        public DaColumn valueOf(IndexColumn object) {
-                            return new DaColumnImpl(object, schemaStrategy);
-                        }
-                    })
-                    .toImmutable();
-        } catch (NullPointerException exc) {
-            throw exc;
-        }
+        return columns;
     }
 
     @Override
     public DaIndexType getIndexType() {
-        if ((this.extraIndexInfo != null && this.extraIndexInfo.isClustered()) || this.index.getIndexType() == IndexType
-                .clustered) {
-            return DaIndexType.CLUSTERED;
-        } else {
-            switch (this.index.getIndexType()) {
-            case clustered:
-                return DaIndexType.CLUSTERED;
-            default:
-                return DaIndexType.OTHER;
-            }
-        }
+        return indexType;
     }
 
     @Override
@@ -110,5 +110,18 @@ public class DaIndexImpl implements DaIndex {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
                 .append("index", index)
                 .toString();
+    }
+
+    private static DaIndexType getIndexType(Index index, ExtraIndexInfo extraIndexInfo) {
+        if ((extraIndexInfo != null && extraIndexInfo.isClustered()) || index.getIndexType() == clustered) {
+            return DaIndexType.CLUSTERED;
+        } else {
+            switch (index.getIndexType()) {
+            case clustered:
+                return DaIndexType.CLUSTERED;
+            default:
+                return DaIndexType.OTHER;
+            }
+        }
     }
 }

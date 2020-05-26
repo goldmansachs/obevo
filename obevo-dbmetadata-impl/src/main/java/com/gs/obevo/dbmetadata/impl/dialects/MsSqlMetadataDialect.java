@@ -37,8 +37,6 @@ import com.gs.obevo.dbmetadata.impl.SchemaStrategy;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.apache.commons.lang3.ObjectUtils;
-import org.eclipse.collections.api.block.function.Function;
-import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
@@ -49,7 +47,7 @@ import org.eclipse.collections.impl.list.mutable.ListAdapter;
 import schemacrawler.schema.Catalog;
 import schemacrawler.schema.RoutineType;
 import schemacrawler.schema.Schema;
-import schemacrawler.schemacrawler.SchemaCrawlerOptions;
+import schemacrawler.schemacrawler.LimitOptionsBuilderFixed;
 
 /**
  * Metadata dialect for MS SQL.
@@ -60,11 +58,11 @@ import schemacrawler.schemacrawler.SchemaCrawlerOptions;
  */
 public class MsSqlMetadataDialect extends AbstractMetadataDialect {
     @Override
-    public void customEdits(SchemaCrawlerOptions options, Connection conn) {
+    public void updateLimitOptionsBuilder(LimitOptionsBuilderFixed options) {
         // MS SQL driver supports SP metadata, but not functions. As a result, we must disable SchemaCrawler's own
         // lookups entirely and use our own query. (SchemaCrawler's inherent behavior for the SQL only adds to existing
         // routine data, not loading in entire new ones).
-        options.setRoutineTypes(Lists.mutable.<RoutineType>empty());
+        options.routineTypes(Lists.mutable.<RoutineType>empty());
     }
 
     @Override
@@ -80,12 +78,7 @@ public class MsSqlMetadataDialect extends AbstractMetadataDialect {
 
     @Override
     public void validateDatabase(Catalog database, final PhysicalSchema physicalSchema) {
-        MutableCollection<Schema> schemasWithIncorrectCatalog = CollectionAdapter.adapt(database.getSchemas()).reject(new Predicate<Schema>() {
-            @Override
-            public boolean accept(Schema each) {
-                return each.getCatalogName().equals(physicalSchema.getPhysicalName());
-            }
-        });
+        MutableCollection<Schema> schemasWithIncorrectCatalog = CollectionAdapter.adapt(database.getSchemas()).reject(each -> each.getCatalogName().equals(physicalSchema.getPhysicalName()));
 
         if (schemasWithIncorrectCatalog.notEmpty()) {
             throw new IllegalArgumentException("Returned ASE schemas should be in " + physicalSchema.getPhysicalName() + " catalog; however, these were not: " + schemasWithIncorrectCatalog);
@@ -149,18 +142,15 @@ public class MsSqlMetadataDialect extends AbstractMetadataDialect {
                 nameClause;
         ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(jdbc.query(conn, query, new MapListHandler())).toImmutable();
 
-        return maps.collect(new Function<Map<String, Object>, DaRoutine>() {
-            @Override
-            public DaRoutine valueOf(Map<String, Object> object) {
-                DaRoutineType routineType = DaRoutineType.valueOf(((String) object.get("ROUTINE_TYPE")).toLowerCase());
-                return new DaRoutinePojoImpl(
-                        (String) object.get("ROUTINE_NAME"),
-                        schema,
-                        routineType,
-                        (String) object.get("SPECIFIC_NAME"),
-                        (String) object.get("ROUTINE_DEFINITION")
-                );
-            }
+        return maps.collect(object -> {
+            DaRoutineType routineType = DaRoutineType.valueOf(((String) object.get("ROUTINE_TYPE")).toLowerCase());
+            return new DaRoutinePojoImpl(
+                    (String) object.get("ROUTINE_NAME"),
+                    schema,
+                    routineType,
+                    (String) object.get("SPECIFIC_NAME"),
+                    (String) object.get("ROUTINE_DEFINITION")
+            );
         });
     }
 
@@ -179,12 +169,7 @@ public class MsSqlMetadataDialect extends AbstractMetadataDialect {
                 ")\n";
         ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(jdbc.query(conn, sql, new MapListHandler())).toImmutable();
 
-        return maps.collect(new Function<Map<String, Object>, DaRule>() {
-            @Override
-            public DaRule valueOf(Map<String, Object> map) {
-                return new DaRuleImpl((String) map.get("RULE_NAME"), schema);
-            }
-        });
+        return maps.collect(map -> new DaRuleImpl((String) map.get("RULE_NAME"), schema));
     }
 
     @Override
@@ -195,12 +180,7 @@ public class MsSqlMetadataDialect extends AbstractMetadataDialect {
                 "AND DOMAIN_SCHEMA = '" + schema.getSubschemaName() + "'";
         ImmutableList<Map<String, Object>> maps = ListAdapter.adapt(jdbc.query(conn, sql, new MapListHandler())).toImmutable();
 
-        return maps.collect(new Function<Map<String, Object>, DaUserType>() {
-            @Override
-            public DaUserType valueOf(Map<String, Object> map) {
-                return new DaUserTypeImpl((String) map.get("USER_TYPE_NAME"), schema);
-            }
-        });
+        return maps.collect(map -> new DaUserTypeImpl((String) map.get("USER_TYPE_NAME"), schema));
     }
 
     @Override

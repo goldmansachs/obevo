@@ -15,6 +15,7 @@
  */
 package com.gs.obevo.dbmetadata.impl.dialects;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -40,9 +41,8 @@ import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.impl.collection.mutable.CollectionAdapter;
 import org.eclipse.collections.impl.factory.Lists;
 import schemacrawler.schema.Catalog;
-import schemacrawler.schemacrawler.DatabaseSpecificOverrideOptionsBuilder;
-import schemacrawler.schemacrawler.SchemaCrawlerException;
-import schemacrawler.schemacrawler.SchemaCrawlerOptions;
+import schemacrawler.schemacrawler.SchemaCrawlerOptionsBuilder;
+import schemacrawler.schemacrawler.SchemaRetrievalOptionsBuilder;
 import schemacrawler.tools.databaseconnector.DatabaseConnector;
 import schemacrawler.tools.databaseconnector.DatabaseConnectorRegistry;
 
@@ -50,22 +50,10 @@ public abstract class AbstractMetadataDialect implements DbMetadataDialect {
     protected final JdbcHelper jdbc = new JdbcHelper();
 
     @Override
-    public DatabaseSpecificOverrideOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema, boolean searchAllTables) {
-        try {
-            DatabaseConnectorRegistry registry = new DatabaseConnectorRegistry();
-            DatabaseConnector databaseConnector = registry.lookupDatabaseConnector(conn);
-            return databaseConnector.getDatabaseSpecificOverrideOptionsBuilder();
-        } catch (SchemaCrawlerException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public void customEdits(SchemaCrawlerOptions options, Connection conn) {
-    }
-
-    @Override
-    public void setSchemaOnConnection(Connection conn, PhysicalSchema physicalSchema) {
+    public SchemaRetrievalOptionsBuilder getDbSpecificOptionsBuilder(Connection conn, PhysicalSchema physicalSchema, boolean searchAllTables) throws IOException {
+        DatabaseConnectorRegistry registry = DatabaseConnectorRegistry.getDatabaseConnectorRegistry();
+        DatabaseConnector databaseConnector = registry.lookupDatabaseConnector(conn);
+        return databaseConnector.getSchemaRetrievalOptionsBuilder(conn);
     }
 
     /**

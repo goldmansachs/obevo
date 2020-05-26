@@ -35,8 +35,7 @@
     </description>
 
     <properties>
-        <schemacrawler.version>14.16.04-java7</schemacrawler.version>
-        <schemacrawler-iq.version>14.16.03-java7</schemacrawler-iq.version>  <!-- IQ is maintained as a separate product; hence the separate version -->
+        <schemacrawler.version>16.9.1</schemacrawler.version>
     </properties>
 
     <build>
@@ -63,11 +62,27 @@
                 <groupId>us.fatehi</groupId>
                 <artifactId>schemacrawler-db2</artifactId>
                 <version>${schemacrawler.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.ibm.db2</groupId>
+                        <artifactId>jcc</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>us.fatehi</groupId>
+                        <artifactId>schemacrawler-commandline</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>us.fatehi</groupId>
                 <artifactId>schemacrawler-oracle</artifactId>
                 <version>${schemacrawler.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>us.fatehi</groupId>
+                        <artifactId>schemacrawler-commandline</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>us.fatehi</groupId>
@@ -79,12 +94,11 @@
                         <groupId>mysql</groupId>
                         <artifactId>mysql-connector-java</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>us.fatehi</groupId>
+                        <artifactId>schemacrawler-commandline</artifactId>
+                    </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>us.fatehi</groupId>
-                <artifactId>schemacrawler-sybaseiq</artifactId>
-                <version>${schemacrawler-iq.version}</version>
             </dependency>
             <dependency>
                 <groupId>us.fatehi</groupId>
@@ -94,6 +108,10 @@
                     <exclusion>
                         <groupId>org.postgresql</groupId>
                         <artifactId>postgresql</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>us.fatehi</groupId>
+                        <artifactId>schemacrawler-commandline</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -106,6 +124,14 @@
                         <groupId>com.microsoft.sqlserver</groupId>
                         <artifactId>mssql-jdbc</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>com.microsoft.sqlserver</groupId>
+                        <artifactId>mssql-jdbc_auth</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>us.fatehi</groupId>
+                        <artifactId>schemacrawler-commandline</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -116,6 +142,21 @@
                     <exclusion>
                         <groupId>org.hsqldb</groupId>
                         <artifactId>hsqldb</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>us.fatehi</groupId>
+                        <artifactId>schemacrawler-commandline</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>us.fatehi</groupId>
+                <artifactId>schemacrawler-sapiq</artifactId>
+                <version>${schemacrawler.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>us.fatehi</groupId>
+                        <artifactId>schemacrawler-commandline</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -187,7 +228,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-configuration2</artifactId>
-                <version>2.2</version>
+                <version>2.7</version>
                 <exclusions>
                     <exclusion>
                         <!-- replaced by slf4j -->
@@ -195,6 +236,11 @@
                         <artifactId>commons-logging</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-text</artifactId>
+                <version>1.8</version>
             </dependency>
             <dependency>
                 <groupId>commons-beanutils</groupId>

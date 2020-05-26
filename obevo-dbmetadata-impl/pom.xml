@@ -85,10 +85,6 @@
         </dependency>
         <dependency>
             <groupId>us.fatehi</groupId>
-            <artifactId>schemacrawler-sybaseiq</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>us.fatehi</groupId>
             <artifactId>schemacrawler-postgresql</artifactId>
         </dependency>
         <dependency>
@@ -106,6 +102,10 @@
         <dependency>
             <groupId>us.fatehi</groupId>
             <artifactId>schemacrawler-mysql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>us.fatehi</groupId>
+            <artifactId>schemacrawler-sapiq</artifactId>
         </dependency>
 
 
