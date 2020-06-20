@@ -1,5 +1,16 @@
 # Change Log
 
+## 8.1.2
+
+### Functionality Improvements
+
+Added MSSQL to the list of platforms to clarify that it is an option
+
+### Technical Improvements
+
+Updated the MSSQL reverse engineer PS script to interpret null username and password as integrated auth when creating the connection object
+
+
 ## 8.1.1
 
 ### Bug Fixes
