@@ -10,6 +10,3 @@ The Apache Software Foundation (http://www.apache.org/).
 Each module in this project has a NOTICE.txt file denoting the module's own dependencies.
 
 This product depends on (links to) the following software:
-
-
-This product contains code copyright Michael J Lee, licensed under Apache 2.0 license
