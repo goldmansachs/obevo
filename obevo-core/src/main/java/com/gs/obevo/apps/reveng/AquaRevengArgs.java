@@ -13,6 +13,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+//Portions copyright Michael J Lee. Licensed under Apache 2.0 license
+
 package com.gs.obevo.apps.reveng;
 
 import java.io.File;
@@ -153,7 +156,7 @@ public class AquaRevengArgs {
         this.platform = PlatformConfiguration.getInstance().valueOf(dbType.toUpperCase());
     }
 
-    @Argument(value = "platform", required = false, description = "Defines the platform to reverse engineer to. Use values [H2, HSQL, SYBASE_IQ, DB2, SYBASE_ASE, POSTGRESQL, MONGODB]")
+    @Argument(value = "platform", required = false, description = "Defines the platform to reverse engineer to. Use values [H2, HSQL, SYBASE_IQ, DB2, SYBASE_ASE, POSTGRESQL, MONGODB, MSSQL]")
     public void setPlatformStr(String platformStr) {
         this.platform = PlatformConfiguration.getInstance().valueOf(platformStr.toUpperCase());
     }

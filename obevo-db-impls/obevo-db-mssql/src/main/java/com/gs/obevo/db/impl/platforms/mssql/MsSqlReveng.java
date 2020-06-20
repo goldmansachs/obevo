@@ -13,6 +13,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+//Portions copyright Michael J Lee. Licensed under Apache 2.0 license
+
 package com.gs.obevo.db.impl.platforms.mssql;
 
 import java.io.File;
@@ -87,13 +90,13 @@ public class MsSqlReveng extends AbstractDdlReveng {
 
     @Override
     protected boolean doRevengOrInstructions(PrintStream out, AquaRevengArgs args, File interimDir) {
-        out.println("1) Download the powershell script from: https://github.com/goldmansachs/obevo/tree/master/obevo-db-impls/obevo-db-mssql/src/main/resources/SqlServerDdlReveng.ps1");
+        out.println("1) Download the powershell script from: https://github.com/goldmansachs/obevo/tree/master/obevo-db-impls/obevo-db-mssql/src/main/resources/SqlServerDdlRevEng.ps1");
         out.println("");
         out.println("2) Open a powershell prompt (assuming you have one installed):");
         out.println("");
         out.println("3) Source the script, e.g.:");
         out.println("");
-        out.println("    . .\\SqlServerDdlReveng.ps1");
+        out.println("    . .\\SqlServerDdlRevEng.ps1");
         out.println("");
         out.println("4) Run the following command to generate the DDL file:");
         out.println(getCommandWithDefaults(args, "<username>", "<password>", "<dbHost>", "<database>", "<outputFile>"));
@@ -125,7 +128,7 @@ public class MsSqlReveng extends AbstractDdlReveng {
     }
 
     private String getCommandWithDefaults(AquaRevengArgs args, String username, String password, String dbHost, String dbSchema, String outputFile) {
-        return "    SqlServerDdlReveng " +
+        return "    SqlServerDdlRevEng " +
                 " " + ObjectUtils.defaultIfNull(args.getOutputPath(), outputFile) +
                 " " + ObjectUtils.defaultIfNull(args.getDbHost(), dbHost) +
                 " " + ObjectUtils.defaultIfNull(args.getDbSchema(), dbSchema) +

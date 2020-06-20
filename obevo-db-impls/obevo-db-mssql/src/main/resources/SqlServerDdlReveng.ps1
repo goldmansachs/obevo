@@ -12,16 +12,24 @@ software distributed under the License is distributed on an
 KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
+
+Portions copyright Michael J Lee. Licensed under Apache 2.0 license
 #>
 
 <#
 Some code used from: https://blogs.technet.microsoft.com/heyscriptingguy/2010/11/04/use-powershell-to-script-sql-database-objects/
 #>
-function global:SqlServerDdlReveng([string]$SavePath, [string]$server, [string]$dbname, [string]$username, [string]$password) {
+function global:SqlServerDdlRevEng([string]$SavePath, [string]$server, [string]$dbname, [string]$username, [string]$password) {
 
     [System.Reflection.Assembly]::LoadWithPartialName("Microsoft.SqlServer.SMO") | out-null
 
-    $serverConnection = New-Object ('Microsoft.SqlServer.Management.Common.ServerConnection') -argumentlist $server, $username, $password
+    # If the username and password are null, then just assume you are trying to connect via Integrated Auth
+    # otherwise a null value raises an annoying error
+    If($username -and $password) {
+        $serverConnection = New-Object ('Microsoft.SqlServer.Management.Common.ServerConnection') -argumentlist $server, $username, $password
+    } Else {
+        $serverConnection = New-Object ('Microsoft.SqlServer.Management.Common.ServerConnection') -argumentlist $server
+    }
 
     $SMOserver = New-Object ('Microsoft.SqlServer.Management.Smo.Server') -argumentlist $serverConnection
 
@@ -95,9 +103,9 @@ function global:SqlServerDdlReveng([string]$SavePath, [string]$server, [string]$
         $scriptr.Options.Encoding = $enc
 
 
-
         #This is where each object actually gets scripted one at a time.
 
         $scriptr.Script($ScriptThis)
     }
 }
+
