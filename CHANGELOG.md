@@ -1,14 +1,18 @@
 # Change Log
 
-## 8.1.2
+## 8.2.0
 
 ### Functionality Improvements
 
-Added MSSQL to the list of platforms to clarify that it is an option
+Updated the MSSQL reverse engineer PS script to interpret null username and password as integrated auth when creating the connection object
 
 ### Technical Improvements
 
-Updated the MSSQL reverse engineer PS script to interpret null username and password as integrated auth when creating the connection object
+Upgrading to the latest SchemaCrawler version (16.9.1)
+
+Upgrading dependencies to avoid dependency vulnerability issues (notably for Apache Commons Configuration)
+
+Added MSSQL to the list of platforms to clarify that it is an option
 
 
 ## 8.1.1

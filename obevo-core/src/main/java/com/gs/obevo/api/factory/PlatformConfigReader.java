@@ -21,9 +21,9 @@ import com.gs.obevo.api.platform.DeployerRuntimeException;
 import com.gs.obevo.util.vfs.FileObject;
 import com.gs.obevo.util.vfs.FileRetrievalMode;
 import org.apache.commons.configuration2.CombinedConfiguration;
-import org.apache.commons.configuration2.FixedYAMLConfiguration;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.ImmutableHierarchicalConfiguration;
+import org.apache.commons.configuration2.YAMLConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.ex.ConfigurationException;
@@ -178,7 +178,7 @@ class PlatformConfigReader {
 
     private HierarchicalConfiguration<ImmutableNode> loadPropertiesFromUrl(FileObject file) {
         try {
-            return new FileBasedConfigurationBuilder<>(FixedYAMLConfiguration.class)
+            return new FileBasedConfigurationBuilder<>(YAMLConfiguration.class)
                     .configure(new Parameters().hierarchical().setURL(file.getURLDa()))
                     .getConfiguration();
         } catch (ConfigurationException e) {
