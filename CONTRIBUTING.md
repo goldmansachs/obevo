@@ -64,7 +64,13 @@ To contribute a test case follow the same process as contributing a feature.
 # Making changes
 Fork the repository in GitHub and make changes in your fork.
 
-Please add a description of your changes to the [Change Log](CHANGELOG.md).
+Please add a description of your changes to the [Change Log](CHANGELOG.md), categorized as follows:
+
+| | |
+| --- | --- |
+| Functionality Improvements | Any change that can be directly felt by an end-user |
+| Technical Improvements | Behind-the-scenes improvements, e.g. dependency upgrades, documentation |
+| Bug Fixes | self-explanatory |
 
 Before you submit your first pull request, please first submit a DCO, per the instructions in the last section on this page.
 
@@ -72,9 +78,12 @@ Finally, submit a pull request. In your pull requests:
 * Make sure you [rebase your fork](https://github.com/edx/edx-platform/wiki/How-to-Rebase-a-Pull-Request) so that pull requests can be fast-forward merges.
 * We generally prefer squashed commits, unless multi-commits add clarity or are required for mixed copyright commits.
 * Your commit message for your code must contain a `covered by: <dco>` line. See above.
-* Every file you modify should contain a single line with copyright information after the Apache header:
+* Every file you modify should contain a single line with copyright information after the Apache header (surround it by block quotes
+in case Checkstyle complains):
 ```
-//Portions copyright <copyright holder>. Licensed under Apache 2.0 license
+/*
+// Portions copyright <copyright holder>. Licensed under Apache 2.0 license
+*/
 ```
 * New files must contain the standard Apache 2.0 header with appropriate copyright holder.
 * If you're going to contribute code from other open source projects, commit that code first with `covered by: <license>`

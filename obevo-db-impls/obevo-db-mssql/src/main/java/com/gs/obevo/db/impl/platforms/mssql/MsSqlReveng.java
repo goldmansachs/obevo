@@ -14,7 +14,9 @@
  * under the License.
  */
 
-//Portions copyright Michael J Lee. Licensed under Apache 2.0 license
+/*
+// Portions copyright Michael J Lee. Licensed under Apache 2.0 license
+*/
 
 package com.gs.obevo.db.impl.platforms.mssql;
 
