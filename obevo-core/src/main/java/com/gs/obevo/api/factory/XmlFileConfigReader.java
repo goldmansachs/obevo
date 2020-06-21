@@ -19,9 +19,9 @@ import java.util.List;
 
 import com.gs.obevo.api.platform.DeployerRuntimeException;
 import com.gs.obevo.util.vfs.FileObject;
-import org.apache.commons.configuration2.FixedYAMLConfiguration;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.XMLConfiguration;
+import org.apache.commons.configuration2.YAMLConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.convert.DisabledListDelimiterHandler;
@@ -83,7 +83,7 @@ public class XmlFileConfigReader implements FileConfigReader {
                 postProcess(configuration);
                 return configuration;
             } else {
-                return new FileBasedConfigurationBuilder<>(FixedYAMLConfiguration.class)
+                return new FileBasedConfigurationBuilder<>(YAMLConfiguration.class)
                         .configure(new Parameters().hierarchical()
                                 .setURL(envFileToRead.getURLDa())
                                 .setListDelimiterHandler(new DisabledListDelimiterHandler())

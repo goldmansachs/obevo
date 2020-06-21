@@ -33,10 +33,10 @@ import com.gs.obevo.db.api.appdata.ServerDirectory;
 import com.gs.obevo.db.api.appdata.User;
 import com.gs.obevo.util.vfs.FileObject;
 import com.gs.obevo.util.vfs.FileRetrievalMode;
-import org.apache.commons.configuration2.FixedYAMLConfiguration;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.apache.commons.configuration2.ImmutableHierarchicalConfiguration;
 import org.apache.commons.configuration2.XMLConfiguration;
+import org.apache.commons.configuration2.YAMLConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.tree.ImmutableNode;
@@ -440,7 +440,7 @@ public class DbEnvironmentXmlEnricherTest {
 
     @Test
     public void yamlTest() throws Exception {
-        ImmutableHierarchicalConfiguration configuration = new FileBasedConfigurationBuilder<>(FixedYAMLConfiguration.class)
+        ImmutableHierarchicalConfiguration configuration = new FileBasedConfigurationBuilder<>(YAMLConfiguration.class)
                 .configure(new Parameters().hierarchical()
                         .setFile(new File("./src/test/resources/DbEnvironmentXmlEnricher/system-config.yaml"))
 //                        .setFile(new File("./src/test/resources/DbEnvironmentXmlEnricher/system-config.xml"))
@@ -457,7 +457,7 @@ public class DbEnvironmentXmlEnricherTest {
 
         Map<String, Object> myMap = constructMap(configuration.getNodeModel().getNodeHandler().getRootNode());
 
-        FixedYAMLConfiguration yamlConfiguration = new FixedYAMLConfiguration(configuration);
+        YAMLConfiguration yamlConfiguration = new YAMLConfiguration(configuration);
         StringWriter sw = new StringWriter();
 //        yamlConfiguration.write();
         DumperOptions dumperOptions = new DumperOptions();
