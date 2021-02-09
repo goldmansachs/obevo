@@ -119,7 +119,7 @@ public class XmlFileConfigReader implements FileConfigReader {
                 "includeSchemas",
                 "excludeSchemas"
         );
-        ImmutableSet<String> ignorableSysNodes = Sets.immutable.of("excludeSchemas", "includeSchemas", "schemaOverrides", "tokens");
+        ImmutableSet<String> ignorableSysNodes = Sets.immutable.of("excludeSchemas", "includeSchemas", "schemaOverrides", "tokens", "runtimeEnvAttrs");
         final ImmutableSet<String> ignorableEnvNodes = Sets.immutable.of("groups", "users");
         final ImmutableSet<String> ignorableEnvAttributes = Sets.immutable.of("sourceDirs", "acceptedExtensions", "dataDelimiter", "nullToken");
 

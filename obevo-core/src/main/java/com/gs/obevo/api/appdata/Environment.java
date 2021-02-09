@@ -15,7 +15,11 @@
  */
 package com.gs.obevo.api.appdata;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.gs.obevo.api.factory.PlatformConfiguration;
 import com.gs.obevo.api.platform.DeployerAppContext;
@@ -43,6 +47,7 @@ public class Environment<T extends Platform> {
     private T platform;
     private boolean cleanBuildAllowed = false;
     private ImmutableMap<String, String> tokens = Maps.immutable.empty();
+    private ImmutableMap<String, String> runtimeEnvAttrs = Maps.immutable.empty();
     private String defaultUserId;
     private String defaultPassword;
     @Deprecated
@@ -68,6 +73,7 @@ public class Environment<T extends Platform> {
         this.platform = env.platform;
         this.cleanBuildAllowed = env.cleanBuildAllowed;
         this.tokens = env.tokens;
+        this.runtimeEnvAttrs = env.runtimeEnvAttrs;
         this.defaultUserId = env.defaultUserId;
         this.defaultPassword = env.defaultPassword;
         this.coreSourcePath = env.coreSourcePath;
@@ -135,6 +141,14 @@ public class Environment<T extends Platform> {
 
     public void setTokens(ImmutableMap<String, String> tokens) {
         this.tokens = tokens != null ? tokens : Maps.immutable.<String, String>empty();
+    }
+
+    public ImmutableMap<String, String> getRuntimeEnvAttrs() {
+        return this.runtimeEnvAttrs;
+    }
+
+    public void setRuntimeEnvAttrs(ImmutableMap<String, String> runtimeEnvAttrs) {
+        this.runtimeEnvAttrs = runtimeEnvAttrs != null ? runtimeEnvAttrs : Maps.immutable.<String, String>empty();
     }
 
     /**
