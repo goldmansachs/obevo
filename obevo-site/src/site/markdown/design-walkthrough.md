@@ -316,7 +316,7 @@ The following tables demonstrate an example:
                 </tr>
             </table>
         </td>
-        <td>change1 and change2 to be deployed</td>
+        <td>mynewChange3 and otherChange4 to be deployed</td>
         <td>
             <table>
                 <tr>
