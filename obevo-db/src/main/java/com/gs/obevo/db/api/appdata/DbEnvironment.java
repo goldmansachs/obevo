@@ -54,7 +54,6 @@ public class DbEnvironment extends Environment<DbPlatform> {
     private String dbDataSourceName;
     private String driverClassName;
     private String defaultTablespace;
-    private String secureConnectUrl;
 
     private ImmutableList<Group> groups = Lists.immutable.empty();
     private ImmutableList<User> users = Lists.immutable.empty();
@@ -107,7 +106,6 @@ public class DbEnvironment extends Environment<DbPlatform> {
         this.reorgCheckEnabled = env.reorgCheckEnabled;
         this.csvVersion = env.csvVersion;
         this.extraEnvAttrs = env.extraEnvAttrs;
-        this.secureConnectUrl = env.secureConnectUrl;
     }
 
     @Override
@@ -491,13 +489,5 @@ public class DbEnvironment extends Environment<DbPlatform> {
 
     public void setExtensions(ImmutableList<Extension> extensions) {
         this.extensions = extensions;
-    }
-    
-    public String getSecureConnectUrl() {
-        return secureConnectUrl;
-    }
-
-    public void setSecureConnectUrl(String secureConnectUrl) {
-        this.secureConnectUrl = secureConnectUrl;
     }
 }
