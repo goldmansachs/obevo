@@ -342,6 +342,8 @@ public class DbEnvironmentXmlEnricherTest {
 
         assertEquals("val", env1.getTokens().get("key"));
         assertEquals("val2", env1.getTokens().get("key2"));
+        assertEquals("abc.com", env1.getRuntimeEnvAttrs().get("secureConnectUrl"));
+
 
         assertEquals(Lists.mutable.of(
                 FileRetrievalMode.FILE_SYSTEM.resolveSingleFileObject("src/test/resources/DbEnvironmentXmlEnricher")

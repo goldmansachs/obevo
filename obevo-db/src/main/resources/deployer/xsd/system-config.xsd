@@ -80,6 +80,19 @@
                                                 </xs:sequence>
                                             </xs:complexType>
                                         </xs:element>
+                                        <xs:element name="runtimeEnvAttrs" minOccurs="0" maxOccurs="1">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="runtimeEnvAttr" minOccurs="0"
+                                                        maxOccurs="unbounded">
+                                                        <xs:complexType>
+                                                            <xs:attribute name="key" type="xs:string" />
+                                                            <xs:attribute name="value" type="xs:string" />
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                </xs:sequence>
+                                            </xs:complexType>
+                                        </xs:element>
                                         <xs:element name="permissions" minOccurs="0" maxOccurs="1" type="permissions" />
                                     </xs:sequence>
                                     <xs:attribute name="name" type="xs:string" use="required" />

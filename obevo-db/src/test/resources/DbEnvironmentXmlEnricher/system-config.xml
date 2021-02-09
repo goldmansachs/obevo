@@ -108,6 +108,9 @@
                 <token key="key2" value="val2" />
                 <token key="myProcGroupToken" value="detokenizedProcGroup" />
             </tokens>
+            <runtimeEnvAttrs>
+                <runtimeEnvAttr key="secureConnectUrl" value="abc.com" />
+            </runtimeEnvAttrs>
             <auditTableSql>env specific
 
                 sql

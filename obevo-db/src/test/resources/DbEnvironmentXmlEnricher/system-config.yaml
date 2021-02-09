@@ -109,6 +109,10 @@ environments:
         key: key2
       - value: detokenizedProcGroup
         key: myProcGroupToken
+    runtimeEnvAttrs:
+      runtimeEnvAttr:
+      - value: abc.com
+        key: secureConnectUrl
     checksumDetectionEnabled: 'true'
     dbServer: dbServ
     defaultPassword: defPass

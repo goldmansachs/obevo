@@ -130,6 +130,20 @@ public abstract class AbstractEnvironmentEnricher<E extends Environment> impleme
                 });
         dbEnv.setTokens(tokens.toImmutable());
 
+        MutableMap<String, String> runtimeEnvAttrs = iterConfig(envCfg, "runtimeEnvAttrs.runtimeEnvAttr")
+                .toMap(new Function<ImmutableHierarchicalConfiguration, String>() {
+                    @Override
+                    public String valueOf(ImmutableHierarchicalConfiguration tok) {
+                        return tok.getString("key");
+                    }
+                }, new Function<ImmutableHierarchicalConfiguration, String>() {
+                    @Override
+                    public String valueOf(ImmutableHierarchicalConfiguration tok) {
+                        return tok.getString("value");
+                    }
+                });
+        dbEnv.setRuntimeEnvAttrs(runtimeEnvAttrs.toImmutable());
+
         dbEnv.setRollbackDetectionEnabled(envCfg.getBoolean("rollbackDetectionEnabled", true));
 
         Integer metadataLineReaderVersion = envCfg.getInteger("metadataLineReaderVersion", null);
