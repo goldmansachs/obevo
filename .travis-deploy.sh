@@ -41,4 +41,5 @@ then
     echo "Applying latest tag to fixed release version $VERSION"
     docker tag shantstepanian/obevo:$VERSION shantstepanian/obevo:latest
 fi
-#docker push shantstepanian/obevo
+docker push shantstepanian/obevo
+# re
