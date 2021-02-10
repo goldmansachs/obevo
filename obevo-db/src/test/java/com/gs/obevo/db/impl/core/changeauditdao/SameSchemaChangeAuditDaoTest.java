@@ -35,9 +35,7 @@ import org.eclipse.collections.api.block.function.primitive.IntToObjectFunction;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.map.MutableMap;
 import org.junit.After;
-import org.junit.Assume;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -69,12 +67,6 @@ public abstract class SameSchemaChangeAuditDaoTest {
     private SameSchemaDeployExecutionDao deployExecutionDao;
     private String myVersion = "myVersion";
     private String myVersion2 = "myVersion2";
-
-    @BeforeClass
-    public static void beforeClassMethod()
-    {
-        Assume.assumeTrue(false);
-    }
     
     @Before
     public void setup() throws Exception {
