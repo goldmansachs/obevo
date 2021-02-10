@@ -29,16 +29,16 @@ gpg --fast-import deploy/signingkey.asc
 cp deploy/.travis.maven.settings.xml $HOME/.m2/settings.xml
 mvn -B -DskipTests -P release deploy
 
-
-echo "Deploying to Docker Hub"
+# Uncomment when docker hub creds are sorted
+#echo "Deploying to Docker Hub"
 
 # Note - docker recommends passing in the password via --password-stdin for security purposes.
 # See https://docs.docker.com/engine/reference/commandline/login/#provide-a-password-using-stdin
 echo "$SONATYPE_PASSWORD" | docker login -u "$SONATYPE_USERNAME" --password-stdin
 
-if [[ "$VERSION" != "*-SNAPSHOT" ]];
-then
-    echo "Applying latest tag to fixed release version $VERSION"
-    docker tag shantstepanian/obevo:$VERSION shantstepanian/obevo:latest
-fi
-docker push shantstepanian/obevo
+#if [[ "$VERSION" != "*-SNAPSHOT" ]];
+#then
+#    echo "Applying latest tag to fixed release version $VERSION"
+#    docker tag shantstepanian/obevo:$VERSION shantstepanian/obevo:latest
+#fi
+#docker push shantstepanian/obevo
