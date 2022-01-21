@@ -354,7 +354,7 @@
                 <!-- tests run w/ versions as early as 1.0.57 up until 1.4.187.
                  Noted a regression w/ version 1.4.188; that needs some investigation.
                  -->
-                <version>1.4.187</version>
+                <version>2.1.210</version>
             </dependency>
             <dependency>
                 <groupId>org.postgresql</groupId>
