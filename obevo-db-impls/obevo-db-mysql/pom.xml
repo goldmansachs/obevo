@@ -30,7 +30,7 @@ under the License.
     <name>${project.artifactId}</name>
 
     <properties>
-        <mysql.version>8.0.18</mysql.version>
+        <mysql.version>8.0.28</mysql.version>
         <jacoco.minCoverage>0.10</jacoco.minCoverage>  <!-- TODO increase this before merge request -->
     </properties>
 
